@@ -1,0 +1,181 @@
+
+順序
+
+1. x[0, I - 1]、y[0, J - 1]、z[0, K - 1]のクラスタcluster[z][y][x]を考える。
+	ビュー空間でのある点(a, b, c)について、
+		k = floor(log(c)*K/log(far/near)-Klog(near)/log(far/near))
+	で求まるkが所属するクラスタのzである。
+	これはlog(c)以外はnear、far、クラスタの分割数が変化しない限り一定である。(再計算コストがかからない)
+	/**
+		A = K/log(far/near)
+		B = Klog(near)/log(far/near)
+		としたとき、
+		k = floor(log(c)*A-B)
+		で求められる。
+	**/
+	プロジェクション変換により、(a, b, c)は
+		(a*aspect/ctan(fovy/2), b/ctan(fovy/2), c'/c)
+	もしくは
+		(2anear/cW, 2bnear/cH, c'/c)
+	に変換でき、このx, y[-1, 1]に対し、
+		i = floor(I(x+1)/2)
+		j = floor(J(-y+1)/2)
+	で求まるi, jが所属するクラスタのx, yである。
+	これはa,b,c以外は最近面の大きさ、near、far、クラスタの分割数が変化しない限り一定である。(再計算コストがかからない)
+	なお、x=1,y=-1の場合、クラスタインデックスがそれぞれI, Jになるが、これはI-1, J-1番目として扱う。
+	/**
+		A = aspect/tan(fovy/2) or tan(fovx/2) or 2near/W
+		B = tan(fovy/2) or 1/(aspect*tan(fovx/2)) or 2near/H
+		としたとき、
+		i = max(I - 1, floor(I(1+aA/c)/2))
+		j = max(J - 1, floor(J(1-bB/c)/2))
+		で求められる。
+	**/
+
+2. クラスタの境界線
+	k番目[0, K - 1]のクラスタが開始するz値は
+		z = near(far/near)^(k/K)
+	で求められる。
+	k=Kのとき、z=farであり、これはクラスタの最遠面である。
+
+3. クラスタにライトを追加
+	//処理用のライトインデックスリスト
+	Vector<Vector<uint32_t>> tmpLightIndexList;
+	//GPUに渡すライト情報
+	Vector<float4> lights;
+
+	uint lightIndex = 0;
+	Vector<Light*> sceneLights = scene.GetLights();
+	lights.Reserve(sceneLights.Count() * 3);
+	for (Light* l : sceneLights){
+		Light& light = *l;
+		//渡したライトを含むクラスタIndexの配列
+		Vector<uint32_t> culsters = camera.GetInClusters(light);
+			Wp = light.GetObject().GetTransform().Position();	: ワールド空間座標系でのライトの位置
+			Vp = camera.GetObject().GetTransform().ToLocalSpace(Wp);	: カメラ空間座標系でのライトの位置
+			Wd = light.GetDirectionInWorld();	: ワールド空間座標系でのライトの向き(Directional, Spot)
+			Vd = camera.GetObject().GetTransform().ToLocalSpace(Wd);	: カメラ空間座標系でのライトの向き
+			Wr = light.GetRadiusInWorld();	: ワールド空間座標系でのライトの半径(Point, Spot)
+			Vr = camera.GetObject().GetTransform().ToLocalSpace(Wr);	: カメラ空間座標系でのライトの半径
+		for (uint32_t i : clusters) tmpLightIndexList[i].Add(lightIndex);
+		//
+		lights.Add(static_cast<float4>(light.GetColor()));
+		switch (light.GetType()){
+		case LightType::Directional:
+			lights.Add(Vd);
+			break;
+		case LightType::Point:
+			lights.Add(Vp);
+			break;
+		case LightType::Spot:
+			lights.Add(Vp);
+			lights.Add(float4(vd.xyz, light.GetAngle()));
+			break;
+		}
+		++lightIndex;
+	}
+	//b
+	Resource lightResource = CreateResource(lights.Items(), lights.Count());
+
+	/クラスタIndexからインデックスリストへのオフセットと個数を取得できる配列
+	Vector<uint32_t> lightGrid;
+	//GPUに渡すライトインデックスリスト
+	Vector<uint32_t> lightIndexList;
+	size_t index = 0;
+	//2次元配列を1次元にする
+	for (Vector<uint32_t>& v : tmpLightIndexList){
+		size_t count = v.Count();
+		lightGrid.Add(static_cast<uint32_t>((index & 0xffff0000) | (count & 0x0000ffff)));
+		lightIndexList.AddRange(v.Items(), count);
+		index += count;
+	}
+	//b6のリソース
+	Resource indexListResource = CreateResource(lightIndexList.Items(), lightIndexList.Count());
+	//b7のリソース
+	Resource gridResource = CreateResource(lightGrid.Items(), lightGrid.Count());
+
+
+1. Z-Pre Pass
+	b0
+		view
+		proj
+	b1
+		world
+	b2
+		bones[256]
+	b3
+		unused
+	b4
+		unused
+
+	struct VSOutput {
+		float4 pos : SV_POSITON;
+	};
+	PS : null
+
+2. Shading
+	b0
+		view
+		proj
+	b1
+		world
+	b2
+		bones[256]
+	b3
+		diffuse
+		specular
+		ambient
+	b4
+		float4 attenuation	: 光の減衰係数(xyz)
+			明るさ = 1 / (x + y * dir + z * dir^2) (dir: 光源位置から頂点までの距離)
+			明るさが1/256になるとき、
+				256	= (x + y * dir + z * dir^2)
+						= 1/z(dir +yz/2)^2 + x - (yz/2)^2
+				256z = (dir + yz/2)^2 + xz - z(yz/2)^2
+				(dir + yz/2)^2 = z(-x + (yz/2)^2 + 256)
+				dir + yz/2 = {z(-x + (yz/2)^2 + 256)}^(1/2)
+				dir = {z(-x + (yz/2)^2 + 256)}^(1/2) - yz/2
+		float4 I,J,K, unused	: クラスタの各軸の分割数
+	b5
+		float lightList[]
+			Directional Light(減衰しない)
+				float4 color;
+				float4 svdirection;
+			Point Light
+				float4 color;
+				float4 svpos;
+			Spot Light
+				float4 color;
+				float4 svpos;
+				float4 svdirection;	a: 頂角
+	b6
+		uint lightIndexList[]
+	b7
+		uint LightGrid[I * J * K]
+			上位2バイトにlightIndexListのインデックス
+			下位2バイトに使用するインデックスの数
+	t0
+		texture
+	t1
+		sphereM
+	t2
+		sphereA
+	t3
+		toon
+	s0
+		default
+	s1
+		toon
+
+	struct VSOutput{
+		float4 svpos			:	SV_POSITION;
+		float4 vpos			:	POSITION;
+		float4 vnormal		:	NORMAL;
+		float4 vtangent	:	TANGENT;
+		float4 vbinormal	:	BINORMAL;
+		float4 uv				:	TEXCOORD;
+	};
+	
+	float4 color	:	SV_TARGET
+
+

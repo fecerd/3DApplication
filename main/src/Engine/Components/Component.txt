@@ -1,0 +1,27 @@
+Component 
+	GameObjectにアタッチされる機能クラス
+
+Transform(Clone Only)
+	位置・姿勢・スケールを持つComponent
+	GameObjectごとに固有
+
+MeshFilter(Clone & Reference)
+	モデル情報(メッシュ情報、ボーン情報)、マテリアル情報を持つComponent
+	モデル読み込み、マテリアル変更以外で書き込みされないため、共有可能
+
+Animator(Clone Only)
+	モーション情報、現在のアニメーション状態、遷移条件を持つComponent
+	モーション情報、遷移条件は共有可能
+	現在のアニメーション状態はGameObjecごとに固有
+
+Camera(Clone Only)
+	視錘台情報、レンダーターゲットを持つComponent
+	描画に必要なだけ作成すべきComponentであるため、GameObjectごとに固有
+
+Rigidbody(Clone Only)
+	物理演算情報を持つComponent
+	現在の速度や加速度情報を持つため、GameObjectごとに固有
+
+Script(Clone Only)
+	個別の関数を持つComponent
+	GameObjectごとに固有(複数回の呼び出しによるバグを防ぐ)

@@ -1,0 +1,260 @@
+
+
+1. Objectライブラリを作成し、ソースを追加する。
+2. add_dependencies(現在のライブラリ 前段階のライブラリリスト)で依存関係を設定する。
+3. 1-2を繰り返す。
+4. Interfaceライブラリを作成し、target_link_libraries(Interfaceライブラリ INTERFACE ディレクトリに含まれるすべてのObjectライブラリリスト)で依存関係を設定する。
+5. add_custom_target(ターゲット名 DEPENDS Interfaceライブラリ)で上位CMakeFilesから参照するターゲット名を設定する。
+
+###
+
+Encoding/Cmake
+CP932.ixx: None
+CodePoint.ixx: [CSTDINT] [Traits]
+CodePage.ixx: [CSTDINT] [Traits] [Vector] CodePoint CP932
+Encoding.ixx: CodePoint CodePage
+
+Module/Object/Cmake
+Object.hpp: [CSTDINT]
+String.hpp: Object.hpp [Traits] [Math] [StringBlock]
+Type.hpp: Object.hpp [TypeName]
+Objects_Internal.ixx: Object.hpp String.hpp Type.hpp [TypeID]
+Objects.ixx: CSTDINT [TypeName] [TypeID] Objects_Internal
+
+Module/Cmake
+CSTDINT.ixx: None <cstdint> <limits> <initializer_list> <compare>
+Coroutine.ixx: None <coroutine> <exception>
+ExclusiveObject.ixx: None <mutex>
+SmartPtr.ixx: None <memory>
+BitStream.ixx: CSTDINT Traits
+BSpline.ixx: CSTDINT Traits Math Point IEnumerable
+Counter.ixx: Traits Thread
+CString.ixx: [Objects] StringBlock
+DisposingObject.ixx: CSTDINT Function List TaskWorker
+DualQuaternion.ixx: Quaternion Vector3 Math
+EventHandler.ixx: CSTDINT Traits Vector Function
+Exception.cpp: Exception <iostream> (if _Windows => <Windows.h>)
+Exception.ixx: StringBlock <exception> <stdexcept> <source_location>
+FlagSet.ixx: CSTDINT Traits
+Float.ixx: CSTDINT Math
+ForwardList.ixx: Traits Exception
+Function.ixx: CSTDINT Traits Exception <new> <crtdbg.h>
+HashMap.ixx: CSTDINT Exception IEnumerable Traits Vector Function <crtdbg.h>
+IEnumerable.ixx: Exception Function Traits Coroutine Iterators <crtdbg.h>
+Iterators.ixx: CSTDINT Traits
+List.ixx: CSTDINT SmartPtr Traits Sorts Exception IEnumerable
+ManagedObject.ixx: CSTDINT [Objects] HashMap Thread
+Math.ixx: CSTDINT Traits
+Matrix.ixx: CSTDINT Vector3 Math
+Memory.cpp: Memory CSTDINT <memory.h> <cstring>
+Memory.ixx: CSTDINT Traits Math <fstream> <atomic>
+Point.ixx: CSTDINT Traits [Objects]
+Property.ixx: Function Traits
+Quaternion.ixx: CSTDINT [Objects] Vector3 Matrix Math
+Range.ixx: Traits Vector IEnumerable
+Size.ixx: CSTDINT Traits [Objects]
+Sorts.ixx: CSTDINT Traits
+StringBlock.cpp: StringBlock Vector [Encoding]
+StringBlock.ixx: CSTDINT Traits Math VectorBase [CodePoint] <crtdbg.h>
+Suballocator.ixx: CSTDINT Memory
+TaskWorker.ixx: CSTDINT Traits Thread Function SmartPtr
+Thread.ixx: Function <mutex> <condition_variable> <thread>
+Time.cpp: Time <thread>
+Time.ixx: CSTDINT Traits [Objects] EventHandler
+Traits.ixx: CSTDINT <concepts> <iterator> <type_traits>
+TypeID.ixx: CSTDINT XOR128
+TypeName.ixx: CSTDINT Traits StringBlock
+Vector.ixx: [Objects] IEnumerable Traits VectorBase
+Vector2.ixx: CSTDINT Math [Objects]
+Vector3.ixx: CSTDINT Math [Objects]
+VectorBase.ixx: CSTDINT Traits Iterators Sorts <crtdbg.h>
+XOR128.ixx: CSTDINT
+Module.ixx: all .ixx
+
+System/Cmake
+System.ixx: [Module] [IO] [Compression] [Drawing] [Formats] [Encoding]
+
+src/Cmake
+DefaultWindow.ixx: [System] [Application] [InputSystem] [Engine] [Common3D]
+main.cpp: [System] [Application] [Common3D] MyWindow1 MyWindow2 [Engine] SplashScreenScene <crtdbg.h>
+MyWindow1.ixx: DefaultWindow SplashScreenScene
+MyWindow2.ixx: DefaultWindow [Common3D] [TaskWorker] Resource1 Script1
+Resource1.ixx: [System] [IO] [ResourcePath]
+Scene1.ixx: [System] [Common3D] [Engine] Resource1 Script1 [MediaPlayer]
+Scene2.ixx: [Engine] [MediaPlayer] Resource1 Scene1
+Script1.ixx: [System] [Application] [InputSystem] [Engine]
+SplashScreenScene.ixx: [Engine] [Common3D] [Application] Scene1
+
+root/Cmake
+main.exe: main.cpp
+
+
+###
+
+0. stdmodule
+	<cstdint>
+	<compare>
+	<thread>
+	<type_traits>
+	<iterator>
+	<concepts>
+	<mutex>
+	<memory>
+	<chrono>
+	<coroutine>
+	<limits>
+	<initializer_list>
+	<iostream>
+	<stdexcept>
+	<source_location>
+	<cstring>
+	<atomic>
+	<fstream>
+	<new>
+
+1-1. /System/Encoding 0
+	CP932
+
+1-2. /System/Module 0
+	CSTDINT
+	Coroutine
+	ExclusiveObject
+	SmartPtr
+
+2. /System/Module 1
+	Traits <- CSTDINT
+	XOR128 <- CSTDINT
+
+3. /System/Module 2
+	BitStream <- CSTDINT Traits
+	FlagSet <- CSTDINT Traits
+	Iterators <- CSTDINT Traits
+	Math <- CSTDINT Traits
+	Sorts <- CSTDINT Traits
+	TypeID <- CSTDINT XOR128
+
+4-1. /System/Encoding 1
+	CodePoint <- CSTDINT Traits
+	
+4-2. /System/Module 3
+	Float <- CSTDINT Math
+	Memory <- CSTDINT Traits Math
+	VectorBase <- CSTDINT Traits Iterators Sorts
+
+5. /System/Module 4
+	Memory.cpp <- Memory CSTDINT
+	StringBlock <- CSTDINT Traits Math VectorBase CodePoint
+	Suballocator <- CSTDINT Memory
+
+6. /System/Module 5
+	Exception <- StringBlock
+	TypeName <- CSTDINT Traits StringBlock
+
+7. /System/Module 6
+	Exception.cpp <- Exception
+	ForwardList <- Traits Exception
+	Function <- CSTDINT Traits Exception
+	Objects_Internal <- CSTDINT Traits Math TypeID StringBlock TypeName 
+
+8. /System/Module 7
+	IEnumerable <- Coroutine Traits Iterators Exception Function
+	Objects <- CSTDINT TypeID TypeName Objects_Internal 
+	Property <- Traits Function
+	Thread <- Function
+
+9. /System/Module 8
+	Counter <- Traits Thread
+	CString <- StringBlock Objects
+	List <- CSTDINT SmartPtr Traits Sorts Exception IEnumerable
+	Point <- CSTDINT Traits Objects
+	Size <- CSTDINT Traits Objects
+	TaskWorker <- CSTDINT SmartPtr Traits Function Thread
+	Vector <- Traits VectorBase Objects IEnumerable
+	Vector2 <- CSTDINT Math Objects
+	Vector3 <- CSTDINT Math Objects
+
+10-1. /System/Encoding 2
+	CodePage <- CSTDINT CP932 Traits CodePoint Vector 
+
+10-2. /System/Module 9
+	BSpline <- CSTDINT Traits Math IEnumerable Point
+	DisposingObject <- CSTDINT Function List TaskWorker
+	EventHandler <- CSTDINT Traits Function Vector
+	HashMap <- CSTDINT Traits Exception Function IEnumerable Vector
+	Matrix <- CSTDINT Math Vector3
+	Range <- Traits IEnumerable Vector
+
+11-1. /System/Encoding 3
+	Encoding <- CodePoint CodePage
+
+11-2. /System/Module 10
+	ManagedObject <- CSTDINT Objects Thread HashMap
+	Quaternion <- CSTDINT Math Objects Vector3 Matrix
+	Time <- CSTDINT Traits Objects EventHandler
+
+12. /System/Module 11
+	DualQuaternion <- Math Vector3 DualQuaternion
+	StringBlock.cpp <- StringBlock Vector Encoding
+	Time.cpp <- Time
+
+13. /System/Module 12
+	Module <- all modules
+
+L. /System 0
+	System <- Compression Encoding IO Drawing Module
+
+1. /System/IO 0
+	Path <- Traits Objects
+
+2. /System/IO 1
+	File <- Memory Objects Path
+	Path.cpp <- Path
+	ResourcePath <- Objects Path
+
+3. /System/IO 2
+	IO <- Path File ResourcePath
+
+1. /System/Compression 0
+	Zlib <- Traits Math Objects
+
+2. /System/Compression 1
+	Huffman <- BitStream Objects Vector
+	LZ77 <- CSTDINT Traits Sorts Vector
+
+3. /System/Compression 2
+	Compression <- Zlib Huffman LZ77
+
+1. /System/Drawing 0
+	Color <- CSTDINT
+	Rectangle <- CSTDINT
+
+2. /System/Drawing 1
+	Pixel <- CSTDINT Color Objects
+
+3. /System/Drawing 2
+	Image <- Memory Objects Pixel Vector File *IO
+
+4. /System/Drawing 3
+	BMP <- Math Exception Objects Vector File Image *IO
+	PNG <- Math Memory Objects Zlib Vector Huffman File Image *Compression *IO
+	TGA <- CSTDINT Math Exception Objects Vector File Image *IO
+
+5. /System/Drawing 4
+	Drawing <- Color Rectangle Image BMP PNG TGA
+	Image.cpp <- Image BMP PNG TGA
+
+
+ディレクトリ間の依存関係
+	Module <-> Encoding
+		Encoding/CodePoint <- Module/CSTDINT Module/Traits
+		Module/StringBlock <- Encoding/CodePoint
+		Encoding/CodePage <- Module/CSTDINT Module/Traits Module/Vector
+		Module/StringBlock.cpp <- Encoding/Encoding
+	Drawing <- IO
+		Drawing/Image BMP PNG TGA <- IO
+	Drawing <- Compression
+		Drawing/PNG <- Compression
+
+
+
+

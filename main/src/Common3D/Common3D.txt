@@ -1,0 +1,189 @@
+シェーダのレジスタ位置は固定すべき
+b0: カメラ用
+	float4_4	ビュー行列
+	float4_4	射影変換行列
+	float3		カメラ座標
+b1: オブジェクト用
+	float4_4			ワールド行列
+b2: アニメーション用
+	float4_4[256]	ボーン行列
+b3: マテリアル用
+	float4	ディフューズ色(+アルファ値)
+	float4	鏡面反射色(+滑らかさ)
+	float3	環境光色
+b4: シーン用
+	
+t0:
+	Texture2D<float4>	テクスチャ
+t1:
+	Texture2D<float4>	乗算スフィアマップ
+t2:
+	Texture2D<float4>	加算スフィアマップ
+t3:
+	Texture2D<float4>	トゥーンテクスチャ
+s0:
+	SamplerState	繰り返しなし
+s1:
+	SamplerState	繰り返しあり(トゥーンテクスチャ用)
+
+-> RootSignatureを固定できる
+RootParameters
+[0]	カメラ用
+	type:		DescriptorTable
+	visiblity:	頂点シェーダ
+	count:		1
+	ranges:
+	[0]	b0
+		count:		1
+		type:		CBV
+		register:	0
+		offset:		append
+[1]	オブジェクト用
+	type:		DescriptorTable
+	visiblity:	全シェーダ
+	count:		1
+	ranges:
+	[0]	b1
+		count:		1
+		type:		CBV
+		register:	1
+		offset:		append
+[2]	アニメーション用
+	type:		DescriptorTable
+	visiblity:	全シェーダ
+	count:		1
+	ranges:
+	[0]	b2
+		count:		1
+		type:		CBV
+		register:	2
+		offset:		append
+[3]	マテリアル用
+	type:		DescriptorTable
+	visiblity:	全シェーダ
+	count:		2
+	ranges:
+	[0]	b3
+		count:		1
+		type:		CBV
+		register:	3
+		offset:		append
+	[1]	t0-t3
+		count:		4
+		type:		SRV
+		register:	0
+		offset:		append
+[4]	シーン用
+	type:		DescriptorTable
+	visiblity:	全シェーダ
+	count:		1
+	ranges:
+	[0]	b4
+		count:		0
+		type:		CBV
+		register:	4
+		offset:		append
+
+SamplerDesc
+[0]	s0
+	addressU:	Wrap
+	addressV:		Wrap
+	addressW:	Wrap
+	border:		TransparentBlack
+	filter:			Linear
+	maxLOD:		FloatMax
+	minLOD:		0.f
+	visibility:		ピクセルシェーダ
+	func:			never
+	register:		0
+[1]	s1
+	addressU:	Clamp
+	addressV:		Clamp
+	addressW:	Clamp
+	border:		TransparentBlack
+	filter:			Linear
+	maxLOD:		FloatMax
+	minLOD:		0.f
+	visibility:		ピクセルシェーダ
+	func:			never
+	register:		1
+
+RootSignatureDesc
+	flag:				allow_input_assembler_input_layout(IAに入力レイアウトを渡せる)
+	parameters:	RootParameters
+	count:			4(カメラ・オブジェクト・マテリアル・シーン)
+	samplers:		SamplerDesc
+	count:			2
+
+入力レイアウトも固定すべき
+	POSITION,		float3
+	NORMAL,			float3
+	TEXCOORD,		float2
+	BONENO,			u32_2
+	BONEWEIGHT,	u8
+
+PipelineState作成
+	シェーダリソースはHashMap<String, ID3DBlob>で管理
+	ラスタイザ設定
+		マルチサンプリングの有無
+		カリングモード
+		塗りつぶしモード
+		Z値クリッピングの有無
+		etc...
+	デプスステンシル設定
+		DSVのフォーマット: float32で固定する
+		デプステストの有無
+		デプスマスク
+		デプステスト関数の種類
+		ステンシルテストの有無
+		etc...
+	ブレンド設定
+		alphaToCoverageの有無
+		IndependentBlendEnable(マルチレンダーターゲットでのブレンド設定を独立させるか)
+		レンダーターゲットごとのブレンド設定(上がfalseなら[0]だけ使用される)
+			機能の有無
+			ブレンド係数(アルファも)
+			ブレンド演算子(アルファも)
+			論理演算の有無
+			書き込む際のマスク値
+	入力レイアウト(固定)
+	インデックスバッファの切り離し: Disableで固定
+	プリミティブ型:	三角形で固定
+	レンダーターゲット設定
+		個数
+		フォーマット:	r8g8b8a8unormで固定
+	サンプリング設定
+		count: 1(固定)
+		quality:1(固定)
+		mask: default(固定)
+
+
+Forward Rendering, Deferred Rendering, Deferred Lighting
+
+・Forward Rendering
+	VS -> DepthStencil -> PS
+	一度のパスで最終結果をレンダリングする。
+	VSではビューポート空間での頂点座標、ワールド、カメラ空間での法線ベクトルを出力する。
+	PSではマテリアル、テクスチャ、ライティング情報と法線ベクトルを使用してライティングしたピクセル色を決定する
+	・利点
+		不透明(カメラに近い順) -> 半透明(カメラから遠い順)で描画することで、PSの呼び出し回数を抑えつつ、
+		正しい前後関係で描画できる。
+		不透明・半透明でシェーダを変更しなくてよい。ただし、ブレンド設定を変える必要があるため、
+		PSOは別に作成しなければならない。
+	・欠点
+		PSに影響を受けるライト情報を渡す、もしくはライト情報のインデックスを渡し、CBVのライト情報配列にアクセスする必要がある。
+		CPUでモデルとライトの当たり判定を行うのはライトが増えると速度低下を招く。
+
+・Deferred Rendering
+	1st: IA(モデルメッシュ) -> VS -> DepthStencil -> PS -> G-Buffer(color, specular, world normal, depth)
+	2nd: IA(ライト影響範囲を表すメッシュ) -> VS -> DepthStencil -> PS
+	2ndパスでライトの範囲内のピクセルに対しPSが呼ばれるので、ビューポート座標をテクスチャ座標に変換し、
+	G-Bufferから色(texture * diffuse)、鏡面反射(specular)、法線、深度を取得してライティング、シェーディング、シャドーイング。
+		Directional Light: 視錘台(スクリーン全体)
+		Point Light:	球
+		Spot Light:	円錐
+	・利点
+		光源の数だけ2ndパスを呼べば良く、GPUで処理できる。
+		G-Bufferの情報を利用する様々なシェーディングを2ndパスのPSを変えるだけで実行できる。
+	・欠点
+		半透明に弱い。

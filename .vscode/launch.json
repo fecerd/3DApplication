@@ -1,0 +1,46 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "x64 GCC Debug", //ドロップダウンメニュー上の名前
+			"type": "cppdbg", //設定の種類
+			"request": "launch", //"launch"(起動)か"attach"(アタッチ)
+			"program": "${workspaceRoot}/main/build/x64-debug-gcc/main.exe",
+			"args": [], //programの引数
+			"stopAtEntry": false, //trueのとき、エントリポイント(main関数の最初)で一時停止
+			"cwd": "${workspaceRoot}", //programの作業ディレクトリ
+			"environment": [], //追加の環境変数(例:{ "name": "example", "value": "hoge" })
+			"externalConsole": false, //trueのとき、外部ターミナルを開く
+			"MIMode": "gdb", //接続するデバッガの種類。"gdb"か"lldb"
+			"setupCommands": [
+				{
+					"description": "gdbの再フォーマットを有効にする。",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			], //デバッガに設定されるコマンド
+		},
+		{
+			"name": "x64 MSVC Debug", //ドロップダウンメニュー上の名前
+			"type": "cppvsdbg", //設定の種類
+			"request": "launch", //"launch"(起動)か"attach"(アタッチ)
+			"program": "${workspaceRoot}/main/build/x64-debug-msvc/main.exe",
+			"args": [], //programの引数
+			"stopAtEntry": false, //trueのとき、エントリポイント(main関数の最初)で一時停止
+			"cwd": "${workspaceRoot}", //programの作業ディレクトリ
+			"environment": [], //追加の環境変数(例:{ "name": "example", "value": "hoge" })
+			"console": "internalConsole"
+		},
+		{
+			"name": "x64 MSBuild Debug", //ドロップダウンメニュー上の名前
+			"type": "cppvsdbg", //設定の種類
+			"request": "launch", //"launch"(起動)か"attach"(アタッチ)
+			"program": "${workspaceRoot}/main/build/msbuild/Debug/main.exe",
+			"args": [], //programの引数
+			"stopAtEntry": false, //trueのとき、エントリポイント(main関数の最初)で一時停止
+			"cwd": "${workspaceRoot}", //programの作業ディレクトリ
+			"environment": [], //追加の環境変数(例:{ "name": "example", "value": "hoge" })
+			"console": "internalConsole"
+		}
+	]
+}

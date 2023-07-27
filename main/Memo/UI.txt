@@ -1,0 +1,52 @@
+
+GameObject and UI
+
+GameObjectBase
+	Transform
+		ObjectHeap
+	MeshFilter
+		MeshResource
+		MaterialHeap
+		Renderer
+	Script
+
+GameObject : public GameObjectBase
+	Animator
+		AnimationHeap
+	Rigidbody
+	Camera
+		CameraHeap
+		RenderTarget
+
+UIObject : public GameObjectBase
+
+
+Plane
+	Transform
+
+	MeshFilter
+		MeshResource
+			Vertices[4] ={ (-1, -1, 0), (-1, 1, 0), (1, -1, 0), (1, 1, 0) }
+			Indices[6] = { 0, 1, 2, 2, 1, 3 }
+		Material[0]
+			reflections
+			texture
+			sphereM
+			shpereA
+			toon
+
+Transform
+	Vector3 localPosition
+	Quaternion localRotation
+	union{
+		Vector3 localScale (x, y, z)
+		struct{
+			UIScaleMode uiScaleMode = Pixel(親によらずピクセル値で固定), Relative(親(ルートならスクリーン座標系[0, 1])に対するスケール値)
+			union{
+				Size<uint32_t> pixelSize (width, height) [0, MAX_VALUE<uint32_t>]
+				Size<float> screenScale (w, h) [0, 1]
+			}
+		}
+	}
+	Transform* parent
+	SpaceType spaceType = World, Screen
