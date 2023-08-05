@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 #ifndef String_H
 #define String_H
-#include "..\..\..\CRTDBG\crtdbg_wrapper.hpp"
+//#include "..\..\..\CRTDBG\crtdbg_wrapper.hpp"
 #include "Object.hpp"
 import Traits;
 import Math;
@@ -21,13 +21,13 @@ namespace System {
 		String(String&& arg) noexcept : StringBlock<char16_t>(static_cast<StringBlock<char16_t>&&>(arg)) {}
 		String(const StringBlock<char16_t>& arg) noexcept : StringBlock<char16_t>(arg) {}
 		String(StringBlock<char16_t>&& arg) noexcept : StringBlock<char16_t>(static_cast<StringBlock<char16_t>&&>(arg)) {}
-		template<CharType str_t>
+		template<Concepts::CCharType str_t>
 		String(const str_t* data, size_t N = npos) noexcept : StringBlock<char16_t>(StringBlock<str_t>(data, N).ToU16StringBlock()) {}
-		template<CharType str_t>
+		template<Concepts::CCharType str_t>
 		String(str_t c) noexcept : StringBlock<char16_t>(StringBlock<str_t>(c).ToU16StringBlock()) {}
-		template<class T> requires Integral<T> && (!CharType<T>) && (!Floating<T>)
+		template<class T> requires Concepts::CIntegral<T> && (!Concepts::CCharType<T>) && (!Concepts::CFloating<T>)
 		String(T n) noexcept : String(GetCStringBlock<char16_t>(n)) {}
-		template<class T> requires Floating<T>
+		template<class T> requires Concepts::CFloating<T>
 		String(T n) noexcept : String(GetCStringBlock<char16_t, 10>(n)) {}
 		String(bool b) noexcept : String(b ? u"true" : u"false") {}
 		String(nullptr_t ptr) noexcept : String() {}
@@ -35,7 +35,7 @@ namespace System {
 		String(const CStringBlock<char16_t, N>& arg) noexcept : StringBlock<char16_t>(arg) {}
 		template<size_t N>
 		String(CStringBlock<char16_t, N>&& arg) noexcept : StringBlock<char16_t>(static_cast<CStringBlock<char16_t, N>&&>(arg)) {}
-		~String() noexcept = default;
+		~String() noexcept {}
 	public:
 		wchar_t* w_str() noexcept { return reinterpret_cast<wchar_t*>(c_str()); }
 		const wchar_t* w_str() const noexcept { return reinterpret_cast<const wchar_t*>(c_str()); }
@@ -58,7 +58,7 @@ namespace System {
 			return Math::murmur3_32(this->c_str(), this->Length() * sizeof(char16_t), GetTypeID());
 		}
 	public:
-		template<CharType str_t>
+		template<Concepts::CCharType str_t>
 		StringBlock<str_t> Convert() const noexcept {
 			if constexpr (is_same_v<str_t, char>) return static_cast<const StringBlock<char16_t>&>(*this).ToMultiByteStringBlock();
 			else if constexpr (is_same_v<str_t, char8_t>) return static_cast<const StringBlock<char16_t>&>(*this).ToU8StringBlock();
@@ -80,7 +80,7 @@ namespace System {
 		template<class T>
 		static String ConvertString(T&& t) noexcept {
 			using type = remove_cvref_t<T>;
-			if constexpr (Number<type>) return String(t);
+			if constexpr (Concepts::CNumber<type>) return String(t);
 			else {
 				if constexpr (is_lvalue_reference_v<T>) return String(t);
 				else return String(static_cast<T&&>(t));
@@ -96,7 +96,7 @@ namespace System {
 			size_t length = head.Length();
 			str.strcpy(head.c_str(), length, pos);
 			pos += length;
-			if constexpr (sizeof...(Args) != 0) Joint_Impl(str, pos, static_cast<Args&&...>(args)...);
+			if constexpr (sizeof...(Args) != 0) Joint_Impl(str, pos, static_cast<Args&&>(args)...);
 		}
 		template<class ...Args>
 		static String Joint_Internal(Args&& ...args) noexcept {

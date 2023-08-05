@@ -1,4 +1,4 @@
-export module Components;
+﻿export module Components;
 export import :Animator;
 export import :Camera;
 export import :Component;

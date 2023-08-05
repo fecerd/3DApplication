@@ -1,4 +1,4 @@
-module;
+ï»¿module;
 #include "DirectXHeader.hpp"
 export module DirectX;
 import System;
@@ -26,66 +26,66 @@ namespace System::Application::Windows::DirectX::Internal {
 	inline constexpr uint32_t SamplerCount = 2;
 	ID3D12RootSignature* CreateRootSignature(ID3D12Device& device) noexcept {
 		D3D12_DESCRIPTOR_RANGE ranges[6] = {};
-		//ƒJƒƒ‰—p
+		//ã‚«ãƒ¡ãƒ©ç”¨
 		ranges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[0].NumDescriptors = 1;
 		ranges[0].BaseShaderRegister = 0;
 		ranges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒIƒuƒWƒFƒNƒg—p
+		//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨
 		ranges[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[1].NumDescriptors = 1;
 		ranges[1].BaseShaderRegister = 1;
 		ranges[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒAƒjƒ[ƒVƒ‡ƒ“—p
+		//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç”¨
 		ranges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[2].NumDescriptors = 1;
 		ranges[2].BaseShaderRegister = 2;
 		ranges[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒ}ƒeƒŠƒAƒ‹—p(CBV)
+		//ãƒãƒ†ãƒªã‚¢ãƒ«ç”¨(CBV)
 		ranges[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[3].NumDescriptors = 1;
 		ranges[3].BaseShaderRegister = 3;
 		ranges[3].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒ}ƒeƒŠƒAƒ‹—p(SRV)
+		//ãƒãƒ†ãƒªã‚¢ãƒ«ç”¨(SRV)
 		ranges[4].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		ranges[4].NumDescriptors = 4;
 		ranges[4].BaseShaderRegister = 0;
 		ranges[4].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒV[ƒ“—p
+		//ã‚·ãƒ¼ãƒ³ç”¨
 		ranges[5].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[5].NumDescriptors = 1;
 		ranges[5].BaseShaderRegister = 4;
 		ranges[5].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 		D3D12_ROOT_PARAMETER params[ParamCount] = {};
-		//ƒJƒƒ‰—p
+		//ã‚«ãƒ¡ãƒ©ç”¨
 		params[CameraParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		params[CameraParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[CameraParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[CameraParamID].DescriptorTable.pDescriptorRanges = ranges;
-		//ƒIƒuƒWƒFƒNƒg—p
+		//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨
 		params[ObjectParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		params[ObjectParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[ObjectParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[ObjectParamID].DescriptorTable.pDescriptorRanges = ranges + 1;
-		//ƒAƒjƒ[ƒVƒ‡ƒ“—p
+		//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç”¨
 		params[AnimationParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		params[AnimationParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[AnimationParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[AnimationParamID].DescriptorTable.pDescriptorRanges = ranges + 2;
-		//ƒ}ƒeƒŠƒAƒ‹—p
+		//ãƒãƒ†ãƒªã‚¢ãƒ«ç”¨
 		params[MaterialParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 		params[MaterialParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[MaterialParamID].DescriptorTable.NumDescriptorRanges = 2;
 		params[MaterialParamID].DescriptorTable.pDescriptorRanges = ranges + 3;
-		//ƒV[ƒ“—p
+		//ã‚·ãƒ¼ãƒ³ç”¨
 		params[SceneParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		params[SceneParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[SceneParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[SceneParamID].DescriptorTable.pDescriptorRanges = ranges + 5;
 
 		D3D12_STATIC_SAMPLER_DESC samplers[SamplerCount] = {};
-		//ƒfƒtƒHƒ‹ƒgƒTƒ“ƒvƒ‰
+		//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚µãƒ³ãƒ—ãƒ©
 		samplers[DefaultSamplerID].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplers[DefaultSamplerID].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplers[DefaultSamplerID].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -96,7 +96,7 @@ namespace System::Application::Windows::DirectX::Internal {
 		samplers[DefaultSamplerID].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 		samplers[DefaultSamplerID].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
 		samplers[DefaultSamplerID].ShaderRegister = 0;
-		//ƒgƒD[ƒ“—pƒTƒ“ƒvƒ‰
+		//ãƒˆã‚¥ãƒ¼ãƒ³ç”¨ã‚µãƒ³ãƒ—ãƒ©
 		samplers[ToonSamplerID] = samplers[DefaultSamplerID];
 		samplers[ToonSamplerID].AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 		samplers[ToonSamplerID].AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
@@ -124,41 +124,41 @@ namespace System::Application::Windows::DirectX::Internal {
 
 	ID3D12RootSignature* CreateRootSignatureForZPrepass(ID3D12Device& device) noexcept {
 		D3D12_DESCRIPTOR_RANGE ranges[3] = {};
-		//ƒJƒƒ‰—p
+		//ã‚«ãƒ¡ãƒ©ç”¨
 		ranges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[0].NumDescriptors = 1;
 		ranges[0].BaseShaderRegister = 0;
 		ranges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒIƒuƒWƒFƒNƒg—p
+		//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨
 		ranges[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[1].NumDescriptors = 1;
 		ranges[1].BaseShaderRegister = 1;
 		ranges[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒAƒjƒ[ƒVƒ‡ƒ“—p
+		//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç”¨
 		ranges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[2].NumDescriptors = 1;
 		ranges[2].BaseShaderRegister = 2;
 		ranges[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 		D3D12_ROOT_PARAMETER params[3] = {};
-		//ƒJƒƒ‰—p
+		//ã‚«ãƒ¡ãƒ©ç”¨
 		params[CameraParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		params[CameraParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[CameraParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[CameraParamID].DescriptorTable.pDescriptorRanges = ranges;
-		//ƒIƒuƒWƒFƒNƒg—p
+		//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨
 		params[ObjectParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		params[ObjectParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[ObjectParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[ObjectParamID].DescriptorTable.pDescriptorRanges = ranges + 1;
-		//ƒAƒjƒ[ƒVƒ‡ƒ“—p
+		//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç”¨
 		params[AnimationParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		params[AnimationParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[AnimationParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[AnimationParamID].DescriptorTable.pDescriptorRanges = ranges + 2;
 
 		D3D12_STATIC_SAMPLER_DESC samplers[1] = {};
-		//ƒfƒtƒHƒ‹ƒgƒTƒ“ƒvƒ‰
+		//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚µãƒ³ãƒ—ãƒ©
 		samplers[DefaultSamplerID].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplers[DefaultSamplerID].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplers[DefaultSamplerID].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -190,66 +190,66 @@ namespace System::Application::Windows::DirectX::Internal {
 	}
 	ID3D12RootSignature* CreateRootSignatureForCluster(ID3D12Device& device) noexcept {
 		D3D12_DESCRIPTOR_RANGE ranges[6] = {};
-		//ƒJƒƒ‰—p
+		//ã‚«ãƒ¡ãƒ©ç”¨
 		ranges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[0].NumDescriptors = 1;
 		ranges[0].BaseShaderRegister = 0;
 		ranges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒIƒuƒWƒFƒNƒg—p
+		//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨
 		ranges[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[1].NumDescriptors = 1;
 		ranges[1].BaseShaderRegister = 1;
 		ranges[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒAƒjƒ[ƒVƒ‡ƒ“—p
+		//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç”¨
 		ranges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[2].NumDescriptors = 1;
 		ranges[2].BaseShaderRegister = 2;
 		ranges[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒ}ƒeƒŠƒAƒ‹—p(CBV)
+		//ãƒãƒ†ãƒªã‚¢ãƒ«ç”¨(CBV)
 		ranges[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[3].NumDescriptors = 1;
 		ranges[3].BaseShaderRegister = 3;
 		ranges[3].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒ}ƒeƒŠƒAƒ‹—p(SRV)
+		//ãƒãƒ†ãƒªã‚¢ãƒ«ç”¨(SRV)
 		ranges[4].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		ranges[4].NumDescriptors = 4;
 		ranges[4].BaseShaderRegister = 0;
 		ranges[4].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒV[ƒ“—p
+		//ã‚·ãƒ¼ãƒ³ç”¨
 		ranges[5].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[5].NumDescriptors = 4;
 		ranges[5].BaseShaderRegister = 4;
 		ranges[5].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 		D3D12_ROOT_PARAMETER params[ParamCount] = {};
-		//ƒJƒƒ‰—p
+		//ã‚«ãƒ¡ãƒ©ç”¨
 		params[CameraParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		params[CameraParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[CameraParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[CameraParamID].DescriptorTable.pDescriptorRanges = ranges;
-		//ƒIƒuƒWƒFƒNƒg—p
+		//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨
 		params[ObjectParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		params[ObjectParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[ObjectParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[ObjectParamID].DescriptorTable.pDescriptorRanges = ranges + 1;
-		//ƒAƒjƒ[ƒVƒ‡ƒ“—p
+		//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç”¨
 		params[AnimationParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		params[AnimationParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[AnimationParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[AnimationParamID].DescriptorTable.pDescriptorRanges = ranges + 2;
-		//ƒ}ƒeƒŠƒAƒ‹—p
+		//ãƒãƒ†ãƒªã‚¢ãƒ«ç”¨
 		params[MaterialParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 		params[MaterialParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[MaterialParamID].DescriptorTable.NumDescriptorRanges = 2;
 		params[MaterialParamID].DescriptorTable.pDescriptorRanges = ranges + 3;
-		//ƒV[ƒ“—p
+		//ã‚·ãƒ¼ãƒ³ç”¨
 		params[SceneParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 		params[SceneParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[SceneParamID].DescriptorTable.NumDescriptorRanges = 1;
 		params[SceneParamID].DescriptorTable.pDescriptorRanges = ranges + 5;
 
 		D3D12_STATIC_SAMPLER_DESC samplers[SamplerCount] = {};
-		//ƒfƒtƒHƒ‹ƒgƒTƒ“ƒvƒ‰
+		//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚µãƒ³ãƒ—ãƒ©
 		samplers[DefaultSamplerID].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplers[DefaultSamplerID].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplers[DefaultSamplerID].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -260,7 +260,7 @@ namespace System::Application::Windows::DirectX::Internal {
 		samplers[DefaultSamplerID].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 		samplers[DefaultSamplerID].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
 		samplers[DefaultSamplerID].ShaderRegister = 0;
-		//ƒgƒD[ƒ“—pƒTƒ“ƒvƒ‰
+		//ãƒˆã‚¥ãƒ¼ãƒ³ç”¨ã‚µãƒ³ãƒ—ãƒ©
 		samplers[ToonSamplerID] = samplers[DefaultSamplerID];
 		samplers[ToonSamplerID].AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 		samplers[ToonSamplerID].AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
@@ -287,36 +287,36 @@ namespace System::Application::Windows::DirectX::Internal {
 	}
 	ID3D12RootSignature* CreateRootSignatureForScreen(ID3D12Device& device) noexcept {
 		D3D12_DESCRIPTOR_RANGE ranges[3] = {};
-		//ƒIƒuƒWƒFƒNƒg—p
+		//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨
 		ranges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[0].NumDescriptors = 1;
 		ranges[0].BaseShaderRegister = 0;
 		ranges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒ}ƒeƒŠƒAƒ‹—p(CBV)
+		//ãƒãƒ†ãƒªã‚¢ãƒ«ç”¨(CBV)
 		ranges[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 		ranges[1].NumDescriptors = 1;
 		ranges[1].BaseShaderRegister = 1;
 		ranges[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-		//ƒ}ƒeƒŠƒAƒ‹—p(SRV)
+		//ãƒãƒ†ãƒªã‚¢ãƒ«ç”¨(SRV)
 		ranges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 		ranges[2].NumDescriptors = 1;
 		ranges[2].BaseShaderRegister = 0;
 		ranges[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 		D3D12_ROOT_PARAMETER params[2] = {};
-		//ƒIƒuƒWƒFƒNƒg—p
+		//ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”¨
 		params[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 		params[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[0].DescriptorTable.NumDescriptorRanges = 1;
 		params[0].DescriptorTable.pDescriptorRanges = ranges;
-		//ƒ}ƒeƒŠƒAƒ‹—p
+		//ãƒãƒ†ãƒªã‚¢ãƒ«ç”¨
 		params[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 		params[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		params[1].DescriptorTable.NumDescriptorRanges = 2;
 		params[1].DescriptorTable.pDescriptorRanges = ranges + 1;
 
 		D3D12_STATIC_SAMPLER_DESC samplers[1] = {};
-		//ƒfƒtƒHƒ‹ƒgƒTƒ“ƒvƒ‰
+		//ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚µãƒ³ãƒ—ãƒ©
 		samplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -457,15 +457,15 @@ export namespace System::Application::Windows::DirectX {
 		}
 		ID3D12Resource* GetNext() const noexcept { return m_resources ? m_resources[GetNextIndex()] : nullptr; }
 		/// <summary>
-		/// Œ»İ‚ÌƒCƒ“ƒfƒbƒNƒX‚ğæ“¾‚·‚éB
-		/// •`‰æ‘¬“x‚É‘Î‚µ\•ª‚È”‚ÌƒŠƒ\[ƒX‚ğ•Û‚µ‚Ä‚¢‚é‚Æ‚«(ƒ_ƒuƒ‹ƒoƒbƒtƒ@ƒŠƒ“ƒO)A
-		/// ‚±‚ÌƒCƒ“ƒfƒbƒNƒX‚ÍÅŒã‚É•`‰æ‚µ‚½ƒŠƒ\[ƒX‚ğw‚·
+		/// ç¾åœ¨ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’å–å¾—ã™ã‚‹ã€‚
+		/// æç”»é€Ÿåº¦ã«å¯¾ã—ååˆ†ãªæ•°ã®ãƒªã‚½ãƒ¼ã‚¹ã‚’ä¿æŒã—ã¦ã„ã‚‹ã¨ã(ãƒ€ãƒ–ãƒ«ãƒãƒƒãƒ•ã‚¡ãƒªãƒ³ã‚°æ™‚)ã€
+		/// ã“ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¯æœ€å¾Œã«æç”»ã—ãŸãƒªã‚½ãƒ¼ã‚¹ã‚’æŒ‡ã™
 		/// </summary>
 		uint32_t GetCurrentIndex() const noexcept { return m_current; }
 		/// <summary>
-		/// Ÿ‚ÌƒCƒ“ƒfƒbƒNƒX‚ğæ“¾‚·‚éB
-		/// •`‰æ‘¬“x‚É‘Î‚µ\•ª‚È”‚ÌƒŠƒ\[ƒX‚ğ•Û‚µ‚Ä‚¢‚é‚Æ‚«(ƒ_ƒuƒ‹ƒoƒbƒtƒ@ƒŠƒ“ƒO)A
-		/// ‚±‚ÌƒCƒ“ƒfƒbƒNƒX‚ÍŸ‚É•`‰æ‚·‚é‚à‚µ‚­‚ÍŒ»İ•`‰æ’†‚ÌƒŠƒ\[ƒX‚ğw‚·
+		/// æ¬¡ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’å–å¾—ã™ã‚‹ã€‚
+		/// æç”»é€Ÿåº¦ã«å¯¾ã—ååˆ†ãªæ•°ã®ãƒªã‚½ãƒ¼ã‚¹ã‚’ä¿æŒã—ã¦ã„ã‚‹ã¨ã(ãƒ€ãƒ–ãƒ«ãƒãƒƒãƒ•ã‚¡ãƒªãƒ³ã‚°æ™‚)ã€
+		/// ã“ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¯æ¬¡ã«æç”»ã™ã‚‹ã‚‚ã—ãã¯ç¾åœ¨æç”»ä¸­ã®ãƒªã‚½ãƒ¼ã‚¹ã‚’æŒ‡ã™
 		/// </summary>
 		uint32_t GetNextIndex() const noexcept { return m_current + 1 >= m_count ? 0 : m_current + 1; }
 	public:
@@ -651,13 +651,13 @@ export namespace System::Application::Windows::DirectX {
 			return m_dsvResources;
 		}
 		/// <summary>
-		/// ƒoƒbƒNƒoƒbƒtƒ@ƒNƒŠƒA‚ÌF‚ğİ’è‚·‚éB
-		/// SwapChain‚Å‚È‚¢RenderTarget‚É‘Î‚µ‚Ä•ÏX‚µAcmd->ClearRenderTarget()‚ğŒÄ‚Ño‚·‚ÆA
+		/// ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ã‚¯ãƒªã‚¢æ™‚ã®è‰²ã‚’è¨­å®šã™ã‚‹ã€‚
+		/// SwapChainã§ãªã„RenderTargetã«å¯¾ã—ã¦å¤‰æ›´ã—ã€cmd->ClearRenderTarget()ã‚’å‘¼ã³å‡ºã™ã¨ã€
 		/// "The clear values do not match those passed to resource creation. The clear operation is typically slower as a result; but will still clear to the desired value."
-		/// ‚ÌŒx‚ªo‚³‚êF‚ª•ÏX‚³‚ê‚È‚¢B(ƒpƒtƒH[ƒ}ƒ“ƒX‚Ì“s‡‚ç‚µ‚¢)
-		/// SwapChainˆÈŠO‚Í‰ŠúF(”’)‚©‚ç•ÏX‚·‚×‚«‚Å‚È‚¢
+		/// ã®è­¦å‘ŠãŒå‡ºã•ã‚Œè‰²ãŒå¤‰æ›´ã•ã‚Œãªã„ã€‚(ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹ã®éƒ½åˆã‚‰ã—ã„)
+		/// SwapChainä»¥å¤–ã¯åˆæœŸè‰²(ç™½)ã‹ã‚‰å¤‰æ›´ã™ã¹ãã§ãªã„
 		/// </summary>
-		/// <param name="color">V‚µ‚­İ’è‚·‚éF(RGBA)</param>
+		/// <param name="color">æ–°ã—ãè¨­å®šã™ã‚‹è‰²(RGBA)</param>
 		void SetDefaultClearColor(const Color& color) noexcept override {}
 	public: /* I3DBase */
 		PlatformID GetPlatformID() const noexcept override {
@@ -777,9 +777,9 @@ export namespace System::Application::Windows::DirectX {
 			return ret;
 		}
 		/// <summary>
-		/// ƒoƒbƒNƒoƒbƒtƒ@ƒNƒŠƒA‚ÌF‚ğİ’è‚·‚éB
+		/// ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ã‚¯ãƒªã‚¢æ™‚ã®è‰²ã‚’è¨­å®šã™ã‚‹ã€‚
 		/// </summary>
-		/// <param name="color">V‚µ‚­İ’è‚·‚éF(RGBA)</param>
+		/// <param name="color">æ–°ã—ãè¨­å®šã™ã‚‹è‰²(RGBA)</param>
 		void SetDefaultClearColor(const Color& color) noexcept override {
 			m_defaultColor[0] = color.R / 255.f;
 			m_defaultColor[1] = color.G / 255.f;
@@ -928,7 +928,7 @@ export namespace System::Application::Windows::DirectX {
 			}
 			return *pManager;
 		}
-	private:/* ˆê“x‰Šú‰»‚·‚ê‚Î‚æ‚¢ƒƒ“ƒo */
+	private:/* ä¸€åº¦åˆæœŸåŒ–ã™ã‚Œã°ã‚ˆã„ãƒ¡ãƒ³ãƒ */
 		IDXGIFactory4* m_factory = nullptr;
 		IDXGIAdapter* m_adapter = nullptr;
 		ID3D12Device* m_device = nullptr;
@@ -942,7 +942,7 @@ export namespace System::Application::Windows::DirectX {
 	private:
 		Vector<ManagedObject<IShader>> m_shaders;
 		Vector<ManagedObject<IRenderer>> m_renderers;
-	public:/* static‚È‘€ì */
+	public:/* staticãªæ“ä½œ */
 		static D3D12_RESOURCE_BARRIER CreateTransitionBarrier(
 			ID3D12Resource& resource, uint32_t subResource,
 			D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after
@@ -1008,7 +1008,7 @@ export namespace System::Application::Windows::DirectX {
 		ID3D12RootSignature* GetRootSignature(RenderingMode mode = RenderingMode::Standard) const noexcept {
 			return m_rootSignatures.At(mode);
 		}
-	public:/* ID3DDevice‚ª•K—v‚È‘€ì */
+	public:/* ID3DDeviceãŒå¿…è¦ãªæ“ä½œ */
 		ID3D12Resource* CreateUploadResource(size_t typeSize, uint64_t width, uint32_t height, bool alignment = true) noexcept {
 			D3D12_HEAP_PROPERTIES prop{};
 			prop.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -1019,11 +1019,11 @@ export namespace System::Application::Windows::DirectX {
 			D3D12_RESOURCE_DESC desc{};
 			desc.Format = DXGI_FORMAT_UNKNOWN;
 			desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-			//ƒf[ƒ^ƒTƒCƒY
+			//ãƒ‡ãƒ¼ã‚¿ã‚µã‚¤ã‚º
 			desc.Width = alignment
 				? Helpers::GetAlignmentedSize(width * typeSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT) * height
 				: width * typeSize * height;
-			desc.Height = 1;	//Width‚É‚‚³‚ğŠÜ‚ß‚Ä‚¢‚é‚½‚ßˆêŸŒ³
+			desc.Height = 1;	//Widthã«é«˜ã•ã‚’å«ã‚ã¦ã„ã‚‹ãŸã‚ä¸€æ¬¡å…ƒ
 			desc.DepthOrArraySize = 1;
 			desc.MipLevels = 1;
 			desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
@@ -1046,11 +1046,11 @@ export namespace System::Application::Windows::DirectX {
 			D3D12_RESOURCE_DESC desc{};
 			desc.Format = DXGI_FORMAT_UNKNOWN;
 			desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-			//ƒf[ƒ^ƒTƒCƒY
+			//ãƒ‡ãƒ¼ã‚¿ã‚µã‚¤ã‚º
 			desc.Width = alignment
 				? Helpers::GetAlignmentedSize(width * typeSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT) * height
 				: width * typeSize * height;
-			desc.Height = 1;	//Width‚É‚‚³‚ğŠÜ‚ß‚Ä‚¢‚é‚½‚ßˆêŸŒ³
+			desc.Height = 1;	//Widthã«é«˜ã•ã‚’å«ã‚ã¦ã„ã‚‹ãŸã‚ä¸€æ¬¡å…ƒ
 			desc.DepthOrArraySize = 1;
 			desc.MipLevels = 1;
 			desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
@@ -1072,8 +1072,8 @@ export namespace System::Application::Windows::DirectX {
 			prop.VisibleNodeMask = 0;
 			D3D12_RESOURCE_DESC desc{};
 			desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			desc.Width = width;	//‰æ‘œ‚Ì•(px)
-			desc.Height = height;	//‰æ‘œ‚Ì‚‚³(px)
+			desc.Width = width;	//ç”»åƒã®å¹…(px)
+			desc.Height = height;	//ç”»åƒã®é«˜ã•(px)
 			desc.DepthOrArraySize = 1;
 			desc.MipLevels = 1;
 			desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -1133,12 +1133,12 @@ export namespace System::Application::Windows::DirectX {
 			ID3D12Resource* readback = CreateReadbackResource(sizeof(Pixel), textureDesc.Width, textureDesc.Height);
 			if (!readback) return false;
 			D3D12_RESOURCE_DESC readbackDesc = readback->GetDesc();
-			//ƒRƒs[—pƒRƒ}ƒ“ƒhƒŠƒXƒg¶¬
+			//ã‚³ãƒ”ãƒ¼ç”¨ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆç”Ÿæˆ
 			ID3D12CommandAllocator* allocator = Helpers::CreateCommandAllocator(*m_device);
 			ID3D12GraphicsCommandList* list = Helpers::CreateCommandList(*m_device, *allocator);
 			ID3D12CommandQueue* queue = Helpers::CreateCommandQueue(*m_device);
 			ID3D12Fence* fence = Helpers::CreateFence(*m_device);
-			//TextureResource‚Ìó‘Ô‚ğCOPY_SOURCE‚É•ÏX
+			//TextureResourceã®çŠ¶æ…‹ã‚’COPY_SOURCEã«å¤‰æ›´
 			D3D12_RESOURCE_BARRIER barrier{};
 			barrier = CreateTransitionBarrier(
 				texture,
@@ -1147,26 +1147,26 @@ export namespace System::Application::Windows::DirectX {
 				D3D12_RESOURCE_STATE_COPY_SOURCE
 			);
 			list->ResourceBarrier(1, &barrier);
-			//ƒRƒs[Œ³İ’è
+			//ã‚³ãƒ”ãƒ¼å…ƒè¨­å®š
 			D3D12_TEXTURE_COPY_LOCATION src{};
 			src.pResource = &texture;
-			//ƒeƒNƒXƒ`ƒƒ‚Ì‚Æ‚«ASubresourceIndexw’è
+			//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ã¨ãã€SubresourceIndexæŒ‡å®š
 			src.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
 			src.SubresourceIndex = 0;
-			//ƒRƒs[æİ’è
+			//ã‚³ãƒ”ãƒ¼å…ˆè¨­å®š
 			D3D12_TEXTURE_COPY_LOCATION dst{};
 			dst.pResource = readback;
-			//ƒoƒbƒtƒ@‚Ì‚Æ‚«AFootprintw’è
+			//ãƒãƒƒãƒ•ã‚¡ã®ã¨ãã€FootprintæŒ‡å®š
 			dst.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 			dst.PlacedFootprint.Offset = 0;
 			dst.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			dst.PlacedFootprint.Footprint.Width = static_cast<uint32_t>(textureDesc.Width);	//‰æ‘œ‚Ì•(px)
-			dst.PlacedFootprint.Footprint.Height = textureDesc.Height;	//‰æ‘œ‚Ì•(px)
+			dst.PlacedFootprint.Footprint.Width = static_cast<uint32_t>(textureDesc.Width);	//ç”»åƒã®å¹…(px)
+			dst.PlacedFootprint.Footprint.Height = textureDesc.Height;	//ç”»åƒã®å¹…(px)
 			dst.PlacedFootprint.Footprint.Depth = 1;
-			dst.PlacedFootprint.Footprint.RowPitch = static_cast<uint32_t>(readbackDesc.Width / textureDesc.Height);	//•‚ÌƒoƒCƒgƒTƒCƒY
-			//ƒRƒs[
+			dst.PlacedFootprint.Footprint.RowPitch = static_cast<uint32_t>(readbackDesc.Width / textureDesc.Height);	//å¹…ã®ãƒã‚¤ãƒˆã‚µã‚¤ã‚º
+			//ã‚³ãƒ”ãƒ¼
 			list->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
-			//ƒeƒNƒXƒ`ƒƒ‚Ìó‘Ô‚ğŒ³‚É–ß‚·
+			//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®çŠ¶æ…‹ã‚’å…ƒã«æˆ»ã™
 			barrier = CreateTransitionBarrier(
 				texture,
 				D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
@@ -1177,14 +1177,14 @@ export namespace System::Application::Windows::DirectX {
 			list->Close();
 			ID3D12CommandList* lists[] = { list };
 			queue->ExecuteCommandLists(1, lists);
-			//GPU‚Æ“¯Šú
+			//GPUã¨åŒæœŸ
 			uint64_t fenceVal = Helpers::Signal(*queue, *fence);
 			Helpers::WaitForFenceValue(*fence, fenceVal);
 			allocator->Reset();
 			list->Reset(allocator, nullptr);
-			//ƒRƒs[—pƒRƒ}ƒ“ƒhƒŠƒXƒg‚ğ‰ğ•ú
+			//ã‚³ãƒ”ãƒ¼ç”¨ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆã‚’è§£æ”¾
 			Helpers::SafeRelease(fence, queue, list, allocator);
-			//ƒ}ƒbƒv‚µ‚ÄImageƒIƒuƒWƒFƒNƒgì¬
+			//ãƒãƒƒãƒ—ã—ã¦Imageã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆä½œæˆ
 			Pixel* map = nullptr;
 			if (readback->Map(0, nullptr, reinterpret_cast<void**>(&map)) != S_OK) {
 				Helpers::SafeRelease(readback);
@@ -1276,11 +1276,11 @@ export namespace System::Application::Windows::DirectX {
 			if (m_device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&result)) != S_OK) return nullptr;
 			else return result;
 		}
-	public: /* ID3DDevice, IDXGIFactory‚ª•K—v‚È‘€ì */
+	public: /* ID3DDevice, IDXGIFactoryãŒå¿…è¦ãªæ“ä½œ */
 		IDXGISwapChain4* CreateSwapChain(ID3D12CommandQueue& queue, HWND hWnd, uint32_t bufferCount) noexcept {
 			return Helpers::CreateDXGISwapChain(*m_factory, queue, hWnd, bufferCount);
 		}
-	public:/* ‚æ‚è‹ï‘Ì“I‚È‘€ì */
+	public:/* ã‚ˆã‚Šå…·ä½“çš„ãªæ“ä½œ */
 		IResource* CreateResource(const float* data, size_t count) noexcept {
 			ID3D12Resource* resource = CreateUploadResource(sizeof(float), count, 1);
 			if (!resource) return nullptr;
@@ -1348,7 +1348,7 @@ export namespace System::Application::Windows::DirectX {
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc{};
 			//RootSignature
 			pipelineDesc.pRootSignature = m_rootSignatures.At(desc.mode);
-			//ƒVƒF[ƒ_
+			//ã‚·ã‚§ãƒ¼ãƒ€
 			ManagedObject<IShader> vs = CreateShader(desc.vs);
 			if (vs) {
 				ID3DBlob* vsbinary = static_cast<D3DShader&>(*vs).GetBinary();
@@ -1361,12 +1361,12 @@ export namespace System::Application::Windows::DirectX {
 				pipelineDesc.PS.pShaderBytecode = psbinary->GetBufferPointer();
 				pipelineDesc.PS.BytecodeLength = psbinary->GetBufferSize();
 			}
-			//ƒ‰ƒXƒ^ƒCƒU
+			//ãƒ©ã‚¹ã‚¿ã‚¤ã‚¶
 			pipelineDesc.RasterizerState.MultisampleEnable = false;
 			pipelineDesc.RasterizerState.CullMode = GetCullingMode(desc.culling);
 			pipelineDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 			pipelineDesc.RasterizerState.DepthClipEnable = true;
-			//ƒfƒvƒXƒXƒeƒ“ƒVƒ‹İ’è
+			//ãƒ‡ãƒ—ã‚¹ã‚¹ãƒ†ãƒ³ã‚·ãƒ«è¨­å®š
 			pipelineDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 			pipelineDesc.DepthStencilState.DepthEnable = desc.depthEnabled;
 			pipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
@@ -1398,10 +1398,10 @@ export namespace System::Application::Windows::DirectX {
 				break;
 			}
 			pipelineDesc.DepthStencilState.StencilEnable = desc.stencilEnabled;
-			//ƒuƒŒƒ“ƒhİ’è
+			//ãƒ–ãƒ¬ãƒ³ãƒ‰è¨­å®š
 			pipelineDesc.BlendState.AlphaToCoverageEnable = false;
 			pipelineDesc.BlendState.IndependentBlendEnable = false;
-			uint8_t rtCount = 0;	//ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚Ì”
+			uint8_t rtCount = 0;	//ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®æ•°
 			for (RenderTargetDesc& rtDesc : desc.rt) {
 				pipelineDesc.BlendState.RenderTarget[rtCount] = D3D12_RENDER_TARGET_BLEND_DESC();
 				pipelineDesc.BlendState.RenderTarget[rtCount].BlendEnable = rtDesc.blendEnabled;
@@ -1413,20 +1413,20 @@ export namespace System::Application::Windows::DirectX {
 				pipelineDesc.BlendState.RenderTarget[rtCount].BlendOpAlpha = GetBlendOp(rtDesc.alphaOp);
 				pipelineDesc.BlendState.RenderTarget[rtCount].LogicOpEnable = false;
 				pipelineDesc.BlendState.RenderTarget[rtCount].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_RED | D3D12_COLOR_WRITE_ENABLE_GREEN | D3D12_COLOR_WRITE_ENABLE_BLUE;
-				//ƒtƒH[ƒ}ƒbƒg‚ÍR8G8B8A8‚ÅŒÅ’è
+				//ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã¯R8G8B8A8ã§å›ºå®š
 				pipelineDesc.RTVFormats[rtCount] = DXGI_FORMAT_R8G8B8A8_UNORM;
 				++rtCount;
-				if (rtCount >= 8) break;	//Å‘å8‚Â‚Ü‚Åg—p(DirectX‚Ì§ŒÀ)
+				if (rtCount >= 8) break;	//æœ€å¤§8ã¤ã¾ã§ä½¿ç”¨(DirectXã®åˆ¶é™)
 			}
 			pipelineDesc.NumRenderTargets = rtCount;
-			//“ü—ÍƒŒƒCƒAƒEƒg‚Í’è”‚ÅŒÅ’è
+			//å…¥åŠ›ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã¯å®šæ•°ã§å›ºå®š
 			pipelineDesc.InputLayout.pInputElementDescs = InputElementDesc;
 			pipelineDesc.InputLayout.NumElements = InputElementDescCount;
-			//ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ÌTriangle Strip‚É•s˜A‘±«‚Í‚È‚¢
+			//ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®Triangle Stripã«ä¸é€£ç¶šæ€§ã¯ãªã„
 			pipelineDesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
-			//ƒvƒŠƒ~ƒeƒBƒuŒ^‚ÍOŠpŒ`‚ÅŒÅ’è
+			//ãƒ—ãƒªãƒŸãƒ†ã‚£ãƒ–å‹ã¯ä¸‰è§’å½¢ã§å›ºå®š
 			pipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-			//ƒTƒ“ƒvƒŠƒ“ƒOİ’è
+			//ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°è¨­å®š
 			pipelineDesc.SampleDesc.Count = 1;
 			pipelineDesc.SampleDesc.Quality = 0;
 			pipelineDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;

@@ -1,4 +1,4 @@
-export module SceneManager;
+ï»¿export module SceneManager;
 import System;
 export import Scene;
 import Components;
@@ -59,7 +59,7 @@ export namespace Engine {
 					m_timer.Update();
 					nanoseconds deltaTime = nanoseconds(m_timer.DeltaTime<nanoseconds>());
 					uint64_t fixedUpdateCount = m_timer.GetFixedUpdateCount();
-					//ãŒÀ
+					//ä¸Šé™
 					if (fixedUpdateCount > 4) fixedUpdateCount = 4;
 
 					for (ListIterator<Scene*> ite = m_activeScenes.begin(), e = m_activeScenes.end(); ite != e;) {

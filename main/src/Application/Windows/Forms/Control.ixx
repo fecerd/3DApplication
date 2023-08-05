@@ -1,4 +1,4 @@
-module;
+ï»¿module;
 #include <crtdbg.h>
 #define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 export module Control;
@@ -188,10 +188,10 @@ export namespace System::Application::Windows::Forms {
 		EventHandler<Control&, EventArgs> Closed;
 	public:
 		/// <summary>
-		/// ƒVƒXƒeƒ€ƒNƒ‰ƒX–¼‚ÆƒEƒBƒ“ƒhƒEƒXƒ^ƒCƒ‹‚ğw’è‚µ‚ÄControlƒIƒuƒWƒFƒNƒg‚ğ¶¬‚·‚é
+		/// ã‚·ã‚¹ãƒ†ãƒ ã‚¯ãƒ©ã‚¹åã¨ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¹ã‚¿ã‚¤ãƒ«ã‚’æŒ‡å®šã—ã¦Controlã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã™ã‚‹
 		/// </summary>
-		/// <param name="windowStyle">ƒEƒBƒ“ƒhƒEƒXƒ^ƒCƒ‹</param>
-		/// <param name="windowClassName">ƒVƒXƒeƒ€ƒNƒ‰ƒX–¼</param>
+		/// <param name="windowStyle">ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¹ã‚¿ã‚¤ãƒ«</param>
+		/// <param name="windowClassName">ã‚·ã‚¹ãƒ†ãƒ ã‚¯ãƒ©ã‚¹å</param>
 		Control(uint32_t windowStyle, const String& windowClassName) noexcept : WindowStyle(windowStyle) {
 			if (!windowClassName.IsNullOrEmpty()) m_wc = WindowClass::CreateWindowClass(windowClassName);
 		}
@@ -214,16 +214,16 @@ export namespace System::Application::Windows::Forms {
 			Controls.Clear();
 			if (m_hWnd) CloseControl(m_hWnd, WM_DESTROY);
 		}
-	protected:/* ƒvƒƒZƒX“à‚Ì‚·‚×‚Ä‚ÌControl‚ğŠÇ—‚·‚éHashMap */
+	protected:/* ãƒ—ãƒ­ã‚»ã‚¹å†…ã®ã™ã¹ã¦ã®Controlã‚’ç®¡ç†ã™ã‚‹HashMap */
 		static HashMap<HWND, Control*>& GetAllControls() noexcept {
 			static HashMap<HWND, Control*> ret;
 			return ret;
 		}
 		/// <summary>
-		/// ƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹‚©‚çControlƒIƒuƒWƒFƒNƒg‚ğæ“¾‚·‚é
+		/// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«ã‹ã‚‰Controlã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="hWnd">ƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹</param>
-		/// <returns>w’è‚µ‚½ƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹‚ğ‚ÂControlƒIƒuƒWƒFƒNƒgB‘¶İ‚µ‚È‚¢ê‡Anullptr‚ğ•Ô‚·</returns>
+		/// <param name="hWnd">ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«</param>
+		/// <returns>æŒ‡å®šã—ãŸã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«ã‚’æŒã¤Controlã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚å­˜åœ¨ã—ãªã„å ´åˆã€nullptrã‚’è¿”ã™</returns>
 		static Control* GetControl(HWND hWnd) noexcept {
 			return GetAllControls().At<0>(hWnd);
 		}
@@ -244,7 +244,7 @@ export namespace System::Application::Windows::Forms {
 		}
 	private:
 		/// <summary>
-		/// ƒEƒBƒ“ƒhƒEƒNƒ‰ƒX‚É“o˜^‚³‚ê‚éƒvƒƒV[ƒWƒƒ
+		/// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¯ãƒ©ã‚¹ã«ç™»éŒ²ã•ã‚Œã‚‹ãƒ—ãƒ­ã‚·ãƒ¼ã‚¸ãƒ£
 		/// </summary>
 		static LRESULT ControlProc(HWND hWnd, uint32_t msg, WPARAM wParam, LPARAM lParam) noexcept {
 			if (msg == WM_DESTROY) {
@@ -257,20 +257,20 @@ export namespace System::Application::Windows::Forms {
 		}
 	protected:
 		/// <summary>
-		/// ƒVƒXƒeƒ€ƒNƒ‰ƒX‚ÌƒfƒtƒHƒ‹ƒgƒvƒƒV[ƒWƒƒ‚ğŒÄ‚Ño‚·
+		/// ã‚·ã‚¹ãƒ†ãƒ ã‚¯ãƒ©ã‚¹ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ—ãƒ­ã‚·ãƒ¼ã‚¸ãƒ£ã‚’å‘¼ã³å‡ºã™
 		/// </summary>
 		LRESULT CallDefaultProc(uint32_t msg, WPARAM wParam, LPARAM lParam) noexcept {
 			if (m_prevWndProc) return CallWindowProc(m_prevWndProc, m_hWnd, msg, wParam, lParam);
 			else return DefWindowProc(m_hWnd, msg, wParam, lParam);
 		}
 		/// <summary>
-		/// ƒCƒxƒ“ƒgŠÖ”ŒÄ‚Ño‚µ—pŠÖ”
+		/// ã‚¤ãƒ™ãƒ³ãƒˆé–¢æ•°å‘¼ã³å‡ºã—ç”¨é–¢æ•°
 		/// </summary>
-		/// <returns>ƒCƒxƒ“ƒgŠÖ”‚ğŒÄ‚Ño‚µ‚½‚Æ‚«A0B‚»‚êˆÈŠO‚Ìê‡A1</returns>
+		/// <returns>ã‚¤ãƒ™ãƒ³ãƒˆé–¢æ•°ã‚’å‘¼ã³å‡ºã—ãŸã¨ãã€0ã€‚ãã‚Œä»¥å¤–ã®å ´åˆã€1</returns>
 		LRESULT EventProc(uint32_t msg, WPARAM wParam, LPARAM lParam) noexcept;
 		/// <summary>
-		/// ƒRƒ“ƒgƒ[ƒ‹“Á—L‚ÌƒvƒƒV[ƒWƒƒ‚ğÀ‘•‚·‚éB
-		/// –³‹‚·‚éƒƒbƒZ[ƒW‚É‘Î‚µ‚Ä‚ÍCallDefaultProc(msg, wParam, lParam)‚ğŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
+		/// ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ç‰¹æœ‰ã®ãƒ—ãƒ­ã‚·ãƒ¼ã‚¸ãƒ£ã‚’å®Ÿè£…ã™ã‚‹ã€‚
+		/// ç„¡è¦–ã™ã‚‹ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«å¯¾ã—ã¦ã¯CallDefaultProc(msg, wParam, lParam)ã‚’å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚‰ãªã„
 		/// </summary>
 		virtual LRESULT WndProc(uint32_t msg, WPARAM wParam, LPARAM lParam) noexcept {
 			LRESULT r = EventProc(msg, wParam, lParam);
@@ -279,7 +279,7 @@ export namespace System::Application::Windows::Forms {
 		}
 	private:
 		/// <summary>
-		/// ƒEƒBƒ“ƒhƒEƒNƒ‰ƒX‚ğ“o˜^‚·‚éB‚·‚Å‚É“o˜^‚³‚ê‚Ä‚¢‚éê‡A‚È‚É‚à‚µ‚È‚¢
+		/// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¯ãƒ©ã‚¹ã‚’ç™»éŒ²ã™ã‚‹ã€‚ã™ã§ã«ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹å ´åˆã€ãªã«ã‚‚ã—ãªã„
 		/// </summary>
 		void InitWindowClass() {
 			if (m_wc.IsRegistered()) return;
@@ -288,10 +288,10 @@ export namespace System::Application::Windows::Forms {
 				String(m_classID), Control::ControlProc, GetHInstance(),
 				hCursor, hIcon, hIconSm, BackBrush.GetHBrush(), menuName, classStyle
 			);
-			if (!m_wc.IsRegistered()) throw System::Exception("ƒEƒBƒ“ƒhƒEƒNƒ‰ƒX‚Ì“o˜^‚É¸”s‚µ‚Ü‚µ‚½B");
+			if (!m_wc.IsRegistered()) throw System::Exception("ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚¯ãƒ©ã‚¹ã®ç™»éŒ²ã«å¤±æ•—ã—ã¾ã—ãŸã€‚");
 		}
 		/// <summary>
-		/// ƒEƒBƒ“ƒhƒE‚ğ¶¬‚µAƒEƒBƒ“ƒhƒEƒvƒƒV[ƒWƒƒ‚ğİ’è‚·‚é
+		/// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç”Ÿæˆã—ã€ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒ—ãƒ­ã‚·ãƒ¼ã‚¸ãƒ£ã‚’è¨­å®šã™ã‚‹
 		/// </summary>
 		void Init_Internal();
 	public:
@@ -300,18 +300,18 @@ export namespace System::Application::Windows::Forms {
 		}
 	public:
 		/// <summary>
-		/// ƒEƒBƒ“ƒhƒE‚ğ¶¬‚·‚éB‚±‚ÌŠÖ”‚ğŒÄ‚Ño‚·‚Ü‚ÅƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹‚Íæ“¾‚Å‚«‚È‚¢B
-		/// ƒEƒBƒ“ƒhƒE¶¬‘O‚Ì“®ì‚ğ•ÏX‚·‚éê‡A‚±‚ÌŠÖ”‚ğƒI[ƒo[ƒ‰ƒCƒh‚·‚éB
-		/// ‚±‚ÌŠÖ”‚ğƒI[ƒo[ƒ‰ƒCƒh‚·‚éê‡AŠî’êŒ^‚Ì‚±‚ÌŠÖ”‚ğ“à•”‚ÅŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
+		/// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ç”Ÿæˆã™ã‚‹ã€‚ã“ã®é–¢æ•°ã‚’å‘¼ã³å‡ºã™ã¾ã§ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«ã¯å–å¾—ã§ããªã„ã€‚
+		/// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ç”Ÿæˆå‰ã®å‹•ä½œã‚’å¤‰æ›´ã™ã‚‹å ´åˆã€ã“ã®é–¢æ•°ã‚’ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã™ã‚‹ã€‚
+		/// ã“ã®é–¢æ•°ã‚’ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã™ã‚‹å ´åˆã€åŸºåº•å‹ã®ã“ã®é–¢æ•°ã‚’å†…éƒ¨ã§å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚‰ãªã„
 		/// </summary>
 		virtual void Init() { Init_Internal(); }
 	public:
 		/// <summary>
-		/// qƒRƒ“ƒgƒ[ƒ‹‚ğ’Ç‰Á‚·‚é
+		/// å­ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã‚’è¿½åŠ ã™ã‚‹
 		/// </summary>
 		/// <param name="control">
-		/// ‚±‚ÌControlƒIƒuƒWƒFƒNƒg‚É’Ç‰Á‚·‚éqƒRƒ“ƒgƒ[ƒ‹B
-		/// ŠÖ”“à‚ÅInit()‚ªŒÄ‚Ño‚³‚ê‚é‚½‚ßA’Ç‰Á‘O‚ÉInit()‚ğŒÄ‚Ño‚·•K—v‚Í‚È‚¢
+		/// ã“ã®Controlã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«è¿½åŠ ã™ã‚‹å­ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã€‚
+		/// é–¢æ•°å†…ã§Init()ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹ãŸã‚ã€è¿½åŠ å‰ã«Init()ã‚’å‘¼ã³å‡ºã™å¿…è¦ã¯ãªã„
 		/// </param>
 		void AddControl(Control* control) noexcept {
 			if (!control) return;
@@ -322,7 +322,7 @@ export namespace System::Application::Windows::Forms {
 		}
 	public:
 		/// <summary>
-		/// ƒRƒ“ƒgƒ[ƒ‹‚ğ•\¦‚·‚é
+		/// ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã‚’è¡¨ç¤ºã™ã‚‹
 		/// </summary>
 		void Show() noexcept { if (m_hWnd) WinAPI::ShowWindow(m_hWnd, WinAPI::SW_SHOW); }
 		void Destroy() noexcept;
@@ -350,16 +350,16 @@ export namespace System::Application::Windows::Forms {
 		void SetBackBrush(Color color) { BackBrush = SolidBrush(color); }
 		HMENU GetHMenu() const noexcept { return hMenu; }
 		/// <summary>
-		/// ƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹‚ğæ“¾‚·‚é
+		/// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <returns>‚±‚ÌControlƒIƒuƒWƒFƒNƒg‚ğw‚·ƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹BInit()ŠÖ”‚ªŒÄ‚Ño‚³‚ê‚é‚Ü‚Å‚Ínullptr‚ğ•Ô‚·</returns>
+		/// <returns>ã“ã®Controlã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æŒ‡ã™ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«ã€‚Init()é–¢æ•°ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹ã¾ã§ã¯nullptrã‚’è¿”ã™</returns>
 		HWND GetHWND() const noexcept { return m_hWnd; }
 	public:
 		/// <summary>
-		/// Œ»İ‚ÌƒJ[ƒ\ƒ‹ˆÊ’u‚ğæ“¾‚·‚é
+		/// ç¾åœ¨ã®ã‚«ãƒ¼ã‚½ãƒ«ä½ç½®ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="x">xÀ•W‚ğ•Ô‚·QÆ•Ï”</param>
-		/// <param name="y">yÀ•W‚ğ•Ô‚·QÆ•Ï”</param>
+		/// <param name="x">xåº§æ¨™ã‚’è¿”ã™å‚ç…§å¤‰æ•°</param>
+		/// <param name="y">yåº§æ¨™ã‚’è¿”ã™å‚ç…§å¤‰æ•°</param>
 		void GetCursorPos(int32_t& x, int32_t& y) const noexcept {
 			WinAPI::POINT p;
 			WinAPI::GetCursorPos(&p);
@@ -367,20 +367,20 @@ export namespace System::Application::Windows::Forms {
 			y = p.y;
 		}
 		/// <summary>
-		/// Œ»İ‚ÌƒEƒBƒ“ƒhƒEˆÊ’u(¶ã)‚ğæ“¾‚·‚é
+		/// ç¾åœ¨ã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ä½ç½®(å·¦ä¸Š)ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="x">…•½À•W‚ğ•Ô‚·QÆ•Ï”</param>
-		/// <param name="y">‚’¼À•W‚ğ•Ô‚·QÆ•Ï”</param>
+		/// <param name="x">æ°´å¹³åº§æ¨™ã‚’è¿”ã™å‚ç…§å¤‰æ•°</param>
+		/// <param name="y">å‚ç›´åº§æ¨™ã‚’è¿”ã™å‚ç…§å¤‰æ•°</param>
 		void GetPos(int32_t& x, int32_t& y) const noexcept {
 			const Point<int32_t>& result = Pos;
 			x = result.x;
 			y = result.y;
 		}
 		/// <summary>
-		/// Œ»İ‚ÌƒEƒBƒ“ƒhƒEƒTƒCƒY‚ğæ“¾‚·‚é
+		/// ç¾åœ¨ã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚µã‚¤ã‚ºã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="w">•‚ğ•Ô‚·QÆ•Ï”</param>
-		/// <param name="h">‚‚³‚ğ•Ô‚·QÆ•Ï”</param>
+		/// <param name="w">å¹…ã‚’è¿”ã™å‚ç…§å¤‰æ•°</param>
+		/// <param name="h">é«˜ã•ã‚’è¿”ã™å‚ç…§å¤‰æ•°</param>
 		void GetSize(int32_t& width, int32_t& height) noexcept {
 			const System::Size<int32_t>& result = Size;
 			width = result.width;
@@ -388,16 +388,16 @@ export namespace System::Application::Windows::Forms {
 		}
 	public:
 		/// <summary>
-		/// Control‚Ì–¼‘O‚ğæ“¾‚·‚é
+		/// Controlã®åå‰ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		String GetText() noexcept {
-			String str = String::CreateString(GetWindowTextLength(m_hWnd) + 1);	//nullI’[•¶š‚ğŠÜ‚Ş’·‚³
+			String str = String::CreateString(GetWindowTextLength(m_hWnd) + 1);	//nullçµ‚ç«¯æ–‡å­—ã‚’å«ã‚€é•·ã•
 			GetWindowText(m_hWnd, str.w_str(), (int)str.Capacity());
 			return str;
 		}
 		void SetText(const String& str) noexcept { SetWindowText(m_hWnd, str.w_str()); }
 	public:
-		/// ƒCƒxƒ“ƒgŠÖ”BƒI[ƒo[ƒ‰ƒCƒh‚·‚éê‡AŠî’êƒNƒ‰ƒX‚Ì‚±‚ÌŠÖ”‚ğ“à•”‚ÅŒÄ‚Ño‚³‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
+		/// ã‚¤ãƒ™ãƒ³ãƒˆé–¢æ•°ã€‚ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã™ã‚‹å ´åˆã€åŸºåº•ã‚¯ãƒ©ã‚¹ã®ã“ã®é–¢æ•°ã‚’å†…éƒ¨ã§å‘¼ã³å‡ºã•ãªã‘ã‚Œã°ãªã‚‰ãªã„
 		virtual void OnLoad(EventArgs e) noexcept { Load(static_cast<Control&>(*this), static_cast<EventArgs&&>(e)); }
 		virtual void OnAwake(EventArgs e) noexcept { Awake(static_cast<Control&>(*this), static_cast<EventArgs&&>(e)); }
 		virtual void OnClick(EventArgs e) noexcept { Click(static_cast<Control&>(*this), static_cast<EventArgs&&>(e)); }

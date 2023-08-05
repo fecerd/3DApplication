@@ -1,4 +1,4 @@
-export module Image;
+﻿export module Image;
 import Objects;
 import Vector;
 import Memory;
@@ -78,7 +78,7 @@ export namespace System::Drawing {
 		static Image FromFile(const String& filePath) noexcept;
 	public:
 		/// <summary>
-		/// �摜���㉺���]����
+		/// 画像を上下反転する
 		/// </summary>
 		void Reverse() noexcept {
 			uint32_t end = height / 2;
@@ -89,21 +89,21 @@ export namespace System::Drawing {
 			}
 		}
 		/// <summary>
-		/// ���ׂẴs�N�Z����h��Ԃ�
+		/// すべてのピクセルを塗りつぶす
 		/// </summary>
-		/// <param name="pixel">�h��Ԃ��F</param>
+		/// <param name="pixel">塗りつぶす色</param>
 		void Fill(Pixel pixel) noexcept { for (size_t i = 0, size = Size(); i < size; ++i) data[i] = pixel; }
 		/// <summary>
-		/// (x, y)�̃s�N�Z���̐F�𔽓]����
+		/// (x, y)のピクセルの色を反転する
 		/// </summary>
-		/// <param name="x">���]����s�N�Z����x���W</param>
-		/// <param name="y">���]����s�N�Z����y���W</param>
+		/// <param name="x">反転するピクセルのx座標</param>
+		/// <param name="y">反転するピクセルのy座標</param>
 		void InversionPixel(uint32_t x, uint32_t y) noexcept { if (x < width && y < height) data[x + width * y].Inversion(); }
 		/// <summary>
-		/// (x, y)����(width - 1, y)�܂ł̃s�N�Z���̐F�𔽓]����
+		/// (x, y)から(width - 1, y)までのピクセルの色を反転する
 		/// </summary>
-		/// <param name="x">�n�_��x���W</param>
-		/// <param name="y">���]����s��y���W</param>
+		/// <param name="x">始点のx座標</param>
+		/// <param name="y">反転する行のy座標</param>
 		void InversionPixelHorizontal(uint32_t x, uint32_t y) noexcept {
 			if (x < width && y < height) {
 				Pixel* p = data + (width * y);
@@ -111,52 +111,52 @@ export namespace System::Drawing {
 			}
 		}
 		/// <summary>
-		/// ����̐F�����s�N�Z���̐F��ύX����
+		/// 特定の色を持つピクセルの色を変更する
 		/// </summary>
-		/// <param name="from">�ύX����F</param>
-		/// <param name="to">�ύX��̐F</param>
+		/// <param name="from">変更する色</param>
+		/// <param name="to">変更後の色</param>
 		void ChangePixelColor(Pixel from, Pixel to) noexcept {
 			for (size_t i = 0, size = Size(); i < size; ++i) if (data[i] == from) data[i] = to;
 		}
 		/// <summary>
-		/// ����̃A���t�@�l�����s�N�Z���̃A���t�@�l��ύX����
+		/// 特定のアルファ値を持つピクセルのアルファ値を変更する
 		/// </summary>
-		/// <param name="from">�ύX����A���t�@�l</param>
-		/// <param name="to">�ύX��̃A���t�@�l</param>
+		/// <param name="from">変更するアルファ値</param>
+		/// <param name="to">変更後のアルファ値</param>
 		void ChangePixelAlpha(uint8_t from, uint8_t to) noexcept {
 			for (size_t i = 0, size = Size(); i < size; ++i) if (data[i].a = from) data[i].a = to;
 		}
 		/// <summary>
-		/// (x, y)�̃s�N�Z���ɐF��ݒ肷��
+		/// (x, y)のピクセルに色を設定する
 		/// </summary>
-		/// <param name="x">�ݒ肷��s�N�Z����x���W</param>
-		/// <param name="y">�ݒ肷��s�N�Z����y���W</param>
-		/// <param name="pixel">�ݒ肷��F</param>
+		/// <param name="x">設定するピクセルのx座標</param>
+		/// <param name="y">設定するピクセルのy座標</param>
+		/// <param name="pixel">設定する色</param>
 		void SetPixel(uint32_t x, uint32_t y, Pixel pixel) noexcept {
 			if (x < width && y < height) data[x + static_cast<size_t>(width) * y] = pixel;
 		}
 		/// <summary>
-		/// (x, y)�̃s�N�Z�����擾����
+		/// (x, y)のピクセルを取得する
 		/// </summary>
-		/// <param name="x">�擾����s�N�Z����x���W</param>
-		/// <param name="y">�擾����s�N�Z����y���W</param>
-		/// <returns>(x, y)�̃s�N�Z���l�B�͈͊O�̏ꍇ�APixel()��Ԃ�</returns>
+		/// <param name="x">取得するピクセルのx座標</param>
+		/// <param name="y">取得するピクセルのy座標</param>
+		/// <returns>(x, y)のピクセル値。範囲外の場合、Pixel()を返す</returns>
 		Pixel GetPixel(uint32_t x, uint32_t y) const noexcept {
 			if (x < width && y < height) return data[x + static_cast<size_t>(width) * y];
 			else return Pixel();
 		}
 		/// <summary>
-		/// ����Image�I�u�W�F�N�g��\��t����B
-		/// �w�肵���摜�����̉摜�͈̔͂Ɏ��܂�Ȃ��ꍇ�A�͈͓��̂ݓ\��t�������
+		/// 他のImageオブジェクトを貼り付ける。
+		/// 指定した画像がこの画像の範囲に収まらない場合、範囲内のみ貼り付けされる
 		/// </summary>
-		/// <param name="src">�\��t����摜</param>
-		/// <param name="x">x���W�̃I�t�Z�b�g�B���̉摜���x���W���w�肷��</param>
-		/// <param name="y">y���W�̃I�t�Z�b�g�B���̉摜���y���W���w�肷��</param>
+		/// <param name="src">貼り付ける画像</param>
+		/// <param name="x">x座標のオフセット。この画像上のx座標を指定する</param>
+		/// <param name="y">y座標のオフセット。この画像上のy座標を指定する</param>
 		/// <param name="background">
-		/// �摜�̔w�i�F�B
-		/// �\��t����摜���ɂ��邱�̐F�̃s�N�Z���͓����ɂȂ�(�\��t������Ȃ�)
+		/// 画像の背景色。
+		/// 貼り付ける画像内にあるこの色のピクセルは透明になる(貼り付けされない)
 		/// </param>
-		/// <returns>�I�t�Z�b�g�l�����̉摜�͈̔͊O�̏ꍇ�Afalse</returns>
+		/// <returns>オフセット値がこの画像の範囲外の場合、false</returns>
 		bool Paste(const Image& src, uint32_t x, uint32_t y, Pixel background = Pixels::White) noexcept {
 			const uint32_t srcWidth = src.Width();
 			const uint32_t srcHeight = src.Height();

@@ -1,4 +1,4 @@
-export module WindowClass;
+﻿export module WindowClass;
 import CSTDINT;
 import WinAPI;
 import Objects;

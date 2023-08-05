@@ -1,4 +1,4 @@
-export module Common3D;
+ï»¿export module Common3D;
 import System;
 import Drawing;
 import Application;
@@ -285,8 +285,8 @@ export namespace System::Application::Common3D {
 //Function
 export namespace System::Application::Common3D {
 	/// <summary>
-	/// 3DƒfƒoƒCƒX‚Ì‰Šú‰»‚ğs‚¢AI—¹ˆ—‚ğatexit()‚Éİ’è‚·‚é
-	/// MainŠÖ”‚ÅŒÄ‚Ño‚·‚±‚Æ‚ÅAEngine“™‚æ‚è‚àŒã‚ÉI—¹‚Å‚«‚é
+	/// 3Dãƒ‡ãƒã‚¤ã‚¹ã®åˆæœŸåŒ–ã‚’è¡Œã„ã€çµ‚äº†å‡¦ç†ã‚’atexit()ã«è¨­å®šã™ã‚‹
+	/// Mainé–¢æ•°ã§å‘¼ã³å‡ºã™ã“ã¨ã§ã€Engineç­‰ã‚ˆã‚Šã‚‚å¾Œã«çµ‚äº†ã§ãã‚‹
 	/// </summary>
 	bool Init() noexcept;
 	RenderTarget CreateRenderTarget(const String& name, uint32_t width, uint32_t height, uint32_t bufferCount, uint32_t targetCount = 1, const Color& defaultColor = Colors::White) noexcept;
@@ -298,8 +298,8 @@ export namespace System::Application::Common3D {
 	Renderer GetRenderer(const String& name) noexcept {
 		return Renderer(ManagedObject<IRenderer>::GetObject(name));
 	}
-	//“o˜^Ï‚İ‚ÌƒŠƒ\[ƒX–¼‚ªw’è‚³‚ê‚½‚Æ‚«‚ÍAQÆƒJƒEƒ“ƒg‚ğ‘‚â‚µ‚Ätrue‚ğ•Ô‚·
-	//‚½‚¾‚µAƒŠƒ\[ƒX‚Ìí—Ş‚âŒÂ”‚ªˆÙ‚È‚éê‡Afalse‚ğ•Ô‚·
+	//ç™»éŒ²æ¸ˆã¿ã®ãƒªã‚½ãƒ¼ã‚¹åãŒæŒ‡å®šã•ã‚ŒãŸã¨ãã¯ã€å‚ç…§ã‚«ã‚¦ãƒ³ãƒˆã‚’å¢—ã‚„ã—ã¦trueã‚’è¿”ã™
+	//ãŸã ã—ã€ãƒªã‚½ãƒ¼ã‚¹ã®ç¨®é¡ã‚„å€‹æ•°ãŒç•°ãªã‚‹å ´åˆã€falseã‚’è¿”ã™
 	Resource CreateResource(const String& name, const float* data, size_t count) noexcept;
 	Resource CreateResource(const String& name, const Matrix* data, size_t count) noexcept;
 	Resource CreateResource(const String& name, const Image& image) noexcept;

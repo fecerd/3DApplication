@@ -1,4 +1,4 @@
-###Functions Begin###
+﻿###Functions Begin###
 
 #リストの要素を一行ずつ表示する。
 #TITLE: リストの内容を囲むタイトル
@@ -32,6 +32,11 @@ function(FGetFilenames rootDir searchPattern out)
 	set(${out} ${ftmp} PARENT_SCOPE)
 endfunction()
 
+#ファイル名を取得する。
+#rootDir: 相対パス表記するときのルートディレクトリ名。falseのとき絶対パス
+#searchDir: ファイルを探索するディレクトリ名
+#searchPattern: 検索するパターン。相対パスのとき、ルートは${searchDir}
+#out: 検索結果のリスト
 function(FGetFilenamesEx rootDir searchDir searchPattern out)
 	if (IS_DIRECTORY ${rootDir})
 		file(GLOB ftmp LIST_DIRECTORIES false RELATIVE ${rootDir} ${searchDir}/${searchPattern})
@@ -74,11 +79,22 @@ function(FSetModuleFileFlags searchDir)
 	FGetFilenamesEx(false ${searchDir} *.cxx cxx_files)
 	FGetFilenamesEx(false ${searchDir} *.ixx ixx_files)
 	set(module_files ${cxx_files} ${ixx_files})
+	## BMIファイルを削除するためのターゲット
+	if (NOT(TARGET clean_module))
+		add_custom_target(clean_module)
+	endif()
+	## モジュールファイル(.ixx, .cxx)ごとにコンパイルオプションを追加
 	foreach(module_file ${module_files})
-		if (MSBUILD OR MSVC)
+		cmake_path(NORMAL_PATH module_file)
+		if (MSBUILD)
 			set_source_files_properties(${module_file} PROPERTIES COMPILE_FLAGS "-interface -TP")
+		elseif (MSVC)
+			set_source_files_properties(${module_file} PROPERTIES COMPILE_FLAGS "-interface -TP -ifcOutput ${CMAKE_BINARY_DIR}\\")
 		elseif (GCC)
 			set_source_files_properties(${module_file} PROPERTIES COMPILE_FLAGS "-x c++")
+			#BMIファイル(gcm.cache/*.gcm)をcleanで削除されるようにする
+			get_filename_component(gcm_name ${module_file} NAME_WE)
+			set_property(TARGET clean_module APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${CMAKE_BINARY_DIR}/gcm.cache/${gcm_name}.gcm)
 		endif()
 	endforeach()
 endfunction()
@@ -93,43 +109,49 @@ function(FPrecompileSTD)
 	set(std_list ${ARGV})
 	#標準ライブラリをコンパイルする
 	if (MSBUILD OR MSVC)
-		set(_MSVC_HEADER_COMPILE_OPTIONS -std:c++latest -EHsc -DUNICODE -D_UNICODE -nologo -D_DLL -c -exportHeader)
+		#出力先フォルダを作成する
+		set(STD_OUTPUT_DIR "${CMAKE_BINARY_DIR}/std")
+		file(MAKE_DIRECTORY ${STD_OUTPUT_DIR})
+		#コンパイルオプションを設定
+		if (${CMAKE_CXX_STANDARD} STREQUAL 23)
+			set(_MSVC_HEADER_COMPILE_OPTIONS -std:c++latest)
+		else()
+			set(_MSVC_HEADER_COMPILE_OPTIONS -std:c++${CMAKE_CXX_STANDARD})
+		endif()
+		set(_MSVC_HEADER_COMPILE_OPTIONS ${_MSVC_HEADER_COMPILE_OPTIONS} -EHsc -DUNICODE -D_UNICODE -nologo -D_DLL -c -exportHeader)
 		if (MSBUILD)
 			set(_MSVC_HEADER_COMPILE_OPTIONS ${_MSVC_HEADER_COMPILE_OPTIONS} -D_M_FP_PRECISE)
-			add_custom_target(std
-				COMMAND ${CMAKE_CXX_COMPILER} $<$<CONFIG:Debug>:-D_DEBUG> ${_MSVC_HEADER_COMPILE_OPTIONS} -headerName:quote ${std_list}
-				WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-			)
-		elseif(MSVC)
-			if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-				set(_MSVC_HEADER_COMPILE_OPTIONS ${_MSVC_HEADER_COMPILE_OPTIONS} -D_DEBUG)
-			else()
-				set(_MSVC_HEADER_COMPILE_OPTIONS ${_MSVC_HEADER_COMPILE_OPTIONS})
-			endif()
-			add_custom_target(std
-				COMMAND ${CMAKE_CXX_COMPILER} ${_MSVC_HEADER_COMPILE_OPTIONS} -headerName:quote ${std_list}
-				WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-			)
 		endif()
-		#cl.exeは-headerUnitオプションでヘッダ名とBMIファイルを関連付けする必要がある
-		list(LENGTH std_list std_list_length)
-		math(EXPR _end "${std_list_length}-1")
-		foreach(i RANGE 0 ${_end})
-			list(GET std_list ${i} std_name)
-			add_compile_options("SHELL:-headerUnit:angle ${std_name}=${std_name}.ifc")
-		endforeach()
-	elseif(GCC)
-		#ヘッダの絶対パスをリスト化
+		#ヘッダごとにカスタムコマンドを設定し、出力されるBMIファイル(.ifc)の絶対パスをリスト化
 		foreach(stdname ${std_list})
-			list(APPEND std_fullpath_list ${STD_INCLUDE_DIR}/${stdname})
+			add_custom_command(OUTPUT ${STD_OUTPUT_DIR}/${stdname}.ifc
+				COMMAND ${CMAKE_CXX_COMPILER} $<$<CONFIG:Debug>:-D_DEBUG> ${_MSVC_HEADER_COMPILE_OPTIONS} -ifcOutput "${STD_OUTPUT_DIR}\\" -headerName:quote ${stdname}
+				WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+			)
+			list(APPEND _MSVC_STD_OUTPUT_PATH_LIST ${STD_OUTPUT_DIR}/${stdname}.ifc)
+			#cl.exeは-headerUnitオプションでヘッダ名とBMIファイルを関連付けする必要がある
+			add_compile_options("SHELL:-headerUnit:angle ${stdname}=${STD_OUTPUT_DIR}/${stdname}.ifc")
 		endforeach()
-		set(_GCC_HEADER_COMPILE_OPTIONS -std=gnu++23 -fmodules-ts -Mno-modules -x c++ -fmodule-header -fmodule-only -DUNICODE -D_UNICODE -c)
-		if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-			set(_MSVC_HEADER_COMPILE_OPTIONS ${_GCC_HEADER_COMPILE_OPTIONS} -g)
-		endif()
+		#BMIファイルに依存するターゲット"std"を追加する
 		add_custom_target(std
-			COMMAND ${CMAKE_CXX_COMPILER} ${_GCC_HEADER_COMPILE_OPTIONS} ${std_fullpath_list}
-			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+			SOURCES ${_MSVC_STD_OUTPUT_PATH_LIST}
+		)
+	elseif(GCC)
+		#出力先フォルダは作業ディレクトリ下のgcm.cacheフォルダ
+		set(STD_OUTPUT_DIR "${CMAKE_BINARY_DIR}/gcm.cache/C-/msys64/mingw64/include/c++/13.2.0")
+		#コンパイルオプションを設定
+		set(_GCC_HEADER_COMPILE_OPTIONS -std=gnu++${CMAKE_CXX_STANDARD} -mwindows -fmodules-ts -Mno-modules -x c++ -fmodule-header -fmodule-only -DUNICODE -D_UNICODE -c)
+		#ヘッダごとにカスタムコマンドを設定し、出力されるBMIファイル(.gcm)の絶対パスをリスト化
+		foreach(stdname ${std_list})
+			add_custom_command(OUTPUT ${STD_OUTPUT_DIR}/${stdname}.gcm
+				COMMAND ${CMAKE_CXX_COMPILER} $<$<CONFIG:Debug>:-g> ${_GCC_HEADER_COMPILE_OPTIONS} ${STD_INCLUDE_DIR}/${stdname}
+				WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+			)
+			list(APPEND _GCC_STD_OUTPUT_PATH_LIST ${STD_OUTPUT_DIR}/${stdname}.gcm)
+		endforeach()
+		#BMIファイルに依存するターゲット"std"を追加する
+		add_custom_target(std
+			SOURCES ${_GCC_STD_OUTPUT_PATH_LIST}
 		)
 	endif()
 endfunction()

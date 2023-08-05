@@ -1,34 +1,33 @@
-module StringBlock;
-import Vector;
+ï»¿module StringBlock;
 import Encoding;
 using namespace System::Traits;
 
 //ToStringBlock IMPL
 namespace System::Encoding {
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚Ì”z—ñ‚©‚çutf8•¶š—ñ‚ğ¶¬‚·‚é
+	/// CodePointæ§‹é€ ä½“ã®é…åˆ—ã‹ã‚‰utf8æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹
 	/// </summary>
-	/// <param name="codePoints">CodePoint\‘¢‘Ì‚Ì”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="count">”z—ñ‚Ì’·‚³</param>
-	/// <returns>char8_tŒ^‚Ì•¶š—ñ‚ğ‚ÂStringBlockƒIƒuƒWƒFƒNƒg</returns>
+	/// <param name="codePoints">CodePointæ§‹é€ ä½“ã®é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="count">é…åˆ—ã®é•·ã•</param>
+	/// <returns>char8_tå‹ã®æ–‡å­—åˆ—ã‚’æŒã¤StringBlockã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 	StringBlock<char8_t> ToU8StringBlock(const CodePoint* codePoints, size_t count) noexcept {
 		if (!codePoints || count == 0) return StringBlock<char8_t>();
-		Vector<char8_t> chars;
+		VectorBase<char8_t> chars;
 		for (size_t i = 0; i < count; ++i) {
 			CodePoint current = codePoints[i];
 			if (current.codePage != CodePageFlag::Unicode) current = ToUnicode(current);
-			//1ƒoƒCƒg
+			//1ãƒã‚¤ãƒˆ
 			if (current.point <= 0x7fu) {
 				chars.Add(static_cast<char8_t>(current.point));
 			}
-			//2ƒoƒCƒg
+			//2ãƒã‚¤ãƒˆ
 			else if (current.point <= 0x7ffu) {
 				chars.AddRange(
 					static_cast<char8_t>(0xc0u | ((BITMASK_M<7, 11> &current.point) >> 6)),
 					static_cast<char8_t>(0x80u | (BITMASK_M<1, 6> &current.point))
 				);
 			}
-			//3ƒoƒCƒg
+			//3ãƒã‚¤ãƒˆ
 			else if (current.point <= 0xffffu) {
 				chars.AddRange(
 					static_cast<char8_t>(0xe0u | ((BITMASK_M<13, 16> &current.point) >> 12)),
@@ -36,7 +35,7 @@ namespace System::Encoding {
 					static_cast<char8_t>(0x80u | (BITMASK_M<1, 6> &current.point))
 				);
 			}
-			//4ƒoƒCƒg
+			//4ãƒã‚¤ãƒˆ
 			else {
 				chars.AddRange(
 					static_cast<char8_t>(0xf0u | ((BITMASK_M<19, 21> &current.point) >> 18)),
@@ -52,20 +51,20 @@ namespace System::Encoding {
 	}
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚Ì”z—ñ‚©‚çutf16•¶š—ñ‚ğ¶¬‚·‚é
+	/// CodePointæ§‹é€ ä½“ã®é…åˆ—ã‹ã‚‰utf16æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹
 	/// </summary>
-	/// <param name="codePoints">CodePoint\‘¢‘Ì‚Ì”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="count">”z—ñ‚Ì’·‚³</param>
-	/// <returns>char16_tŒ^‚Ì•¶š—ñ‚ğ‚ÂStringBlockƒIƒuƒWƒFƒNƒg</returns>
+	/// <param name="codePoints">CodePointæ§‹é€ ä½“ã®é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="count">é…åˆ—ã®é•·ã•</param>
+	/// <returns>char16_tå‹ã®æ–‡å­—åˆ—ã‚’æŒã¤StringBlockã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 	StringBlock<char16_t> ToU16StringBlock(const CodePoint* codePoints, size_t count) noexcept {
 		if (!codePoints || count == 0) return StringBlock<char16_t>();
-		Vector<char16_t> chars;
+		VectorBase<char16_t> chars;
 		for (size_t i = 0; i < count; ++i) {
 			CodePoint current = codePoints[i];
 			if (current.codePage != CodePageFlag::Unicode) current = ToUnicode(current);
-			//BMP—Ìˆæ(2ƒoƒCƒg)
+			//BMPé ˜åŸŸ(2ãƒã‚¤ãƒˆ)
 			if (current.point <= 0xd7ff || (0xe000 <= current.point && current.point <= 0xffff)) chars.Add(static_cast<char16_t>(current.point));
-			//ƒTƒƒQ[ƒgƒyƒA(4ƒoƒCƒg)
+			//ã‚µãƒ­ã‚²ãƒ¼ãƒˆãƒšã‚¢(4ãƒã‚¤ãƒˆ)
 			else {
 				chars.AddRange(
 					static_cast<char16_t>(0xd800 | ((((current.point & BITMASK_M<17, 21>) >> 16) - 1) << 6) | ((current.point & BITMASK_M<11, 16>) >> 10)),
@@ -79,14 +78,14 @@ namespace System::Encoding {
 	}
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚Ì”z—ñ‚©‚çutf32•¶š—ñ‚ğ¶¬‚·‚é
+	/// CodePointæ§‹é€ ä½“ã®é…åˆ—ã‹ã‚‰utf32æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹
 	/// </summary>
-	/// <param name="codePoints">CodePoint\‘¢‘Ì‚Ì”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="count">”z—ñ‚Ì’·‚³</param>
-	/// <returns>char32_tŒ^‚Ì•¶š—ñ‚ğ‚ÂStringBlockƒIƒuƒWƒFƒNƒg</returns>
+	/// <param name="codePoints">CodePointæ§‹é€ ä½“ã®é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="count">é…åˆ—ã®é•·ã•</param>
+	/// <returns>char32_tå‹ã®æ–‡å­—åˆ—ã‚’æŒã¤StringBlockã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 	StringBlock<char32_t> ToU32StringBlock(const CodePoint* codePoints, size_t count) noexcept {
 		if (!codePoints || count == 0) return StringBlock<char32_t>();
-		Vector<char32_t> chars;
+		VectorBase<char32_t> chars;
 		for (size_t i = 0; i < count; ++i) {
 			CodePoint current = codePoints[i];
 			if (current.codePage != CodePageFlag::Unicode) current = ToUnicode(current);
@@ -98,21 +97,21 @@ namespace System::Encoding {
 	}
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚Ì”z—ñ‚©‚çƒƒCƒh•¶š—ñ‚ğ¶¬‚·‚é
+	/// CodePointæ§‹é€ ä½“ã®é…åˆ—ã‹ã‚‰ãƒ¯ã‚¤ãƒ‰æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹
 	/// </summary>
-	/// <param name="codePoints">CodePoint\‘¢‘Ì‚Ì”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="count">”z—ñ‚Ì’·‚³</param>
-	/// <returns>wchar_tŒ^‚Ì•¶š—ñ‚ğ‚ÂStringBlockƒIƒuƒWƒFƒNƒg</returns>
+	/// <param name="codePoints">CodePointæ§‹é€ ä½“ã®é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="count">é…åˆ—ã®é•·ã•</param>
+	/// <returns>wchar_tå‹ã®æ–‡å­—åˆ—ã‚’æŒã¤StringBlockã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 	StringBlock<wchar_t> ToWideStringBlock(const CodePoint* codePoints, size_t count) noexcept {
 		if (!codePoints || count == 0) return StringBlock<wchar_t>();
-		Vector<wchar_t> chars;
+		VectorBase<wchar_t> chars;
 		for (size_t i = 0; i < count; ++i) {
 			CodePoint current = codePoints[i];
 			if (current.codePage != CodePageFlag::Unicode) current = ToUnicode(current);
 			if constexpr (sizeof(wchar_t) == 2) {
-				//BMP—Ìˆæ(2ƒoƒCƒg)
+				//BMPé ˜åŸŸ(2ãƒã‚¤ãƒˆ)
 				if (current.point <= 0xd7ff || (0xe000 <= current.point && current.point <= 0xffff)) chars.Add(static_cast<wchar_t>(current.point));
-				//ƒTƒƒQ[ƒgƒyƒA(4ƒoƒCƒg)
+				//ã‚µãƒ­ã‚²ãƒ¼ãƒˆãƒšã‚¢(4ãƒã‚¤ãƒˆ)
 				else {
 					chars.AddRange(
 						static_cast<wchar_t>(0xd800 | ((((current.point & BITMASK_M<17, 21>) >> 16) - 1) << 6) | ((current.point & BITMASK_M<11, 16>) >> 10)),
@@ -128,18 +127,18 @@ namespace System::Encoding {
 	}
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚Ì”z—ñ‚©‚çƒ}ƒ‹ƒ`ƒoƒCƒg•¶š—ñ‚ğ¶¬‚·‚é
+	/// CodePointæ§‹é€ ä½“ã®é…åˆ—ã‹ã‚‰ãƒãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹
 	/// </summary>
-	/// <param name="codePoints">CodePoint\‘¢‘Ì‚Ì”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="count">”z—ñ‚Ì’·‚³</param>
-	/// <returns>charŒ^‚Ì•¶š—ñ‚ğ‚ÂStringBlockƒIƒuƒWƒFƒNƒg</returns>
+	/// <param name="codePoints">CodePointæ§‹é€ ä½“ã®é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="count">é…åˆ—ã®é•·ã•</param>
+	/// <returns>charå‹ã®æ–‡å­—åˆ—ã‚’æŒã¤StringBlockã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 	StringBlock<char> ToMultiByteStringBlock(const CodePoint* codePoints, size_t count) noexcept {
 		if (!codePoints || count == 0) return StringBlock<char>();
-		Vector<char> chars;
+		VectorBase<char> chars;
 		for (size_t i = 0; i < count; ++i) {
 			CodePoint current = codePoints[i];
 			if (current.codePage == CodePageFlag::Unicode) current = ToMultiByte(current);
-			Vector<char> tmp = GetMultiByteChar(current);
+			VectorBase<char> tmp = GetMultiByteChar(current);
 			for (size_t i = 0, end = tmp.Count(); i < end; ++i) chars.Add(tmp[i]);
 			if (current.point == 0) break;
 		}

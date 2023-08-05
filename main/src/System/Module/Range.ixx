@@ -1,4 +1,4 @@
-export module Range;
+﻿export module Range;
 import Traits;
 import Vector;	//using in ReverseEnumerator()
 import IEnumerable;

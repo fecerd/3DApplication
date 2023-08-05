@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+            "name": "x64",
+            "includePath": [
+                "${workspaceFolder}/**",
+				"C:/PROGRA~1/Microsoft Visual Studio/2022/Preview/VC/Tools/MSVC/14.37.32820/include/**"
+            ],
+			"defines": [
+				"_DEBUG",
+				"DEBUG",
+				"_UNICODE",
+				"UNICODE"
+			],
+			"windowsSdkVersion": "10.0.22621.0",
+			"compilerPath": "C:/PROGRA~1/Microsoft Visual Studio/2022/Preview/VC/Tools/MSVC/14.37.32820/bin/Hostx64/x64/cl.exe",
+			"compilerArgs": [
+				"-EHsc",
+				"-nologo",
+				//"-ifcSearchDir${workspaceFolder}/main/build/x64-debug-msvc\\",
+				//"-ifcSearchDir${workspaceFolder}/main/build/x64-debug-msvc/std\\",
+				"-link -MANIFEST:NO"
+			],
+            "cStandard": "c17",
+			"cppStandard": "c++23",
+			"intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}

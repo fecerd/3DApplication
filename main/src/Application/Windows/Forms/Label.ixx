@@ -1,4 +1,4 @@
-export module Label;
+﻿export module Label;
 import Control;
 using namespace WinAPI;
 

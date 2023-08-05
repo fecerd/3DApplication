@@ -1,4 +1,4 @@
-export module Vector3;
+ï»¿export module Vector3;
 import CSTDINT;
 import Math;
 import Objects;
@@ -26,32 +26,32 @@ export namespace System {
 		static constexpr Vector3 Up() noexcept { return Vector3(0, 1, 0); }
 		static constexpr Vector3 Zero() noexcept { return Vector3(0, 0, 0); }
 	public:
-		//ƒxƒNƒgƒ‹‚Ì‘å‚«‚³‚ğ•Ô‚·
+		//ãƒ™ã‚¯ãƒˆãƒ«ã®å¤§ãã•ã‚’è¿”ã™
 		constexpr float Magnitude() const noexcept { return Math::Sqrt(x * x + y * y + z * z); }
-		//³‹K‰»‚µ‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·
+		//æ­£è¦åŒ–ã—ãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 		constexpr Vector3 Normalized() const noexcept {
 			float mag = Magnitude();
 			return Math::EqualZero(mag) ? Zero() : Vector3(x / mag, y / mag, z / mag);
 		}
-		//ƒxƒNƒgƒ‹‚Ì‘å‚«‚³‚Ì2æ‚ğ•Ô‚·
+		//ãƒ™ã‚¯ãƒˆãƒ«ã®å¤§ãã•ã®2ä¹—ã‚’è¿”ã™
 		constexpr float SqrMagnitude() const noexcept { return x * x + y * y + z * z; }
-		//Še¬•ª‚Ì‹t”‚ğ‚Æ‚Á‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·
+		//å„æˆåˆ†ã®é€†æ•°ã‚’ã¨ã£ãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 		constexpr Vector3 Reciprocal() const noexcept { return Vector3(1.0f / x, 1.0f / y, 1.0f / z); }
 	public:
-		//*this == other‚Æ“™‚µ‚¢
+		//*this == otherã¨ç­‰ã—ã„
 		constexpr bool Equal(const Vector3& other) const noexcept { return *this == other; }
-		//Še¬•ª‚ğİ’è‚·‚é
+		//å„æˆåˆ†ã‚’è¨­å®šã™ã‚‹
 		constexpr void Set(float newX, float newY, float newZ) noexcept { x = newX; y = newY; z = newZ; }
-		//©g‚ğ³‹K‰»‚·‚é
+		//è‡ªèº«ã‚’æ­£è¦åŒ–ã™ã‚‹
 		constexpr void Normalize() noexcept { *this = Normalized(); }
-		//Še¬•ª‚ğƒXƒP[ƒŠƒ“ƒO‚·‚é
+		//å„æˆåˆ†ã‚’ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°ã™ã‚‹
 		constexpr void Scale(const Vector3& scale) noexcept {
 			x *= scale.x;
 			y *= scale.y;
 			z *= scale.z;
 		}
 	public:
-		//â‘Î’l‚ªŒvZ‹@ƒGƒvƒVƒƒ“–¢–‚Ì¬•ª‚Ì’l‚ğ0‚É‚·‚é
+		//çµ¶å¯¾å€¤ãŒè¨ˆç®—æ©Ÿã‚¨ãƒ—ã‚·ãƒ­ãƒ³æœªæº€ã®æˆåˆ†ã®å€¤ã‚’0ã«ã™ã‚‹
 		constexpr Vector3& FloorEpsilon() noexcept {
 			if (System::Math::Abs(x) < System::Math::EPSILON<float>) x *= 0;
 			if (System::Math::Abs(y) < System::Math::EPSILON<float>) y *= 0;
@@ -59,62 +59,62 @@ export namespace System {
 			return *this;
 		}
 	public:
-		//from‚Æto‚Ì‚È‚·Šp‚ğ•Ô‚·([‹])
-		//from‚Æto‚Éƒ[ƒƒxƒNƒgƒ‹‚ªŠÜ‚Ü‚ê‚éê‡A0‚ğ•Ô‚·
+		//fromã¨toã®ãªã™è§’ã‚’è¿”ã™([Â°])
+		//fromã¨toã«ã‚¼ãƒ­ãƒ™ã‚¯ãƒˆãƒ«ãŒå«ã¾ã‚Œã‚‹å ´åˆã€0ã‚’è¿”ã™
 		static constexpr float Angle(const Vector3& from, const Vector3& to) noexcept {
 			return from != Zero() && to != Zero() ? Math::AcosDeg(Dot(from, to) / (from.Magnitude() * to.Magnitude())) : 0.0f;
 		}
-		//vector‚Æ“¯‚¶Œü‚«‚Å‘å‚«‚³maxLength‚ÌƒxƒNƒgƒ‹‚ğ•Ô‚·
+		//vectorã¨åŒã˜å‘ãã§å¤§ãã•maxLengthã®ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 		static constexpr Vector3 ClampMagnitude(const Vector3& vector, const float maxLength) noexcept {
 			return vector.Normalized() * maxLength;
 		}
-		//lhs‚Ærhs‚ÌŠOÏ‚ğ•Ô‚·
+		//lhsã¨rhsã®å¤–ç©ã‚’è¿”ã™
 		static constexpr Vector3 Cross(const Vector3& lhs, const Vector3& rhs) noexcept {
 			return Vector3(lhs.y * rhs.z - lhs.z * rhs.y, lhs.z * rhs.x - lhs.x * rhs.z, lhs.x * rhs.y - lhs.y * rhs.x);
 		}
-		//ˆÊ’uƒxƒNƒgƒ‹a,bŠÔ‚Ì‹——£‚ğ•Ô‚·
+		//ä½ç½®ãƒ™ã‚¯ãƒˆãƒ«a,bé–“ã®è·é›¢ã‚’è¿”ã™
 		static constexpr float Distance(const Vector3& a, const Vector3& b) noexcept {
 			return (a - b).Magnitude();
 		}
-		//lhs‚Ærhs‚Ì“àÏ‚ğ•Ô‚·
+		//lhsã¨rhsã®å†…ç©ã‚’è¿”ã™
 		static constexpr float Dot(const Vector3& lhs, const Vector3& rhs) noexcept {
 			return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 		}
-		//ƒxƒNƒgƒ‹a,b‚ğ”}‰î•Ï”t[0, 1]‚ÅüŒ`•âŠÔ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·
+		//ãƒ™ã‚¯ãƒˆãƒ«a,bã‚’åª’ä»‹å¤‰æ•°t[0, 1]ã§ç·šå½¢è£œé–“ã—ãŸçµæœã‚’è¿”ã™
 		static constexpr Vector3 Lerp(const Vector3& a, const Vector3& b, float t) noexcept {
 			return LerpUnclamped(a, b, Math::Clamp(t, 0.0f, 1.0f));
 		}
-		//ƒxƒNƒgƒ‹a,b‚ğ”}‰î•Ï”t(-Inf, Inf)‚ÅüŒ`•âŠÔ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·
+		//ãƒ™ã‚¯ãƒˆãƒ«a,bã‚’åª’ä»‹å¤‰æ•°t(-Inf, Inf)ã§ç·šå½¢è£œé–“ã—ãŸçµæœã‚’è¿”ã™
 		static constexpr Vector3 LerpUnclamped(const Vector3& a, const Vector3& b, float t) noexcept {
 			return (1.0f - t) * a + t * b;
 		}
-		//lhs‚Ærhs‚ÌŠe¬•ª‚Åˆê”Ô‘å‚«‚¢’l‚ğg—p‚µ‚ÄƒxƒNƒgƒ‹‚ğì¬‚·‚é
+		//lhsã¨rhsã®å„æˆåˆ†ã§ä¸€ç•ªå¤§ãã„å€¤ã‚’ä½¿ç”¨ã—ã¦ãƒ™ã‚¯ãƒˆãƒ«ã‚’ä½œæˆã™ã‚‹
 		static constexpr Vector3 Max(const Vector3& lhs, const Vector3& rhs) noexcept {
 			return Vector3(Math::Max(lhs.x, rhs.x), Math::Max(lhs.y, rhs.y), Math::Max(lhs.z, rhs.z));
 		}
-		//lhs‚Ærhs‚ÌŠe¬•ª‚Åˆê”Ô¬‚³‚¢’l‚ğg—p‚µ‚ÄƒxƒNƒgƒ‹‚ğì¬‚·‚é
+		//lhsã¨rhsã®å„æˆåˆ†ã§ä¸€ç•ªå°ã•ã„å€¤ã‚’ä½¿ç”¨ã—ã¦ãƒ™ã‚¯ãƒˆãƒ«ã‚’ä½œæˆã™ã‚‹
 		static constexpr Vector3 Min(const Vector3& lhs, const Vector3& rhs) noexcept {
 			return Vector3(Math::Min(lhs.x, rhs.x), Math::Min(lhs.y, rhs.y), Math::Min(lhs.z, rhs.z));
 		}
-		//current‚©‚çtarget‚ÉŒü‚©‚Á‚ÄmaxDistanceDelta‚¾‚¯i‚ñ‚¾‚ÌˆÊ’uƒxƒNƒgƒ‹‚ğ•Ô‚·
-		//‚½‚¾‚µA(target - current).magnitude() < maxDistanceDelta‚Ìê‡Atarget‚ğ•Ô‚·
+		//currentã‹ã‚‰targetã«å‘ã‹ã£ã¦maxDistanceDeltaã ã‘é€²ã‚“ã æ™‚ã®ä½ç½®ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
+		//ãŸã ã—ã€(target - current).magnitude() < maxDistanceDeltaã®å ´åˆã€targetã‚’è¿”ã™
 		static constexpr Vector3 MoveTowards(const Vector3& current, const Vector3& target, float maxDistanceDelta) noexcept {
 			return (target - current).SqrMagnitude() < maxDistanceDelta * maxDistanceDelta
 				? target : current + (target - current).Normalized() * maxDistanceDelta;
 		}
-		//vector‚ğ³‹K‰»‚·‚é
+		//vectorã‚’æ­£è¦åŒ–ã™ã‚‹
 		static constexpr Vector3& Normalize(Vector3& vector) noexcept {
 			return vector = vector.Normalized();
 		}
-		//normal‚ğ³‹K‰»‚·‚é
-		//tangent‚ğnormal‚Æ’¼Œğ‚³‚¹‚Ä³‹K‰»‚·‚é
+		//normalã‚’æ­£è¦åŒ–ã™ã‚‹
+		//tangentã‚’normalã¨ç›´äº¤ã•ã›ã¦æ­£è¦åŒ–ã™ã‚‹
 		static constexpr void OrthoNormalize(Vector3& normal, Vector3& tangent) noexcept {
 			Vector3 bi;
 			OrthoNormalize(normal, tangent, bi);
 		}
-		//normal‚ğ³‹K‰»‚·‚é
-		//tangent‚ğnormal‚Æ’¼Œğ‚³‚¹‚Ä³‹K‰»‚·‚é
-		//binormal‚É‚ÍAnormal‚Ætangent‚Ì—¼•û‚Æ’¼Œğ‚·‚éƒxƒNƒgƒ‹‚ª‘ã“ü‚³‚ê‚é
+		//normalã‚’æ­£è¦åŒ–ã™ã‚‹
+		//tangentã‚’normalã¨ç›´äº¤ã•ã›ã¦æ­£è¦åŒ–ã™ã‚‹
+		//binormalã«ã¯ã€normalã¨tangentã®ä¸¡æ–¹ã¨ç›´äº¤ã™ã‚‹ãƒ™ã‚¯ãƒˆãƒ«ãŒä»£å…¥ã•ã‚Œã‚‹
 		static constexpr void OrthoNormalize(Vector3& normal, Vector3& tangent, Vector3& binormal) noexcept {
 			if (normal == Zero()) {
 				normal = Right();
@@ -130,22 +130,22 @@ export namespace System {
 				binormal = Cross(normal, tangent).Normalized();
 			}
 		}
-		//vector‚ğonNormalã‚É“Š‰e‚µ‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·
+		//vectorã‚’onNormalä¸Šã«æŠ•å½±ã—ãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 		static constexpr Vector3 Project(const Vector3& vector, const Vector3& onNormal) noexcept {
 			const Vector3 n = onNormal.Normalized();
 			return n * Dot(vector, n);
 		}
-		//vector‚ğ–@üƒxƒNƒgƒ‹planeNormal‚Å•\‚³‚ê‚é•½–Ê‚É“Š‰e‚µ‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·
+		//vectorã‚’æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«planeNormalã§è¡¨ã•ã‚Œã‚‹å¹³é¢ã«æŠ•å½±ã—ãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 		static constexpr Vector3 ProjectOnPlane(const Vector3& vector, const Vector3& planeNormal) noexcept {
 			return vector - Project(vector, planeNormal);
 		}
-		//inDirection‚ğ–@üƒxƒNƒgƒ‹inNormal‚Å•\‚³‚ê‚é•½–Ê‚Å”½Ë‚µ‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·
+		//inDirectionã‚’æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«inNormalã§è¡¨ã•ã‚Œã‚‹å¹³é¢ã§åå°„ã—ãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 		static constexpr Vector3 Reflect(const Vector3& inDirection, const Vector3& inNormal) noexcept {
 			return inDirection - 2 * Project(inDirection, inNormal);
 		}
-		//•ûŒüƒxƒNƒgƒ‹current‚©‚çtarget‚Ü‚Å‚Ì‰ñ“]‚Ì‚¤‚¿A
-		//maxRadianDelta[rad]‚¾‚¯‰ñ“]‚ğ“K—p‚µ‚½current‚ğ•Ô‚·
-		//current‚ªƒ[ƒƒxƒNƒgƒ‹‚Ìê‡Atarget‚ğ•Ô‚·
+		//æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«currentã‹ã‚‰targetã¾ã§ã®å›è»¢ã®ã†ã¡ã€
+		//maxRadianDelta[rad]ã ã‘å›è»¢ã‚’é©ç”¨ã—ãŸcurrentã‚’è¿”ã™
+		//currentãŒã‚¼ãƒ­ãƒ™ã‚¯ãƒˆãƒ«ã®å ´åˆã€targetã‚’è¿”ã™
 		static constexpr Vector3 RotateTowords(const Vector3& current, const Vector3& target, float maxRadianDelta, float /*maxMagnitudeDelta*/) noexcept {
 			const Vector3 t = Cross(current, target) == Zero() ? target - Vector3(0.00001f, 0.00001f, 0.0f) : target;
 			const float theta = Math::Deg2Radf * Angle(current, t);
@@ -153,22 +153,22 @@ export namespace System {
 			if (Math::GreaterEq(one, 1.0f)) return target;
 			return ((Math::Sin(theta * (1.0f - one)) * current + Math::Sin(theta * one) * t) / Math::Sin(theta)).Normalized();
 		}
-		//a‚Æb‚ÌŠe¬•ª‚ªæZ‚³‚ê‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·	
+		//aã¨bã®å„æˆåˆ†ãŒä¹—ç®—ã•ã‚ŒãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™	
 		static constexpr Vector3 Scale(const Vector3& a, const Vector3& b) noexcept {
 			return Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
 		}
-		//from‚Æto‚ª‚È‚·Šp‚É•„†‚ğ‚Â‚¯‚Ä•Ô‚·([‹])
-		//–@üƒxƒNƒgƒ‹Cross(from, to)‚Å•\‚³‚ê‚é•½–Ê‚É‘Î‚µ‚ÄAaxis‚ª•\‚ğŒü‚¢‚Ä‚¢‚éê‡A
-		//–@üƒxƒNƒgƒ‹‚ğ²‚Æ‚µ‚ÄŒv‰ñ‚è‚ª³A”½Œv‰ñ‚è‚ª•‰‚Å‚ ‚é
-		//axis‚ª— ‚ğŒü‚¢‚Ä‚¢‚éê‡A•„†‚Í‹t‚Å‚ ‚èAaxis‚ª•½–Êã‚Ìê‡‚Í0‚ğ•Ô‚·
+		//fromã¨toãŒãªã™è§’ã«ç¬¦å·ã‚’ã¤ã‘ã¦è¿”ã™([Â°])
+		//æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«Cross(from, to)ã§è¡¨ã•ã‚Œã‚‹å¹³é¢ã«å¯¾ã—ã¦ã€axisãŒè¡¨ã‚’å‘ã„ã¦ã„ã‚‹å ´åˆã€
+		//æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«ã‚’è»¸ã¨ã—ã¦æ™‚è¨ˆå›ã‚ŠãŒæ­£ã€åæ™‚è¨ˆå›ã‚ŠãŒè² ã§ã‚ã‚‹
+		//axisãŒè£ã‚’å‘ã„ã¦ã„ã‚‹å ´åˆã€ç¬¦å·ã¯é€†ã§ã‚ã‚Šã€axisãŒå¹³é¢ä¸Šã®å ´åˆã¯0ã‚’è¿”ã™
 		static constexpr float SignedAngle(const Vector3& from, const Vector3& to, const Vector3& axis) noexcept {
 			return Angle(from, to) * Math::Sign(Dot(Cross(from, to), axis));
 		}
-		//ƒxƒNƒgƒ‹a,b‚ğ”}‰î•Ï”t[0, 1]‚Å‹…–ÊüŒ`•âŠÔ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·
+		//ãƒ™ã‚¯ãƒˆãƒ«a,bã‚’åª’ä»‹å¤‰æ•°t[0, 1]ã§çƒé¢ç·šå½¢è£œé–“ã—ãŸçµæœã‚’è¿”ã™
 		static constexpr Vector3 Slerp(const Vector3& a, const Vector3& b, float t) noexcept {
 			return SlerpUnclamped(a, b, Math::Clamp(t, 0.0f, 1.0f));
 		}
-		//ƒxƒNƒgƒ‹a,b‚ğ”}‰î•Ï”t(-Inf, Inf)‚Å‹…–ÊüŒ`•âŠÔ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·
+		//ãƒ™ã‚¯ãƒˆãƒ«a,bã‚’åª’ä»‹å¤‰æ•°t(-Inf, Inf)ã§çƒé¢ç·šå½¢è£œé–“ã—ãŸçµæœã‚’è¿”ã™
 		static constexpr Vector3 SlerpUnclamped(const Vector3& a, const Vector3& b, float t) noexcept {
 			float theta = Angle(a, b) * t;
 			Vector3 axis = Cross(a, b);

@@ -1,10 +1,9 @@
-module;
-#include<chrono>
-export module Time;
+ï»¿export module Time;
 import CSTDINT;
 import Traits;
 import Objects;
 import EventHandler;
+import <chrono>;
 using namespace std::chrono;
 
 export namespace System {
@@ -37,82 +36,82 @@ export namespace System {
 		Timer() noexcept = default;
 	public:
 		/// <summary>
-		/// ƒ^ƒCƒ}[‚ğ‰Šú‰»‚·‚é
+		/// ã‚¿ã‚¤ãƒãƒ¼ã‚’åˆæœŸåŒ–ã™ã‚‹
 		/// </summary>
 		void Start() noexcept;
 		/// <summary>
-		/// ‚ğXV‚µA“o˜^‚³‚ê‚½ƒCƒxƒ“ƒg‚ğŒÄ‚Ño‚·B
-		/// ƒCƒxƒ“ƒg‚ÌŒÄ‚Ño‚µ‰ñ”‚ÍƒXƒP[ƒ‹‚Ì‰e‹¿‚ğó‚¯‚é
+		/// æ™‚åˆ»ã‚’æ›´æ–°ã—ã€ç™»éŒ²ã•ã‚ŒãŸã‚¤ãƒ™ãƒ³ãƒˆã‚’å‘¼ã³å‡ºã™ã€‚
+		/// ã‚¤ãƒ™ãƒ³ãƒˆã®å‘¼ã³å‡ºã—å›æ•°ã¯ã‚¹ã‚±ãƒ¼ãƒ«ã®å½±éŸ¿ã‚’å—ã‘ã‚‹
 		/// </summary>
 		void Update(bool callInvoke = true) noexcept;
 	public:
 		/// <summary>
-		/// Œ»İ‚ÌŠÔŒo‰ß‚ÌƒXƒP[ƒ‹‚ğæ“¾‚·‚é
+		/// ç¾åœ¨ã®æ™‚é–“çµŒéã®ã‚¹ã‚±ãƒ¼ãƒ«ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		float TimeScale() const noexcept { return m_scale; }
 		/// <summary>
-		/// ŠÔŒo‰ß‚ÌƒXƒP[ƒ‹‚ğİ’è‚·‚éB
-		/// DeltaTimeŠÖ”‚ÆUpdateŠÖ”‚É‰e‹¿‚·‚é
+		/// æ™‚é–“çµŒéã®ã‚¹ã‚±ãƒ¼ãƒ«ã‚’è¨­å®šã™ã‚‹ã€‚
+		/// DeltaTimeé–¢æ•°ã¨Updateé–¢æ•°ã«å½±éŸ¿ã™ã‚‹
 		/// </summary>
-		/// <param name="scale">V‚½‚Éİ’è‚·‚éƒXƒP[ƒ‹</param>
+		/// <param name="scale">æ–°ãŸã«è¨­å®šã™ã‚‹ã‚¹ã‚±ãƒ¼ãƒ«</param>
 		void TimeScale(float scale) noexcept { m_scale = scale; }
 		/// <summary>
-		/// Œ»İ‚ÌFixedUpdateƒCƒxƒ“ƒg‚ÌŒÄ‚Ño‚µŠÔŠu‚ğæ“¾‚·‚é
+		/// ç¾åœ¨ã®FixedUpdateã‚¤ãƒ™ãƒ³ãƒˆã®å‘¼ã³å‡ºã—é–“éš”ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <typeparam name="T">’PˆÊ</typeparam>
+		/// <typeparam name="T">å˜ä½</typeparam>
 		template<Duration T = milliseconds>
 		uint64_t FixedTimeStep() const noexcept {
 			return static_cast<uint64_t>(duration_cast<T>(m_fixedTimeStep).count());
 		}
 		/// <summary>
-		/// FixedUpdateƒCƒxƒ“ƒg‚ÌŒÄ‚Ño‚µŠÔŠu‚ğİ’è‚·‚é
+		/// FixedUpdateã‚¤ãƒ™ãƒ³ãƒˆã®å‘¼ã³å‡ºã—é–“éš”ã‚’è¨­å®šã™ã‚‹
 		/// </summary>
-		/// <typeparam name="T">’PˆÊ</typeparam>
-		/// <param name="n">ŒÄ‚Ño‚µŠÔŠu</param>
+		/// <typeparam name="T">å˜ä½</typeparam>
+		/// <param name="n">å‘¼ã³å‡ºã—é–“éš”</param>
 		template<Duration T = milliseconds>
 		void FixedTimeStep(uint64_t n) noexcept {
 			m_fixedTimeStep = nanoseconds(T(n));
 		}
 		/// <summary>
-		/// ’¼‹ß‚ÌFixedUpdateŒÄ‚Ño‚µ‰ñ”‚ğæ“¾‚·‚é
+		/// ç›´è¿‘ã®FixedUpdateå‘¼ã³å‡ºã—å›æ•°ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		uint64_t GetFixedUpdateCount() const noexcept {
 			return m_fixedUpdateCount;
 		}
 	public:
 		/// <summary>
-		/// ƒ^ƒCƒ}[ŠJn‚©‚ç‚ÌŒo‰ßŠÔ‚ğæ“¾‚·‚é
+		/// ã‚¿ã‚¤ãƒãƒ¼é–‹å§‹ã‹ã‚‰ã®çµŒéæ™‚é–“ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <typeparam name="T">’PˆÊ</typeparam>
+		/// <typeparam name="T">å˜ä½</typeparam>
 		template<Duration T = milliseconds>
 		uint64_t RealTimeSinceStartup() const noexcept {
 			return static_cast<uint64_t>(duration_cast<T>(m_unscaledCurrent - m_start).count());
 		}
 		/// <summary>
-		/// ’¼‹ß“ñ‚Â‚ÌUpdateŠÖ”ŒÄ‚Ño‚µŠÔ‚ÌŒo‰ßŠÔ‚ğæ“¾‚·‚éB
-		/// ‚±‚Ì’l‚ÍƒXƒP[ƒ‹‚Ì‰e‹¿‚ğó‚¯‚é
+		/// ç›´è¿‘äºŒã¤ã®Updateé–¢æ•°å‘¼ã³å‡ºã—é–“ã®çµŒéæ™‚é–“ã‚’å–å¾—ã™ã‚‹ã€‚
+		/// ã“ã®å€¤ã¯ã‚¹ã‚±ãƒ¼ãƒ«ã®å½±éŸ¿ã‚’å—ã‘ã‚‹
 		/// </summary>
-		/// <typeparam name="T">’PˆÊ</typeparam>
+		/// <typeparam name="T">å˜ä½</typeparam>
 		template<Duration T>
 		uint64_t DeltaTime() const noexcept { return static_cast<uint64_t>(duration_cast<T>(m_scaledDelta).count()); }
 		//float DeltaTime() const noexcept { return static_cast<float>(m_scaledDelta.count()) / nanoseconds(seconds(1)).count(); }
 
 		/// <summary>
-		/// ’¼‹ß“ñ‚Â‚ÌUpdateŠÖ”ŒÄ‚Ño‚µŠÔ‚ÌŒo‰ßŠÔ‚ğæ“¾‚·‚é
+		/// ç›´è¿‘äºŒã¤ã®Updateé–¢æ•°å‘¼ã³å‡ºã—é–“ã®çµŒéæ™‚é–“ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <typeparam name="T">’PˆÊ</typeparam>
+		/// <typeparam name="T">å˜ä½</typeparam>
 		template<Duration T>
 		uint64_t UnscaledDeltaTime() const noexcept { return static_cast<uint64_t>(duration_cast<T>(m_unscaledDelta).count()); }
 		/// <summary>
-		/// ƒ^ƒCƒ}[ŠJn‚©‚ç‚ÌUpdateŠÖ”ŒÄ‚Ño‚µ‰ñ”‚ğæ“¾‚·‚é
+		/// ã‚¿ã‚¤ãƒãƒ¼é–‹å§‹ã‹ã‚‰ã®Updateé–¢æ•°å‘¼ã³å‡ºã—å›æ•°ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		uint64_t FrameCount() const noexcept { return m_frameCount; }
 		/// <summary>
-		/// ’¼‹ß“ñ‚Â‚ÌUpdateŠÖ”ŒÄ‚Ño‚µŠÔ‚ÌŒo‰ßŠÔ‚ğ•¶š—ñ‚Æ‚µ‚Äæ“¾‚·‚é
+		/// ç›´è¿‘äºŒã¤ã®Updateé–¢æ•°å‘¼ã³å‡ºã—é–“ã®çµŒéæ™‚é–“ã‚’æ–‡å­—åˆ—ã¨ã—ã¦å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <typeparam name="T">
-		/// ’PˆÊB
-		/// milliseconds‚©nanosecondsˆÈŠO‚Ìê‡A’PˆÊ•\‹L‚ğŠÜ‚Ü‚È‚¢
+		/// å˜ä½ã€‚
+		/// millisecondsã‹nanosecondsä»¥å¤–ã®å ´åˆã€å˜ä½è¡¨è¨˜ã‚’å«ã¾ãªã„
 		/// </typeparam>
 		template<Duration T>
 		String DeltaTimeString() const noexcept {
@@ -123,16 +122,16 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ‚±‚ÌŠÖ”‚ğŒÄ‚Ño‚µ‚½ƒXƒŒƒbƒh‚ğ‹x~‚·‚é
+		/// ã“ã®é–¢æ•°ã‚’å‘¼ã³å‡ºã—ãŸã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ä¼‘æ­¢ã™ã‚‹
 		/// </summary>
-		/// <param name="ms">‹x~‚·‚éŠÔ</param>
+		/// <param name="ms">ä¼‘æ­¢ã™ã‚‹æ™‚é–“</param>
 		static void Sleep(milliseconds ms) noexcept;
 		static void Sleep(nanoseconds ns) noexcept;
 		static void Sleep(seconds s) noexcept;
 	};
 }
 
-//”NŒ“úŒvZ
+//å¹´æœˆæ—¥è¨ˆç®—
 export namespace System {
 	struct YearMonthDay {
 		uint32_t year;
@@ -141,13 +140,13 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// Œo‰ß‚ÆŠî€‚©‚ç”NŒ“ú‚ğZo‚·‚é
+	/// çµŒéæ™‚åˆ»ã¨åŸºæº–æ™‚åˆ»ã‹ã‚‰å¹´æœˆæ—¥ã‚’ç®—å‡ºã™ã‚‹
 	/// </summary>
-	/// <param name="second">Œo‰ß(•b)</param>
-	/// <param name="year">Šî€”N</param>
-	/// <param name="month">Šî€Œ</param>
-	/// <param name="day">Šî€“ú</param>
-	/// <returns>”NŒ“ú‚ğ•\‚·\‘¢‘Ì</returns>
+	/// <param name="second">çµŒéæ™‚åˆ»(ç§’)</param>
+	/// <param name="year">åŸºæº–å¹´</param>
+	/// <param name="month">åŸºæº–æœˆ</param>
+	/// <param name="day">åŸºæº–æ—¥</param>
+	/// <returns>å¹´æœˆæ—¥ã‚’è¡¨ã™æ§‹é€ ä½“</returns>
 	YearMonthDay GetYearMonthDay(int64_t second, uint32_t year, uint32_t month, uint32_t day) noexcept {
 		year_month_day date{ std::chrono::year(year), std::chrono::month(month), std::chrono::day(day) };
 		date = std::chrono::time_point_cast<std::chrono::days>(static_cast<std::chrono::sys_days>(date) + std::chrono::seconds(second));

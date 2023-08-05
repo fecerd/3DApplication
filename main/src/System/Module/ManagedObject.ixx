@@ -1,6 +1,6 @@
-module;
-#include <crtdbg.h>
-#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+ï»¿module;
+//#include <crtdbg.h>
+//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 export module ManagedObject;
 import CSTDINT;
 import Objects;
@@ -12,8 +12,8 @@ namespace System {
 	template<class T> class ManagedObject;
 
 	/// <summary>
-	/// ManagedObject‚ÌŠî’êŒ^B’Pƒ‚ÈƒXƒ}[ƒgƒ|ƒCƒ“ƒ^‹@”\‚ğ’ñ‹Ÿ‚·‚éB
-	/// ManagedObject‚Ì‚ÂHashMap‚ÌŒ^‚ğ‚±‚¿‚ç‚É‚·‚é‚±‚Æ‚ÅAíœ‚ÌzŠÂ‚ª‹N‚«‚È‚¢‚æ‚¤‚É‚·‚é
+	/// ManagedObjectã®åŸºåº•å‹ã€‚å˜ç´”ãªã‚¹ãƒãƒ¼ãƒˆãƒã‚¤ãƒ³ã‚¿æ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹ã€‚
+	/// ManagedObjectã®æŒã¤HashMapã®å‹ã‚’ã“ã¡ã‚‰ã«ã™ã‚‹ã“ã¨ã§ã€å‰Šé™¤ã®å¾ªç’°ãŒèµ·ããªã„ã‚ˆã†ã«ã™ã‚‹
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	template<class T>
@@ -95,10 +95,10 @@ namespace System {
 //ManagedObject
 export namespace System {
 	/// <summary>
-	/// ƒŠƒ\[ƒX‚É‘Î‰‚·‚éˆêˆÓ‚Ì•¶š—ñ‚ğw’è‚Å‚«‚é‹¤—Lƒ|ƒCƒ“ƒ^B
-	/// ‚»‚ÌƒŠƒ\[ƒX‚ğw‚·ManagedObject‚ªˆê‚ÂˆÈã‘¶İ‚µ‚Ä‚¢‚éŠÔA•¶š—ñ‚ğw’è‚µ‚ÄƒŠƒ\[ƒX‚ğæ“¾‚Å‚«‚é
+	/// ãƒªã‚½ãƒ¼ã‚¹ã«å¯¾å¿œã™ã‚‹ä¸€æ„ã®æ–‡å­—åˆ—ã‚’æŒ‡å®šã§ãã‚‹å…±æœ‰ãƒã‚¤ãƒ³ã‚¿ã€‚
+	/// ãã®ãƒªã‚½ãƒ¼ã‚¹ã‚’æŒ‡ã™ManagedObjectãŒä¸€ã¤ä»¥ä¸Šå­˜åœ¨ã—ã¦ã„ã‚‹é–“ã€æ–‡å­—åˆ—ã‚’æŒ‡å®šã—ã¦ãƒªã‚½ãƒ¼ã‚¹ã‚’å–å¾—ã§ãã‚‹
 	/// </summary>
-	/// <typeparam name="T">ŠÇ—‚·‚éƒNƒ‰ƒXBT*Œ^ƒ|ƒCƒ“ƒ^‚ğ“à•”‚É‚Â</typeparam>
+	/// <typeparam name="T">ç®¡ç†ã™ã‚‹ã‚¯ãƒ©ã‚¹ã€‚T*å‹ãƒã‚¤ãƒ³ã‚¿ã‚’å†…éƒ¨ã«æŒã¤</typeparam>
 	template<class T>
 	class ManagedObject : public IManagedBase<T> {
 		static HashMap<String, IManagedBase<T>>*& GetHashMapPtr() noexcept {

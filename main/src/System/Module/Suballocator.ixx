@@ -1,4 +1,4 @@
-export module Suballocator;
+ï»¿export module Suballocator;
 import CSTDINT;
 import Memory;
 
@@ -96,7 +96,7 @@ export namespace System {
 			}
 		}
 		~Suballocator() noexcept { Reset(); }
-	private:/* Subresource—p */
+	private:/* Subresourceç”¨ */
 		void Free(node_t*& node) noexcept {
 			if (!node) return;
 			node->value.used = false;
@@ -116,8 +116,8 @@ export namespace System {
 			else {
 				node_t* prev = m_first;
 				while (prev->next != node) prev = prev->next;
-				//prev‚ªŒ©‚Â‚©‚ç‚È‚¢‚Æ‚«Anode‚ª‚±‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚Ì‚à‚Ì‚Å‚È‚¢‚Æ‚¢‚¤‚±‚Æ‚¾‚ªA
-				//SubresourceƒNƒ‰ƒX‚©‚çŒÄ‚Ño‚·ˆÈã‚ ‚è‚¦‚È‚¢
+				//prevãŒè¦‹ã¤ã‹ã‚‰ãªã„ã¨ãã€nodeãŒã“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã®ã‚‚ã®ã§ãªã„ã¨ã„ã†ã“ã¨ã ãŒã€
+				//Subresourceã‚¯ãƒ©ã‚¹ã‹ã‚‰å‘¼ã³å‡ºã™ä»¥ä¸Šã‚ã‚Šãˆãªã„
 				if (!prev) return;
 				if (!prev->value.used) {
 					prev->value.range += node->value.range;
@@ -162,13 +162,13 @@ export namespace System {
 				const size_t nodeEndOffset = node->value.offset + node->value.range;
 				if (endOffset > nodeEndOffset) continue;
 				const size_t offsetDelta = alignedOffset - node->value.offset;
-				//®—ñ‚É‚æ‚Á‚Ä—]‚Á‚½—Ìˆæ‚ª‚ ‚éê‡
+				//æ•´åˆ—ã«ã‚ˆã£ã¦ä½™ã£ãŸé ˜åŸŸãŒã‚ã‚‹å ´åˆ
 				if (offsetDelta) {
-					//‘O•û‚É–¢Žg—pNode‚ª‚ ‚é‚È‚çŒ‹‡‚·‚é
+					//å‰æ–¹ã«æœªä½¿ç”¨NodeãŒã‚ã‚‹ãªã‚‰çµåˆã™ã‚‹
 					if (prev && !prev->value.used) {
 						prev->value.range += offsetDelta;
 					}
-					//‘O•û‚ÌNode‚ª‘¶Ý‚µ‚È‚¢A‚à‚µ‚­‚ÍŽg—p’†‚Ìê‡ANode‚ð•ªŠ„‚·‚é
+					//å‰æ–¹ã®NodeãŒå­˜åœ¨ã—ãªã„ã€ã‚‚ã—ãã¯ä½¿ç”¨ä¸­ã®å ´åˆã€Nodeã‚’åˆ†å‰²ã™ã‚‹
 					else {
 						node_t* tmp = new node_t();
 						tmp->value.offset = node->value.offset;
@@ -182,14 +182,14 @@ export namespace System {
 					node->value.range -= offsetDelta;
 				}
 				const size_t endOffsetDelta = nodeEndOffset - endOffset;
-				//•K—v‚ÈƒTƒCƒY‚æ‚è‚àNode‚ÌƒTƒCƒY‚ª‘å‚«‚¢ê‡
+				//å¿…è¦ãªã‚µã‚¤ã‚ºã‚ˆã‚Šã‚‚Nodeã®ã‚µã‚¤ã‚ºãŒå¤§ãã„å ´åˆ
 				if (endOffsetDelta) {
-					//Œã•û‚É–¢Žg—pNode‚ª‚ ‚é‚È‚çŒ‹‡‚·‚é
+					//å¾Œæ–¹ã«æœªä½¿ç”¨NodeãŒã‚ã‚‹ãªã‚‰çµåˆã™ã‚‹
 					if (node->next && !node->next->value.used) {
 						node->next->value.offset -= endOffsetDelta;
 						node->next->value.range += endOffsetDelta;
 					}
-					//Œã•û‚ÌNode‚ª‘¶Ý‚µ‚È‚¢A‚à‚µ‚­‚ÍŽg—p’†‚Ìê‡ANode‚ð•ªŠ„‚·‚é
+					//å¾Œæ–¹ã®NodeãŒå­˜åœ¨ã—ãªã„ã€ã‚‚ã—ãã¯ä½¿ç”¨ä¸­ã®å ´åˆã€Nodeã‚’åˆ†å‰²ã™ã‚‹
 					else {
 						node_t* tmp = new node_t();
 						tmp->value.offset = endOffset;
@@ -200,7 +200,7 @@ export namespace System {
 					}
 					node->value.range -= endOffsetDelta;
 				}
-				//‚±‚±‚Ü‚Å‚Ånode‚ÍalignedOffset‚©‚çbyteSize•ª‚Ì—Ìˆæ‚ð•\‚·‚æ‚¤‚É‚È‚é
+				//ã“ã“ã¾ã§ã§nodeã¯alignedOffsetã‹ã‚‰byteSizeåˆ†ã®é ˜åŸŸã‚’è¡¨ã™ã‚ˆã†ã«ãªã‚‹
 				node->value.used = true;
 				return Subresource(this, node);
 

@@ -1,4 +1,4 @@
-module Path;
+﻿module Path;
 using namespace System;
 
 namespace System::IO {
@@ -32,7 +32,7 @@ namespace System::IO {
 		return String();
 	}
 	Path Path::CreatePath(const String& relativePath) const noexcept {
-		if (m_data.IsNullOrEmpty()) return Path();	//current�̓p�X�łȂ�
+		if (m_data.IsNullOrEmpty()) return Path();	//currentはパスでない
 		if (relativePath.IsNullOrEmpty()) return *this;
 		const String directory = GetDirectory();
 		const String relative = relativePath.Replace(Constant::UnixSeparator(), Constant::Separator());

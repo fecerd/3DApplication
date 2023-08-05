@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include<crtdbg.h>
 #define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define __SPECSTRINGS_STRICT_LEVEL 0

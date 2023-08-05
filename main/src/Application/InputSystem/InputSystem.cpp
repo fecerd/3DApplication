@@ -1,4 +1,4 @@
-module InputSystem;
+Ôªømodule InputSystem;
 
 #ifndef SDL
 #if defined(_WIN32) || defined(_WIN64)
@@ -8,7 +8,7 @@ namespace System::Application {
 		m_manager = System::Application::Windows::DirectInputManager::CreateManager();
 	}
 }
-#else	//WindowsÇ≈Ç‡SDLÇ≈Ç‡Ç»Ç¢èÍçá
+#else	//Windows„Åß„ÇÇSDL„Åß„ÇÇ„Å™„ÅÑÂ†¥Âêà
 
 #endif
 #else	//SDL

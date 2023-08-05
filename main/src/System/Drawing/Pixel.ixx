@@ -1,4 +1,4 @@
-export module Pixel;
+ï»¿export module Pixel;
 import CSTDINT;
 import Objects;
 import Color;
@@ -33,11 +33,11 @@ export namespace System::Drawing {
 		}
 	public:
 		/// <summary>
-		/// ARGB’l‚ğƒrƒbƒg”½“]‚·‚é
+		/// ARGBå€¤ã‚’ãƒ“ãƒƒãƒˆåè»¢ã™ã‚‹
 		/// </summary>
 		constexpr void Inversion() noexcept { a = ~a; b = ~b; g = ~g; r = ~r; }
 		/// <summary>
-		/// ƒAƒ‹ƒtƒ@’l‚ğœ‚­RGB’l‚ª“™‚µ‚¢‚©’²‚×‚é
+		/// ã‚¢ãƒ«ãƒ•ã‚¡å€¤ã‚’é™¤ãRGBå€¤ãŒç­‰ã—ã„ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		constexpr bool EqualColor(const Pixel& rhs) const noexcept {
 			return r == rhs.r && g == rhs.g && b == rhs.b;

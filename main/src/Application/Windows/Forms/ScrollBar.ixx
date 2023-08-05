@@ -1,4 +1,4 @@
-export module ScrollBar;
+﻿export module ScrollBar;
 import Control;
 using namespace WinAPI;
 

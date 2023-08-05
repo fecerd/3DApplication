@@ -1,4 +1,4 @@
-export module FontFactory;
+ï»¿export module FontFactory;
 export import IFont;
 import Objects;
 import HashMap;
@@ -6,7 +6,7 @@ import OpenType;
 
 export namespace System {
 	/// <summary>
-	/// ƒtƒHƒ“ƒg‚ğŠÇ—‚·‚éƒtƒ@ƒNƒgƒŠƒNƒ‰ƒX
+	/// ãƒ•ã‚©ãƒ³ãƒˆã‚’ç®¡ç†ã™ã‚‹ãƒ•ã‚¡ã‚¯ãƒˆãƒªã‚¯ãƒ©ã‚¹
 	/// </summary>
 	class FontFactory {
 		inline static HashMap<String, IFont*> fonts = 3;

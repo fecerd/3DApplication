@@ -1,4 +1,4 @@
-export module MyWindow2;
+﻿export module MyWindow2;
 import DefaultWindow;
 import Common3D;
 using namespace System;

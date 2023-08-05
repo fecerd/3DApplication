@@ -1,4 +1,4 @@
-module Components:Animator;
+ï»¿module Components:Animator;
 import :GameObject;
 import :MeshFilter;
 using namespace System;
@@ -7,7 +7,7 @@ using namespace System::Application::Common3D;
 
 Animator::Animator() noexcept : Animator(nullptr) {}
 Animator::Animator(GameObject* object) noexcept : Component(object) {
-	//‰Šúp¨‚Æ‚µ‚ÄA"Empty"‚ğ’Ç‰Á‚·‚é
+	//åˆæœŸå§¿å‹¢ã¨ã—ã¦ã€"Empty"ã‚’è¿½åŠ ã™ã‚‹
 	ManagedObject<State> empty = ManagedObject<State>::GetObject(u"Empty");
 	if (!empty) {
 		State* tmp = new State(u"Empty");
@@ -17,7 +17,7 @@ Animator::Animator(GameObject* object) noexcept : Component(object) {
 		empty = ManagedObject<State>::GetObject(u"Empty");
 	}
 	m_currentState = empty;
-	//ƒ{[ƒ“p¨‚ğƒ{[ƒ“s—ñ‚ÌŒÂ”‚¾‚¯’Ç‰Á‚·‚é
+	//ãƒœãƒ¼ãƒ³å§¿å‹¢ã‚’ãƒœãƒ¼ãƒ³è¡Œåˆ—ã®å€‹æ•°ã ã‘è¿½åŠ ã™ã‚‹
 	m_currentBones.Reserve(BoneMatrixCount);
 	Transform tr{};
 	for (size_t i = 0; i < BoneMatrixCount; ++i) m_currentBones.Add(tr);
@@ -33,10 +33,10 @@ void Animator::Update() noexcept {
 	GameObject& gObj = GetObject();
 	if (!m_currentState || !gObj.HasComponent<MeshFilter>()) return;
 	--m_updateCount;
-	if (m_updateCount) return;	//m_updateCount‚ª0‚É‚È‚é‚Ü‚Å‚È‚É‚à‚µ‚È‚¢
+	if (m_updateCount) return;	//m_updateCountãŒ0ã«ãªã‚‹ã¾ã§ãªã«ã‚‚ã—ãªã„
 	m_updateCount = m_updateCountPerFrame;
 	++m_currentFrameNo;
-	//ó‘Ô‘JˆÚ‚ğŠm”F
+	//çŠ¶æ…‹é·ç§»ã‚’ç¢ºèª
 	const String& currentName = m_currentState->GetName();
 	const String& nextName = m_controller->GetCurrentMotionName(currentName, gObj);
 	if (currentName != nextName) {
@@ -49,15 +49,15 @@ void Animator::Update() noexcept {
 		}
 	}
 	/// <summary>
-	/// ƒtƒŒ[ƒ€•âŠÔˆÊ’ux‚ğƒxƒWƒF‹Èüã‚ÌÀ•W‚É‚æ‚Á‚Äy‚É•ÏŠ·‚·‚é
+	/// ãƒ•ãƒ¬ãƒ¼ãƒ è£œé–“ä½ç½®xã‚’ãƒ™ã‚¸ã‚§æ›²ç·šä¸Šã®åº§æ¨™ã«ã‚ˆã£ã¦yã«å¤‰æ›ã™ã‚‹
 	/// </summary>
 	auto GetBezier = [](uint32_t x, const ControlPoint* controlPoint) -> uint32_t {
 		if (x == 0) return 0;
 		else if (x >= 127) return 127;
 		/*
-			ƒxƒWƒF‹ÈüFf(t) = (127 - 3(c2 - c1))t^3 + (3c2 - 6c1)t^2 + 3c1t (c0 = (0, 0), c3 = (127, 127))
+			ãƒ™ã‚¸ã‚§æ›²ç·šï¼šf(t) = (127 - 3(c2 - c1))t^3 + (3c2 - 6c1)t^2 + 3c1t (c0 = (0, 0), c3 = (127, 127))
 			p[n] = p[n - 1] - (f(p[n - 1] / 127) - x) (p[0] = x)
-			p‚Íf(t/127).x == x‚Æ‚È‚ét‚Éû‘©‚·‚é
+			pã¯f(t/127).x == xã¨ãªã‚‹tã«åæŸã™ã‚‹
 		*/
 		float A = static_cast<float>(127 - 3 * (controlPoint[1].x - controlPoint[0].x));
 		float B = static_cast<float>(3 * controlPoint[1].x - 6 * controlPoint[0].x);
@@ -69,7 +69,7 @@ void Animator::Update() noexcept {
 			float f = A * (tt * t) + B * tt + C * t;
 			p = p - f + x;
 		}
-		//f(p / 127).y‚ª‹‚ß‚½‚¢•âŠÔŒW”
+		//f(p / 127).yãŒæ±‚ã‚ãŸã„è£œé–“ä¿‚æ•°
 		float t = p / 127;
 		float tt = t * t;
 		return static_cast<uint32_t>(
@@ -80,7 +80,7 @@ void Animator::Update() noexcept {
 	};
 
 	if (m_currentState->IsFrameMotion()) {
-		//ƒAƒjƒ[ƒVƒ‡ƒ“‚ÌƒŠƒs[ƒgEI—¹‚ğŠm”F
+		//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®ãƒªãƒ”ãƒ¼ãƒˆãƒ»çµ‚äº†ã‚’ç¢ºèª
 		Motion* motion = m_currentState->GetMotion();
 		if (!motion) return;
 		if (motion->GetEndFrameNo() < m_currentFrameNo) {
@@ -91,17 +91,17 @@ void Animator::Update() noexcept {
 			}
 		}
 		Frames frames = motion->GetFrames(m_currentFrameNo);
-		//ƒ{[ƒ“‚ğXV
+		//ãƒœãƒ¼ãƒ³ã‚’æ›´æ–°
 		MeshFilter& meshFilter = gObj.GetComponent<MeshFilter>();
-		Vector<Bone>& bones = meshFilter.GetBones();	//ƒ‚ƒfƒ‹‚Å’è‹`‚³‚ê‚½ƒ{[ƒ“î•ñ
-		size_t boneCount = m_currentBones.Count();	//ƒ{[ƒ“s—ñ‚ÌŒÂ”
+		Vector<Bone>& bones = meshFilter.GetBones();	//ãƒ¢ãƒ‡ãƒ«ã§å®šç¾©ã•ã‚ŒãŸãƒœãƒ¼ãƒ³æƒ…å ±
+		size_t boneCount = m_currentBones.Count();	//ãƒœãƒ¼ãƒ³è¡Œåˆ—ã®å€‹æ•°
 		if (frames.prev && frames.next) {
-			if (frames.prev == frames.next) {	//ƒL[ƒtƒŒ[ƒ€‚ÆŒ»İ‚ÌƒtƒŒ[ƒ€”Ô†‚ªˆê’v‚·‚é(•âŠÔ‚µ‚È‚­‚Ä‚æ‚¢)
+			if (frames.prev == frames.next) {	//ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã¨ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ãŒä¸€è‡´ã™ã‚‹(è£œé–“ã—ãªãã¦ã‚ˆã„)
 				for (Bone& nbone : frames.next->bones.Values()) {
 					size_t id = meshFilter.GetBoneID(nbone.name);
 					if (id >= boneCount) continue;
 					Transform& cbone = m_currentBones[id];
-					//if (bones[id].isIKBone) {	//IKƒ{[ƒ“‚Ì‚İ•½sˆÚ“®‚ğŒvZ‚·‚é
+					//if (bones[id].isIKBone) {	//IKãƒœãƒ¼ãƒ³ã®ã¿å¹³è¡Œç§»å‹•ã‚’è¨ˆç®—ã™ã‚‹
 					cbone.LocalPosition.x = nbone.position.x;
 					cbone.LocalPosition.y = nbone.position.y;
 					cbone.LocalPosition.z = nbone.position.z;
@@ -110,14 +110,14 @@ void Animator::Update() noexcept {
 				}
 			}
 			else {
-				uint32_t t = static_cast<uint32_t>(frames.t * 127);	//ƒtƒŒ[ƒ€ˆÊ’u‚ğ[0, 127]‚Å•\‚·
+				uint32_t t = static_cast<uint32_t>(frames.t * 127);	//ãƒ•ãƒ¬ãƒ¼ãƒ ä½ç½®ã‚’[0, 127]ã§è¡¨ã™
 				for (Bone& nbone : frames.next->bones.Values()) {
 					size_t id = meshFilter.GetBoneID(nbone.name);
 					if (id >= boneCount) continue;
 					Bone* pbone = frames.prev->bones.AtPtr<0>(nbone.name);
 					Transform& cbone = m_currentBones[id];
-					if (pbone) {	//‘OƒtƒŒ[ƒ€‚Ìƒ{[ƒ“‚Æ•âŠÔ‚·‚é
-						//if (bones[id].isIKBone) {	//IKƒ{[ƒ“‚Ì‚İ•½sˆÚ“®‚ğŒvZ‚·‚é
+					if (pbone) {	//å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒœãƒ¼ãƒ³ã¨è£œé–“ã™ã‚‹
+						//if (bones[id].isIKBone) {	//IKãƒœãƒ¼ãƒ³ã®ã¿å¹³è¡Œç§»å‹•ã‚’è¨ˆç®—ã™ã‚‹
 						float xT = GetBezier(t, nbone.xTranslatePoint) / 127.0f;
 						cbone.LocalPosition.x = pbone->position.x * (1.0f - xT) + nbone.position.x * xT;
 						float yT = GetBezier(t, nbone.yTranslatePoint) / 127.0f;
@@ -128,8 +128,8 @@ void Animator::Update() noexcept {
 						float rotT = GetBezier(t, nbone.rotationPoint) / 127.0f;
 						cbone.LocalRotation = Quaternion::Slerp(pbone->rotation, nbone.rotation, rotT);
 					}
-					else {	//‰Šúp¨‚Æ•âŠÔ‚·‚é(‰Šúp¨‚Å‚È‚¢ƒ{[ƒ“‚ªÈ—ª‚³‚ê‚Ä‚¢‚é‚Æ‚Íl‚¦‚Ã‚ç‚¢‚½‚ß)
-						//if (bones[id].isIKBone) {	//IKƒ{[ƒ“‚Ì‚İ•½sˆÚ“®‚ğŒvZ‚·‚é
+					else {	//åˆæœŸå§¿å‹¢ã¨è£œé–“ã™ã‚‹(åˆæœŸå§¿å‹¢ã§ãªã„ãƒœãƒ¼ãƒ³ãŒçœç•¥ã•ã‚Œã¦ã„ã‚‹ã¨ã¯è€ƒãˆã¥ã‚‰ã„ãŸã‚)
+						//if (bones[id].isIKBone) {	//IKãƒœãƒ¼ãƒ³ã®ã¿å¹³è¡Œç§»å‹•ã‚’è¨ˆç®—ã™ã‚‹
 						float xT = GetBezier(t, nbone.xTranslatePoint) / 127.0f;
 						cbone.LocalPosition.x = nbone.position.x * xT;
 						float yT = GetBezier(t, nbone.yTranslatePoint) / 127.0f;
@@ -143,17 +143,17 @@ void Animator::Update() noexcept {
 				}
 			}
 		}
-		else if (!frames.next) {	//ÅŒã‚ÌƒtƒŒ[ƒ€‚æ‚èŒ»İ‚ÌƒtƒŒ[ƒ€”Ô†‚ª‘å‚«‚¢(’Êí‚Í‚ ‚è‚¦‚È‚¢)
-			return;	//ƒ{[ƒ“‚ğXV‚¹‚¸‚ÉI—¹
+		else if (!frames.next) {	//æœ€å¾Œã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‚ˆã‚Šç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ãŒå¤§ãã„(é€šå¸¸ã¯ã‚ã‚Šãˆãªã„)
+			return;	//ãƒœãƒ¼ãƒ³ã‚’æ›´æ–°ã›ãšã«çµ‚äº†
 		}
-		else {	//Å‰‚ÌƒtƒŒ[ƒ€‚æ‚èŒ»İ‚ÌƒtƒŒ[ƒ€”Ô†‚ª¬‚³‚¢
-			uint32_t t = static_cast<uint32_t>(frames.t * 127);	//ƒtƒŒ[ƒ€ˆÊ’u‚ğ[0, 127]‚Å•\‚·
+		else {	//æœ€åˆã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‚ˆã‚Šç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ãŒå°ã•ã„
+			uint32_t t = static_cast<uint32_t>(frames.t * 127);	//ãƒ•ãƒ¬ãƒ¼ãƒ ä½ç½®ã‚’[0, 127]ã§è¡¨ã™
 			for (Bone& nbone : frames.next->bones.Values()) {
 				size_t id = meshFilter.GetBoneID(nbone.name);
 				if (id >= boneCount) continue;
 				Transform& cbone = m_currentBones[id];
-				//‰Šúp¨‚Æ•âŠÔ‚·‚é
-				//if (bones[id].isIKBone) {	//IKƒ{[ƒ“‚Ì‚İ•½sˆÚ“®‚ğŒvZ‚·‚é
+				//åˆæœŸå§¿å‹¢ã¨è£œé–“ã™ã‚‹
+				//if (bones[id].isIKBone) {	//IKãƒœãƒ¼ãƒ³ã®ã¿å¹³è¡Œç§»å‹•ã‚’è¨ˆç®—ã™ã‚‹
 				float xT = GetBezier(t, nbone.xTranslatePoint) / 127.0f;
 				cbone.LocalPosition.x = nbone.position.x * xT;
 				float yT = GetBezier(t, nbone.yTranslatePoint) / 127.0f;
@@ -167,7 +167,7 @@ void Animator::Update() noexcept {
 		}
 	}
 	else {
-		//ƒAƒjƒ[ƒVƒ‡ƒ“‚ÌƒŠƒs[ƒgEI—¹‚ğŠm”F
+		//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®ãƒªãƒ”ãƒ¼ãƒˆãƒ»çµ‚äº†ã‚’ç¢ºèª
 		MotionByBone* motion = m_currentState->GetMotion<false>();
 		if (!motion) return;
 		if (motion->GetEndFrameNo() < m_currentFrameNo) {
@@ -179,17 +179,17 @@ void Animator::Update() noexcept {
 				return;
 			}
 		}
-		//ƒ{[ƒ“‚ğXV
+		//ãƒœãƒ¼ãƒ³ã‚’æ›´æ–°
 		MeshFilter& meshFilter = gObj.GetComponent<MeshFilter>();
-		Vector<Bone>& bones = meshFilter.GetBones();	//ƒ‚ƒfƒ‹‚Å’è‹`‚³‚ê‚½ƒ{[ƒ“î•ñ
-		size_t boneCount = m_currentBones.Count();	//ƒ{[ƒ“s—ñ‚ÌŒÂ”
+		Vector<Bone>& bones = meshFilter.GetBones();	//ãƒ¢ãƒ‡ãƒ«ã§å®šç¾©ã•ã‚ŒãŸãƒœãƒ¼ãƒ³æƒ…å ±
+		size_t boneCount = m_currentBones.Count();	//ãƒœãƒ¼ãƒ³è¡Œåˆ—ã®å€‹æ•°
 		for (KeyBone& k : motion->GetKeyBones()) {
 			size_t count = k.bones.Count();
 			if (!count) continue;
 			size_t id = meshFilter.GetBoneID(k.bones[0]->name);
 			if (id >= boneCount) continue;
-			Bone* pbone = nullptr;	//Œ»İ‚ÌƒtƒŒ[ƒ€”Ô†‚Ì’¼‘O‚Ìƒ{[ƒ“Bnullptr‚Ì‚Æ‚«‰Šúp¨
-			Bone* nbone = nullptr;	//Œ»İ‚ÌƒtƒŒ[ƒ€”Ô†‚Ì’¼Œã‚Ìƒ{[ƒ“B‘¶İ‚µ‚È‚¢ê‡Aˆê”ÔÅŒã‚ÌƒL[ƒtƒŒ[ƒ€ƒ{[ƒ“
+			Bone* pbone = nullptr;	//ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã®ç›´å‰ã®ãƒœãƒ¼ãƒ³ã€‚nullptrã®ã¨ãåˆæœŸå§¿å‹¢
+			Bone* nbone = nullptr;	//ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã®ç›´å¾Œã®ãƒœãƒ¼ãƒ³ã€‚å­˜åœ¨ã—ãªã„å ´åˆã€ä¸€ç•ªæœ€å¾Œã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ãƒœãƒ¼ãƒ³
 			for (Bone*& b : k.bones) {
 				if (b->id < m_currentFrameNo) {
 					pbone = b;
@@ -200,20 +200,20 @@ void Animator::Update() noexcept {
 			}
 			if (!nbone) nbone = k.bones[k.bones.Count() - 1];
 			size_t pid = pbone ? pbone->id : 0;
-			float ft = nbone->id ? static_cast<float>(m_currentFrameNo - pid) / (nbone->id - pid) : 0;	//ƒtƒŒ[ƒ€•âŠÔˆÊ’u
-			uint32_t t = static_cast<uint32_t>(ft * 127);	//ƒtƒŒ[ƒ€ˆÊ’u‚ğ[0, 127]‚Å•\‚·
-			if (pid == nbone->id) {	//•âŠÔ•s—v
+			float ft = nbone->id ? static_cast<float>(m_currentFrameNo - pid) / (nbone->id - pid) : 0;	//ãƒ•ãƒ¬ãƒ¼ãƒ è£œé–“ä½ç½®
+			uint32_t t = static_cast<uint32_t>(ft * 127);	//ãƒ•ãƒ¬ãƒ¼ãƒ ä½ç½®ã‚’[0, 127]ã§è¡¨ã™
+			if (pid == nbone->id) {	//è£œé–“ä¸è¦
 				Transform& cbone = m_currentBones[id];
-				//if (bones[id].isIKBone) {	//IKƒ{[ƒ“‚Ì‚İ•½sˆÚ“®‚ğŒvZ‚·‚é
+				//if (bones[id].isIKBone) {	//IKãƒœãƒ¼ãƒ³ã®ã¿å¹³è¡Œç§»å‹•ã‚’è¨ˆç®—ã™ã‚‹
 				cbone.LocalPosition.x = nbone->position.x;
 				cbone.LocalPosition.y = nbone->position.y;
 				cbone.LocalPosition.z = nbone->position.z;
 				//}
 				cbone.LocalRotation = nbone->rotation;
 			}
-			else if (!pbone) {	//‰Šúp¨‚Æ•âŠÔ‚·‚é
+			else if (!pbone) {	//åˆæœŸå§¿å‹¢ã¨è£œé–“ã™ã‚‹
 				Transform& cbone = m_currentBones[id];
-				//if (bones[id].isIKBone) {	//IKƒ{[ƒ“‚Ì‚İ•½sˆÚ“®‚ğŒvZ‚·‚é
+				//if (bones[id].isIKBone) {	//IKãƒœãƒ¼ãƒ³ã®ã¿å¹³è¡Œç§»å‹•ã‚’è¨ˆç®—ã™ã‚‹
 				float xT = GetBezier(t, nbone->xTranslatePoint) / 127.0f;
 				cbone.LocalPosition.x = nbone->position.x * xT;
 				float yT = GetBezier(t, nbone->yTranslatePoint) / 127.0f;
@@ -226,7 +226,7 @@ void Animator::Update() noexcept {
 			}
 			else {
 				Transform& cbone = m_currentBones[id];
-				//if (bones[id].isIKBone) {	//IKƒ{[ƒ“‚Ì‚İ•½sˆÚ“®‚ğŒvZ‚·‚é
+				//if (bones[id].isIKBone) {	//IKãƒœãƒ¼ãƒ³ã®ã¿å¹³è¡Œç§»å‹•ã‚’è¨ˆç®—ã™ã‚‹
 				float xT = GetBezier(t, nbone->xTranslatePoint) / 127.0f;
 				cbone.LocalPosition.x = pbone->position.x * (1 - xT) + nbone->position.x * xT;
 				float yT = GetBezier(t, nbone->yTranslatePoint) / 127.0f;
@@ -240,7 +240,7 @@ void Animator::Update() noexcept {
 		}
 	}
 
-	//IK‰ğŒˆ
+	//IKè§£æ±º
 	SolveIK();
 }
 
@@ -253,14 +253,14 @@ void Animator::SolveLookAt(const IK& ik, Vector<Bone>& bones) noexcept {
 	};
 
 	DualQuaternion dual;
-	size_t id = bones[ik.chainID[0]].parent;	//ƒ‹[ƒgƒ{[ƒ“‚Ìeƒ{[ƒ“‚ÌID‚©‚çƒZƒ“ƒ^[ƒ{[ƒ“‚Ü‚Å‘k‚é
+	size_t id = bones[ik.chainID[0]].parent;	//ãƒ«ãƒ¼ãƒˆãƒœãƒ¼ãƒ³ã®è¦ªãƒœãƒ¼ãƒ³ã®IDã‹ã‚‰ã‚»ãƒ³ã‚¿ãƒ¼ãƒœãƒ¼ãƒ³ã¾ã§é¡ã‚‹
 	while (id < boneCount) {
-		Bone& bone = bones[id];	//ƒ{[ƒ“‚Ì‰ŠúˆÊ’u, ID
+		Bone& bone = bones[id];	//ãƒœãƒ¼ãƒ³ã®åˆæœŸä½ç½®, ID
 		dual = DualQuaternion::RotateOrigin(bone.rotation, bone.position) * dual;
 		id = bone.parent;
 	}
-	Vector3 t = (bones[ik.id].position + m_currentBones[ik.id].LocalPosition) - (pos[0] * dual);	//ƒAƒjƒ[ƒVƒ‡ƒ“‚ª“K—p‚³‚ê‚½ƒ‹[ƒgƒ{[ƒ“‚ÌˆÊ’u¨IKƒ{[ƒ“‚ÌˆÊ’u‚ğ•\‚·ƒxƒNƒgƒ‹
-	Vector3 targetPos = pos[0] + (t * dual.Inverse());	//ƒxƒNƒgƒ‹‚ğƒAƒjƒ[ƒVƒ‡ƒ“‚Æ‹t‰ñ“]‚³‚¹Aƒ‹[ƒgƒ{[ƒ“‚Ì‰ŠúˆÊ’uEp¨‚©‚çŒ©‚½IKƒ{[ƒ“‚ÌŒü‚«‚Æ‚µAIKƒ{[ƒ“ˆÊ’u‚ğæ“¾
+	Vector3 t = (bones[ik.id].position + m_currentBones[ik.id].LocalPosition) - (pos[0] * dual);	//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãŒé©ç”¨ã•ã‚ŒãŸãƒ«ãƒ¼ãƒˆãƒœãƒ¼ãƒ³ã®ä½ç½®â†’IKãƒœãƒ¼ãƒ³ã®ä½ç½®ã‚’è¡¨ã™ãƒ™ã‚¯ãƒˆãƒ«
+	Vector3 targetPos = pos[0] + (t * dual.Inverse());	//ãƒ™ã‚¯ãƒˆãƒ«ã‚’ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã¨é€†å›è»¢ã•ã›ã€ãƒ«ãƒ¼ãƒˆãƒœãƒ¼ãƒ³ã®åˆæœŸä½ç½®ãƒ»å§¿å‹¢ã‹ã‚‰è¦‹ãŸIKãƒœãƒ¼ãƒ³ã®å‘ãã¨ã—ã€IKãƒœãƒ¼ãƒ³ä½ç½®ã‚’å–å¾—
 
 	Vector3 p1p2 = pos[1] - pos[0];
 	Vector3 p1t = targetPos - pos[0];
@@ -298,7 +298,7 @@ void Animator::SolveLookAt(const IK& ik, Vector<Bone>& bones) noexcept {
 //		float theta1 = System::Math::AcosDeg((p1p2m * p1p2m + p1tm * p1tm - p2p3m * p2p3m) / (2 * p1p2m * p1tm));
 //		float theta2 = System::Math::AcosDeg((p1p2m * p1p2m + p2p3m * p2p3m - p1tm * p1tm) / (2 * p1p2m * p2p3m));
 //		Vector3 axis;
-//		if (bones[ik.chainID[0]].name.find(u"‚Ğ‚´")) axis = Vector3::Right();
+//		if (bones[ik.chainID[0]].name.find(u"ã²ã–")) axis = Vector3::Right();
 //		else {
 //			axis = Vector3::Cross(pos[1] * forward * m_currentBones[ik.chainID[1]].World(bones[ik.chainID[1]].transform.LocalPosition) - pos[0], p1t);
 //		}
@@ -313,20 +313,20 @@ void Animator::SolveCosine(const IK& ik, Vector<Bone>& bones) noexcept {
 	if (boneCount <= ik.id || boneCount <= ik.chainID[0] || boneCount <= ik.chainID[1]) return;
 	if (m_currentBones[ik.id].LocalPosition == Vector3::Zero()) return;
 	Vector3 pos[3] = {
-		bones[ik.chainID[1]].position,	//‰ñ“]‚¾‚¯‚·‚éƒ‹[ƒgƒ{[ƒ“‚Ì‰ŠúˆÊ’u
-		bones[ik.chainID[0]].position,	//’†ŠÔƒ{[ƒ“‚Ì‰ŠúˆÊ’u
-		bones[ik.targetID].position	//––’[ƒ{[ƒ“‚Ì‰ŠúˆÊ’u
+		bones[ik.chainID[1]].position,	//å›è»¢ã ã‘ã™ã‚‹ãƒ«ãƒ¼ãƒˆãƒœãƒ¼ãƒ³ã®åˆæœŸä½ç½®
+		bones[ik.chainID[0]].position,	//ä¸­é–“ãƒœãƒ¼ãƒ³ã®åˆæœŸä½ç½®
+		bones[ik.targetID].position	//æœ«ç«¯ãƒœãƒ¼ãƒ³ã®åˆæœŸä½ç½®
 	};
 
 	DualQuaternion dual;
-	size_t id = bones[ik.chainID[1]].parent;	//ƒ‹[ƒgƒ{[ƒ“‚Ìeƒ{[ƒ“‚ÌID‚©‚çƒZƒ“ƒ^[ƒ{[ƒ“‚Ü‚Å‘k‚é
+	size_t id = bones[ik.chainID[1]].parent;	//ãƒ«ãƒ¼ãƒˆãƒœãƒ¼ãƒ³ã®è¦ªãƒœãƒ¼ãƒ³ã®IDã‹ã‚‰ã‚»ãƒ³ã‚¿ãƒ¼ãƒœãƒ¼ãƒ³ã¾ã§é¡ã‚‹
 	while (id < boneCount) {
-		Bone& bone = bones[id];	//ƒ{[ƒ“‚Ì‰ŠúˆÊ’u, ID
+		Bone& bone = bones[id];	//ãƒœãƒ¼ãƒ³ã®åˆæœŸä½ç½®, ID
 		dual = DualQuaternion::RotateOrigin(bone.rotation, bone.position) * dual;
 		id = bone.parent;
 	}
-	Vector3 t = (bones[ik.id].position + m_currentBones[ik.id].LocalPosition) - (pos[0] * dual);	//ƒAƒjƒ[ƒVƒ‡ƒ“‚ª“K—p‚³‚ê‚½ƒ‹[ƒgƒ{[ƒ“‚ÌˆÊ’u¨IKƒ{[ƒ“‚ÌˆÊ’u‚ğ•\‚·ƒxƒNƒgƒ‹
-	Vector3 targetPos = pos[0] + (t * dual.Inverse());	//ƒxƒNƒgƒ‹‚ğƒAƒjƒ[ƒVƒ‡ƒ“‚Æ‹t‰ñ“]‚³‚¹Aƒ‹[ƒgƒ{[ƒ“‚Ì‰ŠúˆÊ’uEp¨‚©‚çŒ©‚½IKƒ{[ƒ“‚ÌŒü‚«‚Æ‚µAIKƒ{[ƒ“ˆÊ’u‚ğæ“¾
+	Vector3 t = (bones[ik.id].position + m_currentBones[ik.id].LocalPosition) - (pos[0] * dual);	//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãŒé©ç”¨ã•ã‚ŒãŸãƒ«ãƒ¼ãƒˆãƒœãƒ¼ãƒ³ã®ä½ç½®â†’IKãƒœãƒ¼ãƒ³ã®ä½ç½®ã‚’è¡¨ã™ãƒ™ã‚¯ãƒˆãƒ«
+	Vector3 targetPos = pos[0] + (t * dual.Inverse());	//ãƒ™ã‚¯ãƒˆãƒ«ã‚’ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã¨é€†å›è»¢ã•ã›ã€ãƒ«ãƒ¼ãƒˆãƒœãƒ¼ãƒ³ã®åˆæœŸä½ç½®ãƒ»å§¿å‹¢ã‹ã‚‰è¦‹ãŸIKãƒœãƒ¼ãƒ³ã®å‘ãã¨ã—ã€IKãƒœãƒ¼ãƒ³ä½ç½®ã‚’å–å¾—
 
 	Vector3 p1p2 = pos[1] - pos[0];
 	Vector3 p1t = targetPos - pos[0];
@@ -334,20 +334,20 @@ void Animator::SolveCosine(const IK& ik, Vector<Bone>& bones) noexcept {
 	float p1p2m = p1p2.Magnitude();
 	float p1tm = p1t.Magnitude();
 	float p2p3m = p2p3.Magnitude();
-	float gamma = Vector3::Angle(p1p2, p1t);	//(ƒ‹[ƒg¨’†ŠÔ)‚Æ(ƒ‹[ƒg¨IKƒ{[ƒ“)‚ÌƒxƒNƒgƒ‹ŠÔ‚ÌŠp“x(‹)
-	float beta = Math::AcosDeg((p1p2m * p1p2m + p1tm * p1tm - p2p3m * p2p3m) / (2 * p1p2m * p1tm));	//ƒ‹[ƒgA’†ŠÔAIKƒ{[ƒ“‚ªOŠpŒ`‚ğ‚È‚·‚Æ‚«‚Ìƒ‹[ƒg‚ÌŠp“x(‹)
-	Vector3 axis = Vector3::Cross(p1p2, p1t);	//‰ñ“]²‚Í(ƒ‹[ƒg¨’†ŠÔ)‚Æ(ƒ‹[ƒg¨IKƒ{[ƒ“)‚ÌƒxƒNƒgƒ‹‚ª‚È‚·•½–Ê‚Ì–@ü
-	//‰ñ“]•ûŒü‚ğ•â³‚·‚é(b’è“I?)
+	float gamma = Vector3::Angle(p1p2, p1t);	//(ãƒ«ãƒ¼ãƒˆâ†’ä¸­é–“)ã¨(ãƒ«ãƒ¼ãƒˆâ†’IKãƒœãƒ¼ãƒ³)ã®ãƒ™ã‚¯ãƒˆãƒ«é–“ã®è§’åº¦(Â°)
+	float beta = Math::AcosDeg((p1p2m * p1p2m + p1tm * p1tm - p2p3m * p2p3m) / (2 * p1p2m * p1tm));	//ãƒ«ãƒ¼ãƒˆã€ä¸­é–“ã€IKãƒœãƒ¼ãƒ³ãŒä¸‰è§’å½¢ã‚’ãªã™ã¨ãã®ãƒ«ãƒ¼ãƒˆã®è§’åº¦(Â°)
+	Vector3 axis = Vector3::Cross(p1p2, p1t);	//å›è»¢è»¸ã¯(ãƒ«ãƒ¼ãƒˆâ†’ä¸­é–“)ã¨(ãƒ«ãƒ¼ãƒˆâ†’IKãƒœãƒ¼ãƒ³)ã®ãƒ™ã‚¯ãƒˆãƒ«ãŒãªã™å¹³é¢ã®æ³•ç·š
+	//å›è»¢æ–¹å‘ã‚’è£œæ­£ã™ã‚‹(æš«å®šçš„?)
 	if (Vector3::Dot(axis, Vector3::Right()) < 0) {
 		gamma *= -1;
 		axis = -axis;
 	}
-	if (bones[ik.chainID[0]].name.find(u"‚Ğ‚´")) axis = Vector3::Right();
-	float alpha = Math::AcosDeg((p1p2m * p1p2m + p2p3m * p2p3m - p1tm * p1tm) / (2 * p1p2m * p2p3m));	//ƒ‹[ƒgA’†ŠÔAIKƒ{[ƒ“‚ªOŠpŒ`‚ğ‚È‚·‚Æ‚«‚Ì’†ŠÔ‚ÌŠp“x(‹)
-	//ƒ‹[ƒg‚Æ’†ŠÔ‚Ì‰ñ“]‚ğã‘‚«
+	if (bones[ik.chainID[0]].name.find(u"ã²ã–")) axis = Vector3::Right();
+	float alpha = Math::AcosDeg((p1p2m * p1p2m + p2p3m * p2p3m - p1tm * p1tm) / (2 * p1p2m * p2p3m));	//ãƒ«ãƒ¼ãƒˆã€ä¸­é–“ã€IKãƒœãƒ¼ãƒ³ãŒä¸‰è§’å½¢ã‚’ãªã™ã¨ãã®ä¸­é–“ã®è§’åº¦(Â°)
+	//ãƒ«ãƒ¼ãƒˆã¨ä¸­é–“ã®å›è»¢ã‚’ä¸Šæ›¸ã
 	m_currentBones[ik.chainID[1]].LocalRotation = Quaternion::AngleAxis(beta + gamma, axis);
 	m_currentBones[ik.chainID[0]].LocalRotation = Quaternion::AngleAxis(alpha - 180.0f, axis);
-	//IKƒ{[ƒ“‚ÌˆÊ’u‚ğƒŠƒZƒbƒg(GetBoneMatrixŠÖ”‚Ö‚Ì‰e‹¿‚ğl—¶‚µ‚Ä)
+	//IKãƒœãƒ¼ãƒ³ã®ä½ç½®ã‚’ãƒªã‚»ãƒƒãƒˆ(GetBoneMatrixé–¢æ•°ã¸ã®å½±éŸ¿ã‚’è€ƒæ…®ã—ã¦)
 	m_currentBones[ik.id].LocalPosition = Vector3::Zero();
 	m_currentBones[ik.id].LocalRotation = Quaternion::Identity();
 }
@@ -361,8 +361,8 @@ void Animator::SolveIK() noexcept {
 	GameObject& gObj = static_cast<GameObject&>(GetObject());
 	if (!gObj.HasComponent<MeshFilter>()) return;
 	MeshFilter& meshFilter = gObj.GetComponent<MeshFilter>();
-	Vector<IK>& iks = meshFilter.GetIKs();	//ƒ‚ƒfƒ‹‚Å’è‹`‚³‚ê‚½IKî•ñ
-	Vector<Bone> bones = meshFilter.GetBones();	//ƒ‚ƒfƒ‹‚Å’è‹`‚³‚ê‚½ƒ{[ƒ“î•ñ
+	Vector<IK>& iks = meshFilter.GetIKs();	//ãƒ¢ãƒ‡ãƒ«ã§å®šç¾©ã•ã‚ŒãŸIKæƒ…å ±
+	Vector<Bone> bones = meshFilter.GetBones();	//ãƒ¢ãƒ‡ãƒ«ã§å®šç¾©ã•ã‚ŒãŸãƒœãƒ¼ãƒ³æƒ…å ±
 	for (IK& ik : iks) {
 		size_t childCount = ik.chainID.Count();
 		switch (childCount) {
@@ -390,20 +390,20 @@ bool Animator::GetBoneMatrix(Matrix(&out)[BoneMatrixCount]) noexcept {
 	GameObject& gObj = static_cast<GameObject&>(GetObject());
 	if (!m_currentState || !gObj.HasComponent<MeshFilter>()) return f();
 	MeshFilter& meshFilter = gObj.GetComponent<MeshFilter>();
-	Vector<Bone>& bones = meshFilter.GetBones();	//ƒ‚ƒfƒ‹‚Å’è‹`‚³‚ê‚Ä‚¢‚éƒ{[ƒ“î•ñ
+	Vector<Bone>& bones = meshFilter.GetBones();	//ãƒ¢ãƒ‡ãƒ«ã§å®šç¾©ã•ã‚Œã¦ã„ã‚‹ãƒœãƒ¼ãƒ³æƒ…å ±
 	const size_t boneCount = bones.Count();
-	//root‚Æ‚È‚éƒ{[ƒ“‚ğŒŸõ
+	//rootã¨ãªã‚‹ãƒœãƒ¼ãƒ³ã‚’æ¤œç´¢
 	Bone* root = nullptr;
 	for (Bone& b : bones) {
-		//eƒ{[ƒ“‚ÌID‚ªƒ{[ƒ“”‚æ‚è‘å‚«‚¢ && IKƒ{[ƒ“‚Å‚È‚¢ && ID‚ªƒ{[ƒ“”ˆÈ‰º => rootƒ{[ƒ“
+		//è¦ªãƒœãƒ¼ãƒ³ã®IDãŒãƒœãƒ¼ãƒ³æ•°ã‚ˆã‚Šå¤§ãã„ && IKãƒœãƒ¼ãƒ³ã§ãªã„ && IDãŒãƒœãƒ¼ãƒ³æ•°ä»¥ä¸‹ => rootãƒœãƒ¼ãƒ³
 		if (b.parent >= boneCount && !b.isIKBone && b.id < boneCount) {
 			root = &b;
 			break;
 		}
 	}
 	if (!root) return f();
-	//rootƒ{[ƒ“‚É‘Î‰‚·‚éƒAƒjƒ[ƒVƒ‡ƒ“‚Ìƒ{[ƒ“‚©‚çs—ñ‚ğæ“¾
-	//rootƒ{[ƒ“‚ğŒ´“_‚ÉˆÚ‚· -> ƒAƒjƒ[ƒVƒ‡ƒ“‚ÌƒXƒP[ƒ‹E‰ñ“]EˆÚ“® -> Œ´“_‚©‚ç‚à‚Æ‚ÌÀ•W‚É–ß‚·		
+	//rootãƒœãƒ¼ãƒ³ã«å¯¾å¿œã™ã‚‹ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®ãƒœãƒ¼ãƒ³ã‹ã‚‰è¡Œåˆ—ã‚’å–å¾—
+	//rootãƒœãƒ¼ãƒ³ã‚’åŸç‚¹ã«ç§»ã™ -> ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®ã‚¹ã‚±ãƒ¼ãƒ«ãƒ»å›è»¢ãƒ»ç§»å‹• -> åŸç‚¹ã‹ã‚‰ã‚‚ã¨ã®åº§æ¨™ã«æˆ»ã™		
 	out[root->id] = m_currentBones[root->id].LocalOrigin(root->position);
 	GetBoneMatrix_Internal(out, *root, bones.Items(), boneCount);
 	Matrix identity{};

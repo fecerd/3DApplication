@@ -1,4 +1,4 @@
-module Components:Camera;
+﻿module Components:Camera;
 import :GameObject;
 using namespace System;
 using namespace System::Application::Common3D;

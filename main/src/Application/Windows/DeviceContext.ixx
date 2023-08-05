@@ -1,4 +1,4 @@
-export module DeviceContext;
+﻿export module DeviceContext;
 import System;
 import ApplicationUtility;
 import WinAPI;

@@ -1,4 +1,4 @@
-export module Variable;
+ï»¿export module Variable;
 import Exception;
 
 export namespace System {
@@ -33,8 +33,8 @@ export namespace System {
 		}
 		template<class T>
 		T& Get() {
-			if (!m_data) throw InvalidOperationException(__FUNCSIG__, u"VariableŒ^‚ª‰Šú‰»‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB", __FILE__, __LINE__);
-			if (m_destructor != Destruct<T>) throw InvalidOperationException(__FUNCSIG__, u"Variable::Get()‚ª“à•”’l‚ÆˆÙ‚È‚éŒ^‚ğ—v‹‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+			if (!m_data) throw InvalidOperationException(__FUNCSIG__, u"Variableå‹ãŒåˆæœŸåŒ–ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚", __FILE__, __LINE__);
+			if (m_destructor != Destruct<T>) throw InvalidOperationException(__FUNCSIG__, u"Variable::Get()ãŒå†…éƒ¨å€¤ã¨ç•°ãªã‚‹å‹ã‚’è¦æ±‚ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 			return *static_cast<T*>(m_data);
 		}
 		void Clear() noexcept {

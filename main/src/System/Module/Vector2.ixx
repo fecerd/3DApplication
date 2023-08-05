@@ -1,4 +1,4 @@
-export module Vector2;
+ï»¿export module Vector2;
 import CSTDINT;
 import Math;
 import Objects;
@@ -24,93 +24,93 @@ export namespace System {
 	public:
 		static constexpr Vector2 Zero() noexcept { return Vector2(0, 0); }
 	public:
-		//ƒxƒNƒgƒ‹‚Ì‘å‚«‚³‚ğ•Ô‚·
+		//ãƒ™ã‚¯ãƒˆãƒ«ã®å¤§ãã•ã‚’è¿”ã™
 		constexpr float Magnitude() const noexcept { return Math::Sqrt(x * x + y * y); }
-		//³‹K‰»‚µ‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·
+		//æ­£è¦åŒ–ã—ãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 		constexpr Vector2 Normalized() const noexcept {
 			float mag = Magnitude();
 			return Math::EqualZero(mag) ? Zero() : Vector2(x / mag, y / mag);
 		}
-		//ƒxƒNƒgƒ‹‚Ì‘å‚«‚³‚Ì2æ‚ğ•Ô‚·
+		//ãƒ™ã‚¯ãƒˆãƒ«ã®å¤§ãã•ã®2ä¹—ã‚’è¿”ã™
 		constexpr float SqrMagnitude() const noexcept { return x * x + y * y; }
-		//Še¬•ª‚Ì‹t”‚ğ‚Æ‚Á‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·
+		//å„æˆåˆ†ã®é€†æ•°ã‚’ã¨ã£ãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 		constexpr Vector2 Reciprocal() const noexcept { return Vector2(1.0f / x, 1.0f / y); }
 	public:
-		//*this == other‚Æ“™‚µ‚¢
+		//*this == otherã¨ç­‰ã—ã„
 		constexpr bool Equal(const Vector2& other) const noexcept { return *this == other; }
-		//Še¬•ª‚ğİ’è‚·‚é
+		//å„æˆåˆ†ã‚’è¨­å®šã™ã‚‹
 		constexpr void Set(float newX, float newY) noexcept { x = newX; y = newY; }
-		//©g‚ğ³‹K‰»‚·‚é
+		//è‡ªèº«ã‚’æ­£è¦åŒ–ã™ã‚‹
 		constexpr void Normalize() noexcept { *this = Normalized(); }
-		//Še¬•ª‚ğƒXƒP[ƒŠƒ“ƒO‚·‚é
+		//å„æˆåˆ†ã‚’ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°ã™ã‚‹
 		constexpr void Scale(const Vector2& scale) noexcept {
 			x *= scale.x;
 			y *= scale.y;
 		}
 	public:
-		//from‚Æto‚Ì‚È‚·Šp‚ğ•Ô‚·([‹])
-		//from‚Æto‚Éƒ[ƒƒxƒNƒgƒ‹‚ªŠÜ‚Ü‚ê‚éê‡A0‚ğ•Ô‚·
+		//fromã¨toã®ãªã™è§’ã‚’è¿”ã™([Â°])
+		//fromã¨toã«ã‚¼ãƒ­ãƒ™ã‚¯ãƒˆãƒ«ãŒå«ã¾ã‚Œã‚‹å ´åˆã€0ã‚’è¿”ã™
 		static constexpr float Angle(const Vector2& from, const Vector2& to) noexcept {
 			return from != Zero() && to != Zero() ? Math::AcosDeg(Dot(from, to) / (from.Magnitude() * to.Magnitude())) : 0.0f;
 		}
-		//vector‚Æ“¯‚¶Œü‚«‚Å‘å‚«‚³maxLength‚ÌƒxƒNƒgƒ‹‚ğ•Ô‚·
+		//vectorã¨åŒã˜å‘ãã§å¤§ãã•maxLengthã®ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 		static constexpr Vector2 ClampMagnitude(const Vector2& vector, float maxLength) noexcept {
 			return vector.Normalized() * maxLength;
 		}
-		//lhs‚Ærhs‚ÌŠOÏ‚Ì‘å‚«‚³‚ğ•Ô‚·
+		//lhsã¨rhsã®å¤–ç©ã®å¤§ãã•ã‚’è¿”ã™
 		static constexpr float CrossMagnitude(const Vector2& lhs, const Vector2& rhs) noexcept {
 			return lhs.x * rhs.y - lhs.y * rhs.x;
 		}
-		//ˆÊ’uƒxƒNƒgƒ‹a,bŠÔ‚Ì‹——£‚ğ•Ô‚·
+		//ä½ç½®ãƒ™ã‚¯ãƒˆãƒ«a,bé–“ã®è·é›¢ã‚’è¿”ã™
 		static constexpr float Distance(const Vector2& a, const Vector2& b) noexcept {
 			return (a - b).Magnitude();
 		}
-		//lhs‚Ærhs‚Ì“àÏ‚ğ•Ô‚·
+		//lhsã¨rhsã®å†…ç©ã‚’è¿”ã™
 		static constexpr float Dot(const Vector2& lhs, const Vector2& rhs) noexcept {
 			return lhs.x * rhs.x + lhs.y * rhs.y;
 		}
-		//ƒxƒNƒgƒ‹a,b‚ğ”}‰î•Ï”t[0, 1]‚ÅüŒ`•âŠÔ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·
+		//ãƒ™ã‚¯ãƒˆãƒ«a,bã‚’åª’ä»‹å¤‰æ•°t[0, 1]ã§ç·šå½¢è£œé–“ã—ãŸçµæœã‚’è¿”ã™
 		static constexpr Vector2 Lerp(const Vector2& a, const Vector2& b, float t) noexcept {
 			return LerpUnclamped(a, b, Math::Clamp(t, 0.0f, 1.0f));
 		}
-		//ƒxƒNƒgƒ‹a,b‚ğ”}‰î•Ï”t(-Inf, Inf)‚ÅüŒ`•âŠÔ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·
+		//ãƒ™ã‚¯ãƒˆãƒ«a,bã‚’åª’ä»‹å¤‰æ•°t(-Inf, Inf)ã§ç·šå½¢è£œé–“ã—ãŸçµæœã‚’è¿”ã™
 		static constexpr Vector2 LerpUnclamped(const Vector2& a, const Vector2& b, float t) noexcept {
 			return (1.0f - t) * a + t * b;
 		}
-		//lhs‚Ærhs‚ÌŠe¬•ª‚Åˆê”Ô‘å‚«‚¢’l‚ğg—p‚µ‚ÄƒxƒNƒgƒ‹‚ğì¬‚·‚é
+		//lhsã¨rhsã®å„æˆåˆ†ã§ä¸€ç•ªå¤§ãã„å€¤ã‚’ä½¿ç”¨ã—ã¦ãƒ™ã‚¯ãƒˆãƒ«ã‚’ä½œæˆã™ã‚‹
 		static constexpr Vector2 Max(const Vector2& lhs, const Vector2& rhs) noexcept {
 			return Vector2(Math::Max(lhs.x, rhs.x), Math::Max(lhs.y, rhs.y));
 		}
-		//lhs‚Ærhs‚ÌŠe¬•ª‚Åˆê”Ô¬‚³‚¢’l‚ğg—p‚µ‚ÄƒxƒNƒgƒ‹‚ğì¬‚·‚é
+		//lhsã¨rhsã®å„æˆåˆ†ã§ä¸€ç•ªå°ã•ã„å€¤ã‚’ä½¿ç”¨ã—ã¦ãƒ™ã‚¯ãƒˆãƒ«ã‚’ä½œæˆã™ã‚‹
 		static constexpr Vector2 Min(const Vector2& lhs, const Vector2& rhs) noexcept {
 			return Vector2(Math::Min(lhs.x, rhs.x), Math::Min(lhs.y, rhs.y));
 		}
-		//current‚©‚çtarget‚ÉŒü‚©‚Á‚ÄmaxDistanceDelta‚¾‚¯i‚ñ‚¾‚ÌˆÊ’uƒxƒNƒgƒ‹‚ğ•Ô‚·
-		//‚½‚¾‚µA(target - current).magnitude() < maxDistanceDelta‚Ìê‡Atarget‚ğ•Ô‚·
+		//currentã‹ã‚‰targetã«å‘ã‹ã£ã¦maxDistanceDeltaã ã‘é€²ã‚“ã æ™‚ã®ä½ç½®ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
+		//ãŸã ã—ã€(target - current).magnitude() < maxDistanceDeltaã®å ´åˆã€targetã‚’è¿”ã™
 		static constexpr Vector2 MoveTowards(const Vector2& current, const Vector2& target, float maxDistanceDelta) noexcept {
 			return (target - current).SqrMagnitude() < maxDistanceDelta * maxDistanceDelta
 				? target : current + (target - current).Normalized() * maxDistanceDelta;
 		}
-		//vector‚ğ³‹K‰»‚·‚é
+		//vectorã‚’æ­£è¦åŒ–ã™ã‚‹
 		static constexpr Vector2& Normalize(Vector2& vector) noexcept {
 			return vector = vector.Normalized();
 		}
-		//normal‚ğ³‹K‰»‚·‚é
-		//tangent‚ğnormal‚Æ’¼Œğ‚³‚¹‚Ä³‹K‰»‚·‚é
+		//normalã‚’æ­£è¦åŒ–ã™ã‚‹
+		//tangentã‚’normalã¨ç›´äº¤ã•ã›ã¦æ­£è¦åŒ–ã™ã‚‹
 		static constexpr void OrthoNormalize(Vector2& normal, Vector2& tangent) noexcept {
 			normal.Normalize();
 			float c = CrossMagnitude(normal, tangent);
 			if (c > 0) tangent = Vector2(-normal.y, normal.x);
 			else tangent = Vector2(normal.y, -normal.x);
 		}
-		//vector‚ğonNormalã‚É“Š‰e‚µ‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·
+		//vectorã‚’onNormalä¸Šã«æŠ•å½±ã—ãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 		static constexpr Vector2 Project(const Vector2& vector, const Vector2& onNormal) noexcept {
 			Vector2 n = onNormal.Normalized();
 			return n * Dot(vector, n);
 		}
-		//•ûŒüƒxƒNƒgƒ‹current‚©‚çtarget‚Ü‚Å‚Ì‰ñ“]‚Ì‚¤‚¿A
-		//maxRadianDelta[rad]‚¾‚¯‰ñ“]‚ğ“K—p‚µ‚½current‚ğ•Ô‚·
-		//current‚ªƒ[ƒƒxƒNƒgƒ‹‚Ìê‡Atarget‚ğ•Ô‚·
+		//æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«currentã‹ã‚‰targetã¾ã§ã®å›è»¢ã®ã†ã¡ã€
+		//maxRadianDelta[rad]ã ã‘å›è»¢ã‚’é©ç”¨ã—ãŸcurrentã‚’è¿”ã™
+		//currentãŒã‚¼ãƒ­ãƒ™ã‚¯ãƒˆãƒ«ã®å ´åˆã€targetã‚’è¿”ã™
 		static constexpr Vector2 RotateTowords(const Vector2& current, const Vector2& target, float maxRadianDelta, float /*maxMagnitudeDelta*/) noexcept {
 			Vector2 t = CrossMagnitude(current, target) == 0 ? target - Vector2(0.00001f, 0.00001f) : target;
 			float theta = Math::Deg2Radf * Angle(current, t);
@@ -118,12 +118,12 @@ export namespace System {
 			if (Math::GreaterEq(one, 1.0f)) return target;
 			return ((Math::Sin(theta * (1.0f - one)) * current + Math::Sin(theta * one) * t) / Math::Sin(theta)).Normalized();
 		}
-		//a‚Æb‚ÌŠe¬•ª‚ªæZ‚³‚ê‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·	
+		//aã¨bã®å„æˆåˆ†ãŒä¹—ç®—ã•ã‚ŒãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™	
 		static constexpr Vector2 Scale(const Vector2& a, const Vector2& b) noexcept {
 			return Vector2(a.x * b.x, a.y * b.y);
 		}
-		//from‚Æto‚ª‚È‚·Šp‚É•„†‚ğ‚Â‚¯‚Ä•Ô‚·([‹])
-		//‰ñ“]²‚ÍZ²³•ûŒü‚Å‚ ‚é
+		//fromã¨toãŒãªã™è§’ã«ç¬¦å·ã‚’ã¤ã‘ã¦è¿”ã™([Â°])
+		//å›è»¢è»¸ã¯Zè»¸æ­£æ–¹å‘ã§ã‚ã‚‹
 		static constexpr float SignedAngle(const Vector2& from, const Vector2& to) noexcept {
 			return Angle(from, to) * Math::Sign(CrossMagnitude(from, to));
 		}

@@ -1,3 +1,3 @@
-export module Encoding;
+﻿export module Encoding;
 export import CodePoint;
 export import CodePage;

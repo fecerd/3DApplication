@@ -1,46 +1,45 @@
-module;
-#include <atomic>
-export module Memory;
+ï»¿export module Memory;
 import CSTDINT;
 import Traits;
 import Math;
 import <fstream>;
+import <atomic>;
 using namespace System::Traits;
 
-//ƒƒ‚ƒŠƒRƒs[/ƒXƒƒbƒv
+//ãƒ¡ãƒ¢ãƒªã‚³ãƒ”ãƒ¼/ã‚¹ãƒ¯ãƒƒãƒ—
 export namespace System::Memory {
 	/// <summary>
-	/// ’Pƒ‚Èƒƒ‚ƒŠƒRƒs[‚ğs‚¤
+	/// å˜ç´”ãªãƒ¡ãƒ¢ãƒªã‚³ãƒ”ãƒ¼ã‚’è¡Œã†
 	/// </summary>
-	/// <param name="src">ƒRƒs[Œ³</param>
-	/// <param name="dst">ƒRƒs[æ</param>
+	/// <param name="src">ã‚³ãƒ”ãƒ¼å…ƒ</param>
+	/// <param name="dst">ã‚³ãƒ”ãƒ¼å…ˆ</param>
 	/// <param name="byteCount">
-	/// ƒRƒs[‚·‚éƒoƒCƒg”B
-	/// srcAdst‚Æ‚à‚É[0, byteCount - 1]‚ª—LŒø‚È”ÍˆÍ‚Å‚ ‚é•K—v‚ª‚ ‚éB
+	/// ã‚³ãƒ”ãƒ¼ã™ã‚‹ãƒã‚¤ãƒˆæ•°ã€‚
+	/// srcã€dstã¨ã‚‚ã«[0, byteCount - 1]ãŒæœ‰åŠ¹ãªç¯„å›²ã§ã‚ã‚‹å¿…è¦ãŒã‚ã‚‹ã€‚
 	/// </param>
-	/* dst‚Æsrc‚ÌˆÊ’u‚ğ“ü‚ê‘Ö‚¦‚½‚Ì‚ÅAŒÄ‚Ño‚µ‚ğ‚·‚×‚ÄC³‚·‚é(unused‚É‚æ‚Á‚ÄƒRƒ“ƒpƒCƒ‹ƒGƒ‰[‚ğo‚·) */
-	inline void Copy(void* dst, const void* src, size_t byteCount, bool unused) noexcept;
+	/* dstã¨srcã®ä½ç½®ã‚’å…¥ã‚Œæ›¿ãˆãŸã®ã§ã€å‘¼ã³å‡ºã—ã‚’ã™ã¹ã¦ä¿®æ­£ã™ã‚‹(unusedã«ã‚ˆã£ã¦ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã‚¨ãƒ©ãƒ¼ã‚’å‡ºã™) */
+	void Copy(void* dst, const void* src, size_t byteCount, bool unused) noexcept;
 	/// <summary>
-	/// CopyRange—p‚Ì”ÍˆÍ‚ğ•\‚·\‘¢‘Ì
+	/// CopyRangeç”¨ã®ç¯„å›²ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct BufferRange {
-		size_t elementSize = 1;	//ƒf[ƒ^‚Ì—v‘fƒTƒCƒY
-		uint32_t width = 1;			//ƒf[ƒ^‘S‘Ì‚Ì•
-		uint32_t height = 1;		//ƒf[ƒ^‘S‘Ì‚Ì‚‚³
-		uint32_t startX = 0;			//ƒRƒs[‚ğŠJn‚·‚é—v‘f‚ÌXÀ•W
-		uint32_t startY = 0;			//ƒRƒs[‚ğŠJn‚·‚é—v‘f‚ÌYÀ•W
-		uint32_t rangeW = 0;		//ƒRƒs[‚Ég—p‚·‚é”ÍˆÍB0‚Ìê‡Awidth‚Æ“¯’l
-		uint32_t rangeH = 0;		//ƒRƒs[‚Ég—p‚·‚é”ÍˆÍB0‚Ìê‡Aheight‚Æ“¯’l
+		size_t elementSize = 1;	//ãƒ‡ãƒ¼ã‚¿ã®è¦ç´ ã‚µã‚¤ã‚º
+		uint32_t width = 1;			//ãƒ‡ãƒ¼ã‚¿å…¨ä½“ã®å¹…
+		uint32_t height = 1;		//ãƒ‡ãƒ¼ã‚¿å…¨ä½“ã®é«˜ã•
+		uint32_t startX = 0;			//ã‚³ãƒ”ãƒ¼ã‚’é–‹å§‹ã™ã‚‹è¦ç´ ã®Xåº§æ¨™
+		uint32_t startY = 0;			//ã‚³ãƒ”ãƒ¼ã‚’é–‹å§‹ã™ã‚‹è¦ç´ ã®Yåº§æ¨™
+		uint32_t rangeW = 0;		//ã‚³ãƒ”ãƒ¼ã«ä½¿ç”¨ã™ã‚‹ç¯„å›²ã€‚0ã®å ´åˆã€widthã¨åŒå€¤
+		uint32_t rangeH = 0;		//ã‚³ãƒ”ãƒ¼ã«ä½¿ç”¨ã™ã‚‹ç¯„å›²ã€‚0ã®å ´åˆã€heightã¨åŒå€¤
 	};
 
 	/// <summary>
-	/// w’è‚µ‚½”ÍˆÍŠÔ‚Åƒƒ‚ƒŠƒRƒs[‚ğs‚¤
+	/// æŒ‡å®šã—ãŸç¯„å›²é–“ã§ãƒ¡ãƒ¢ãƒªã‚³ãƒ”ãƒ¼ã‚’è¡Œã†
 	/// </summary>
-	/// <param name="dst">ƒRƒs[æ</param>
-	/// <param name="dstRange">ƒRƒs[æ‚Ì”ÍˆÍ</param>
-	/// <param name="src">ƒRƒs[Œ³</param>
-	/// <param name="srcRange">ƒRƒs[Œ³‚Ì”ÍˆÍ</param>
-	/* dst‚Æsrc‚ÌˆÊ’u‚ğ“ü‚ê‘Ö‚¦‚½‚Ì‚ÅAŒÄ‚Ño‚µ‚ğ‚·‚×‚ÄC³‚·‚é(unused‚É‚æ‚Á‚ÄƒRƒ“ƒpƒCƒ‹ƒGƒ‰[‚ğo‚·) */
+	/// <param name="dst">ã‚³ãƒ”ãƒ¼å…ˆ</param>
+	/// <param name="dstRange">ã‚³ãƒ”ãƒ¼å…ˆã®ç¯„å›²</param>
+	/// <param name="src">ã‚³ãƒ”ãƒ¼å…ƒ</param>
+	/// <param name="srcRange">ã‚³ãƒ”ãƒ¼å…ƒã®ç¯„å›²</param>
+	/* dstã¨srcã®ä½ç½®ã‚’å…¥ã‚Œæ›¿ãˆãŸã®ã§ã€å‘¼ã³å‡ºã—ã‚’ã™ã¹ã¦ä¿®æ­£ã™ã‚‹(unusedã«ã‚ˆã£ã¦ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã‚¨ãƒ©ãƒ¼ã‚’å‡ºã™) */
 	inline bool CopyRange(void* dst, const BufferRange& dstRange, const void* src, const BufferRange& srcRange, bool unused) noexcept {
 		if (!src || !dst) return false;
 		if (srcRange.startX >= srcRange.width) return false;
@@ -88,14 +87,14 @@ export namespace System::Memory {
 	}
 
 	/// <summary>
-	/// •¡”‚ÌƒRƒs[æ‚É‘Î‚µ‚ÄAw’è‚µ‚½”ÍˆÍŠÔ‚Ìƒƒ‚ƒŠƒRƒs[‚ğs‚¤
+	/// è¤‡æ•°ã®ã‚³ãƒ”ãƒ¼å…ˆã«å¯¾ã—ã¦ã€æŒ‡å®šã—ãŸç¯„å›²é–“ã®ãƒ¡ãƒ¢ãƒªã‚³ãƒ”ãƒ¼ã‚’è¡Œã†
 	/// </summary>
-	/// <param name="dst">ƒRƒs[æ‚Ì”z—ñ</param>
-	/// <param name="dstArrayCount">ƒRƒs[æ‚Ì”z—ñ‚Ì—v‘f”</param>
-	/// <param name="dstRange">ƒRƒs[æ‚Ì”ÍˆÍ</param>
-	/// <param name="src">ƒRƒs[Œ³</param>
-	/// <param name="srcRange">ƒRƒs[Œ³‚Ì”ÍˆÍ</param>
-	/* dst‚Æsrc‚ÌˆÊ’u‚ğ“ü‚ê‘Ö‚¦‚½‚Ì‚ÅAŒÄ‚Ño‚µ‚ğ‚·‚×‚ÄC³‚·‚é(unused‚É‚æ‚Á‚ÄƒRƒ“ƒpƒCƒ‹ƒGƒ‰[‚ğo‚·) */
+	/// <param name="dst">ã‚³ãƒ”ãƒ¼å…ˆã®é…åˆ—</param>
+	/// <param name="dstArrayCount">ã‚³ãƒ”ãƒ¼å…ˆã®é…åˆ—ã®è¦ç´ æ•°</param>
+	/// <param name="dstRange">ã‚³ãƒ”ãƒ¼å…ˆã®ç¯„å›²</param>
+	/// <param name="src">ã‚³ãƒ”ãƒ¼å…ƒ</param>
+	/// <param name="srcRange">ã‚³ãƒ”ãƒ¼å…ƒã®ç¯„å›²</param>
+	/* dstã¨srcã®ä½ç½®ã‚’å…¥ã‚Œæ›¿ãˆãŸã®ã§ã€å‘¼ã³å‡ºã—ã‚’ã™ã¹ã¦ä¿®æ­£ã™ã‚‹(unusedã«ã‚ˆã£ã¦ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã‚¨ãƒ©ãƒ¼ã‚’å‡ºã™) */
 	inline bool CopyRanges(void* const* dstArray, uint32_t dstArrayCount, const BufferRange& dstRange, const void* src, const BufferRange& srcRange, bool unused) noexcept {
 		if (!src || !dstArray || !dstArrayCount) return false;
 		if (srcRange.startX >= srcRange.width) return false;
@@ -146,11 +145,11 @@ export namespace System::Memory {
 	}
 
 	/// <summary>
-	/// ˆø”‚Ìƒƒ‚ƒŠ‚ğ“ü‚ê‘Ö‚¦‚é
+	/// å¼•æ•°ã®ãƒ¡ãƒ¢ãƒªã‚’å…¥ã‚Œæ›¿ãˆã‚‹
 	/// </summary>
-	/// <typeparam name="T">”CˆÓ‚ÌŒ^</typeparam>
-	/// <param name="x">“ü‚ê‘Ö‚¦‚é•Ï”‚Ö‚ÌQÆ</param>
-	/// <param name="y">“ü‚ê‘Ö‚¦‚é•Ï”‚Ö‚ÌQÆ</param>
+	/// <typeparam name="T">ä»»æ„ã®å‹</typeparam>
+	/// <param name="x">å…¥ã‚Œæ›¿ãˆã‚‹å¤‰æ•°ã¸ã®å‚ç…§</param>
+	/// <param name="y">å…¥ã‚Œæ›¿ãˆã‚‹å¤‰æ•°ã¸ã®å‚ç…§</param>
 	template <typename T>
 	inline void Swap(T& x, T& y) noexcept {
 		auto tx = reinterpret_cast<int_t<false, sizeof(T)>*>(&x);
@@ -162,13 +161,13 @@ export namespace System::Memory {
 	}
 }
 
-//ƒƒ‚ƒŠƒAƒ‰ƒCƒ“ƒƒ“ƒg
+//ãƒ¡ãƒ¢ãƒªã‚¢ãƒ©ã‚¤ãƒ³ãƒ¡ãƒ³ãƒˆ
 export namespace System::Memory {
 	/// <summary>
-	/// ƒAƒ‰ƒCƒ“ƒƒ“ƒg’²®‚µ‚½ƒTƒCƒY‚ğæ“¾‚·‚é
+	/// ã‚¢ãƒ©ã‚¤ãƒ³ãƒ¡ãƒ³ãƒˆèª¿æ•´ã—ãŸã‚µã‚¤ã‚ºã‚’å–å¾—ã™ã‚‹
 	/// </summary>
-	/// <param name="size">’²®‚·‚éƒTƒCƒY</param>
-	/// <param name="alignment">ƒAƒ‰ƒCƒ“ƒƒ“ƒg</param>
+	/// <param name="size">èª¿æ•´ã™ã‚‹ã‚µã‚¤ã‚º</param>
+	/// <param name="alignment">ã‚¢ãƒ©ã‚¤ãƒ³ãƒ¡ãƒ³ãƒˆ</param>
 	template<Traits::Concepts::CUnsigned T>
 	constexpr T GetAlignedSize(T size, T alignment) noexcept
 	{
@@ -178,15 +177,15 @@ export namespace System::Memory {
 	}
 }
 
-//ƒrƒbƒg”äŠr
+//ãƒ“ãƒƒãƒˆæ¯”è¼ƒ
 export namespace System::Memory {
 	/// <summary>
-	/// “ñ‚Â‚Ìƒƒ‚ƒŠ—Ìˆæ‚Ìƒrƒbƒg•\Œ»‚ªˆê’v‚·‚é‚©’²‚×‚é
+	/// äºŒã¤ã®ãƒ¡ãƒ¢ãƒªé ˜åŸŸã®ãƒ“ãƒƒãƒˆè¡¨ç¾ãŒä¸€è‡´ã™ã‚‹ã‹èª¿ã¹ã‚‹
 	/// </summary>
-	/// <param name="src1">‘æOˆø”‚Åw’è‚·‚éƒoƒCƒg”‚ğ‚Â—Ìˆæ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="src2">‘æOˆø”‚Åw’è‚·‚éƒoƒCƒg”‚ğ‚Â—Ìˆæ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="n">’²‚×‚é—Ìˆæ‚ÌƒoƒCƒg”</param>
-	/// <returns>Š®‘Sˆê’v‚µ‚½‚Æ‚«Atrue</returns>
+	/// <param name="src1">ç¬¬ä¸‰å¼•æ•°ã§æŒ‡å®šã™ã‚‹ãƒã‚¤ãƒˆæ•°ã‚’æŒã¤é ˜åŸŸã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="src2">ç¬¬ä¸‰å¼•æ•°ã§æŒ‡å®šã™ã‚‹ãƒã‚¤ãƒˆæ•°ã‚’æŒã¤é ˜åŸŸã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="n">èª¿ã¹ã‚‹é ˜åŸŸã®ãƒã‚¤ãƒˆæ•°</param>
+	/// <returns>å®Œå…¨ä¸€è‡´ã—ãŸã¨ãã€true</returns>
 	inline bool Compare(const void* src1, const void* src2, size_t n) noexcept {
 		const char* ptr1 = reinterpret_cast<const char*>(src1);
 		const char* ptr2 = reinterpret_cast<const char*>(src2);
@@ -199,14 +198,14 @@ export namespace System::Memory {
 	}
 }
 
-//ƒGƒ“ƒfƒBƒAƒ“ŠÖŒW
+//ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³é–¢ä¿‚
 export namespace System::Memory {
 	/// <summary>
-	/// ˆø”‚ğ”½‘Î‚ÌƒGƒ“ƒfƒBƒAƒ“‚Å‰ğß‚µ‚½’l‚ğæ“¾‚·‚é
+	/// å¼•æ•°ã‚’åå¯¾ã®ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ã§è§£é‡ˆã—ãŸå€¤ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
-	/// <typeparam name="T">”CˆÓ‚ÌŒ^</typeparam>
-	/// <param name="value">ƒGƒ“ƒfƒBƒAƒ“‚ğ”½“]‚³‚¹‚é’l</param>
-	/// <returns>ƒGƒ“ƒfƒBƒAƒ“‚ª”½“]‚µ‚½’l</returns>
+	/// <typeparam name="T">ä»»æ„ã®å‹</typeparam>
+	/// <param name="value">ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ã‚’åè»¢ã•ã›ã‚‹å€¤</param>
+	/// <returns>ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ãŒåè»¢ã—ãŸå€¤</returns>
 	template <typename T>
 	inline T EndianSwap(T value) noexcept {
 		int_t<false, sizeof(T)>* tmp = reinterpret_cast<int_t<false, sizeof(T)>*>(&value);
@@ -214,24 +213,24 @@ export namespace System::Memory {
 		return *reinterpret_cast<T*>(tmp);
 	}
 	/// <summary>
-	/// ŠÂ‹«‚ªƒŠƒgƒ‹ƒGƒ“ƒfƒBƒAƒ“‚©’²‚×‚é
+	/// ç’°å¢ƒãŒãƒªãƒˆãƒ«ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ã‹èª¿ã¹ã‚‹
 	/// </summary>
-	/// <returns>ŠÂ‹«‚ªƒŠƒgƒ‹ƒGƒ“ƒfƒBƒAƒ“‚Ìê‡Atrue</returns>
+	/// <returns>ç’°å¢ƒãŒãƒªãƒˆãƒ«ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ã®å ´åˆã€true</returns>
 	inline bool isLittleEndian() noexcept {
 		int tmp = 1;
 		return *reinterpret_cast<char*>(&tmp) == 1;
 	}
 	/// <summary>
-	/// ‘æˆêˆø”‚ÌƒGƒ“ƒfƒBƒAƒ“‚ğŠÂ‹«‚É‡‚í‚¹‚é
+	/// ç¬¬ä¸€å¼•æ•°ã®ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ã‚’ç’°å¢ƒã«åˆã‚ã›ã‚‹
 	/// </summary>
-	/// <typeparam name="T">”CˆÓ‚ÌŒ^</typeparam>
-	/// <param name="value">ƒGƒ“ƒfƒBƒAƒ“‚ğ•ÏŠ·‚·‚é’l</param>
-	/// <param name="isLittle">‘æˆêˆø”‚ÌƒGƒ“ƒfƒBƒAƒ“</param>
-	/// <returns>ŠÂ‹«‚ÌƒGƒ“ƒfƒBƒAƒ“‚É‡‚í‚¹‚½’lB‘æ“ñˆø”‚ªŠÂ‹«‚Æˆê’v‚·‚éê‡A‚»‚Ì‚Ü‚Ü‘æˆêˆø”‚ğ•Ô‚·</returns>
+	/// <typeparam name="T">ä»»æ„ã®å‹</typeparam>
+	/// <param name="value">ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ã‚’å¤‰æ›ã™ã‚‹å€¤</param>
+	/// <param name="isLittle">ç¬¬ä¸€å¼•æ•°ã®ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³</param>
+	/// <returns>ç’°å¢ƒã®ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ã«åˆã‚ã›ãŸå€¤ã€‚ç¬¬äºŒå¼•æ•°ãŒç’°å¢ƒã¨ä¸€è‡´ã™ã‚‹å ´åˆã€ãã®ã¾ã¾ç¬¬ä¸€å¼•æ•°ã‚’è¿”ã™</returns>
 	template <typename T> inline T ByteOrder(const T& value, const bool isLittle = false) noexcept { return isLittle == isLittleEndian() ? value : EndianSwap(value); }
 }
 
-//ƒtƒ@ƒCƒ‹“Ç‚İ‚İ—p
+//ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿ç”¨
 export namespace System::Memory {
 	template <typename T>
 	inline void ReadBE(std::fstream& file, T& dst) noexcept {
@@ -273,7 +272,7 @@ export namespace System::Memory {
 	}
 }
 
-//ƒtƒ@ƒCƒ‹‘‚«‚İ—p
+//ãƒ•ã‚¡ã‚¤ãƒ«æ›¸ãè¾¼ã¿ç”¨
 export namespace System::Memory {
 	template<typename T>
 	inline void WriteBE(std::fstream& file, const T& src) noexcept {
@@ -345,18 +344,18 @@ export namespace System::Memory {
 	}
 }
 
-//ƒtƒ@ƒCƒ‹I—¹
+//ãƒ•ã‚¡ã‚¤ãƒ«çµ‚äº†
 export namespace System::Memory {
 	/// <summary>
-	/// ƒtƒ@ƒCƒ‹ƒXƒgƒŠ[ƒ€‚ğ•Â‚¶‚ÄAbool’l‚ğ•Ô‚·
+	/// ãƒ•ã‚¡ã‚¤ãƒ«ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’é–‰ã˜ã¦ã€boolå€¤ã‚’è¿”ã™
 	/// </summary>
-	/// <param name="file">•Â‚¶‚éƒtƒ@ƒCƒ‹ƒXƒgƒŠ[ƒ€‚Ö‚ÌQÆ</param>
-	/// <param name="returnValue">‚±‚ÌŠÖ”‚ª•Ô‚·bool’l</param>
-	/// <returns>‘æ“ñˆø”‚Åw’è‚µ‚½bool’l</returns>
+	/// <param name="file">é–‰ã˜ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ã‚¹ãƒˆãƒªãƒ¼ãƒ ã¸ã®å‚ç…§</param>
+	/// <param name="returnValue">ã“ã®é–¢æ•°ãŒè¿”ã™boolå€¤</param>
+	/// <returns>ç¬¬äºŒå¼•æ•°ã§æŒ‡å®šã—ãŸboolå€¤</returns>
 	inline bool Close(std::fstream& file, const bool returnValue) noexcept { file.close(); return returnValue; }
 }
 
-//ƒAƒgƒ~ƒbƒNŠÖ˜A
+//ã‚¢ãƒˆãƒŸãƒƒã‚¯é–¢é€£
 export namespace System {
 	template<class T>
 	using Atomic = std::atomic<T>;

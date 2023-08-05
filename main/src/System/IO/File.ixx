@@ -1,4 +1,4 @@
-export module File;
+ï»¿export module File;
 import Objects;
 import Path;
 import <fstream>;
@@ -86,9 +86,9 @@ export namespace System::IO {
 			else return m_file.tellp();
 		}
 		/// <summary>
-		/// Œ»İˆÊ’u‚©‚çw’è‚µ‚½ˆÊ’u‚Ü‚Å‚ÌƒIƒtƒZƒbƒg‚ğæ“¾‚·‚é
+		/// ç¾åœ¨ä½ç½®ã‹ã‚‰æŒ‡å®šã—ãŸä½ç½®ã¾ã§ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="target">ƒIƒtƒZƒbƒgŒvZ‚ÌˆÚ“®æ</param>
+		/// <param name="target">ã‚ªãƒ•ã‚»ãƒƒãƒˆè¨ˆç®—ã®ç§»å‹•å…ˆ</param>
 		StreamOff TellOff(StreamPos target) noexcept {
 			if (!m_file.is_open()) return StreamOff(0);
 			if (!m_file) Clear();
@@ -96,7 +96,7 @@ export namespace System::IO {
 			return target - cur;
 		}
 		/// <summary>
-		/// Œ»İŠJ‚¢‚Ä‚¢‚éƒtƒ@ƒCƒ‹‚ÌƒoƒCƒgƒTƒCƒY‚ğæ“¾‚·‚é
+		/// ç¾åœ¨é–‹ã„ã¦ã„ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒã‚¤ãƒˆã‚µã‚¤ã‚ºã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		size_t Size() noexcept {
 			if (!m_file.is_open()) return 0;

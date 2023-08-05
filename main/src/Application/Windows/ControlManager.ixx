@@ -1,4 +1,4 @@
-export module ControlManager;
+﻿export module ControlManager;
 import System;
 import IApplicationManager;
 import Forms;

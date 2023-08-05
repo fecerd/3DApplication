@@ -1,6 +1,6 @@
-module;
-#include <crtdbg.h>
-#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+ï»¿module;
+//#include <crtdbg.h>
+//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 export module VectorBase;
 import CSTDINT;
 import Traits;
@@ -31,8 +31,8 @@ export namespace System {
 		constexpr ~VectorBase() noexcept { Clear(); }
 	public:
 		/// <summary>
-		/// ‰Šú‰»qƒŠƒXƒg‚©‚ç“®“I”z—ñ‚ğ\’z‚·‚éB
-		/// Še—v‘f‚ÍT(const T&)‚É‚æ‚Á‚ÄƒRƒs[‚³‚ê‚é
+		/// åˆæœŸåŒ–å­ãƒªã‚¹ãƒˆã‹ã‚‰å‹•çš„é…åˆ—ã‚’æ§‹ç¯‰ã™ã‚‹ã€‚
+		/// å„è¦ç´ ã¯T(const T&)ã«ã‚ˆã£ã¦ã‚³ãƒ”ãƒ¼ã•ã‚Œã‚‹
 		/// </summary>
 		constexpr VectorBase(initializer_list<T> list) noexcept : m_count(list.size()), m_capacity(list.size()) {
 			m_data = new T[m_capacity];
@@ -40,8 +40,8 @@ export namespace System {
 			for (const T& x : list) m_data[i++] = x;
 		}
 		/// <summary>
-		/// ŒÂ”‚Æ’l‚ğw’è‚µ‚ÄA“¯‚¶’l‚ª•À‚Ô“®“I”z—ñ‚ğ\’z‚·‚éB
-		/// Še—v‘f‚ÍT(const T&)‚ÅƒRƒs[‚³‚ê‚é
+		/// å€‹æ•°ã¨å€¤ã‚’æŒ‡å®šã—ã¦ã€åŒã˜å€¤ãŒä¸¦ã¶å‹•çš„é…åˆ—ã‚’æ§‹ç¯‰ã™ã‚‹ã€‚
+		/// å„è¦ç´ ã¯T(const T&)ã§ã‚³ãƒ”ãƒ¼ã•ã‚Œã‚‹
 		/// </summary>
 		constexpr VectorBase(size_t count, const T& value) noexcept : m_count(count), m_capacity(count) {
 			m_data = new T[m_capacity];
@@ -101,7 +101,7 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// w’è‚µ‚½ŒÂ”•ª‚ÌƒfƒtƒHƒ‹ƒg‰Šú‰»‚³‚ê‚½—v‘f‚ğ’Ç‰Á‚·‚é
+		/// æŒ‡å®šã—ãŸå€‹æ•°åˆ†ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆåˆæœŸåŒ–ã•ã‚ŒãŸè¦ç´ ã‚’è¿½åŠ ã™ã‚‹
 		/// </summary>
 		/// <param name="count"></param>
 		constexpr bool AddEmpty(size_t count) noexcept {

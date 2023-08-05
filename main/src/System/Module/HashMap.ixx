@@ -1,6 +1,7 @@
-module;
-#include<crtdbg.h>
-#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+ï»¿module;
+//#include<crtdbg.h>
+//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#include "FUNCSIG.hpp"
 export module HashMap;
 import CSTDINT;
 import Exception;
@@ -8,25 +9,25 @@ import IEnumerable;
 import Traits;
 import Vector;
 import Function;
-using IEnumerable = System::IEnumerable;
 
-//HashŠÖ”ƒIƒuƒWƒFƒNƒgŒ^
+//Hashé–¢æ•°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆå‹
 export namespace System {
 	template<class T> class Hash {};
-	template<System::Traits::Arithmetic T>
+	template<Traits::Concepts::CArithmetic T>
 	class Hash<T> {
 	public:
 		constexpr size_t operator()(T arg) const noexcept { return static_cast<size_t>(arg); }
 	};
-	template<class T> requires(System::Traits::is_same_v<System::Traits::remove_cv_t<T>, bool>)
+	template<Traits::Concepts::CSameRemoveCV<bool> T>
 	class Hash<T> {
 	public:
 		constexpr size_t operator()(T arg) const noexcept { return static_cast<size_t>(arg); }
 	};
-	template<System::Traits::Pointer T>
+	template<Traits::Concepts::CPointer T>
 	class Hash<T> {
+		using arg_type = Traits::remove_pointer_t<Traits::remove_cvref_t<T>>;
 	public:
-		inline size_t operator()(const Traits::remove_pointer_t<Traits::remove_cvref_t<T>>* arg) const noexcept { return reinterpret_cast<size_t>(arg); }
+		inline size_t operator()(arg_type const* arg) const noexcept { return reinterpret_cast<size_t>(arg); }
 	};
 	template<class T> requires requires(const T& x) { x.GetHashCode(); }
 	class Hash<T> {
@@ -37,9 +38,10 @@ export namespace System {
 	};
 	template<Traits::Concepts::CEnum T>
 	class Hash<T> {
+		using enum_type = Traits::remove_cvref_t<T>;
 	public:
-		constexpr size_t operator()(T arg) const noexcept {
-			return static_cast<size_t>(static_cast<System::Traits::underlying_type_t<T>>(arg));
+		constexpr size_t operator()(enum_type arg) const noexcept {
+			return static_cast<size_t>(static_cast<Traits::underlying_type_t<enum_type>>(arg));
 		}
 	};
 }
@@ -47,62 +49,62 @@ export namespace System {
 //HashNodeBase, HashNode
 export namespace System {
 	/// <summary>
-	/// HashNode‚ÌŠî’êƒNƒ‰ƒX
+	/// HashNodeã®åŸºåº•ã‚¯ãƒ©ã‚¹
 	/// </summary>
-	/// <typeparam name="Key">ƒL[Œ^</typeparam>
+	/// <typeparam name="Key">ã‚­ãƒ¼å‹</typeparam>
 	template<class Key>
 	struct HashNodeBase {
 	protected:
-		HashNodeBase* m_prev = nullptr;	//HashMap“à‚Å’¼‘O‚É’Ç‰Á‚³‚ê‚½ƒm[ƒh
-		HashNodeBase* m_next = nullptr;	//HashMap“à‚Å’¼Œã‚É’Ç‰Á‚³‚ê‚½ƒm[ƒh
-		Key m_key;	//ƒL[
+		HashNodeBase* m_prev = nullptr;	//HashMapå†…ã§ç›´å‰ã«è¿½åŠ ã•ã‚ŒãŸãƒãƒ¼ãƒ‰
+		HashNodeBase* m_next = nullptr;	//HashMapå†…ã§ç›´å¾Œã«è¿½åŠ ã•ã‚ŒãŸãƒãƒ¼ãƒ‰
+		Key m_key;	//ã‚­ãƒ¼
 	public:
-		template<Traits::Constructible<Key> K>
-		HashNodeBase(K&& key) noexcept : m_key(static_cast<K&&>(key)) {}
+		template<Traits::Concepts::CConstructibleTo<Key> K>
+		HashNodeBase(K&& key) noexcept : m_key(System::move(key)) {}
 	public:
 		/// <summary>
-		/// ƒL[‚ÌQÆ‚ğæ“¾‚·‚é
+		/// ã‚­ãƒ¼ã®å‚ç…§ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		Key& GetKey() noexcept { return m_key; }
 		const Key& GetKey() const noexcept { return m_key; }
 	public:
 		/// <summary>
-		/// ‚±‚Ìƒm[ƒh‚ª‘¶İ‚·‚éHashMap“à‚Åˆê”ÔÅ‰‚É’Ç‰Á‚³‚ê‚½ƒm[ƒh‚ğæ“¾‚·‚é
+		/// ã“ã®ãƒãƒ¼ãƒ‰ãŒå­˜åœ¨ã™ã‚‹HashMapå†…ã§ä¸€ç•ªæœ€åˆã«è¿½åŠ ã•ã‚ŒãŸãƒãƒ¼ãƒ‰ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		HashNodeBase* GetFirst() noexcept { return m_prev ? m_prev->GetFirst() : this; }
 		/// <summary>
-		/// ‚±‚Ìƒm[ƒh‚ª‘¶İ‚·‚éHashMap“à‚Åˆê”ÔÅŒã‚É’Ç‰Á‚³‚ê‚½ƒm[ƒh‚ğæ“¾‚·‚é
+		/// ã“ã®ãƒãƒ¼ãƒ‰ãŒå­˜åœ¨ã™ã‚‹HashMapå†…ã§ä¸€ç•ªæœ€å¾Œã«è¿½åŠ ã•ã‚ŒãŸãƒãƒ¼ãƒ‰ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		HashNodeBase* GetLast() noexcept { return m_next ? m_next->GetLast() : this; }
 		/// <summary>
-		/// ’¼‘O‚Ìƒm[ƒh‚ğİ’è‚·‚é
+		/// ç›´å‰ã®ãƒãƒ¼ãƒ‰ã‚’è¨­å®šã™ã‚‹
 		/// </summary>
-		/// <param name="prev">İ’è‚·‚éƒm[ƒh</param>
+		/// <param name="prev">è¨­å®šã™ã‚‹ãƒãƒ¼ãƒ‰</param>
 		void SetPrev(HashNodeBase* prev) noexcept { m_prev = prev; }
 		/// <summary>
-		/// ’¼‘O‚Ìƒm[ƒh‚ğæ“¾‚·‚é
+		/// ç›´å‰ã®ãƒãƒ¼ãƒ‰ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		HashNodeBase* GetPrev() const noexcept { return m_prev; }
 		/// <summary>
-		/// ’¼Œã‚Ìƒm[ƒh‚ğİ’è‚·‚é
+		/// ç›´å¾Œã®ãƒãƒ¼ãƒ‰ã‚’è¨­å®šã™ã‚‹
 		/// </summary>
-		/// <param name="prev">İ’è‚·‚éƒm[ƒh</param>
+		/// <param name="prev">è¨­å®šã™ã‚‹ãƒãƒ¼ãƒ‰</param>
 		void SetNext(HashNodeBase* next) noexcept { m_next = next; }
 		/// <summary>
-		/// ’¼Œã‚Ìƒm[ƒh‚ğæ“¾‚·‚é
+		/// ç›´å¾Œã®ãƒãƒ¼ãƒ‰ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		HashNodeBase* GetNext() const noexcept { return m_next; }
 	};
 
 	/// <summary>
-	/// HashNode‚Ì‚Ğ‚ÈŒ^
+	/// HashNodeã®ã²ãªå‹
 	/// </summary>
 	/// <typeparam name="Key"></typeparam>
 	/// <typeparam name="...Args"></typeparam>
 	template<class Key, class ...Args>
 	struct HashNode : public HashNodeBase<Key> {
 		template<size_t i>
-		using value_type = System::Traits::one_of_t<i, Args...>;
+		using value_type = Traits::one_of_t<i, Args...>;
 	public:
 		using HashNodeBase<Key>::GetKey;
 		template<size_t i = 0> value_type<i>& GetValue() noexcept;
@@ -113,71 +115,64 @@ export namespace System {
 //HashNodes
 export namespace System {
 	/// <summary>
-	/// ’l‚ğˆê‚Â‚ÂHashMap—pƒm[ƒh
+	/// å€¤ã‚’ä¸€ã¤æŒã¤HashMapç”¨ãƒãƒ¼ãƒ‰
 	/// </summary>
-	/// <typeparam name="Key">ƒL[Œ^</typeparam>
-	/// <typeparam name="Value">’lŒ^</typeparam>
+	/// <typeparam name="Key">ã‚­ãƒ¼å‹</typeparam>
+	/// <typeparam name="Value">å€¤å‹</typeparam>
 	template<class Key, class Value>
 	struct HashNode<Key, Value> : public HashNodeBase<Key> {
 		using HashNodeBase<Key>::m_next;
 		using HashNodeBase<Key>::m_key;
 		Value m_value;
 	public:
-		template<Traits::Constructible<Key> K, Traits::Constructible<Value> V>
-		HashNode<Key, Value>(K&& key, V&& value) noexcept
-			: HashNodeBase<Key>(static_cast<K&&>(key)), m_value(static_cast<V&&>(value)) {}
+		template<Traits::Concepts::CConstructibleTo<Key> K, Traits::Concepts::CConstructibleTo<Value> V>
+		HashNode(K&& key, V&& value) noexcept
+			: HashNodeBase<Key>(System::move(key)), m_value(System::move(value)) {}
 	public:
 		using HashNodeBase<Key>::GetKey;
 		/// <summary>
-		/// ’l‚ğæ“¾‚·‚é
+		/// å€¤ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		template<size_t i = 0> requires(i == 0)
 		Value& GetValue() noexcept { return m_value; }
 		/// <summary>
-		/// ’l‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾‚·‚é
+		/// å€¤ã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		template<size_t i = 0> requires(i == 0)
 		Value* GetValuePtr() noexcept { return &m_value; }
 	};
 }
 
+//NodeTypeã‚³ãƒ³ã‚»ãƒ—ãƒˆ
 namespace System {
-	template<class T>
-	struct is_node : System::Traits::false_type {};
-	template<template<class, class...> class Node, class Key, class ...Args>
-	struct is_node<Node<Key, Args...>> : System::Traits::true_type {};
-	template<template<class, class...> class Node, class Key, class ...Args>
-	struct is_node<const Node<Key, Args...>> : System::Traits::true_type {};
-
-	template<class T>
-	concept NodeType = is_node<T>::value;
-
-	template<class T>
-	struct toggle_const {
-		using type = const T;
-	};
-	template<class T>
-	struct toggle_const<const T> {
-		using type = System::Traits::remove_const_t<T>;
-	};
+	namespace Internal {
+		template<class T>
+		struct is_node : Traits::false_type {};
+		template<template<class, class...> class Node, class Key, class... Args>
+		struct is_node<Node<Key, Args...>> : Traits::true_type {};
+		template<template<class, class...> class Node, class Key, class... Args>
+		struct is_node<const Node<Key, Args...>> : Traits::true_type {};
+	}
+	//ä¸€ã¤ã®ã‚­ãƒ¼ã¨0å€‹ä»¥ä¸Šã®å€¤ã‚’ã¨ã‚‹ã‚¯ãƒ©ã‚¹ã®ã‚³ãƒ³ã‚»ãƒ—ãƒˆ
+	template<class T> concept NodeType = Internal::is_node<T>::value;
 }
 
 //HashMapIterator
 export namespace System {
 	/// <summary>
-	/// HashMap::begin(), end()‚ª•Ô‚·‘o•ûŒüƒCƒeƒŒ[ƒ^
+	/// HashMap::begin(), end()ãŒè¿”ã™åŒæ–¹å‘ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿
 	/// </summary>
-	/// <typeparam name="Key">ƒL[Œ^</typeparam>
-	/// <typeparam name="...Args">’lŒ^</typeparam>
+	/// <typeparam name="Key">ã‚­ãƒ¼å‹</typeparam>
+	/// <typeparam name="...Args">å€¤å‹</typeparam>
 	template<NodeType T>
 	struct HashMapIterator {
-		using iterator_concept = System::Traits::bidirectional_iterator_tag;
+		using iterator_concept = Traits::bidirectional_iterator_tag;
 		using nodetype = T;
-		using iterator_type = HashMapIterator<T>;
-		using toggle_iterator_type = HashMapIterator<typename toggle_const<T>::type>;
-		friend struct HashMapIterator<typename toggle_const<T>::type>;
+		using iterator_type = HashMapIterator<nodetype>;
+		using toggle_iterator_type = HashMapIterator<Traits::toggle_const_t<nodetype>>;
+		friend toggle_iterator_type;
 	protected:
-		//Œ»İw‚µ‚Ä‚¢‚éƒm[ƒhBnullptr‚Ìê‡AÅIƒm[ƒh‚ÌŒã‚ë‚ğ•\‚·
+		//ç¾åœ¨æŒ‡ã—ã¦ã„ã‚‹ãƒãƒ¼ãƒ‰ã€‚nullptrã®å ´åˆã€æœ€çµ‚ãƒãƒ¼ãƒ‰ã®å¾Œã‚ã‚’è¡¨ã™
 		nodetype* m_current = nullptr;
 	public:
 		constexpr HashMapIterator() noexcept : m_current(nullptr) {}
@@ -211,7 +206,7 @@ export namespace System {
 			if (!m_current && !rhs.m_current) return 0;
 			ptrdiff_t ret = 0;
 			nodetype* tmp = nullptr;
-			if (!m_current || !rhs.m_current) {	//this‚Ærhs‚Ì•Ğ•û‚ªÅIƒm[ƒh‚ÌŸ(nullptr)‚ğw‚µ‚Ä‚¢‚éê‡
+			if (!m_current || !rhs.m_current) {	//thisã¨rhsã®ç‰‡æ–¹ãŒæœ€çµ‚ãƒãƒ¼ãƒ‰ã®æ¬¡(nullptr)ã‚’æŒ‡ã—ã¦ã„ã‚‹å ´åˆ
 				if (!m_current) {
 					tmp = rhs.m_current;
 					while (tmp) {
@@ -229,7 +224,7 @@ export namespace System {
 					return ret;
 				}
 			}
-			else {	//this‚Ærhs‚ª‚Æ‚à‚Éƒm[ƒh‚ğw‚µ‚Ä‚¢‚éê‡
+			else {	//thisã¨rhsãŒã¨ã‚‚ã«ãƒãƒ¼ãƒ‰ã‚’æŒ‡ã—ã¦ã„ã‚‹å ´åˆ
 				tmp = m_current;
 				while (tmp) {
 					if (tmp == rhs.m_current) return ret;
@@ -244,7 +239,7 @@ export namespace System {
 					tmp = tmp->GetPrev();
 				}
 			}
-			throw InvalidOperationException(__FUNCSIG__, "ˆÙ‚È‚éHashMap‚ÌƒCƒeƒŒ[ƒ^ŠÔ‚ÅŒvZ‚µ‚æ‚¤‚Æ‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+			throw InvalidOperationException(__FUNCSIG__, "ç•°ãªã‚‹HashMapã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿é–“ã§è¨ˆç®—ã—ã‚ˆã†ã¨ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 		}
 		constexpr ptrdiff_t operator-(const toggle_iterator_type& rhs) const {
 			return operator-(iterator_type{ rhs.m_current });
@@ -255,41 +250,28 @@ export namespace System {
 	};
 }
 
-//argtypes
-//one_of_t<i, Args>‚Í”ÍˆÍŠO‚ÅvoidŒ^‚ğ•Ô‚µ‚ÄƒRƒ“ƒpƒCƒ‹ƒGƒ‰[‚ğˆø‚«‹N‚±‚·‚½‚ßA
-//ƒ_ƒ~[Œ^‚ğ—˜—p‚µ‚Ä—}§‚·‚éB
-//–³Œø‚ÈƒCƒ“ƒfƒbƒNƒXi‚Ístatic_assert‚Å’m‚ç‚¹‚é
-namespace System {
-	struct ArgDummy {};
-	template<size_t i, class T, class ...Args>
-	struct argtypes : argtypes<i - 1, Args...> {};
-	template<class T, class ...Args>
-	struct argtypes<0, T, Args...> { using type = T; };
-	template<size_t i, class T>
-	struct argtypes<i, T> { using type = ArgDummy; };
-}
-
 //HashMap
 export namespace System {
 	/// <summary>
-	/// ƒL[‚Æ’l‚Ì‘g‚İ‡‚í‚¹‚ğŠÇ—‚·‚éƒRƒ“ƒeƒiƒNƒ‰ƒXB
-	/// ƒL[‚Ìd•¡‚Í”F‚ß‚È‚¢‚ªAƒm[ƒh‚É‚Í•¡”‚Ì’l‚ğŠi”[‚Å‚«‚é
+	/// ã‚­ãƒ¼ã¨å€¤ã®çµ„ã¿åˆã‚ã›ã‚’ç®¡ç†ã™ã‚‹ã‚³ãƒ³ãƒ†ãƒŠã‚¯ãƒ©ã‚¹ã€‚
+	/// ã‚­ãƒ¼ã®é‡è¤‡ã¯èªã‚ãªã„ãŒã€ãƒãƒ¼ãƒ‰ã«ã¯è¤‡æ•°ã®å€¤ã‚’æ ¼ç´ã§ãã‚‹
 	/// </summary>
-	/// <typeparam name="Key">ƒL[Œ^</typeparam>
-	/// <typeparam name="...Args">’lŒ^</typeparam>
+	/// <typeparam name="Key">ã‚­ãƒ¼å‹</typeparam>
+	/// <typeparam name="...Args">å€¤å‹</typeparam>
 	template<class Key, class ...Args>
 	class HashMap : public ICollection<HashNode<Key, Args...>> {
-		using nodetype = HashNode<Key, Args...>;	//g—p‚³‚ê‚éƒm[ƒhŒ^
-		template<size_t i> using argtype = argtypes<i, Args...>::type;	//i”Ô–Ú‚Ì’lŒ^
-		template<size_t i> static constexpr bool enable_argtype_v = i < sizeof...(Args);	//i”Ô–Ú‚Ì’l‚ª‘¶İ‚·‚é‚©
-		using maptype = HashMap<Key, Args...>;	//‚±‚ÌHashMap‚ÌŒ^
-		using ckeytype = System::Traits::conditional_t<Traits::is_pointer_v<Key>, const Traits::remove_pointer_t<Traits::remove_cvref_t<Key>>*, const Traits::remove_cvref_t<Key>&>;
+		using nodetype = HashNode<Key, Args...>;	//ä½¿ç”¨ã•ã‚Œã‚‹ãƒãƒ¼ãƒ‰å‹
+		template<size_t i> using argtype = Traits::one_of_t<i, Args...>;	//iç•ªç›®ã®å€¤å‹
+		using maptype = HashMap<Key, Args...>;	//ã“ã®HashMapã®å‹
+		using ckeytype = Traits::conditional_t<Traits::is_pointer_v<Key>, Traits::remove_pointer_t<Key> const*, Traits::remove_cvref_t<Key> const&>;
+		using iteratortype = HashMapIterator<nodetype>;
+		using const_iteratortype = HashMapIterator<nodetype>::toggle_iterator_type;
 	private:
-		Vector<nodetype*>* m_nodes = nullptr;	//ƒm[ƒh‚Ì“®“I”z—ñ(Vector<HashNode<Key, Args...>>)‚Ì”z—ñ
-		nodetype* m_first = nullptr;	//‘¶İ‚·‚éƒm[ƒh‚Ì’†‚Åˆê”ÔÅ‰‚É’Ç‰Á‚³‚ê‚½ƒm[ƒh
-		size_t m_nodesSize = 0;	//m_nodes‚Ì—v‘f”
-		System::Function<void(HashMap<Key, Args...>&)> m_destructor;	//ƒL[‚â’l‚ÌƒfƒXƒgƒ‰ƒNƒ^
-		bool m_destructorInitialized = false;	//m_destructor‚ª‰Šú‰»‚³‚ê‚Ä‚¢‚é‚©
+		Vector<nodetype*>* m_nodes = nullptr;	//ãƒãƒ¼ãƒ‰ã®å‹•çš„é…åˆ—(Vector<HashNode<Key, Args...>>)ã®é…åˆ—
+		nodetype* m_first = nullptr;	//å­˜åœ¨ã™ã‚‹ãƒãƒ¼ãƒ‰ã®ä¸­ã§ä¸€ç•ªæœ€åˆã«è¿½åŠ ã•ã‚ŒãŸãƒãƒ¼ãƒ‰
+		size_t m_nodesSize = 0;	//m_nodesã®è¦ç´ æ•°
+		Function<void(maptype&)> m_destructor;	//ã‚­ãƒ¼ã‚„å€¤ã®ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+		bool m_destructorInitialized = false;	//m_destructorãŒåˆæœŸåŒ–ã•ã‚Œã¦ã„ã‚‹ã‹
 	public:
 		HashMap() noexcept : HashMap(10) {}
 		HashMap(const HashMap&) noexcept = delete;
@@ -299,9 +281,9 @@ export namespace System {
 			arg.m_first = nullptr;
 		}
 		/// <summary>
-		/// 2‚Ìæ”‚ÅƒnƒbƒVƒ…’l‚Ì–@‚ğw’è‚µ‚ÄA‰Šú‰»‚·‚é
+		/// 2ã®ä¹—æ•°ã§ãƒãƒƒã‚·ãƒ¥å€¤ã®æ³•ã‚’æŒ‡å®šã—ã¦ã€åˆæœŸåŒ–ã™ã‚‹
 		/// </summary>
-		/// <param name="n">2‚Ìæ”B3‚Ìê‡A8(2^3)‚ğƒnƒbƒVƒ…’l‚Ì–@‚Æ‚µ‚Äg—p‚·‚é</param>
+		/// <param name="n">2ã®ä¹—æ•°ã€‚3ã®å ´åˆã€8(2^3)ã‚’ãƒãƒƒã‚·ãƒ¥å€¤ã®æ³•ã¨ã—ã¦ä½¿ç”¨ã™ã‚‹</param>
 		HashMap(uint8_t n) noexcept : m_nodesSize(1ull << (n > 63 ? 63 : n)) {
 			m_nodes = new Vector<nodetype*>[m_nodesSize];
 		}
@@ -325,23 +307,15 @@ export namespace System {
 			return nullptr;
 		}
 	public:
-		constexpr HashMapIterator<nodetype> begin() noexcept {
-			return HashMapIterator<nodetype>(m_first);
-		}
-		constexpr HashMapIterator<const nodetype> begin() const noexcept {
-			return HashMapIterator<const nodetype>(m_first);
-		}
-		constexpr HashMapIterator<nodetype> end() noexcept {
-			return HashMapIterator<nodetype>();
-		}
-		constexpr HashMapIterator<const nodetype> end() const noexcept {
-			return HashMapIterator<const nodetype>();
-		}
+		constexpr iteratortype begin() noexcept { return iteratortype(m_first); }
+		constexpr const_iteratortype begin() const noexcept { return const_iteratortype(m_first); }
+		constexpr iteratortype end() noexcept { return iteratortype(); }
+		constexpr const_iteratortype end() const noexcept { return const_iteratortype(); }
 	public:
 		/// <summary>
-		/// ƒL[‚ªŠÜ‚Ü‚ê‚Ä‚¢‚é‚©’²‚×‚é
+		/// ã‚­ãƒ¼ãŒå«ã¾ã‚Œã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹
 		/// </summary>
-		/// <param name="key">ƒL[</param>
+		/// <param name="key">ã‚­ãƒ¼</param>
 		constexpr bool Contains(ckeytype key) const noexcept { return FindNode(key); }
 		constexpr bool Any() const noexcept { return begin() != end(); }
 		constexpr size_t Count() const noexcept {
@@ -354,22 +328,22 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ƒL[‚Æ’l‚ğw’è‚µ‚ÄHashMap‚É’Ç‰Á‚·‚é
+		/// ã‚­ãƒ¼ã¨å€¤ã‚’æŒ‡å®šã—ã¦HashMapã«è¿½åŠ ã™ã‚‹
 		/// </summary>
-		/// <param name="key">ƒL[BKeyŒ^‚à‚µ‚­‚ÍKeyŒ^ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚É“n‚¹‚éŒ^</param>
+		/// <param name="key">ã‚­ãƒ¼ã€‚Keyå‹ã‚‚ã—ãã¯Keyå‹ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã«æ¸¡ã›ã‚‹å‹</param>
 		/// <param name="...args">
-		/// ’l‚Ìƒpƒ‰ƒ[ƒ^ƒpƒbƒNBArgsŒ^‚à‚µ‚­‚ÍArgsŒ^ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚É“n‚¹‚éŒ^B
-		/// •À‚Ñ‡‚ÍArgs‚Æˆê’v‚·‚é
+		/// å€¤ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ‘ãƒƒã‚¯ã€‚Argså‹ã‚‚ã—ãã¯Argså‹ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã«æ¸¡ã›ã‚‹å‹ã€‚
+		/// ä¸¦ã³é †ã¯Argsã¨ä¸€è‡´ã™ã‚‹
 		/// </param>
-		/// <returns>’Ç‰Á‚É¬Œ÷‚µ‚½‚Æ‚«AtrueB‚·‚Å‚É‘¶İ‚·‚éƒL[‚ğw’è‚µ‚½ê‡Afalse</returns>
-		template<Traits::Constructible<Key> K, Traits::Constructible<Args...> ...A>
+		/// <returns>è¿½åŠ ã«æˆåŠŸã—ãŸã¨ãã€trueã€‚ã™ã§ã«å­˜åœ¨ã™ã‚‹ã‚­ãƒ¼ã‚’æŒ‡å®šã—ãŸå ´åˆã€false</returns>
+		template<Traits::Concepts::CConstructibleTo<Key> K, Traits::Concepts::CConstructibleTo<Args> ...A>
 		bool Insert(K&& key, A&& ...args) noexcept {
-			Key tmpkey = Key(static_cast<K&&>(key));
+			Key tmpkey = Key(System::move(key));
 			size_t index = GetCode(tmpkey);
-			if (index >= m_nodesSize) return false;	//•’Ê‚Í‚ ‚è‚¦‚È‚¢
+			if (index >= m_nodesSize) return false;	//æ™®é€šã¯ã‚ã‚Šãˆãªã„
 			Vector<nodetype*>& nodes = m_nodes[index];
 			for (nodetype* node : nodes) if (node->GetKey() == tmpkey) return false;
-			nodes.Add(new HashNode<Key, Args...>(static_cast<Key&&>(tmpkey), static_cast<A&&>(args)...));
+			nodes.Add(new HashNode<Key, Args...>(System::move(tmpkey), System::move(args)...));
 			HashNodeBase<Key>* tmp = nodes.Last();
 			HashNodeBase<Key>* last = m_first ? m_first->GetLast() : nullptr;
 			if (last) {
@@ -380,10 +354,10 @@ export namespace System {
 			return true;
 		}
 		/// <summary>
-		/// ƒL[‚ğw’è‚µ‚ÄHashMap‚©‚çƒf[ƒ^‚ğíœ‚·‚é
+		/// ã‚­ãƒ¼ã‚’æŒ‡å®šã—ã¦HashMapã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ã‚’å‰Šé™¤ã™ã‚‹
 		/// </summary>
-		/// <param name="key">ƒL[</param>
-		/// <returns>íœ‚É¬Œ÷‚µ‚½ê‡AtrueB‘¶İ‚µ‚È‚¢ƒL[‚ğw’è‚µ‚½ê‡Afalse</returns>
+		/// <param name="key">ã‚­ãƒ¼</param>
+		/// <returns>å‰Šé™¤ã«æˆåŠŸã—ãŸå ´åˆã€trueã€‚å­˜åœ¨ã—ãªã„ã‚­ãƒ¼ã‚’æŒ‡å®šã—ãŸå ´åˆã€false</returns>
 		bool Remove(ckeytype key) noexcept {
 			size_t index = GetCode(key);
 			if (index >= m_nodesSize) return false;
@@ -393,7 +367,7 @@ export namespace System {
 				if (node->GetKey() == key) {
 					HashNodeBase<Key>* prev = node->GetPrev();
 					HashNodeBase<Key>* next = node->GetNext();
-					if (prev || next) {	//ÅŒã‚Ìˆê‚Â‚Å‚Í‚È‚¢
+					if (prev || next) {	//æœ€å¾Œã®ä¸€ã¤ã§ã¯ãªã„
 						if (prev) {
 							prev->SetNext(next);
 							if (next) next->SetPrev(prev);
@@ -412,7 +386,7 @@ export namespace System {
 			return false;
 		}
 		/// <summary>
-		/// ‚·‚×‚Ä‚Ìƒm[ƒh‚ğ‰ğ•ú‚·‚éBŠÖ”ŒÄ‚Ño‚µŒã‚ÍƒRƒ“ƒXƒgƒ‰ƒNƒg’¼Œã‚Ìó‘Ô‚Æ‚È‚é
+		/// ã™ã¹ã¦ã®ãƒãƒ¼ãƒ‰ã‚’è§£æ”¾ã™ã‚‹ã€‚é–¢æ•°å‘¼ã³å‡ºã—å¾Œã¯ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ãƒˆç›´å¾Œã®çŠ¶æ…‹ã¨ãªã‚‹
 		/// </summary>
 		void Clear() noexcept {
 			for (size_t i = 0; i < m_nodesSize; ++i) {
@@ -423,60 +397,75 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ƒL[‚Æ’l‚ÌƒCƒ“ƒfƒbƒNƒX‚ğw’è‚µ‚Ä’l‚Ö‚ÌQÆ‚ğæ“¾‚·‚éB
-		/// ‚±‚ÌŠÖ”‚Í’l‚ª”ñƒ|ƒCƒ“ƒ^Œ^‚Ìê‡‚Ì‚İ’è‹`‚³‚ê‚é
+		/// ã‚­ãƒ¼ã¨å€¤ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æŒ‡å®šã—ã¦å€¤ã¸ã®å‚ç…§ã‚’å–å¾—ã™ã‚‹ã€‚
+		/// ã“ã®é–¢æ•°ã¯å€¤ãŒéãƒã‚¤ãƒ³ã‚¿å‹ã®å ´åˆã®ã¿å®šç¾©ã•ã‚Œã‚‹
 		/// </summary>
-		/// <param name="key">ƒL[</param>
-		/// <exception>‘¶İ‚µ‚È‚¢ƒL[‚ğw’è‚µ‚½ê‡AInvalidOperationException‚ğ‘—o‚·‚é</exception>
+		/// <param name="key">ã‚­ãƒ¼</param>
+		/// <exception>å­˜åœ¨ã—ãªã„ã‚­ãƒ¼ã‚’æŒ‡å®šã—ãŸå ´åˆã€InvalidOperationExceptionã‚’é€å‡ºã™ã‚‹</exception>
 		template<size_t i = 0>
-		argtype<i>& At(ckeytype key, srcloc loc = srcloc::current()) requires(!System::Traits::is_pointer_v<argtype<i>>) {
-			static_assert(enable_argtype_v<i>, "Invalid index specified for HashMap::AtPtr().");
-			nodetype* node = FindNode(key);
-			if (!node) throw InvalidOperationException(__FUNCSIG__, "‘¶İ‚µ‚È‚¢ƒL[‚ªw’è‚³‚ê‚Ü‚µ‚½B", loc);
-			return node->GetValue<i>();
+		auto& At(ckeytype key, const srcloc& loc = srcloc::current()) requires(!Traits::Concepts::CPointer<argtype<i>>) {
+			if constexpr (Traits::is_void_v<argtype<i>>) {
+				static_assert("HashMap::At()ã«ç„¡åŠ¹ãªã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒæŒ‡å®šã•ã‚Œã¾ã—ãŸã€‚");
+				return *this;
+			}
+			else {
+				nodetype* node = FindNode(key);
+				if (!node) throw InvalidOperationException(__FUNCSIG__, "å­˜åœ¨ã—ãªã„ã‚­ãƒ¼ãŒæŒ‡å®šã•ã‚Œã¾ã—ãŸã€‚", loc);
+				return node->template GetValue<i>();
+			}
 		}
 		/// <summary>
-		/// ƒL[‚Æ’l‚ÌƒCƒ“ƒfƒbƒNƒX‚ğw’è‚µ‚Ä’l‚ğæ“¾‚·‚éB
-		/// ‚±‚ÌŠÖ”‚Í’l‚ªƒ|ƒCƒ“ƒ^Œ^‚Ìê‡‚Ì‚İ’è‹`‚³‚ê‚é
+		/// ã‚­ãƒ¼ã¨å€¤ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æŒ‡å®šã—ã¦å€¤ã‚’å–å¾—ã™ã‚‹ã€‚
+		/// ã“ã®é–¢æ•°ã¯å€¤ãŒãƒã‚¤ãƒ³ã‚¿å‹ã®å ´åˆã®ã¿å®šç¾©ã•ã‚Œã‚‹
 		/// </summary>
-		/// <param name="key">ƒL[</param>
+		/// <param name="key">ã‚­ãƒ¼</param>
 		template<size_t i = 0>
-		argtype<i> At(ckeytype key) const noexcept requires(System::Traits::is_pointer_v<argtype<i>>) {
-			static_assert(enable_argtype_v<i>, "Invalid index specified for HashMap::AtPtr().");
-			nodetype* node = FindNode(key);
-			if (!node) return nullptr;
-			return node->GetValue<i>();
+		auto At(ckeytype key) const noexcept requires(Traits::Concepts::CPointer<argtype<i>>) {
+			if constexpr (Traits::is_void_v<argtype<i>>) {
+				static_assert("HashMap::At()ã«ç„¡åŠ¹ãªã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒæŒ‡å®šã•ã‚Œã¾ã—ãŸã€‚");
+				return;
+			}
+			else {
+				nodetype* node = FindNode(key);
+				if (!node) return nullptr;
+				return node->template GetValue<i>();
+			}
 		}
 		/// <summary>
-		/// ƒL[‚Æ’l‚ÌƒCƒ“ƒfƒbƒNƒX‚ğw’è‚µ‚Ä’l‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾‚·‚é
+		/// ã‚­ãƒ¼ã¨å€¤ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æŒ‡å®šã—ã¦å€¤ã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="key">ƒL[</param>
+		/// <param name="key">ã‚­ãƒ¼</param>
 		template<size_t i = 0>
-		argtype<i>* AtPtr(ckeytype key) const noexcept requires(!System::Traits::is_pointer_v<argtype<i>>) {
-			static_assert(enable_argtype_v<i>, "Invalid index specified for HashMap::AtPtr().");
-			nodetype* node = FindNode(key);
-			if (!node) return nullptr;
-			return node->GetValuePtr<i>();
+		auto AtPtr(ckeytype key) const noexcept requires(!Traits::Concepts::CPointer<argtype<i>>) {
+			if constexpr (Traits::is_void_v<argtype<i>>) {
+				static_assert("HashMap::AtPtr()ã«ç„¡åŠ¹ãªã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒæŒ‡å®šã•ã‚Œã¾ã—ãŸã€‚");
+				return;
+			}
+			else {
+				nodetype* node = FindNode(key);
+				if (!node) return nullptr;
+				return node->template GetValuePtr<i>();
+			}
 		}
 	public:
 		/// <summary>
-		/// ƒfƒXƒgƒ‰ƒNƒ^‚ÌÅ‰‚ÉŒÄ‚Ño‚³‚ê‚éŠÖ”‚ğİ’è‚·‚éB
-		/// Key‚âValue‚ª‰ğ•ú•K{‚Ìƒ|ƒCƒ“ƒ^‚Ìê‡‚Ég—p‚·‚é
+		/// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã®æœ€åˆã«å‘¼ã³å‡ºã•ã‚Œã‚‹é–¢æ•°ã‚’è¨­å®šã™ã‚‹ã€‚
+		/// Keyã‚„ValueãŒè§£æ”¾å¿…é ˆã®ãƒã‚¤ãƒ³ã‚¿ã®å ´åˆã«ä½¿ç”¨ã™ã‚‹
 		/// </summary>
-		/// <param name="destructor">‚±‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚Ö‚ÌQÆ‚ğˆø”‚É‚Æ‚éŠÖ”</param>
-		void SetDestructor(const System::Function<void(HashMap<Key, Args...>&)>& destructor) noexcept {
+		/// <param name="destructor">ã“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã¸ã®å‚ç…§ã‚’å¼•æ•°ã«ã¨ã‚‹é–¢æ•°</param>
+		void SetDestructor(const Function<void(maptype&)>& destructor) noexcept {
 			m_destructor = destructor;
 			m_destructorInitialized = true;
 		}
-		void SetDestructor(System::Function<void(HashMap<Key, Args...>&)>&& destructor) noexcept {
-			m_destructor = static_cast<System::Function<void(HashMap<Key, Args...>&)>&&>(destructor);
+		void SetDestructor(Function<void(maptype&)>&& destructor) noexcept {
+			m_destructor = System::move(destructor);
 			m_destructorInitialized = true;
 		}
 		/// <summary>
-		/// ƒfƒXƒgƒ‰ƒNƒ^‚ÌÅ‰‚ÉŒÄ‚Ño‚³‚ê‚éŠÖ”‚ªİ’è‚³‚ê‚Ä‚¢‚é‚©’²‚×‚é
+		/// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã®æœ€åˆã«å‘¼ã³å‡ºã•ã‚Œã‚‹é–¢æ•°ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		bool IsInitializedDestructor() const noexcept { return m_destructorInitialized; }
-	public://ICollectionƒI[ƒo[ƒ‰ƒCƒh
+	public://ICollectionã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰
 		IEnumerator<nodetype> GetEnumerator() noexcept override {
 			nodetype* current = m_first;
 			while (current) {
@@ -507,35 +496,39 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// w’è‚µ‚½ƒCƒ“ƒfƒbƒNƒX‚Ì’l(QÆ)‚ğ—ñ‹“‚·‚é
+		/// æŒ‡å®šã—ãŸã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®å€¤(å‚ç…§)ã‚’åˆ—æŒ™ã™ã‚‹
 		/// </summary>
 		template<size_t i = 0>
-		IEnumerable<argtype<i>> Values() noexcept {
-			if constexpr (i == 0)
+		auto Values() noexcept {
+			if constexpr (Traits::is_void_v<argtype<i>>) {
+				static_assert("HashMap::Value()ã«ç„¡åŠ¹ãªã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒæŒ‡å®šã•ã‚Œã¾ã—ãŸã€‚");
+				return;
+			}
+			else {
 				return IEnumerable<argtype<i>>(
 					new MemberSelectEnumerator<argtype<i>, nodetype>(
 						new IEnumerator<nodetype>([this](bool r) { return r ? this->GetReverseEnumerator() : this->GetEnumerator(); }, false),
 						&nodetype::m_value
-						)
-					);
-			else {
-				static_assert(i <= 0, "Invalid index specified for HashMap::Values().");
+					)
+				);
 			}
 		}
 		template<size_t i = 0>
-		IEnumerable<argtype<i> const> Values() const noexcept {
-			if constexpr (i == 0)
+		auto Values() const noexcept {
+			if constexpr (Traits::is_void_v<argtype<i>>) {
+				static_assert("HashMap::Value()ã«ç„¡åŠ¹ãªã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒæŒ‡å®šã•ã‚Œã¾ã—ãŸã€‚");
+				return;
+			} else {
 				return IEnumerable<argtype<i> const>(
 					new MemberSelectEnumerator<argtype<i> const, nodetype const>(
 						new IEnumerator<nodetype const>([this](bool r) { return r ? this->GetReverseEnumerator() : this->GetEnumerator(); }, false),
 						&nodetype::m_value
-						)
-					);
-			else {
-				static_assert(i <= 0, "Invalid index specified for HashMap::Values().");
+					)
+				);
 			}
 		}
 	public:
+		HashMap& operator=(const HashMap&) noexcept = delete;
 		HashMap& operator=(HashMap&& rhs) noexcept {
 			if (this == &rhs) return *this;
 			Clear();

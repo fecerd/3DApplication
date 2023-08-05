@@ -1,4 +1,4 @@
-module Components:Light;
+﻿module Components:Light;
 import :GameObject;
 using namespace System;
 using namespace System::Drawing;

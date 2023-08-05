@@ -1,10 +1,23 @@
-cmake_minimum_required(VERSION 3.8)
+﻿cmake_minimum_required(VERSION 3.8)
 
 FSetModuleFileFlags(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_subdirectory("Module")
+add_subdirectory(Module)
+add_subdirectory(Encoding)
 
-add_library("System" OBJECT System.ixx)
+add_library(System_0 OBJECT
+	System.ixx
+)
+add_custom_target(System_0_t DEPENDS System_0)
 
-target_link_libraries("System" PUBLIC "Module")
-target_link_libraries("System" PUBLIC "Encoding")
+add_library(System OBJECT)
+target_sources(System PUBLIC
+	$<TARGET_OBJECTS:System_0>
+	$<TARGET_OBJECTS:Module>
+	$<TARGET_OBJECTS:Encoding>
+)
+
+add_dependencies(System System_0_t)
+add_custom_target(System_t DEPENDS System)
+
+add_dependencies(System_0 Module_t Encoding_t)

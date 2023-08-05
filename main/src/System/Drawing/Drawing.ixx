@@ -1,4 +1,4 @@
-export module Drawing;
+﻿export module Drawing;
 export import Image;
 export import PNG;
 export import BMP;

@@ -1,4 +1,4 @@
-export module LayerMask;
+﻿export module LayerMask;
 import System;
 
 export namespace Engine {

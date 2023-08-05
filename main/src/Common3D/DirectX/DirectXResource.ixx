@@ -1,4 +1,4 @@
-export module DirectXResource;
+﻿export module DirectXResource;
 import System;
 export import ResourcePath;
 using namespace System;

@@ -1,4 +1,4 @@
-module Common3D;
+﻿module Common3D;
 using namespace System;
 using namespace System::Drawing;
 

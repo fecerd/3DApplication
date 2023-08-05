@@ -1,5 +1,6 @@
-module;
+ï»¿module;
 #include <crtdbg.h>
+#include "FUNCSIG.hpp"
 export module Function;
 import CSTDINT;
 import Traits;
@@ -28,9 +29,9 @@ export namespace System {
 	template<class R, class ...Args>
 	class Function<R(Args...)> {
 		union Data {
-			//(ƒƒ“ƒo)ŠÖ”ƒ|ƒCƒ“ƒ^‚âƒ|ƒCƒ“ƒ^Œ^‚æ‚è‘å‚«‚¢ƒTƒCƒY‚ÌŠÖ”ƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğ•Û‚·‚é
+			//(ãƒ¡ãƒ³ãƒ)é–¢æ•°ãƒã‚¤ãƒ³ã‚¿ã‚„ãƒã‚¤ãƒ³ã‚¿å‹ã‚ˆã‚Šå¤§ãã„ã‚µã‚¤ã‚ºã®é–¢æ•°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’ä¿æŒã™ã‚‹
 			void* data = nullptr;
-			//ƒ|ƒCƒ“ƒ^Œ^ˆÈ‰º‚ÌƒTƒCƒY‚ÌŠÖ”ƒIƒuƒWƒFƒNƒg‚ğ”z’unew‚Å\¬‚·‚é
+			//ãƒã‚¤ãƒ³ã‚¿å‹ä»¥ä¸‹ã®ã‚µã‚¤ã‚ºã®é–¢æ•°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’é…ç½®newã§æ§‹æˆã™ã‚‹
 			uint8_t buf[sizeof(void*)];
 		public:
 			Data() noexcept = default;
@@ -43,19 +44,19 @@ export namespace System {
 		using invoke_t = R(*)(Data&, Args&&...);
 		using copy_t = void(*)(Data&, const Data&);
 	private:
-		Data data;	//ŠÖ”ƒIƒuƒWƒFƒNƒg/ƒ|ƒCƒ“ƒ^‚ğ•Û‚·‚é‹¤—p‘Ì
-		destruct_t destruct_p = nullptr;	//data‚ğ”jŠü‚·‚éŠÖ”‚Ö‚Ìƒ|ƒCƒ“ƒ^Bdata‚ªŠÖ”ƒ|ƒCƒ“ƒ^‚Ì‚Æ‚«Anullptr
-		invoke_t invoke_p = nullptr;	//ŠÖ”ŒÄ‚Ño‚µ‚ğs‚¤ŠÖ”‚Ö‚Ìƒ|ƒCƒ“ƒ^
-		copy_t copy_p = nullptr;	//FunctionƒNƒ‰ƒX‚ÌƒRƒs[‚ğs‚¤ŠÖ”‚Ö‚Ìƒ|ƒCƒ“ƒ^
+		Data data;	//é–¢æ•°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ/ãƒã‚¤ãƒ³ã‚¿ã‚’ä¿æŒã™ã‚‹å…±ç”¨ä½“
+		destruct_t destruct_p = nullptr;	//dataã‚’ç ´æ£„ã™ã‚‹é–¢æ•°ã¸ã®ãƒã‚¤ãƒ³ã‚¿ã€‚dataãŒé–¢æ•°ãƒã‚¤ãƒ³ã‚¿ã®ã¨ãã€nullptr
+		invoke_t invoke_p = nullptr;	//é–¢æ•°å‘¼ã³å‡ºã—ã‚’è¡Œã†é–¢æ•°ã¸ã®ãƒã‚¤ãƒ³ã‚¿
+		copy_t copy_p = nullptr;	//Functionã‚¯ãƒ©ã‚¹ã®ã‚³ãƒ”ãƒ¼ã‚’è¡Œã†é–¢æ•°ã¸ã®ãƒã‚¤ãƒ³ã‚¿
 	public:
 		Function() noexcept = default;
 		Function(const Function& arg) {
-			//ƒfƒXƒgƒ‰ƒNƒ^‚ª‘¶İ‚µ‚È‚¢‚Æ‚«Aarg‚ÍŠÖ”ƒ|ƒCƒ“ƒ^
+			//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ãŒå­˜åœ¨ã—ãªã„ã¨ãã€argã¯é–¢æ•°ãƒã‚¤ãƒ³ã‚¿
 			if (!arg.destruct_p) {
 				data = arg.data;
 				invoke_p = arg.invoke_p;
 			}
-			//ŠÖ”ƒ|ƒCƒ“ƒ^‚Å‚È‚¢‚Æ‚«Acopy_p‚ª‚ ‚é‚Æ‚«‚Ì‚İƒRƒs[‰Â”\
+			//é–¢æ•°ãƒã‚¤ãƒ³ã‚¿ã§ãªã„ã¨ãã€copy_pãŒã‚ã‚‹ã¨ãã®ã¿ã‚³ãƒ”ãƒ¼å¯èƒ½
 			else if (arg.copy_p) {
 				arg.copy_p(data, arg.data);
 				invoke_p = arg.invoke_p;
@@ -63,7 +64,9 @@ export namespace System {
 				copy_p = arg.copy_p;
 			}
 			else {
-				throw InvalidOperationException(__FUNCSIG__, u"‚±‚ÌFunctionŒ^•Ï”‚ÍƒRƒs[•s‰Â‚ÌƒIƒuƒWƒFƒNƒg‚Å‚·B", __FILE__, __LINE__);
+				throw InvalidOperationException(
+					__FUNCSIG__, u"ã“ã®Functionå‹å¤‰æ•°ã¯ã‚³ãƒ”ãƒ¼ä¸å¯ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã™ã€‚", __FILE__, __LINE__
+				);
 			}
 		}
 		Function(Function&& arg) noexcept : data(arg.data), destruct_p(arg.destruct_p), invoke_p(arg.invoke_p), copy_p(arg.copy_p) {
@@ -82,7 +85,7 @@ export namespace System {
 				if constexpr (Traits::Concepts::CCopyConstructible<Functor>) copy_p = Copy<f_t, false>;
 			}
 			else {
-				data = new(_NORMAL_BLOCK, __FILE__, __LINE__) f_t(static_cast<f_t&&>(f));
+				data = new f_t(static_cast<f_t&&>(f));
 				destruct_p = Destruct<f_t, true>;
 				invoke_p = Invoke<f_t, true>;
 				if constexpr (Traits::Concepts::CCopyConstructible<Functor>) copy_p = Copy<f_t, true>;
@@ -100,28 +103,28 @@ export namespace System {
 			invoke_p = nullptr;
 			copy_p = nullptr;
 		}
-	public:/* ƒƒ“ƒoŠÖ”ƒ|ƒCƒ“ƒ^‚ğ”ñƒƒ“ƒoŠÖ”‚Æ‚µ‚Äˆµ‚¤ */
+	public:/* ãƒ¡ãƒ³ãƒé–¢æ•°ãƒã‚¤ãƒ³ã‚¿ã‚’éãƒ¡ãƒ³ãƒé–¢æ•°ã¨ã—ã¦æ‰±ã† */
 		template<class T, class ...Tails>
 		Function(R(T::* p)(Tails...) const) noexcept : Function([p](const T& obj, Tails... tails) -> R { return (obj.*p)(tails...); }) {}
 		template<class T, class ...Tails>
 		Function(R(T::* p)(Tails...)) noexcept : Function([p](T& obj, Tails... tails) -> R { return (obj.*p)(tails...); }) {}
-	public:/* ƒƒ“ƒoŠÖ”ƒ|ƒCƒ“ƒ^‚ÉƒIƒuƒWƒFƒNƒg‚ğƒoƒCƒ“ƒh‚·‚é */
+	public:/* ãƒ¡ãƒ³ãƒé–¢æ•°ãƒã‚¤ãƒ³ã‚¿ã«ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒã‚¤ãƒ³ãƒ‰ã™ã‚‹ */
 		template<class T>
 		Function(R(T::* p)(Args...) const, const T& t) noexcept : Function([&t, p](Args ...args) -> R { return (t.*p)(args...); }) {}
 		template<class T>
 		Function(R(T::* p)(Args...), T& t) noexcept : Function([&t, p](Args ...args) -> R { return (t.*p)(args...); }) {}
-	private:/* ‚±‚ÌƒNƒ‰ƒX‚ÌƒRƒs[ƒRƒ“ƒXƒgƒ‰ƒNƒg‚Ég—p‚·‚é */
+	private:/* ã“ã®ã‚¯ãƒ©ã‚¹ã®ã‚³ãƒ”ãƒ¼ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ãƒˆã«ä½¿ç”¨ã™ã‚‹ */
 		template<Traits::Concepts::CCopyConstructible Func, bool Alloc>
 		static void Copy(Data& data, const Data& src) {
 			using f_t = System::Traits::remove_reference_t<System::Traits::remove_cv_t<Func>>;
 			if constexpr (Alloc) {
-				data = new(_NORMAL_BLOCK, __FILE__, __LINE__) f_t(*static_cast<f_t*>(src.data));
+				data = new f_t(*static_cast<f_t*>(src.data));
 			}
 			else {
 				new (&data.buf[0]) f_t(*reinterpret_cast<const f_t*>(&src.buf[0]));
 			}
 		}
-	private:/* ŠÖ”ŒÄ‚Ño‚µ‚Ég—p‚·‚é */
+	private:/* é–¢æ•°å‘¼ã³å‡ºã—ã«ä½¿ç”¨ã™ã‚‹ */
 		static R Invoke(Data& data, Args&& ...args) {
 			R(*ptr)(Args...) = reinterpret_cast<R(*)(Args...)>(data.data);
 			return ptr(static_cast<Args&&>(args)...);
@@ -133,7 +136,7 @@ export namespace System {
 			else ptr = reinterpret_cast<Func*>(&data.buf[0]);
 			return (*ptr)(static_cast<Args&&>(args)...);
 		}
-	private:/* data‚Ì”jŠü‚Ég—p‚·‚é */
+	private:/* dataã®ç ´æ£„ã«ä½¿ç”¨ã™ã‚‹ */
 		template<class Func, bool Alloc>
 		static void Destruct(Data& data) {
 			if constexpr (Alloc) delete reinterpret_cast<Func*>(data.data);
@@ -183,7 +186,7 @@ export namespace System {
 			return destruct_p ? destruct_p == rhs.destruct_p ? data.data == rhs.data.data : false : data.data == rhs.data.data;
 		}
 	public:
-		R operator()(Args ...args) noexcept {
+		R operator()(Args ...args) noexcept requires(sizeof...(Args) != 0) {
 			if (invoke_p) return invoke_p(data, System::Traits::forward<Args>(args)...);
 			else {
 				if constexpr (System::Traits::is_void_v<R>) return;
@@ -193,6 +196,23 @@ export namespace System {
 					rtype& ref = *ptr;
 					if constexpr (System::Traits::is_reference_v<R>) return ref;
 					else return static_cast<rtype&&>(ref);
+				}
+			}
+		}
+		R operator()() noexcept requires(sizeof...(Args) == 0) {
+			if (invoke_p)
+				return invoke_p(data);
+			else {
+				if constexpr (System::Traits::is_void_v<R>)
+					return;
+				else {
+					using rtype = System::Traits::remove_cvref_t<R>;
+					rtype* ptr = nullptr;
+					rtype& ref = *ptr;
+					if constexpr (System::Traits::is_reference_v<R>)
+						return ref;
+					else
+						return static_cast<rtype&&>(ref);
 				}
 			}
 		}

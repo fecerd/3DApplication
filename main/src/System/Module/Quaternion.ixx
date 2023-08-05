@@ -1,11 +1,9 @@
-export module Quaternion;
+ï»¿export module Quaternion;
 import CSTDINT;
 import Objects;
 import Vector3;
 import Matrix;
 import Math;
-
-using Vector3 = System::Vector3;
 
 export namespace System {
 	class Quaternion {
@@ -22,15 +20,15 @@ export namespace System {
 		constexpr Quaternion(float x, float y, float z, float w) noexcept : x(x), y(y), z(z), w(w) {}
 	public:
 		/// <summary>
-		/// ’PˆÊ‰ñ“]‚ğæ“¾‚·‚é
+		/// å˜ä½å›è»¢ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <returns>’PˆÊ‰ñ“](x, y, z, w) = (0, 0, 0, 1)‚ğ•\‚·lŒ³”</returns>
+		/// <returns>å˜ä½å›è»¢(x, y, z, w) = (0, 0, 0, 1)ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		static constexpr Quaternion Identity() noexcept { return Quaternion(); }
 	public:
 		/// <summary>
-		/// lŒ³”‚ªZ²AX²AY²‚Ì‡‚É‰ñ“]‚µ‚½p¨‚ğ•\‚µ‚Ä‚¢‚é‚Æ‚İ‚È‚µAƒIƒCƒ‰[Šp(x, y, z)[‹]‚É•ÏŠ·‚·‚é
+		/// å››å…ƒæ•°ãŒZè»¸ã€Xè»¸ã€Yè»¸ã®é †ã«å›è»¢ã—ãŸå§¿å‹¢ã‚’è¡¨ã—ã¦ã„ã‚‹ã¨ã¿ãªã—ã€ã‚ªã‚¤ãƒ©ãƒ¼è§’(x, y, z)[Â°]ã«å¤‰æ›ã™ã‚‹
 		/// </summary>
-		/// <returns>‚±‚ÌlŒ³”‚Æ“¯‚¶p¨‚ğ¦‚·Še²‚Ì‰ñ“]‚µ‚Ä‚¢‚éŠp“x</returns>
+		/// <returns>ã“ã®å››å…ƒæ•°ã¨åŒã˜å§¿å‹¢ã‚’ç¤ºã™å„è»¸ã®å›è»¢ã—ã¦ã„ã‚‹è§’åº¦</returns>
 		constexpr Vector3 EulerAngle() const noexcept {
 			Vector3 result;
 			const float sx = Math::Clamp(-2.0f * (y * z - x * w), -1.0f, 1.0f);
@@ -44,7 +42,7 @@ export namespace System {
 					sy *= -1.0f;
 					cy *= -1.0f;
 				}
-				//cx == 0.0f(X²‰ñ“]‚ª90‹)‚É‹ß‚¢ê‡AZ²‰ñ“]‚ğ0‹‚Æ‚İ‚È‚·
+				//cx == 0.0f(Xè»¸å›è»¢ãŒ90Â°)ã«è¿‘ã„å ´åˆã€Zè»¸å›è»¢ã‚’0Â°ã¨ã¿ãªã™
 				sz = 0.0f;
 				cz = 1.0f;
 			}
@@ -56,17 +54,17 @@ export namespace System {
 			}
 			result.y = Math::AcosDeg(cy) * (Math::EqualZero(sy) ? 1.0f : Math::Sign(sy));
 			result.z = Math::AcosDeg(cz) * (Math::EqualZero(sz) ? 1.0f : Math::Sign(sz));
-			//ŒvZŒë·‚ğ‚È‚­‚·
+			//è¨ˆç®—èª¤å·®ã‚’ãªãã™
 			result.x = Math::Abs(result.x) < 0.1f ? 0.0f : Math::InOpenRange(Math::Abs(result.x), 89.9f, 90.1f) ? Math::Sign(result.x) * 90.0f : result.x;
 			result.y = Math::Abs(result.y) < 0.1f ? 0.0f : Math::InOpenRange(Math::Abs(result.y), 89.9f, 90.1f) ? Math::Sign(result.y) * 90.0f : result.y;
 			result.z = Math::Abs(result.z) < 0.1f ? 0.0f : Math::InOpenRange(Math::Abs(result.z), 89.9f, 90.1f) ? Math::Sign(result.z) * 90.0f : result.z;
 			return result;
 		}
 		/// <summary>
-		/// ³‹K‰»‚µ‚½lŒ³”‚ğæ“¾‚·‚é
-		/// (‰ñ“]‚ğ•\‚·lŒ³”‚Í‚·‚Å‚É³‹K‰»‚³‚ê‚Ä‚¢‚é‚½‚ßA–¾¦“I‚Ég—p‚·‚é•K—v‚Í‚È‚¢)
+		/// æ­£è¦åŒ–ã—ãŸå››å…ƒæ•°ã‚’å–å¾—ã™ã‚‹
+		/// (å›è»¢ã‚’è¡¨ã™å››å…ƒæ•°ã¯ã™ã§ã«æ­£è¦åŒ–ã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€æ˜ç¤ºçš„ã«ä½¿ç”¨ã™ã‚‹å¿…è¦ã¯ãªã„)
 		/// </summary>
-		/// <returns>‚±‚ÌlŒ³”‚ğ³‹K‰»‚µ‚½lŒ³”</returns>
+		/// <returns>ã“ã®å››å…ƒæ•°ã‚’æ­£è¦åŒ–ã—ãŸå››å…ƒæ•°</returns>
 		constexpr Quaternion Normalized() const noexcept {
 			return *this / System::Math::Sqrt(x * x + y * y + z * z + w * w);
 			//Quaternion ret = Quaternion(
@@ -78,10 +76,10 @@ export namespace System {
 			//return ret / Math::Sqrt(ret.x * ret.x + ret.y * ret.y + ret.z * ret.z + ret.w * ret.w);
 		}
 		/// <summary>
-		/// ‰ñ“]‚Ì‘å‚«‚³([‹])‚Æ²‚ğæ“¾‚·‚é
+		/// å›è»¢ã®å¤§ãã•([Â°])ã¨è»¸ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="angle">‰ñ“]‚Ì‘å‚«‚³‚ª“ü‚é•Ï”‚Ö‚ÌQÆ</param>
-		/// <param name="axis">‰ñ“]‚Ì²‚ª“ü‚é•Ï”‚Ö‚ÌQÆ</param>
+		/// <param name="angle">å›è»¢ã®å¤§ãã•ãŒå…¥ã‚‹å¤‰æ•°ã¸ã®å‚ç…§</param>
+		/// <param name="axis">å›è»¢ã®è»¸ãŒå…¥ã‚‹å¤‰æ•°ã¸ã®å‚ç…§</param>
 		constexpr void ToAngleAxis(float& angle, Vector3& axis) const noexcept {
 			const float sin = Math::Sqrt(1.0f - w * w);
 			if (Math::EqualZero(sin)) {
@@ -94,30 +92,30 @@ export namespace System {
 			}
 		}
 		/// <summary>
-		/// ‹t‰ñ“]‚ğæ“¾‚·‚é
+		/// é€†å›è»¢ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <returns>‚±‚Ì‰ñ“]‚Ì‹t‰ñ“]‚ğ•\‚·lŒ³”</returns>
+		/// <returns>ã“ã®å›è»¢ã®é€†å›è»¢ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		constexpr Quaternion Inverse() const noexcept { return Quaternion(-x, -y, -z, w); }
 	public:		
 		/// <summary>
-		/// ƒIƒCƒ‰[Šp(x, y, z)[‹]‚©‚çAZ²‚ÉzAX²‚ÉxAY²‚Éy‚Ì‡‚É‰ñ“]‚·‚é‰ñ“]‚ğİ’è‚·‚é
+		/// ã‚ªã‚¤ãƒ©ãƒ¼è§’(x, y, z)[Â°]ã‹ã‚‰ã€Zè»¸ã«zã€Xè»¸ã«xã€Yè»¸ã«yã®é †ã«å›è»¢ã™ã‚‹å›è»¢ã‚’è¨­å®šã™ã‚‹
 		/// </summary>
-		/// <param name="euler">İ’è‚·‚éƒIƒCƒ‰[Šp</param>
+		/// <param name="euler">è¨­å®šã™ã‚‹ã‚ªã‚¤ãƒ©ãƒ¼è§’</param>
 		constexpr void EulerAngle(const Vector3& euler) noexcept { *this = Euler(euler); }
 		/// <summary>
-		/// ƒIƒCƒ‰[Šp(x, y, z)[‹]‚©‚çAZ²‚ÉzAX²‚ÉxAY²‚Éy‚Ì‡‚É‰ñ“]‚·‚é‰ñ“]‚ğİ’è‚·‚é
+		/// ã‚ªã‚¤ãƒ©ãƒ¼è§’(x, y, z)[Â°]ã‹ã‚‰ã€Zè»¸ã«zã€Xè»¸ã«xã€Yè»¸ã«yã®é †ã«å›è»¢ã™ã‚‹å›è»¢ã‚’è¨­å®šã™ã‚‹
 		/// </summary>
-		/// <param name="x">X²‚É‘Î‚·‚é‰ñ“]‚ÌŠp“x[‹]</param>
-		/// <param name="y">Y²‚É‘Î‚·‚é‰ñ“]‚ÌŠp“x[‹]</param>
-		/// <param name="z">Z²‚É‘Î‚·‚é‰ñ“]‚ÌŠp“x[‹]</param>
+		/// <param name="x">Xè»¸ã«å¯¾ã™ã‚‹å›è»¢ã®è§’åº¦[Â°]</param>
+		/// <param name="y">Yè»¸ã«å¯¾ã™ã‚‹å›è»¢ã®è§’åº¦[Â°]</param>
+		/// <param name="z">Zè»¸ã«å¯¾ã™ã‚‹å›è»¢ã®è§’åº¦[Â°]</param>
 		constexpr void EulerAngle(float x, float y, float z) noexcept { *this = Euler(x, y, z); }
 		/// <summary>
-		/// ©g‚ğ³‹K‰»‚·‚é
-		/// (‰ñ“]‚ğ•\‚·lŒ³”‚Í‚·‚Å‚É³‹K‰»‚³‚ê‚Ä‚¢‚é‚½‚ßA–¾¦“I‚Ég—p‚·‚é•K—v‚Í‚È‚¢)
+		/// è‡ªèº«ã‚’æ­£è¦åŒ–ã™ã‚‹
+		/// (å›è»¢ã‚’è¡¨ã™å››å…ƒæ•°ã¯ã™ã§ã«æ­£è¦åŒ–ã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€æ˜ç¤ºçš„ã«ä½¿ç”¨ã™ã‚‹å¿…è¦ã¯ãªã„)
 		/// </summary>
 		constexpr void Normalize() noexcept { *this = Normalized(); }
 		/// <summary>
-		/// lŒ³”‚ÌŠe¬•ª‚ğİ’è‚µA³‹K‰»‚·‚é
+		/// å››å…ƒæ•°ã®å„æˆåˆ†ã‚’è¨­å®šã—ã€æ­£è¦åŒ–ã™ã‚‹
 		/// </summary>
 		constexpr void Set(float newX, float newY, float newZ, float newW) noexcept {
 			w = newW;
@@ -127,16 +125,16 @@ export namespace System {
 			Normalize();
 		}
 		/// <summary>
-		/// ‚ ‚éƒxƒNƒgƒ‹‚©‚çA‚à‚¤ˆê•û‚ÌƒxƒNƒgƒ‹‚Ö‚Ì‰ñ“]‚ğİ’è‚·‚é
+		/// ã‚ã‚‹ãƒ™ã‚¯ãƒˆãƒ«ã‹ã‚‰ã€ã‚‚ã†ä¸€æ–¹ã®ãƒ™ã‚¯ãƒˆãƒ«ã¸ã®å›è»¢ã‚’è¨­å®šã™ã‚‹
 		/// </summary>
-		/// <param name="fromDirection">n“_‚Æ‚È‚éƒxƒNƒgƒ‹</param>
-		/// <param name="toDirection">I“_‚Æ‚È‚éƒxƒNƒgƒ‹</param>
+		/// <param name="fromDirection">å§‹ç‚¹ã¨ãªã‚‹ãƒ™ã‚¯ãƒˆãƒ«</param>
+		/// <param name="toDirection">çµ‚ç‚¹ã¨ãªã‚‹ãƒ™ã‚¯ãƒˆãƒ«</param>
 		constexpr void SetFromToRotation(const Vector3& fromDirection, const Vector3& toDirection) noexcept { *this = FromToRotation(fromDirection, toDirection); }
 		/// <summary>
-		/// ‘O•ûŒü‚Æã•ûŒü‚ÌƒxƒNƒgƒ‹‚©‚çp¨‚ğİ’è‚·‚é
+		/// å‰æ–¹å‘ã¨ä¸Šæ–¹å‘ã®ãƒ™ã‚¯ãƒˆãƒ«ã‹ã‚‰å§¿å‹¢ã‚’è¨­å®šã™ã‚‹
 		/// </summary>
-		/// <param name="view">‘O•ûŒü‚ÌƒxƒNƒgƒ‹</param>
-		/// <param name="up">ã•ûŒü‚Ì‰¼ƒxƒNƒgƒ‹BÀÛ‚Ìã•ûŒü‚ÌƒxƒNƒgƒ‹‚É‚Í‘æˆêˆø”‚Æ‚±‚Ì’l‚ÌŠOÏ(‰E•ûŒü‚ÌƒxƒNƒgƒ‹)‚Æ‚±‚Ì’l‚ÌŠOÏ‚ªİ’è‚³‚ê‚éB</param>
+		/// <param name="view">å‰æ–¹å‘ã®ãƒ™ã‚¯ãƒˆãƒ«</param>
+		/// <param name="up">ä¸Šæ–¹å‘ã®ä»®ãƒ™ã‚¯ãƒˆãƒ«ã€‚å®Ÿéš›ã®ä¸Šæ–¹å‘ã®ãƒ™ã‚¯ãƒˆãƒ«ã«ã¯ç¬¬ä¸€å¼•æ•°ã¨ã“ã®å€¤ã®å¤–ç©(å³æ–¹å‘ã®ãƒ™ã‚¯ãƒˆãƒ«)ã¨ã“ã®å€¤ã®å¤–ç©ãŒè¨­å®šã•ã‚Œã‚‹ã€‚</param>
 		constexpr void SetLookRotation(const Vector3& view, const Vector3& up = Vector3::Up()) noexcept { *this = LookRotation(view, up); }
 	public:
 		constexpr Matrix ToRotationMatrix() const noexcept {
@@ -159,16 +157,16 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// “ñ‚Â‚Ì‰ñ“]‚ÌŠÔ‚ÌŠp“x([‹])‚ğæ“¾‚·‚é
+		/// äºŒã¤ã®å›è»¢ã®é–“ã®è§’åº¦([Â°])ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <returns>“ñ‚Â‚Ì‰ñ“]‚ÌŠÔ‚ÌŠp“x([‹])</returns>
+		/// <returns>äºŒã¤ã®å›è»¢ã®é–“ã®è§’åº¦([Â°])</returns>
 		static constexpr float Angle(const Quaternion& a, const Quaternion& b) noexcept { return Math::AcosDeg(Dot(a, b)) * 2.0f; }
 		/// <summary>
-		/// Šp“x([‹])‚Æ‰ñ“]²‚©‚ç‰ñ“]‚ğæ“¾‚·‚é
+		/// è§’åº¦([Â°])ã¨å›è»¢è»¸ã‹ã‚‰å›è»¢ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="angle">‰ñ“]‚ÌŠp“x([‹])</param>
-		/// <param name="axis">‰ñ“]²</param>
-		/// <returns>‰ñ“]‚ğ•\‚·lŒ³”</returns>
+		/// <param name="angle">å›è»¢ã®è§’åº¦([Â°])</param>
+		/// <param name="axis">å›è»¢è»¸</param>
+		/// <returns>å›è»¢ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		static constexpr Quaternion AngleAxis(float angle, const Vector3& axis) noexcept {
 			Vector3 n = axis.Normalized();
 			if (n.SqrMagnitude() < 0.98f) return Quaternion::Identity();
@@ -176,34 +174,34 @@ export namespace System {
 			return Quaternion(n.x, n.y, n.z, Math::CosDeg(angle / 2.0f));
 		}
 		/// <summary>
-		/// lŒ³”“¯m‚Ì“àÏ‚ğŒvZ‚·‚é
+		/// å››å…ƒæ•°åŒå£«ã®å†…ç©ã‚’è¨ˆç®—ã™ã‚‹
 		/// </summary>
-		/// <returns>“àÏ‚Ì’l</returns>
+		/// <returns>å†…ç©ã®å€¤</returns>
 		static constexpr float Dot(const Quaternion& a, const Quaternion& b) noexcept { return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w; }
 		/// <summary>
-		/// ƒIƒCƒ‰[Šp(x, y, z)[‹]‚©‚çAZ²‚ÉzAX²‚ÉxAY²‚Éy‚Ì‡‚É‰ñ“]‚·‚é‰ñ“]‚ğæ“¾‚·‚é
+		/// ã‚ªã‚¤ãƒ©ãƒ¼è§’(x, y, z)[Â°]ã‹ã‚‰ã€Zè»¸ã«zã€Xè»¸ã«xã€Yè»¸ã«yã®é †ã«å›è»¢ã™ã‚‹å›è»¢ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="euler">‚»‚ê‚¼‚ê‚Ì²‚Å‰ñ“]‚·‚éŠp“x[‹]</param>
-		/// <returns>Z²AX²AY²‚Ì‡‚Å‰ñ“]‚µ‚½‚Æ‚«‚Ì‰ñ“]‚Æ“¯“™‚Ì‰ñ“]‚ğ•\‚·lŒ³”</returns>
+		/// <param name="euler">ãã‚Œãã‚Œã®è»¸ã§å›è»¢ã™ã‚‹è§’åº¦[Â°]</param>
+		/// <returns>Zè»¸ã€Xè»¸ã€Yè»¸ã®é †ã§å›è»¢ã—ãŸã¨ãã®å›è»¢ã¨åŒç­‰ã®å›è»¢ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		static constexpr Quaternion Euler(const Vector3& euler) noexcept {
 			return Quaternion(0.0f, Math::SinDeg(euler.y / 2.0f), 0.0f, Math::CosDeg(euler.y / 2.0f))
 				* Quaternion(Math::SinDeg(euler.x / 2.0f), 0.0f, 0.0f, Math::CosDeg(euler.x / 2.0f))
 				* Quaternion(0.0f, 0.0f, Math::SinDeg(euler.z / 2.0f), Math::CosDeg(euler.z / 2.0f));
 		}
 		/// <summary>
-		/// ƒIƒCƒ‰[Šp(x, y, z)[‹]‚©‚çAZ²‚ÉzAX²‚ÉxAY²‚Éy‚Ì‡‚É‰ñ“]‚·‚é‰ñ“]‚ğæ“¾‚·‚é
+		/// ã‚ªã‚¤ãƒ©ãƒ¼è§’(x, y, z)[Â°]ã‹ã‚‰ã€Zè»¸ã«zã€Xè»¸ã«xã€Yè»¸ã«yã®é †ã«å›è»¢ã™ã‚‹å›è»¢ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="x">X²‚É‘Î‚·‚é‰ñ“]‚ÌŠp“x[‹]</param>
-		/// <param name="y">Y²‚É‘Î‚·‚é‰ñ“]‚ÌŠp“x[‹]</param>
-		/// <param name="z">Z²‚É‘Î‚·‚é‰ñ“]‚ÌŠp“x[‹]</param>
-		/// <returns>Z²AX²AY²‚Ì‡‚Å‰ñ“]‚µ‚½‚Æ‚«‚Ì‰ñ“]‚Æ“¯“™‚Ì‰ñ“]‚ğ•\‚·lŒ³”</returns>
+		/// <param name="x">Xè»¸ã«å¯¾ã™ã‚‹å›è»¢ã®è§’åº¦[Â°]</param>
+		/// <param name="y">Yè»¸ã«å¯¾ã™ã‚‹å›è»¢ã®è§’åº¦[Â°]</param>
+		/// <param name="z">Zè»¸ã«å¯¾ã™ã‚‹å›è»¢ã®è§’åº¦[Â°]</param>
+		/// <returns>Zè»¸ã€Xè»¸ã€Yè»¸ã®é †ã§å›è»¢ã—ãŸã¨ãã®å›è»¢ã¨åŒç­‰ã®å›è»¢ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		static constexpr Quaternion Euler(float x, float y, float z) noexcept { return Euler(Vector3(x, y, z)); }
 		/// <summary>
-		/// ‚ ‚éƒxƒNƒgƒ‹‚©‚çA‚à‚¤ˆê•û‚ÌƒxƒNƒgƒ‹‚Ö‚Ì‰ñ“]‚ğæ“¾‚·‚é
+		/// ã‚ã‚‹ãƒ™ã‚¯ãƒˆãƒ«ã‹ã‚‰ã€ã‚‚ã†ä¸€æ–¹ã®ãƒ™ã‚¯ãƒˆãƒ«ã¸ã®å›è»¢ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="fromDirection">n“_‚Æ‚È‚éƒxƒNƒgƒ‹</param>
-		/// <param name="toDirection">I“_‚Æ‚È‚éƒxƒNƒgƒ‹</param>
-		/// <returns>‰ñ“]‚ğ•\‚·lŒ³”</returns>
+		/// <param name="fromDirection">å§‹ç‚¹ã¨ãªã‚‹ãƒ™ã‚¯ãƒˆãƒ«</param>
+		/// <param name="toDirection">çµ‚ç‚¹ã¨ãªã‚‹ãƒ™ã‚¯ãƒˆãƒ«</param>
+		/// <returns>å›è»¢ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		static constexpr Quaternion FromToRotation(const Vector3& fromDirection, const Vector3& toDirection) {
 			float angle = Vector3::Angle(fromDirection, toDirection);
 			Vector3 axis = Vector3::Cross(fromDirection, toDirection);
@@ -214,74 +212,74 @@ export namespace System {
 			return AngleAxis(angle, axis);
 		}
 		/// <summary>
-		/// “ñ‚Â‚Ìp¨‚ğ”}‰î•Ï”[0, 1]‚É‚æ‚Á‚ÄüŒ`•âŠÔ‚µ‚½Œ‹‰Ê‚ğæ“¾‚·‚é
+		/// äºŒã¤ã®å§¿å‹¢ã‚’åª’ä»‹å¤‰æ•°[0, 1]ã«ã‚ˆã£ã¦ç·šå½¢è£œé–“ã—ãŸçµæœã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="a">n“_‚Æ‚È‚ép¨</param>
-		/// <param name="b">I“_‚Æ‚È‚ép¨</param>
-		/// <param name="t">”}‰î•Ï”B[0, 1]‚Éû‚ß‚ç‚ê‚é</param>
-		/// <returns>üŒ`•âŠÔ‚É‚æ‚Á‚Ä“¾‚ç‚ê‚½p¨‚ğ•\‚·lŒ³”</returns>
+		/// <param name="a">å§‹ç‚¹ã¨ãªã‚‹å§¿å‹¢</param>
+		/// <param name="b">çµ‚ç‚¹ã¨ãªã‚‹å§¿å‹¢</param>
+		/// <param name="t">åª’ä»‹å¤‰æ•°ã€‚[0, 1]ã«åã‚ã‚‰ã‚Œã‚‹</param>
+		/// <returns>ç·šå½¢è£œé–“ã«ã‚ˆã£ã¦å¾—ã‚‰ã‚ŒãŸå§¿å‹¢ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		static constexpr Quaternion Lerp(const Quaternion& a, const Quaternion& b, float t) noexcept { return LerpUnclamped(a, b, Math::Clamp(t, 0.0f, 1.0f)); }
 		/// <summary>
-		/// “ñ‚Â‚Ìp¨‚ğ”}‰î•Ï”[-Inf, Inf]‚É‚æ‚Á‚ÄüŒ`•âŠÔ‚µ‚½Œ‹‰Ê‚ğæ“¾‚·‚é
+		/// äºŒã¤ã®å§¿å‹¢ã‚’åª’ä»‹å¤‰æ•°[-Inf, Inf]ã«ã‚ˆã£ã¦ç·šå½¢è£œé–“ã—ãŸçµæœã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="a">n“_‚Æ‚È‚ép¨</param>
-		/// <param name="b">I“_‚Æ‚È‚ép¨</param>
-		/// <param name="t">”}‰î•Ï”</param>
-		/// <returns>üŒ`•âŠÔ‚É‚æ‚Á‚Ä“¾‚ç‚ê‚½p¨‚ğ•\‚·lŒ³”</returns>
+		/// <param name="a">å§‹ç‚¹ã¨ãªã‚‹å§¿å‹¢</param>
+		/// <param name="b">çµ‚ç‚¹ã¨ãªã‚‹å§¿å‹¢</param>
+		/// <param name="t">åª’ä»‹å¤‰æ•°</param>
+		/// <returns>ç·šå½¢è£œé–“ã«ã‚ˆã£ã¦å¾—ã‚‰ã‚ŒãŸå§¿å‹¢ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		static constexpr Quaternion LerpUnclamped(const Quaternion& a, const Quaternion b, float t) noexcept { 
 			return ((1.0f - t) * a + t * b * (Dot(a, b) >= 0.0f ? 1.f : -1.f)).Normalized();
 		}
 		/// <summary>
-		/// ‘O•ûŒü‚Æã•ûŒü‚ÌƒxƒNƒgƒ‹‚©‚çp¨‚ğæ“¾‚·‚é
+		/// å‰æ–¹å‘ã¨ä¸Šæ–¹å‘ã®ãƒ™ã‚¯ãƒˆãƒ«ã‹ã‚‰å§¿å‹¢ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="forward">‘O•ûŒü‚ÌƒxƒNƒgƒ‹</param>
-		/// <param name="upwards">ã•ûŒü‚Ì‰¼ƒxƒNƒgƒ‹BÀÛ‚Ìã•ûŒü‚ÌƒxƒNƒgƒ‹‚É‚Í‘æˆêˆø”‚Æ‚±‚Ì’l‚ÌŠOÏ(‰E•ûŒü‚ÌƒxƒNƒgƒ‹)‚Æ‚±‚Ì’l‚ÌŠOÏ‚ªİ’è‚³‚ê‚éB</param>
+		/// <param name="forward">å‰æ–¹å‘ã®ãƒ™ã‚¯ãƒˆãƒ«</param>
+		/// <param name="upwards">ä¸Šæ–¹å‘ã®ä»®ãƒ™ã‚¯ãƒˆãƒ«ã€‚å®Ÿéš›ã®ä¸Šæ–¹å‘ã®ãƒ™ã‚¯ãƒˆãƒ«ã«ã¯ç¬¬ä¸€å¼•æ•°ã¨ã“ã®å€¤ã®å¤–ç©(å³æ–¹å‘ã®ãƒ™ã‚¯ãƒˆãƒ«)ã¨ã“ã®å€¤ã®å¤–ç©ãŒè¨­å®šã•ã‚Œã‚‹ã€‚</param>
 		static constexpr Quaternion LookRotation(const Vector3& forward, const Vector3& upwards = Vector3::Up()) noexcept {
-			//(0, 0, 1)‚ğforward‚ÉŒü‚¯‚é‰ñ“]rot‚ÆArot‚ğ(0, 1, 0)‚É“K—p‚µ‚½ƒxƒNƒgƒ‹‚ğ
-			//Cross(forward, Cross(upwards, forward))‚ÉŒü‚¯‚é‰ñ“]‚ğ‡¬‚µ‚½Œ‹‰Ê‚ğ•Ô‚·
+			//(0, 0, 1)ã‚’forwardã«å‘ã‘ã‚‹å›è»¢rotã¨ã€rotã‚’(0, 1, 0)ã«é©ç”¨ã—ãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’
+			//Cross(forward, Cross(upwards, forward))ã«å‘ã‘ã‚‹å›è»¢ã‚’åˆæˆã—ãŸçµæœã‚’è¿”ã™
 			const Quaternion rot = FromToRotation(Vector3::Forward(), forward);
 			return FromToRotation(rot * Vector3::Up(), Vector3::Cross(forward, Vector3::Cross(upwards, forward))) * rot;
 		}
 		/// <summary>
-		/// lŒ³”‚ğ³‹K‰»‚·‚é
-		/// (‰ñ“]‚ğ•\‚·lŒ³”‚Í‚·‚Å‚É³‹K‰»‚³‚ê‚Ä‚¢‚é‚½‚ßA–¾¦“I‚Ég—p‚·‚é•K—v‚Í‚È‚¢)
+		/// å››å…ƒæ•°ã‚’æ­£è¦åŒ–ã™ã‚‹
+		/// (å›è»¢ã‚’è¡¨ã™å››å…ƒæ•°ã¯ã™ã§ã«æ­£è¦åŒ–ã•ã‚Œã¦ã„ã‚‹ãŸã‚ã€æ˜ç¤ºçš„ã«ä½¿ç”¨ã™ã‚‹å¿…è¦ã¯ãªã„)
 		/// </summary>
-		/// <param name="q">³‹K‰»‚µ‚½‚¢lŒ³”‚ÌQÆ</param>
+		/// <param name="q">æ­£è¦åŒ–ã—ãŸã„å››å…ƒæ•°ã®å‚ç…§</param>
 		static constexpr void Normalize(Quaternion& q) noexcept { q.Normalize(); }
 		/// <summary>
-		/// “ñ‚Â‚Ìp¨‚ğ•âŠÔ‚·‚é‰ñ“]‚Ì‚¤‚¿Aw’è‚µ‚½Šp“x[‹]‚¾‚¯i‚ß‚½‚Æ‚«‚Ìp¨‚ğæ“¾‚·‚é
+		/// äºŒã¤ã®å§¿å‹¢ã‚’è£œé–“ã™ã‚‹å›è»¢ã®ã†ã¡ã€æŒ‡å®šã—ãŸè§’åº¦[Â°]ã ã‘é€²ã‚ãŸã¨ãã®å§¿å‹¢ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="from">n“_‚Æ‚È‚ép¨</param>
-		/// <param name="to">I“_‚Æ‚È‚ép¨</param>
-		/// <param name="maxDegreeDelta">i‚ß‚éŠp“xB•âŠÔ‚³‚ê‚é‰ñ“]‚ª‚±‚ÌŠp“x‚É–‚½‚È‚¢ê‡AI“_‚Ìp¨‚ğ•Ô‚·</param>
-		/// <returns>p¨‚ğ•\‚·lŒ³”</returns>
+		/// <param name="from">å§‹ç‚¹ã¨ãªã‚‹å§¿å‹¢</param>
+		/// <param name="to">çµ‚ç‚¹ã¨ãªã‚‹å§¿å‹¢</param>
+		/// <param name="maxDegreeDelta">é€²ã‚ã‚‹è§’åº¦ã€‚è£œé–“ã•ã‚Œã‚‹å›è»¢ãŒã“ã®è§’åº¦ã«æº€ãŸãªã„å ´åˆã€çµ‚ç‚¹ã®å§¿å‹¢ã‚’è¿”ã™</param>
+		/// <returns>å§¿å‹¢ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		static constexpr Quaternion RotateTowards(const Quaternion& from, const Quaternion& to, float maxDegreeDelta) noexcept {
 			const float t = maxDegreeDelta / Angle(from, to);
 			return Math::GreaterEq(t, 1.0f) ? to : Lerp(from, to, t);
 		}
 		/// <summary>
-		/// “ñ‚Â‚Ìp¨‚ğ”}‰î•Ï”[0, 1]‚É‚æ‚Á‚Ä‹…–ÊüŒ`•âŠÔ‚µ‚½Œ‹‰Ê‚ğæ“¾‚·‚é
+		/// äºŒã¤ã®å§¿å‹¢ã‚’åª’ä»‹å¤‰æ•°[0, 1]ã«ã‚ˆã£ã¦çƒé¢ç·šå½¢è£œé–“ã—ãŸçµæœã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="a">n“_‚Æ‚È‚ép¨</param>
-		/// <param name="b">I“_‚Æ‚È‚ép¨</param>
-		/// <param name="t">”}‰î•Ï”B[0, 1]‚Éû‚ß‚ç‚ê‚é</param>
-		/// <returns>‹…–ÊüŒ`•âŠÔ‚É‚æ‚Á‚Ä“¾‚ç‚ê‚½p¨‚ğ•\‚·lŒ³”</returns>
+		/// <param name="a">å§‹ç‚¹ã¨ãªã‚‹å§¿å‹¢</param>
+		/// <param name="b">çµ‚ç‚¹ã¨ãªã‚‹å§¿å‹¢</param>
+		/// <param name="t">åª’ä»‹å¤‰æ•°ã€‚[0, 1]ã«åã‚ã‚‰ã‚Œã‚‹</param>
+		/// <returns>çƒé¢ç·šå½¢è£œé–“ã«ã‚ˆã£ã¦å¾—ã‚‰ã‚ŒãŸå§¿å‹¢ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		static constexpr Quaternion Slerp(const Quaternion& a, const Quaternion& b, float t) noexcept { return SlerpUnclamped(a, b, Math::Clamp(t, 0.0f, 1.0f)); }
 		/// <summary>
-		/// “ñ‚Â‚Ìp¨‚ğ”}‰î•Ï”[-Inf, Inf]‚É‚æ‚Á‚Ä‹…–ÊüŒ`•âŠÔ‚µ‚½Œ‹‰Ê‚ğæ“¾‚·‚é
+		/// äºŒã¤ã®å§¿å‹¢ã‚’åª’ä»‹å¤‰æ•°[-Inf, Inf]ã«ã‚ˆã£ã¦çƒé¢ç·šå½¢è£œé–“ã—ãŸçµæœã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="a">n“_‚Æ‚È‚ép¨</param>
-		/// <param name="b">I“_‚Æ‚È‚ép¨</param>
-		/// <param name="t">”}‰î•Ï”</param>
-		/// <returns>‹…–ÊüŒ`•âŠÔ‚É‚æ‚Á‚Ä“¾‚ç‚ê‚½p¨‚ğ•\‚·lŒ³”</returns>
+		/// <param name="a">å§‹ç‚¹ã¨ãªã‚‹å§¿å‹¢</param>
+		/// <param name="b">çµ‚ç‚¹ã¨ãªã‚‹å§¿å‹¢</param>
+		/// <param name="t">åª’ä»‹å¤‰æ•°</param>
+		/// <returns>çƒé¢ç·šå½¢è£œé–“ã«ã‚ˆã£ã¦å¾—ã‚‰ã‚ŒãŸå§¿å‹¢ã‚’è¡¨ã™å››å…ƒæ•°</returns>
 		static constexpr Quaternion SlerpUnclamped(const Quaternion& a, const Quaternion& b, float t) noexcept {
 			float dot = System::Math::Clamp(Dot(a, b), -1.0f, 1.0f);	//[-1, 1]
-			//“àÏ‚Ìâ‘Î’l‚ª1‚Ì‚Æ‚«Aa‚Æb‚Í“¯‚¶‰ñ“](³•‰‚ÍˆÙ‚È‚Á‚Ä‚à‚æ‚¢)
+			//å†…ç©ã®çµ¶å¯¾å€¤ãŒ1ã®ã¨ãã€aã¨bã¯åŒã˜å›è»¢(æ­£è² ã¯ç•°ãªã£ã¦ã‚‚ã‚ˆã„)
 			if (System::Math::Equal(System::Math::Abs(dot), 1.0f)) {
 				return a;
 			}
 			if (dot < 0) {
-				dot = Dot(a, -b);	//[0, 1) (“àÏ‚ª³‚Ì‚Æ‚«AÅ’Z‹——£‚Å•âŠÔ‚³‚ê‚é)
+				dot = Dot(a, -b);	//[0, 1) (å†…ç©ãŒæ­£ã®ã¨ãã€æœ€çŸ­è·é›¢ã§è£œé–“ã•ã‚Œã‚‹)
 				float theta = System::Math::AcosDeg(dot);	//(0, 90]
 				return ((System::Math::SinDeg(theta * (1.0f - t)) * a + System::Math::SinDeg(theta * t) * -b) / System::Math::SinDeg(theta)).Normalized();
 			}
@@ -372,10 +370,10 @@ export namespace System {
 		Type GetType() const noexcept { return Type::CreateType<Quaternion>(); }
 	public:
 		/// <summary>
-		/// Še—v‘f‚ğæ“¾‚·‚é
+		/// å„è¦ç´ ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="index">Še—v‘f‚Ö‚ÌƒCƒ“ƒfƒbƒNƒXB[0, 1, 2, 3] -> [x, y, z, w]</param>
-		/// <returns>Še—v‘f‚ÌQÆB”ÍˆÍŠO‚Ì’l‚ªw’è‚³‚ê‚½‚Æ‚«AMod 4‚ÌƒCƒ“ƒfƒbƒNƒX‚Ì’l‚Ö‚ÌQÆ‚ğæ“¾‚·‚é</returns>
+		/// <param name="index">å„è¦ç´ ã¸ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã€‚[0, 1, 2, 3] -> [x, y, z, w]</param>
+		/// <returns>å„è¦ç´ ã®å‚ç…§ã€‚ç¯„å›²å¤–ã®å€¤ãŒæŒ‡å®šã•ã‚ŒãŸã¨ãã€Mod 4ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®å€¤ã¸ã®å‚ç…§ã‚’å–å¾—ã™ã‚‹</returns>
 		constexpr float& operator[](uint32_t index) noexcept {
 			if (index == 0) return x;
 			else if (index == 1) return y;
@@ -394,10 +392,10 @@ export namespace System {
 		constexpr Quaternion operator-(const Quaternion& rhs) const noexcept { return Quaternion(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w); }
 		constexpr Quaternion operator-() const noexcept { return Quaternion(-x, -y, -z, -w); }
 		/// <summary>
-		/// lŒ³”“¯m‚ÌƒNƒƒXÏ‚ğæ“¾‚·‚é
+		/// å››å…ƒæ•°åŒå£«ã®ã‚¯ãƒ­ã‚¹ç©ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="rhs">lŒ³”</param>
-		/// <returns>*this ~ rhs‚Ì’l</returns>
+		/// <param name="rhs">å››å…ƒæ•°</param>
+		/// <returns>*this Ã— rhsã®å€¤</returns>
 		constexpr Quaternion operator*(const Quaternion& rhs) const noexcept {
 			const Vector3 v1{ x, y, z };
 			const Vector3 v2{ rhs.x, rhs.y, rhs.z };
@@ -407,10 +405,10 @@ export namespace System {
 
 		constexpr Quaternion& operator*=(const Quaternion& rhs) noexcept { return *this = *this * rhs; }
 		/// <summary>
-		/// lŒ³”‚É‚æ‚Á‚ÄƒxƒNƒgƒ‹‚ğ‰ñ“]‚µ‚½Œ‹‰Ê‚ÌƒxƒNƒgƒ‹‚ğæ“¾‚·‚é
+		/// å››å…ƒæ•°ã«ã‚ˆã£ã¦ãƒ™ã‚¯ãƒˆãƒ«ã‚’å›è»¢ã—ãŸçµæœã®ãƒ™ã‚¯ãƒˆãƒ«ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="rhs">‰ñ“]‚·‚éƒxƒNƒgƒ‹</param>
-		/// <returns>*this ~ rhs ~ (*this).Inverse()‚Ì’l</returns>
+		/// <param name="rhs">å›è»¢ã™ã‚‹ãƒ™ã‚¯ãƒˆãƒ«</param>
+		/// <returns>*this Ã— rhs Ã— (*this).Inverse()ã®å€¤</returns>
 		constexpr Vector3 operator*(const Vector3& rhs) const noexcept {
 			float x2, y2, z2, w2, xy, xz, xw, yz, yw, zw;
 			x2 = x * x;
@@ -448,23 +446,23 @@ export namespace System {
 			);
 		}
 		/// <summary>
-		/// Še—v‘f‚ğ’è””{‚µ‚½lŒ³”‚ğæ“¾‚·‚é
+		/// å„è¦ç´ ã‚’å®šæ•°å€ã—ãŸå››å…ƒæ•°ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="scalar">ŒW”</param>
-		/// <returns>’è””{‚³‚ê‚½lŒ³”(³‹K‰»‚³‚ê‚È‚¢)</returns>
+		/// <param name="scalar">ä¿‚æ•°</param>
+		/// <returns>å®šæ•°å€ã•ã‚ŒãŸå››å…ƒæ•°(æ­£è¦åŒ–ã•ã‚Œãªã„)</returns>
 		constexpr Quaternion operator*(float scalar) const noexcept { return Quaternion(x * scalar, y * scalar, z * scalar, w * scalar); }
 		/// <summary>
-		/// Še—v‘f‚ğ’è””{‚µ‚½lŒ³”‚ğæ“¾‚·‚é
+		/// å„è¦ç´ ã‚’å®šæ•°å€ã—ãŸå››å…ƒæ•°ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="scalar">ŒW”</param>
-		/// <param name="rhs">’è””{‚·‚élŒ³”</param>
-		/// <returns>’è””{‚³‚ê‚½lŒ³”(³‹K‰»‚³‚ê‚È‚¢)</returns>
+		/// <param name="scalar">ä¿‚æ•°</param>
+		/// <param name="rhs">å®šæ•°å€ã™ã‚‹å››å…ƒæ•°</param>
+		/// <returns>å®šæ•°å€ã•ã‚ŒãŸå››å…ƒæ•°(æ­£è¦åŒ–ã•ã‚Œãªã„)</returns>
 		friend constexpr Quaternion operator*(float scalar, const Quaternion& rhs) noexcept { return rhs * scalar; }
 		/// <summary>
-		/// Še—v‘f‚ğœZ‚µ‚½lŒ³”‚ğæ“¾‚·‚é
+		/// å„è¦ç´ ã‚’é™¤ç®—ã—ãŸå››å…ƒæ•°ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="scalar">œ”</param>
-		/// <returns>Še—v‘f‚ğœZ‚µ‚½lŒ³”(³‹K‰»‚³‚ê‚È‚¢)</returns>
+		/// <param name="scalar">é™¤æ•°</param>
+		/// <returns>å„è¦ç´ ã‚’é™¤ç®—ã—ãŸå››å…ƒæ•°(æ­£è¦åŒ–ã•ã‚Œãªã„)</returns>
 		constexpr Quaternion operator/(float scalar) const noexcept { return Quaternion(x / scalar, y / scalar, z / scalar, w / scalar); }
 		Quaternion& operator=(const Quaternion&) = default;
 		constexpr bool operator==(const Quaternion & rhs) const noexcept { return Math::Equal(x, rhs.x) && Math::Equal(y, rhs.y) && Math::Equal(z, rhs.z) && Math::Equal(w, rhs.w); }

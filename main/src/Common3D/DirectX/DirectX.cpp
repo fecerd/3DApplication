@@ -1,4 +1,4 @@
-module;
+ï»¿module;
 #include "DirectXHeader.hpp"
 module DirectX;
 using namespace System;
@@ -179,7 +179,7 @@ namespace System::Application::Windows::DirectX {
 		}
 		if (!bufferCount || !targetCount) return;
 		DirectXManager& manager = DirectXManager::GetManager();
-		//ƒq[ƒvì¬
+		//ãƒ’ãƒ¼ãƒ—ä½œæˆ
 		ID3D12DescriptorHeap* rtvHeap = manager.CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, bufferCount * targetCount, false);
 		ID3D12DescriptorHeap* dsvHeap = manager.CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, bufferCount, false);
 		if (!rtvHeap || !dsvHeap) {
@@ -188,7 +188,7 @@ namespace System::Application::Windows::DirectX {
 		}
 		m_rtvHeap = ManagedObject<IHeap>(new D3DHeap{ rtvHeap, bufferCount * targetCount });
 		m_dsvHeap = ManagedObject<IHeap>(new D3DHeap{ dsvHeap, bufferCount });
-		//DepthStencil—pƒŠƒ\[ƒX‚ğDSV‚ÉƒZƒbƒg
+		//DepthStencilç”¨ãƒªã‚½ãƒ¼ã‚¹ã‚’DSVã«ã‚»ãƒƒãƒˆ
 		Vector<ID3D12Resource*> dsResources;
 		dsResources.Reserve(bufferCount);
 		for (uint32_t i = 0; i < bufferCount; ++i) {
@@ -208,7 +208,7 @@ namespace System::Application::Windows::DirectX {
 				D3D12_RESOURCE_STATE_DEPTH_WRITE
 			}
 		);
-		//RenderTarget—pƒŠƒ\[ƒX‚ğRTV‚ÉƒZƒbƒg
+		//RenderTargetç”¨ãƒªã‚½ãƒ¼ã‚¹ã‚’RTVã«ã‚»ãƒƒãƒˆ
 		m_rtvResources.Reserve(targetCount);
 		for (uint32_t i = 0; i < targetCount; ++i) {
 			Vector<ID3D12Resource*> rtResources;
@@ -235,12 +235,12 @@ namespace System::Application::Windows::DirectX {
 			}
 			else return;
 		}
-		//•`‰æƒRƒ}ƒ“ƒh—pƒƒ“ƒo‚ğì¬
+		//æç”»ã‚³ãƒãƒ³ãƒ‰ç”¨ãƒ¡ãƒ³ãƒã‚’ä½œæˆ
 		m_allocator = Helpers::CreateCommandAllocator(device);
 		m_list = Helpers::CreateCommandList(device, *m_allocator);
 		m_queue = Helpers::CreateCommandQueue(device);
 		m_fence = Helpers::CreateFence(device);
-		//BeginCommand‚É“h‚è‚Â‚Ô‚³‚ê‚éF‚ğİ’è
+		//BeginCommandæ™‚ã«å¡—ã‚Šã¤ã¶ã•ã‚Œã‚‹è‰²ã‚’è¨­å®š
 		m_defaultColor[0] = defaultColor.R / 255.f;
 		m_defaultColor[1] = defaultColor.G / 255.f;
 		m_defaultColor[2] = defaultColor.B / 255.f;
@@ -430,7 +430,7 @@ namespace System::Application::Windows::DirectX {
 		}
 		if (!bufferCount) return;
 		DirectXManager& manager = DirectXManager::GetManager();
-		//SwapChainì¬
+		//SwapChainä½œæˆ
 		WindowPlatformData data = window.GetPlatformData();
 		HWND hWnd = nullptr;
 		if (data.Type == WindowType::Windows) hWnd = static_cast<HWND>(data.Data.GetData());
@@ -448,7 +448,7 @@ namespace System::Application::Windows::DirectX {
 			Helpers::SafeRelease(m_swapChain, m_queue);
 			return;
 		}
-		//ƒq[ƒvì¬
+		//ãƒ’ãƒ¼ãƒ—ä½œæˆ
 		ID3D12DescriptorHeap* rtvHeap = manager.CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, bufferCount, false);
 		ID3D12DescriptorHeap* dsvHeap = manager.CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, bufferCount, false);
 		if (!rtvHeap || !dsvHeap) {
@@ -458,7 +458,7 @@ namespace System::Application::Windows::DirectX {
 		}
 		m_rtvHeap = ManagedObject<IHeap>(new D3DHeap{ rtvHeap, bufferCount });
 		m_dsvHeap = ManagedObject<IHeap>(new D3DHeap{ dsvHeap, bufferCount });
-		//DepthStencil—pƒŠƒ\[ƒX‚ğDSV‚ÉƒZƒbƒg
+		//DepthStencilç”¨ãƒªã‚½ãƒ¼ã‚¹ã‚’DSVã«ã‚»ãƒƒãƒˆ
 		Vector<ID3D12Resource*> dsResources;
 		dsResources.Reserve(bufferCount);
 		for (uint32_t i = 0; i < bufferCount; ++i) {
@@ -479,7 +479,7 @@ namespace System::Application::Windows::DirectX {
 				D3D12_RESOURCE_STATE_DEPTH_WRITE
 			}
 		);
-		//RenderTarget—pƒŠƒ\[ƒX‚ğRTV‚ÉƒZƒbƒg
+		//RenderTargetç”¨ãƒªã‚½ãƒ¼ã‚¹ã‚’RTVã«ã‚»ãƒƒãƒˆ
 		Vector<ID3D12Resource*> rtResources;
 		rtResources.Reserve(bufferCount);
 		for (uint32_t i = 0; i < bufferCount; ++i) {
@@ -502,16 +502,16 @@ namespace System::Application::Windows::DirectX {
 				D3D12_RESOURCE_STATE_PRESENT
 			}
 		));
-		//Œ»İ‚ÌƒoƒbƒNƒoƒbƒtƒ@‚ÌƒCƒ“ƒfƒbƒNƒX‚ğNext‚Éİ’è
+		//ç¾åœ¨ã®ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’Nextã«è¨­å®š
 		uint32_t current = m_swapChain->GetCurrentBackBufferIndex();
 		current = current ? current - 1 : bufferCount - 1;
 		static_cast<D3DResource&>(*(m_rtvResources[0])).SetCurrentIndex(current);
 		static_cast<D3DResource&>(*m_dsvResources).SetCurrentIndex(current);
-		//•`‰æƒRƒ}ƒ“ƒh—pƒƒ“ƒo‚ğì¬
+		//æç”»ã‚³ãƒãƒ³ãƒ‰ç”¨ãƒ¡ãƒ³ãƒã‚’ä½œæˆ
 		m_allocator = Helpers::CreateCommandAllocator(device);
 		m_list = Helpers::CreateCommandList(device, *m_allocator);
 		m_fence = Helpers::CreateFence(device);
-		//BeginCommand‚É“h‚è‚Â‚Ô‚³‚ê‚éF‚ğİ’è
+		//BeginCommandæ™‚ã«å¡—ã‚Šã¤ã¶ã•ã‚Œã‚‹è‰²ã‚’è¨­å®š
 		m_defaultColor[0] = defaultColor.R / 255.f;
 		m_defaultColor[1] = defaultColor.G / 255.f;
 		m_defaultColor[2] = defaultColor.B / 255.f;
@@ -638,11 +638,11 @@ namespace System::Application::Windows::DirectX {
 		rendererDesc.culling = CullingMode::Back;
 		rendererDesc.rt.Add(RenderTargetDesc{});
 		if (!CreateRenderer(Common3D::DefaultRendererName, rendererDesc)) {
-			throw LogicException(__FUNCSIG__, u"ƒfƒtƒHƒ‹ƒg‚ÌPipelineState‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+			throw LogicException(__FUNCSIG__, u"ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®PipelineStateã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 		}
 		rendererDesc.culling = CullingMode::None;
 		if (!CreateRenderer(Common3D::DefaultMMDRendererName, rendererDesc)) {
-			throw LogicException(__FUNCSIG__, u"ƒfƒtƒHƒ‹ƒg‚ÌPipelineState‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+			throw LogicException(__FUNCSIG__, u"ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®PipelineStateã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 		}
 		rendererDesc.mode = RenderingMode::Z_Prepass;
 		rendererDesc.vs.name = Common3D::DefaultZPrepassVSName;
@@ -650,7 +650,7 @@ namespace System::Application::Windows::DirectX {
 		rendererDesc.ps.name = String::Empty();
 		rendererDesc.ps.filepath = String::Empty();
 		if (!CreateRenderer(Common3D::DefaultZPrepassRendererName, rendererDesc)) {
-			throw LogicException(__FUNCSIG__, u"Z-Prepass—p‚ÌƒfƒtƒHƒ‹ƒg‚ÌPipelineState‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+			throw LogicException(__FUNCSIG__, u"Z-Prepassç”¨ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®PipelineStateã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 		}
 		rendererDesc.mode = RenderingMode::ClusteredShading;
 		rendererDesc.vs.name = Common3D::DefaultClusteredShadingVSName;
@@ -658,7 +658,7 @@ namespace System::Application::Windows::DirectX {
 		rendererDesc.ps.name = Common3D::DefaultClusteredShadingPSName;
 		rendererDesc.ps.filepath = ResourcePaths::GetPathName(ResourcePaths::DirectX::DefaultClusteredShadingPS);
 		if (!CreateRenderer(Common3D::DefaultClusteredShadingRendererName, rendererDesc)) {
-			throw LogicException(__FUNCSIG__, u"ClusteredShading—p‚ÌƒfƒtƒHƒ‹ƒg‚ÌPipelineState‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+			throw LogicException(__FUNCSIG__, u"ClusteredShadingç”¨ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®PipelineStateã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 		}
 		rendererDesc.mode = RenderingMode::Standard;
 		rendererDesc.vs.name = Common3D::DefaultVSName;
@@ -670,7 +670,7 @@ namespace System::Application::Windows::DirectX {
 		rendererDesc.ps.entry = Common3D::DefaultShaderEntry;
 		rendererDesc.ps.target = Common3D::DefaultPSTarget;
 		if (!CreateRenderer(Common3D::DefaultVideoRendererName, rendererDesc)) {
-			throw LogicException(__FUNCSIG__, u"Video—p‚ÌƒfƒtƒHƒ‹ƒg‚ÌPipelineState‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+			throw LogicException(__FUNCSIG__, u"Videoç”¨ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®PipelineStateã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 		}
 
 		Image image = Image::CreateSingleColorImage(1, 1, Colors::White);
@@ -712,7 +712,7 @@ namespace System::Application::Windows::DirectX {
 	bool DirectXManager::CopyTextureResource(ID3D12Resource& texture, ID3D12Resource& upload, D3D12_RESOURCE_STATES currentState) noexcept {
 		D3D12_RESOURCE_DESC uploadDesc = upload.GetDesc();
 		D3D12_RESOURCE_DESC textureDesc = texture.GetDesc();
-		//ƒRƒs[—pƒRƒ}ƒ“ƒhƒŠƒXƒg¶¬
+		//ã‚³ãƒ”ãƒ¼ç”¨ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆç”Ÿæˆ
 		constexpr uint32_t allocatorCount = 2;
 		struct TEMP {
 			ID3D12CommandAllocator* allocators[allocatorCount] = {};
@@ -743,34 +743,34 @@ namespace System::Application::Windows::DirectX {
 		if (!temp.allocators[temp.currentIndex] || !temp.list || !temp.queue) return false;
 		if (!temp.fence) return false;
 
-		//ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX‚Ìó‘Ô‚ğCopyDest‚É•ÏX
+		//ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒªã‚½ãƒ¼ã‚¹ã®çŠ¶æ…‹ã‚’CopyDestã«å¤‰æ›´
 		D3D12_RESOURCE_BARRIER barrier{};
 		if (currentState != D3D12_RESOURCE_STATE_COPY_DEST) {
 			barrier = CreateTransitionBarrier(texture, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, currentState, D3D12_RESOURCE_STATE_COPY_DEST);
 			temp.list->ResourceBarrier(1, &barrier);
 		}
-		//ƒeƒNƒXƒ`ƒƒ—pƒoƒbƒtƒ@‚ÖƒRƒs[
+		//ãƒ†ã‚¯ã‚¹ãƒãƒ£ç”¨ãƒãƒƒãƒ•ã‚¡ã¸ã‚³ãƒ”ãƒ¼
 		D3D12_TEXTURE_COPY_LOCATION src{};
 		src.pResource = &upload;
 		src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 		src.PlacedFootprint.Offset = 0;
 		src.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		src.PlacedFootprint.Footprint.Width = static_cast<uint32_t>(textureDesc.Width);	//‰æ‘œ‚Ì•(px)
-		src.PlacedFootprint.Footprint.Height = textureDesc.Height;	//‰æ‘œ‚Ì•(px)
+		src.PlacedFootprint.Footprint.Width = static_cast<uint32_t>(textureDesc.Width);	//ç”»åƒã®å¹…(px)
+		src.PlacedFootprint.Footprint.Height = textureDesc.Height;	//ç”»åƒã®å¹…(px)
 		src.PlacedFootprint.Footprint.Depth = 1;
-		src.PlacedFootprint.Footprint.RowPitch = static_cast<uint32_t>(uploadDesc.Width / textureDesc.Height);	//•‚ÌƒoƒCƒgƒTƒCƒY
+		src.PlacedFootprint.Footprint.RowPitch = static_cast<uint32_t>(uploadDesc.Width / textureDesc.Height);	//å¹…ã®ãƒã‚¤ãƒˆã‚µã‚¤ã‚º
 		D3D12_TEXTURE_COPY_LOCATION dst{};
 		dst.pResource = &texture;
 		dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
 		dst.SubresourceIndex = 0;
 		temp.list->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
-		//ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX‚Ìó‘Ô‚ğƒsƒNƒZƒ‹ƒVƒF[ƒ_ƒŠƒ\[ƒX‚É•ÏX
+		//ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒªã‚½ãƒ¼ã‚¹ã®çŠ¶æ…‹ã‚’ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ãƒªã‚½ãƒ¼ã‚¹ã«å¤‰æ›´
 		barrier = CreateTransitionBarrier(texture, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		temp.list->ResourceBarrier(1, &barrier);
 		temp.list->Close();
 		ID3D12CommandList* lists[] = { temp.list };
 		temp.queue->ExecuteCommandLists(1, lists);
-		//GPU‚Æ“¯Šú
+		//GPUã¨åŒæœŸ
 		temp.fenceVal = Helpers::Signal(*temp.queue, *temp.fence);
 		if (++temp.currentIndex >= allocatorCount) temp.currentIndex = 0;
 		return true;

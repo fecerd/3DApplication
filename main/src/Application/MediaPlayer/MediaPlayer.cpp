@@ -1,4 +1,4 @@
-module MediaPlayer;
+﻿module MediaPlayer;
 using namespace System::Application;
 
 #ifndef SDL

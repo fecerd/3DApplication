@@ -1,10 +1,11 @@
-module;
-#include <thread>
+﻿module;
+#include <condition_variable>
 export module Thread;
+import CSTDINT;
 import Function;
 export import <mutex>;
-export import <condition_variable>;
-using Function = System::Function;
+//import <condition_variable>;
+import <thread>;
 
 export namespace System {
 	class Thread {
@@ -14,7 +15,7 @@ export namespace System {
 		template<class R, class ...Args>
 		Thread(const Function<R(Args...)>& func, Args&& ...args) noexcept : m_thread(func, static_cast<Args&&>(args)...) {}
 		template<class Functor, class ...Args>
-		Thread(Functor&& f, Args&& ...args) noexcept : m_thread(Function(f), static_cast<Args&&>(args)...) {}
+		Thread(Functor&& f, Args&& ...args) noexcept : m_thread(Function(System::move(f)), static_cast<Args&&>(args)...) {}
 		Thread(const Thread&) noexcept = delete;
 		Thread(Thread&&) noexcept = default;
 		~Thread() noexcept = default;
@@ -41,4 +42,6 @@ export namespace System {
 	public:
 		using std::lock_guard<T>::lock_guard;
 	};
+	template<class T>
+	LockGuard(T&)->LockGuard<T>;
 }

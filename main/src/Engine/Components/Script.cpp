@@ -1,4 +1,4 @@
-module Components:Script;
+ï»¿module Components:Script;
 import SceneManager;
 using namespace System;
 using namespace Engine;
@@ -11,6 +11,6 @@ Script* Script::Clone(GameObject* object) noexcept {
 	Script* ret = m_clone(object);
 	ret->m_clone = m_clone;
 	ret->m_typeID = m_typeID;
-	//Init‚ğŒÄ‚Ño‚·•K—v‚ª‚ ‚é
+	//Initã‚’å‘¼ã³å‡ºã™å¿…è¦ãŒã‚ã‚‹
 	return ret;
 }

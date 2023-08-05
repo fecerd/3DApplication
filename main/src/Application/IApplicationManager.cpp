@@ -1,4 +1,4 @@
-module IApplicationManager;
+Ôªømodule IApplicationManager;
 
 #ifndef SDL
 #if defined(_WIN32) || defined(_WIN64)
@@ -9,7 +9,7 @@ namespace System::Application {
 		return System::Application::Windows::ControlManager::GetInterface();
 	}
 }
-#else	//WindowsÇ≈Ç‡SDLÇ≈Ç‡Ç»Ç¢èÍçá
+#else	//Windows„Åß„ÇÇSDL„Åß„ÇÇ„Å™„ÅÑÂ†¥Âêà
 
 #endif
 #else	//SDL

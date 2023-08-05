@@ -1,22 +1,22 @@
-export module Zlib;
+ï»¿export module Zlib;
 import Objects;
 import Traits;
 import Math;
 
 export namespace System::Compression {
 	/// <summary>
-	/// Adler-32‚ğŒvZ‚·‚éŠÖ”
+	/// Adler-32ã‚’è¨ˆç®—ã™ã‚‹é–¢æ•°
 	/// </summary>
 	class Adler32 {
 		static constexpr uint16_t BASE = 65521;
 	public:
 		/// <summary>
-		/// Adler-32‚ğŒvZ‚·‚é
+		/// Adler-32ã‚’è¨ˆç®—ã™ã‚‹
 		/// </summary>
-		/// <param name="data">ŒvZ‚·‚éƒf[ƒ^</param>
-		/// <param name="byteCount">‘æˆêˆø”‚ÌƒoƒCƒg’·</param>
-		/// <param name="s2">ŒvZŒ‹‰Ê‚ÌãˆÊ2ƒoƒCƒg</param>
-		/// <param name="s1">ŒvZŒ‹‰Ê‚Ì‰ºˆÊ2ƒoƒCƒg</param>
+		/// <param name="data">è¨ˆç®—ã™ã‚‹ãƒ‡ãƒ¼ã‚¿</param>
+		/// <param name="byteCount">ç¬¬ä¸€å¼•æ•°ã®ãƒã‚¤ãƒˆé•·</param>
+		/// <param name="s2">è¨ˆç®—çµæœã®ä¸Šä½2ãƒã‚¤ãƒˆ</param>
+		/// <param name="s1">è¨ˆç®—çµæœã®ä¸‹ä½2ãƒã‚¤ãƒˆ</param>
 		static void Calculate(const uint8_t* data, size_t byteCount, uint16_t& s2, uint16_t& s1) {
 			s1 = 1;
 			s2 = 0;
@@ -35,10 +35,10 @@ export namespace System::Compression {
 	};
 
 	//struct Zlib {
-	//	uint8_t CMF = 0;	//ˆ³k•û®‚Æƒtƒ‰ƒO(Compression Method and Flags)
-	//	uint8_t FLG = 0;	//ƒtƒ‰ƒO
-	//	uint32_t DICTID = 0;	//ƒvƒŠƒZƒbƒg«‘ID(HasDictionaryŠÖ”‚ªtrue‚ğ•Ô‚·‚Æ‚«‚Ì‚İ‘¶İ)
-	//	HuffmanBlock data;	//ˆ³kƒf[ƒ^
+	//	uint8_t CMF = 0;	//åœ§ç¸®æ–¹å¼ã¨ãƒ•ãƒ©ã‚°(Compression Method and Flags)
+	//	uint8_t FLG = 0;	//ãƒ•ãƒ©ã‚°
+	//	uint32_t DICTID = 0;	//ãƒ—ãƒªã‚»ãƒƒãƒˆè¾æ›¸ID(HasDictionaryé–¢æ•°ãŒtrueã‚’è¿”ã™ã¨ãã®ã¿å­˜åœ¨)
+	//	HuffmanBlock data;	//åœ§ç¸®ãƒ‡ãƒ¼ã‚¿
 	//	uint16_t adler32[2] = { 0, 0 };	//Adler-32
 	//public:
 	//	Zlib() noexcept = default;

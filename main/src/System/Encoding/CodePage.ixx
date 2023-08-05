@@ -1,38 +1,34 @@
-module;
-#include <crtdbg.h>
-#define _CRTDBG_MAP_ALLOC
-#define new  ::new(_NORMAL_BLOCK, __FILE__, __LINE__)
-export module CodePage;
+ï»¿export module CodePage;
 import CSTDINT;
 import Traits;
-import Vector;
-import CodePoint;
+import VectorBase;
+export import CodePoint;
 import CP932;
 using namespace System::Traits;
 
-namespace System::Encoding {
+export namespace System::Encoding {
 	class CodePage {
 		/// <summary>
-		/// ƒR[ƒhƒy[ƒWƒtƒ@ƒCƒ‹¯•ÊqBCP_2‚Ì‚Æ‚«A2ƒoƒCƒg•¶šBCP_4‚Ì‚Æ‚«A4ƒoƒCƒg•¶š
+		/// ã‚³ãƒ¼ãƒ‰ãƒšãƒ¼ã‚¸ãƒ•ã‚¡ã‚¤ãƒ«è­˜åˆ¥å­ã€‚CP_2ã®ã¨ãã€2ãƒã‚¤ãƒˆæ–‡å­—ã€‚CP_4ã®ã¨ãã€4ãƒã‚¤ãƒˆæ–‡å­—
 		/// </summary>
 		uint8_t magic[4] = {};
 		/// <summary>
-		/// ƒR[ƒhƒy[ƒW”Ô†
+		/// ã‚³ãƒ¼ãƒ‰ãƒšãƒ¼ã‚¸ç•ªå·
 		/// </summary>
 		uint16_t codePageNumber = 0;
 		/// <summary>
-		/// —v‘f”
+		/// è¦ç´ æ•°
 		/// </summary>
 		uint32_t count = 0;
 		/// <summary>
-		/// •ÏŠ·‘O‚Ì•„†ˆÊ’u‚Ì”z—ñ
+		/// å¤‰æ›å‰ã®ç¬¦å·ä½ç½®ã®é…åˆ—
 		/// </summary>
 		union {
 			uint16_t* u16 = nullptr;
 			uint32_t* u32;
 		} src;
 		/// <summary>
-		/// •ÏŠ·Œã‚Ì•„†ˆÊ’u‚Ì”z—ñ
+		/// å¤‰æ›å¾Œã®ç¬¦å·ä½ç½®ã®é…åˆ—
 		/// </summary>
 		union {
 			uint16_t* u16 = nullptr;
@@ -78,16 +74,16 @@ namespace System::Encoding {
 		}
 	public:
 		/// <summary>
-		/// ƒR[ƒhƒy[ƒWƒtƒ@ƒCƒ‹‚ª“Ç‚İ‚Ü‚ê‚Ä‚¢‚é‚©’²‚×‚é
+		/// ã‚³ãƒ¼ãƒ‰ãƒšãƒ¼ã‚¸ãƒ•ã‚¡ã‚¤ãƒ«ãŒèª­ã¿è¾¼ã¾ã‚Œã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹
 		/// </summary>
-		/// <returns>“Ç‚İ‚Ü‚ê‚Ä‚¢‚éê‡Atrue</returns>
+		/// <returns>èª­ã¿è¾¼ã¾ã‚Œã¦ã„ã‚‹å ´åˆã€true</returns>
 		bool isLoaded() const noexcept { return src.u16 && dst.u16; }
 	public:
 		/// <summary>
-		/// src‚Æ“¯‚¶Œ`®‚Ì•„†ˆÊ’ucodePoint‚ğdst‚Æ“¯‚¶Œ`®‚Ì•„†ˆÊ’u‚ÉƒGƒ“ƒR[ƒh‚µ‚Ä•Ô‚·B
+		/// srcã¨åŒã˜å½¢å¼ã®ç¬¦å·ä½ç½®codePointã‚’dstã¨åŒã˜å½¢å¼ã®ç¬¦å·ä½ç½®ã«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã—ã¦è¿”ã™ã€‚
 		/// </summary>
-		/// <param name="codePoint">•ÏŠ·‚·‚é•„†ˆÊ’u</param>
-		/// <returns>•ÏŠ·Œã‚Ì•„†ˆÊ’uB•ÏŠ·‚ª‘¶İ‚µ‚È‚¢ê‡A0</returns>
+		/// <param name="codePoint">å¤‰æ›ã™ã‚‹ç¬¦å·ä½ç½®</param>
+		/// <returns>å¤‰æ›å¾Œã®ç¬¦å·ä½ç½®ã€‚å¤‰æ›ãŒå­˜åœ¨ã—ãªã„å ´åˆã€0</returns>
 		uint32_t SrcToDst(const uint32_t codePoint) noexcept {
 			if (magic[3] == u8'2') {
 				uint16_t tCodePoint = static_cast<uint16_t>(codePoint);
@@ -99,10 +95,10 @@ namespace System::Encoding {
 			return 0;
 		}
 		/// <summary>
-		/// dst‚Æ“¯‚¶Œ`®‚Ì•„†ˆÊ’ucodePoint‚ğsrc‚Æ“¯‚¶Œ`®‚Ì•„†ˆÊ’u‚ÉƒGƒ“ƒR[ƒh‚µ‚Ä•Ô‚·
+		/// dstã¨åŒã˜å½¢å¼ã®ç¬¦å·ä½ç½®codePointã‚’srcã¨åŒã˜å½¢å¼ã®ç¬¦å·ä½ç½®ã«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã—ã¦è¿”ã™
 		/// </summary>
-		/// <param name="codePoint">•ÏŠ·‚·‚é•„†ˆÊ’u</param>
-		/// <returns>•ÏŠ·Œã‚Ì•„†ˆÊ’uB•ÏŠ·‚ª‘¶İ‚µ‚È‚¢ê‡A0</returns>
+		/// <param name="codePoint">å¤‰æ›ã™ã‚‹ç¬¦å·ä½ç½®</param>
+		/// <returns>å¤‰æ›å¾Œã®ç¬¦å·ä½ç½®ã€‚å¤‰æ›ãŒå­˜åœ¨ã—ãªã„å ´åˆã€0</returns>
 		uint32_t DstToSrc(const uint32_t codePoint) noexcept {
 			if (magic[3] == u8'2') {
 				uint16_t tCodePoint = static_cast<uint16_t>(codePoint);
@@ -146,9 +142,9 @@ namespace System::Encoding {
 		}
 	public:
 		static CodePage& CP932() noexcept {
-			_CrtSetDbgFlag(0);
+			//_CrtSetDbgFlag(0);
 			static CodePage* cp932 = new CodePage(Binary::CP932_bin, sizeof(Binary::CP932_bin));
-			_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+			//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 			return *cp932;
 		}
 	};
@@ -156,10 +152,10 @@ namespace System::Encoding {
 
 export namespace System::Encoding {
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚ğUnicode‚É•ÏŠ·‚·‚é
+	/// CodePointæ§‹é€ ä½“ã‚’Unicodeã«å¤‰æ›ã™ã‚‹
 	/// </summary>
-	/// <param name="src">•ÏŠ·‚·‚éCodePoint\‘¢‘Ì</param>
-	/// <returns>Unicode•„†ˆÊ’uî•ñ‚ğ‚ÂA•¶š”1‚ÌCodePoint\‘¢‘Ì</returns>
+	/// <param name="src">å¤‰æ›ã™ã‚‹CodePointæ§‹é€ ä½“</param>
+	/// <returns>Unicodeç¬¦å·ä½ç½®æƒ…å ±ã‚’æŒã¤ã€æ–‡å­—æ•°1ã®CodePointæ§‹é€ ä½“</returns>
 	CodePoint ToUnicode(CodePoint src) noexcept {
 		if (src.codePage == CodePageFlag::Unicode) {
 			src.count = 1;
@@ -172,10 +168,10 @@ export namespace System::Encoding {
 	}
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚ğShift_JIS(CP932)‚É•ÏŠ·‚·‚é
+	/// CodePointæ§‹é€ ä½“ã‚’Shift_JIS(CP932)ã«å¤‰æ›ã™ã‚‹
 	/// </summary>
-	/// <param name="src">•ÏŠ·‚·‚éCodePoint\‘¢‘Ì</param>
-	/// <returns>Shift_JIS•„†ˆÊ’u‚ğ‚ÂCodePoint\‘¢‘ÌB•¶š”‚Í•„†ˆÊ’u‚ª0xffˆÈ‰º‚Ì‚Æ‚«A1B‚»‚êˆÈŠO‚Ì‚Æ‚«A2</returns>
+	/// <param name="src">å¤‰æ›ã™ã‚‹CodePointæ§‹é€ ä½“</param>
+	/// <returns>Shift_JISç¬¦å·ä½ç½®ã‚’æŒã¤CodePointæ§‹é€ ä½“ã€‚æ–‡å­—æ•°ã¯ç¬¦å·ä½ç½®ãŒ0xffä»¥ä¸‹ã®ã¨ãã€1ã€‚ãã‚Œä»¥å¤–ã®ã¨ãã€2</returns>
 	CodePoint ToCP932(CodePoint src) noexcept {
 		if (src.codePage == CodePageFlag::Shift_JIS) return src;
 		src.codePage = CodePageFlag::Shift_JIS;
@@ -185,10 +181,10 @@ export namespace System::Encoding {
 	}
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚ğƒ}ƒ‹ƒ`ƒoƒCƒg•¶šƒR[ƒh‚É•ÏŠ·‚·‚é
+	/// CodePointæ§‹é€ ä½“ã‚’ãƒãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—ã‚³ãƒ¼ãƒ‰ã«å¤‰æ›ã™ã‚‹
 	/// </summary>
-	/// <param name="src">•ÏŠ·‚·‚éCodePoint\‘¢‘Ì</param>
-	/// <returns>charset::char_CodePage‚Åw’è‚³‚ê‚Ä‚¢‚éƒR[ƒhƒy[ƒW‚ÌCodePoint\‘¢‘ÌB</returns>
+	/// <param name="src">å¤‰æ›ã™ã‚‹CodePointæ§‹é€ ä½“</param>
+	/// <returns>charset::char_CodePageã§æŒ‡å®šã•ã‚Œã¦ã„ã‚‹ã‚³ãƒ¼ãƒ‰ãƒšãƒ¼ã‚¸ã®CodePointæ§‹é€ ä½“ã€‚</returns>
 	CodePoint ToMultiByte(CodePoint src) noexcept {
 		if (charset::char_CodePage == CodePageFlag::Shift_JIS) return ToCP932(src);
 		else if (charset::char_CodePage == CodePageFlag::Unicode) return ToUnicode(src);
@@ -196,13 +192,13 @@ export namespace System::Encoding {
 	}
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚©‚çShift_JIS‚ÉƒGƒ“ƒR[ƒh‚³‚ê‚½•¶š‚ğæ“¾‚·‚é
-	/// </summary>
-	/// <param name="src">•¶š‰»‚·‚éShift_JIS•„†ˆÊ’u</param>
-	/// <returns>Shift_JIS‚ÉƒGƒ“ƒR[ƒh‚³‚ê‚½charŒ^•¶š‚Ì”z—ñBƒGƒ‰[‚Ì‚Æ‚«A‘å‚«‚³0‚Ì”z—ñ‚ğ•Ô‚µA‚»‚êˆÈŠO‚Ìê‡A‘å‚«‚³1‚Ü‚½‚Í2‚Ì”z—ñ‚ğ•Ô‚·</returns>
-	Vector<char> GetCP932Char(CodePoint src) noexcept {
-		if (src.codePage != CodePageFlag::Shift_JIS) return Vector<char>();
-		Vector<char> ret;
+	// /// CodePointæ§‹é€ ä½“ã‹ã‚‰Shift_JISã«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã•ã‚ŒãŸæ–‡å­—ã‚’å–å¾—ã™ã‚‹
+	// /// </summary>
+	// /// <param name="src">æ–‡å­—åŒ–ã™ã‚‹Shift_JISç¬¦å·ä½ç½®</param>
+	// /// <returns>Shift_JISã«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã•ã‚ŒãŸcharå‹æ–‡å­—ã®é…åˆ—ã€‚ã‚¨ãƒ©ãƒ¼ã®ã¨ãã€å¤§ãã•0ã®é…åˆ—ã‚’è¿”ã—ã€ãã‚Œä»¥å¤–ã®å ´åˆã€å¤§ãã•1ã¾ãŸã¯2ã®é…åˆ—ã‚’è¿”ã™</returns>
+	VectorBase<char> GetCP932Char(CodePoint src) noexcept {
+		if (src.codePage != CodePageFlag::Shift_JIS) return VectorBase<char>();
+		VectorBase<char> ret;
 		uint8_t first = static_cast<uint8_t>((src.point & Traits::BITMASK_M<9, 16>) >> 8);
 		if ((0x81u <= first && first <= 0x9fu) || (0xe0u <= first && first <= 0xefu)) ret.AddRange(static_cast<char>(first), static_cast<char>(src.point & Traits::BITMASK_M<1, 8>));
 		else ret.Add(static_cast<char>(src.point & Traits::BITMASK_M<1, 8>));
@@ -210,23 +206,23 @@ export namespace System::Encoding {
 	}
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚©‚çUTF8‚ÉƒGƒ“ƒR[ƒh‚³‚ê‚½•¶š‚ğæ“¾‚·‚é
+	/// CodePointæ§‹é€ ä½“ã‹ã‚‰UTF8ã«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã•ã‚ŒãŸæ–‡å­—ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
-	/// <param name="src">•¶š‰»‚·‚éUnicode•„†ˆÊ’u</param>
-	/// <returns>UTF8‚ÉƒGƒ“ƒR[ƒh‚³‚ê‚½charŒ^•¶š‚Ì”z—ñBƒGƒ‰[‚Ì‚Æ‚«A‘å‚«‚³0‚Ì”z—ñ‚ğ•Ô‚µA‚»‚êˆÈŠO‚Ìê‡A‘å‚«‚³1`4‚Ì”z—ñ‚ğ•Ô‚·</returns>
-	Vector<char> GetUTF8Char(CodePoint src) noexcept {
-		if (src.codePage != CodePageFlag::Unicode) return Vector<char>();
-		Vector<char> ret;
-		//1ƒoƒCƒg
+	/// <param name="src">æ–‡å­—åŒ–ã™ã‚‹Unicodeç¬¦å·ä½ç½®</param>
+	/// <returns>UTF8ã«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã•ã‚ŒãŸcharå‹æ–‡å­—ã®é…åˆ—ã€‚ã‚¨ãƒ©ãƒ¼ã®ã¨ãã€å¤§ãã•0ã®é…åˆ—ã‚’è¿”ã—ã€ãã‚Œä»¥å¤–ã®å ´åˆã€å¤§ãã•1ï½4ã®é…åˆ—ã‚’è¿”ã™</returns>
+	VectorBase<char> GetUTF8Char(CodePoint src) noexcept {
+		if (src.codePage != CodePageFlag::Unicode) return VectorBase<char>();
+		VectorBase<char> ret;
+		//1ãƒã‚¤ãƒˆ
 		if (src.point <= 0x7fu) ret.Add(static_cast<char>(src.point));
-		//2ƒoƒCƒg
+		//2ãƒã‚¤ãƒˆ
 		else if (src.point <= 0x7ffu) {
 			ret.AddRange(
 				static_cast<char>(0xc0u | ((src.point & Traits::BITMASK_M<7, 11>) >> 6)),
 				static_cast<char>(0x80u | (src.point & Traits::BITMASK_M<1, 6>))
 			);
 		}
-		//3ƒoƒCƒg
+		//3ãƒã‚¤ãƒˆ
 		else if (src.point <= 0xffffu) {
 			ret.AddRange(
 				static_cast<char>(0xe0u | ((src.point & Traits::BITMASK_M<13, 16>) >> 12)),
@@ -234,7 +230,7 @@ export namespace System::Encoding {
 				static_cast<char>(0x80u | (src.point & Traits::BITMASK_M<1, 6>))
 			);
 		}
-		//4ƒoƒCƒg
+		//4ãƒã‚¤ãƒˆ
 		else {
 			ret.AddRange(
 				static_cast<char>(0xf0u | ((src.point & Traits::BITMASK_M<19, 21>) >> 18)),
@@ -247,13 +243,13 @@ export namespace System::Encoding {
 	}
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚©‚çƒ}ƒ‹ƒ`ƒoƒCƒg•¶š‚ğæ“¾‚·‚é
+	/// CodePointæ§‹é€ ä½“ã‹ã‚‰ãƒãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
-	/// <param name="src">•¶š‰»‚·‚é•„†ˆÊ’uî•ñ</param>
-	/// <returns>charset::char_CodePage‚Åw’è‚³‚ê‚Ä‚¢‚é•¶šƒR[ƒh‚ÉƒGƒ“ƒR[ƒh‚³‚ê‚½charŒ^•¶š‚Ì”z—ñBƒGƒ‰[‚Ì‚Æ‚«‚Ì‚İA‘å‚«‚³0‚Ì”z—ñ‚ğ•Ô‚·</returns>
-	Vector<char> GetMultiByteChar(CodePoint src) noexcept {
+	/// <param name="src">æ–‡å­—åŒ–ã™ã‚‹ç¬¦å·ä½ç½®æƒ…å ±</param>
+	/// <returns>charset::char_CodePageã§æŒ‡å®šã•ã‚Œã¦ã„ã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ã«ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã•ã‚ŒãŸcharå‹æ–‡å­—ã®é…åˆ—ã€‚ã‚¨ãƒ©ãƒ¼ã®ã¨ãã®ã¿ã€å¤§ãã•0ã®é…åˆ—ã‚’è¿”ã™</returns>
+	VectorBase<char> GetMultiByteChar(CodePoint src) noexcept {
 		if (charset::char_CodePage == CodePageFlag::Shift_JIS) return GetCP932Char(src);
 		else if (charset::char_CodePage == CodePageFlag::Unicode) return GetUTF8Char(src);
-		else return Vector<char>();
+		else return VectorBase<char>();
 	}
 }

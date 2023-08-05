@@ -1,5 +1,6 @@
-module;
-#include<crtdbg.h>
+ï»¿module;
+//#include<crtdbg.h>
+#include <memory>
 export module StringBlock;
 import CSTDINT;
 import Traits;
@@ -9,10 +10,10 @@ import CodePoint;
 using namespace System::Traits;
 
 //CStringBlock
-namespace System {
-	template<CharType str_t> class StringBlock;
+export namespace System {
+	template<Concepts::CCharType str_t> class StringBlock;
 
-	export template<CharType str_t, size_t N>
+	template<Concepts::CCharType str_t, size_t N>
 	class CStringBlock {
 		friend class StringBlock<str_t>;
 	protected:
@@ -38,18 +39,18 @@ namespace System {
 		~CStringBlock() = default;
 	public:
 		static constexpr auto Empty() noexcept {
-			if constexpr (is_same_v<str_t, char>) return CString<str_t, 3>();
-			else if constexpr (is_same_v<str_t, char8_t>) return CString<str_t, 5>();
-			else if constexpr (is_same_v<str_t, char16_t>) return CString<str_t, 3>();
-			else if constexpr (is_same_v<str_t, char32_t>) return CString<str_t, 2>();
-			else if constexpr (is_same_v<str_t, wchar_t>) return CString<str_t, 3>();
+			if constexpr (is_same_v<str_t, char>) return CStringBlock<str_t, 3>();
+			else if constexpr (is_same_v<str_t, char8_t>) return CStringBlock<str_t, 5>();
+			else if constexpr (is_same_v<str_t, char16_t>) return CStringBlock<str_t, 3>();
+			else if constexpr (is_same_v<str_t, char32_t>) return CStringBlock<str_t, 2>();
+			else if constexpr (is_same_v<str_t, wchar_t>) return CStringBlock<str_t, 3>();
 		}
 	public:
-		constexpr auto strcpy(const str_t* src, const size_t pos, const size_t n) noexcept {
+		constexpr CStringBlock<str_t, N> const& strcpy(const str_t *src, const size_t pos, const size_t n) noexcept {
 			for (size_t i = 0; i < n && pos + i < N - 1; ++i) value[pos + i] = src[i];
 			return *this;
 		}
-		constexpr auto strcpy(const str_t src, const size_t pos) noexcept {
+		constexpr CStringBlock<str_t, N> const& strcpy(const str_t src, const size_t pos) noexcept {
 			if (pos < N) value[pos] = src;
 			return *this;
 		}
@@ -115,7 +116,7 @@ namespace System {
 		constexpr operator bool() const noexcept { return value[0] != '\0'; }
 	};
 
-	export template<CharType str_t, Integral T>
+	template<Concepts::CCharType str_t, Concepts::CIntegral T>
 	constexpr CStringBlock<str_t, 21> GetCStringBlock(T n) noexcept {
 		CStringBlock<str_t, 21> ret;
 		size_t digit = Math::CountDigit(n);
@@ -129,34 +130,34 @@ namespace System {
 		return ret;
 	}
 
-	export enum class NormalizeMode : uint8_t {
-		Auto,			//©“®‘I‘ğ
-		Fixed,			//•ÏŠ·‚µ‚È‚¢
-		Normalize	//‹­§“I‚É•ÏŠ·‚·‚é
+	enum class NormalizeMode : uint8_t {
+		Auto,			//è‡ªå‹•é¸æŠ
+		Fixed,			//å¤‰æ›ã—ãªã„
+		Normalize	//å¼·åˆ¶çš„ã«å¤‰æ›ã™ã‚‹
 	};
 
 	/// <summary>
-	/// •‚“®¬”“_”‚ğ•¶š—ñ’è”‚É•ÏŠ·‚·‚é
+	/// æµ®å‹•å°æ•°ç‚¹æ•°ã‚’æ–‡å­—åˆ—å®šæ•°ã«å¤‰æ›ã™ã‚‹
 	/// </summary>
-	/// <typeparam name="str_t">•ÏŠ·æ‚Ì•¶šŒ^</typeparam>
-	/// <typeparam name="digit">—LŒøŒ…”</typeparam>
-	/// <param name="d">•‚“®¬”“_”</param>
-	/// <param name="mode">w”•\‹L(x.xxe-10‚È‚Ç)•ÏŠ·ƒ‚[ƒh</param>
+	/// <typeparam name="str_t">å¤‰æ›å…ˆã®æ–‡å­—å‹</typeparam>
+	/// <typeparam name="digit">æœ‰åŠ¹æ¡æ•°</typeparam>
+	/// <param name="d">æµ®å‹•å°æ•°ç‚¹æ•°</param>
+	/// <param name="mode">æŒ‡æ•°è¡¨è¨˜(x.xxe-10ãªã©)å¤‰æ›ãƒ¢ãƒ¼ãƒ‰</param>
 	/// <returns>
-	/// w’è‚µ‚½—LŒøŒ…”‚Ì•¶š—ñ’è”B
-	/// ˆø”mode‚ªAuto‚Ì‚Æ‚«A—LŒøŒ…”‚ªd‚Ì®”•”‚ÌŒ…”‚æ‚è‚à¬‚³‚¢A
-	/// ‚à‚µ‚­‚Í—LŒøŒ…”‚ª‚·‚×‚Ä0‚Å–„‚Ü‚é(0.0001‚É‘Î‚µ‚Ä—LŒøŒ…”4ˆÈ‰º)ê‡Aw”•\‹L‚Æ‚È‚é
+	/// æŒ‡å®šã—ãŸæœ‰åŠ¹æ¡æ•°ã®æ–‡å­—åˆ—å®šæ•°ã€‚
+	/// å¼•æ•°modeãŒAutoã®ã¨ãã€æœ‰åŠ¹æ¡æ•°ãŒdã®æ•´æ•°éƒ¨ã®æ¡æ•°ã‚ˆã‚Šã‚‚å°ã•ã„ã€
+	/// ã‚‚ã—ãã¯æœ‰åŠ¹æ¡æ•°ãŒã™ã¹ã¦0ã§åŸ‹ã¾ã‚‹(0.0001ã«å¯¾ã—ã¦æœ‰åŠ¹æ¡æ•°4ä»¥ä¸‹)å ´åˆã€æŒ‡æ•°è¡¨è¨˜ã¨ãªã‚‹
 	/// </returns>
-	export template<CharType str_t, size_t digit = 10>
+	template<Concepts::CCharType str_t, size_t digit = 10>
 	constexpr auto GetCStringBlock(double d, NormalizeMode mode = NormalizeMode::Auto) noexcept {
-		//‹–—e‚·‚é—LŒøŒ…”‚Ì‘å‚«‚³
-		//1075Œ… = 1Œ…(®”•”) + 1074Œ…(¬”•”)
-		//2^-1074(double‚Å•\‚¹‚éˆê”Ô¬‚³‚¢”)‚ÌÅ‰ºˆÊ‚ÌŒ…‚Í10^-1074‚ÌˆÊ‚Å‚ ‚é‚±‚Æ‚É—R—ˆ‚·‚é
+		//è¨±å®¹ã™ã‚‹æœ‰åŠ¹æ¡æ•°ã®å¤§ãã•
+		//1075æ¡ = 1æ¡(æ•´æ•°éƒ¨) + 1074æ¡(å°æ•°éƒ¨)
+		//2^-1074(doubleã§è¡¨ã›ã‚‹ä¸€ç•ªå°ã•ã„æ•°)ã®æœ€ä¸‹ä½ã®æ¡ã¯10^-1074ã®ä½ã§ã‚ã‚‹ã“ã¨ã«ç”±æ¥ã™ã‚‹
 		constexpr size_t max_digit = 1075;
-		if constexpr (digit == 0) return GetCStringBlock<str_t, 1>(d, mode);	//—LŒøŒ…”0Œ…‚Í1Œ…‚Æ‚µ‚Äˆµ‚¤
-		else if constexpr (digit > max_digit) return GetCStringBlock<str_t, max_digit>(d, mode);	//—LŒøŒ…”‚Ímax_digit‚Ü‚Å
+		if constexpr (digit == 0) return GetCStringBlock<str_t, 1>(d, mode);	//æœ‰åŠ¹æ¡æ•°0æ¡ã¯1æ¡ã¨ã—ã¦æ‰±ã†
+		else if constexpr (digit > max_digit) return GetCStringBlock<str_t, max_digit>(d, mode);	//æœ‰åŠ¹æ¡æ•°ã¯max_digitã¾ã§
 		else {
-			CStringBlock<str_t, digit + 8> ret;	//—LŒøŒ…”+8•¶š(¬”“_+e+w”•„†+w”(Å‘å3Œ…)+ƒkƒ‹I’[•¶š)
+			CStringBlock<str_t, digit + 8> ret;	//æœ‰åŠ¹æ¡æ•°+8æ–‡å­—(å°æ•°ç‚¹+e+æŒ‡æ•°ç¬¦å·+æŒ‡æ•°(æœ€å¤§3æ¡)+ãƒŒãƒ«çµ‚ç«¯æ–‡å­—)
 			if (Math::IsNan(d)) {
 				ret.strcpy('n', 0);
 				ret.strcpy('a', 1);
@@ -170,43 +171,43 @@ namespace System {
 				ret.strcpy('f', pos++);
 			}
 			else {
-				//•‚“®¬”“_”‚Ì“à•”•\Œ»‚ğ‰ğÍ
-				//‰¼”•”ƒrƒbƒg‚ğ•„†–³‚µ®”‚Æ‚µ‚Ä•¶š—ñ‰»
+				//æµ®å‹•å°æ•°ç‚¹æ•°ã®å†…éƒ¨è¡¨ç¾ã‚’è§£æ
+				//ä»®æ•°éƒ¨ãƒ“ãƒƒãƒˆã‚’ç¬¦å·ç„¡ã—æ•´æ•°ã¨ã—ã¦æ–‡å­—åˆ—åŒ–
 				auto frac_str = GetCStringBlock<str_t>(Math::GetFracValue(d));
-				//ƒkƒ‹I’[•¶š‚ğŠÜ‚Şfrac_str‚Ì•¶š”
+				//ãƒŒãƒ«çµ‚ç«¯æ–‡å­—ã‚’å«ã‚€frac_strã®æ–‡å­—æ•°
 				const size_t frac_size = frac_str.Length() + 1;
-				//•„†–³‚µ53ƒrƒbƒg®”‚ÍÅ‘å16Œ…‚Ì‚½‚ßAfrac_size‚Íƒkƒ‹I’[•¶š‚ğŠÜ‚ß‚Ä17•¶š‚Éû‚Ü‚é‚Í‚¸
-				//(18•¶šˆÈã‚Ìê‡A‹ó•¶š—ñ‚ğ•Ô‚·)
+				//ç¬¦å·ç„¡ã—53ãƒ“ãƒƒãƒˆæ•´æ•°ã¯æœ€å¤§16æ¡ã®ãŸã‚ã€frac_sizeã¯ãƒŒãƒ«çµ‚ç«¯æ–‡å­—ã‚’å«ã‚ã¦17æ–‡å­—ã«åã¾ã‚‹ã¯ãš
+				//(18æ–‡å­—ä»¥ä¸Šã®å ´åˆã€ç©ºæ–‡å­—åˆ—ã‚’è¿”ã™)
 				if (frac_size >= 18) return ret;
-				//•‚“®¬”“_”‚Ìw”2^exp + ‰¼”•”52ƒrƒbƒg•ª‚ÌƒVƒtƒg
+				//æµ®å‹•å°æ•°ç‚¹æ•°ã®æŒ‡æ•°2^exp + ä»®æ•°éƒ¨52ãƒ“ãƒƒãƒˆåˆ†ã®ã‚·ãƒ•ãƒˆ
 				int exp = Math::GetExpValue(d) - 52;
-				//Å‘å—LŒøŒ…”+3(•„†+¬”“_+ƒkƒ‹I’[•¶š)
+				//æœ€å¤§æœ‰åŠ¹æ¡æ•°+3(ç¬¦å·+å°æ•°ç‚¹+ãƒŒãƒ«çµ‚ç«¯æ–‡å­—)
 				constexpr size_t BUF_SIZE = max_digit + 3;
-				//ŒvZ—pƒoƒbƒtƒ@
+				//è¨ˆç®—ç”¨ãƒãƒƒãƒ•ã‚¡
 				str_t r_buf[BUF_SIZE] = {};
 				if (d < 0) r_buf[0] = '-';
-				//³•‰‹L†‚ğœ‚¢‚½ƒoƒbƒtƒ@‚Ìæ“ª
+				//æ­£è² è¨˜å·ã‚’é™¤ã„ãŸãƒãƒƒãƒ•ã‚¡ã®å…ˆé ­
 				str_t* const buf = d >= 0 ? r_buf : r_buf + 1;
-				//buf[length]‚ÍŒ»İ‚Ìƒkƒ‹I’[•¶š
+				//buf[length]ã¯ç¾åœ¨ã®ãƒŒãƒ«çµ‚ç«¯æ–‡å­—
 				size_t length = 0;
 				for (const str_t* ptr = frac_str.c_str(); length < frac_size; ++length) buf[length] = ptr[length];
 				buf[length - 1] = '.';
 				buf[length++] = '0';
-				//‚‘¬‰»‚Ì‚½‚ßA2^n”{‚²‚Æ‚ÉŒvZ‚·‚é(exp < n‚Ìê‡A2”{‚²‚Æ‚ÉŒvZ‚·‚é)
+				//é«˜é€ŸåŒ–ã®ãŸã‚ã€2^nå€ã”ã¨ã«è¨ˆç®—ã™ã‚‹(exp < nã®å ´åˆã€2å€ã”ã¨ã«è¨ˆç®—ã™ã‚‹)
 				constexpr int n = 16;
-				//•¶š—ñbuf‚Ì”’l‚ğ(2^exp)”{‚·‚é(exp < 0‚Ìê‡AŠ„‚èZ‚É‚È‚é)
+				//æ–‡å­—åˆ—bufã®æ•°å€¤ã‚’(2^exp)å€ã™ã‚‹(exp < 0ã®å ´åˆã€å‰²ã‚Šç®—ã«ãªã‚‹)
 				if (exp > 0) {
 					for (int j = exp; j-- > 0;) {
 						int mul = 1 << (j >= n ? n : 1);
 						if (j >= n) j -= n - 1;
-						int up = 0;	//ŒJ‚èã‚ª‚è
+						int up = 0;	//ç¹°ã‚Šä¸ŠãŒã‚Š
 						for (size_t i = length; i-- > 0;) {
 							if (buf[i] == '.') continue;
 							int tmp = (buf[i] - '0') * mul + up;
 							buf[i] = '0' + (tmp % 10);
 							up = tmp / 10;
 						}
-						//ŒJ‚èã‚ª‚è‚ªc‚Á‚Ä‚¢‚éê‡Aƒoƒbƒtƒ@‘S‘Ì‚ğ‰EƒVƒtƒg‚µ‚ÄŒ…‚ğ‘‚â‚·
+						//ç¹°ã‚Šä¸ŠãŒã‚ŠãŒæ®‹ã£ã¦ã„ã‚‹å ´åˆã€ãƒãƒƒãƒ•ã‚¡å…¨ä½“ã‚’å³ã‚·ãƒ•ãƒˆã—ã¦æ¡ã‚’å¢—ã‚„ã™
 						if (up) {
 							size_t delta = Math::CountDigit(up);
 							length = (buf + length + delta > r_buf + BUF_SIZE - 1) ? BUF_SIZE - 1 - (buf - r_buf) : length + delta;
@@ -222,19 +223,19 @@ namespace System {
 					for (int j = -exp; j-- > 0;) {
 						int div = 1 << (j >= n ? n : 1);
 						if (j >= n) j -= n - 1;
-						int down = 0;	//ŒJ‚è‰º‚ª‚è
+						int down = 0;	//ç¹°ã‚Šä¸‹ãŒã‚Š
 						for (size_t i = 0; i < length; ++i) {
 							if (buf[i] == '.') continue;
 							int tmp = (buf[i] - '0') + down;
 							buf[i] = '0' + (tmp / div);
 							down = (tmp % div) * 10;
 						}
-						//"0.dddd..."‚ÌŒ`®‚Å‚È‚¢‚ÉAæ“ª‚ª'0'‚Ån‚Ü‚Á‚Ä‚¢‚éê‡A'0'‚ğÁ‹‚·‚é
+						//"0.dddd..."ã®å½¢å¼ã§ãªã„æ™‚ã«ã€å…ˆé ­ãŒ'0'ã§å§‹ã¾ã£ã¦ã„ã‚‹å ´åˆã€'0'ã‚’æ¶ˆå»ã™ã‚‹
 						while (buf[0] == '0' && buf[1] != '.') {
 							for (size_t i = 0; i < length; ++i) buf[i] = buf[i + 1];
 							--length;
 						}
-						//ŒJ‚è‰º‚ª‚è‚ª0‚É‚È‚é‚©Aƒoƒbƒtƒ@‚ÌI’[‚É“’B‚·‚é‚Ü‚ÅŠ„‚èZ‚ğ‘±‚¯‚é
+						//ç¹°ã‚Šä¸‹ãŒã‚ŠãŒ0ã«ãªã‚‹ã‹ã€ãƒãƒƒãƒ•ã‚¡ã®çµ‚ç«¯ã«åˆ°é”ã™ã‚‹ã¾ã§å‰²ã‚Šç®—ã‚’ç¶šã‘ã‚‹
 						while (down && (buf + length < r_buf + BUF_SIZE - 1)) {
 							buf[length++] = '0' + (down / div);
 							down = (down % div) * 10;
@@ -242,19 +243,19 @@ namespace System {
 						buf[length] = '\0';
 					}
 				}
-				//buf[dot]‚ÍŒ»İ‚Ì¬”“_
+				//buf[dot]ã¯ç¾åœ¨ã®å°æ•°ç‚¹
 				size_t dot = 0;
 				while (buf[dot] != '.') ++dot;
-				//buf[first]‚Í‰‚ß‚ÄoŒ»‚·‚é0ˆÈŠO‚Ì”š
+				//buf[first]ã¯åˆã‚ã¦å‡ºç¾ã™ã‚‹0ä»¥å¤–ã®æ•°å­—
 				size_t first = buf[0] == '0' ? 2 : 0;
 				while (buf[first] == '0') ++first;
-				//buf[r]‚Í—LŒøŒ…”+1‚ÌˆÊ‚Ì”š
+				//buf[r]ã¯æœ‰åŠ¹æ¡æ•°+1ã®ä½ã®æ•°å­—
 				size_t r = digit < dot ? digit : (digit + first + 1 < length ? digit + first + 1 : length);
-				//—LŒøŒ…”‚É‡‚í‚¹‚ÄŠÛ‚ßˆ—(‹ô”ŠÛ‚ß)
+				//æœ‰åŠ¹æ¡æ•°ã«åˆã‚ã›ã¦ä¸¸ã‚å‡¦ç†(å¶æ•°ä¸¸ã‚)
 				if (r < length) {
-					//ŠÛ‚ß‚éŒ…‚Ì”š
+					//ä¸¸ã‚ã‚‹æ¡ã®æ•°å­—
 					int tmp = buf[r] - '0';
-					//ŒJ‚èã‚ª‚è(-1‚Í‹ô”ŠÛ‚ß)
+					//ç¹°ã‚Šä¸ŠãŒã‚Š(-1ã¯å¶æ•°ä¸¸ã‚)
 					int up = tmp > 5 ? 1 : tmp < 5 ? 0 : -1;
 					buf[r] = '0';
 					for (size_t i = r; i-- > 0;) {
@@ -272,7 +273,7 @@ namespace System {
 						}
 						if (!up) break;
 					}
-					//ŠÛ‚ß‚ÌŒ‹‰ÊAŒ…‚ÌŒJ‚èã‚ª‚è‚ª‹N‚±‚Á‚½ê‡‚Ìˆ—
+					//ä¸¸ã‚ã®çµæœã€æ¡ã®ç¹°ã‚Šä¸ŠãŒã‚ŠãŒèµ·ã“ã£ãŸå ´åˆã®å‡¦ç†
 					if (up) {
 						for (size_t i = r; i-- > 0;) buf[i + 1] = buf[i];
 						buf[0] = '0' + 1;
@@ -280,10 +281,10 @@ namespace System {
 						++r;
 					}
 				}
-				int e = 0;	//N.xxx * 10^e‚ÌŒ`‚É³‹K‰»‚µ‚½‚Æ‚«‚Ìw”
-				//³‹K‰»
+				int e = 0;	//N.xxx * 10^eã®å½¢ã«æ­£è¦åŒ–ã—ãŸã¨ãã®æŒ‡æ•°
+				//æ­£è¦åŒ–
 				if ((mode == NormalizeMode::Auto && (digit < dot || digit < first)) || mode == NormalizeMode::Normalize) {
-					//"x.xxxxxxx"‚Ìê‡
+					//"x.xxxxxxx"ã®å ´åˆ
 					if (dot == 1) {
 						if (first) {
 							buf[0] = buf[first];
@@ -292,7 +293,7 @@ namespace System {
 							e = -static_cast<int>(first) + 1;
 						}
 					}
-					//"xxxx.xxxx"‚Ìê‡
+					//"xxxx.xxxx"ã®å ´åˆ
 					else {
 						if (r < dot && r > 1) ++r;
 						for (size_t i = dot; i-- > 1;) buf[i + 1] = buf[i];
@@ -301,12 +302,12 @@ namespace System {
 						buf[dot] = '.';
 					}
 				}
-				//—LŒø”š•”•ª‚ğ•¶š—ñ’è”‚ÉƒRƒs[
+				//æœ‰åŠ¹æ•°å­—éƒ¨åˆ†ã‚’æ–‡å­—åˆ—å®šæ•°ã«ã‚³ãƒ”ãƒ¼
 				size_t pos = digit + 1 < length ? digit : length - 1;
 				if (dot < digit) ++pos;
 				if (d < 0) ++pos;
 				ret.strcpy(r_buf, 0, pos);
-				//w”•\‹L‚ğ•¶š—ñ’è”‚É’Ç‰Á
+				//æŒ‡æ•°è¡¨è¨˜ã‚’æ–‡å­—åˆ—å®šæ•°ã«è¿½åŠ 
 				if (e != 0) {
 					ret.strcpy('e', pos++);
 					if (e > 0) ret.strcpy('+', pos++);
@@ -330,53 +331,52 @@ namespace System {
 //ToStringBlock
 export namespace System::Encoding {
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚Ì”z—ñ‚©‚çutf8•¶š—ñ‚ğ¶¬‚·‚é
+	/// CodePointæ§‹é€ ä½“ã®é…åˆ—ã‹ã‚‰utf8æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹
 	/// </summary>
-	/// <param name="codePoints">CodePoint\‘¢‘Ì‚Ì”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="count">”z—ñ‚Ì’·‚³</param>
-	/// <returns>char8_tŒ^‚Ì•¶š—ñ‚ğ‚ÂStringBlockƒIƒuƒWƒFƒNƒg</returns>
+	/// <param name="codePoints">CodePointæ§‹é€ ä½“ã®é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="count">é…åˆ—ã®é•·ã•</param>
+	/// <returns>char8_tå‹ã®æ–‡å­—åˆ—ã‚’æŒã¤StringBlockã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 	StringBlock<char8_t> ToU8StringBlock(const CodePoint* codePoints, size_t count) noexcept;
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚Ì”z—ñ‚©‚çutf16•¶š—ñ‚ğ¶¬‚·‚é
+	/// CodePointæ§‹é€ ä½“ã®é…åˆ—ã‹ã‚‰utf16æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹
 	/// </summary>
-	/// <param name="codePoints">CodePoint\‘¢‘Ì‚Ì”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="count">”z—ñ‚Ì’·‚³</param>
-	/// <returns>char16_tŒ^‚Ì•¶š—ñ‚ğ‚ÂStringBlockƒIƒuƒWƒFƒNƒg</returns>
+	/// <param name="codePoints">CodePointæ§‹é€ ä½“ã®é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="count">é…åˆ—ã®é•·ã•</param>
+	/// <returns>char16_tå‹ã®æ–‡å­—åˆ—ã‚’æŒã¤StringBlockã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 	StringBlock<char16_t> ToU16StringBlock(const CodePoint* codePoints, size_t count) noexcept;
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚Ì”z—ñ‚©‚çutf32•¶š—ñ‚ğ¶¬‚·‚é
+	/// CodePointæ§‹é€ ä½“ã®é…åˆ—ã‹ã‚‰utf32æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹
 	/// </summary>
-	/// <param name="codePoints">CodePoint\‘¢‘Ì‚Ì”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="count">”z—ñ‚Ì’·‚³</param>
-	/// <returns>char32_tŒ^‚Ì•¶š—ñ‚ğ‚ÂStringBlockƒIƒuƒWƒFƒNƒg</returns>
+	/// <param name="codePoints">CodePointæ§‹é€ ä½“ã®é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="count">é…åˆ—ã®é•·ã•</param>
+	/// <returns>char32_tå‹ã®æ–‡å­—åˆ—ã‚’æŒã¤StringBlockã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 	StringBlock<char32_t> ToU32StringBlock(const CodePoint* codePoints, size_t count) noexcept;
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚Ì”z—ñ‚©‚çƒƒCƒh•¶š—ñ‚ğ¶¬‚·‚é
+	/// CodePointæ§‹é€ ä½“ã®é…åˆ—ã‹ã‚‰ãƒ¯ã‚¤ãƒ‰æ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹
 	/// </summary>
-	/// <param name="codePoints">CodePoint\‘¢‘Ì‚Ì”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="count">”z—ñ‚Ì’·‚³</param>
-	/// <returns>wchar_tŒ^‚Ì•¶š—ñ‚ğ‚ÂStringBlockƒIƒuƒWƒFƒNƒg</returns>
+	/// <param name="codePoints">CodePointæ§‹é€ ä½“ã®é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="count">é…åˆ—ã®é•·ã•</param>
+	/// <returns>wchar_tå‹ã®æ–‡å­—åˆ—ã‚’æŒã¤StringBlockã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 	StringBlock<wchar_t> ToWideStringBlock(const CodePoint* codePoints, size_t count) noexcept;
 
 	/// <summary>
-	/// CodePoint\‘¢‘Ì‚Ì”z—ñ‚©‚çƒ}ƒ‹ƒ`ƒoƒCƒg•¶š—ñ‚ğ¶¬‚·‚é
+	/// CodePointæ§‹é€ ä½“ã®é…åˆ—ã‹ã‚‰ãƒãƒ«ãƒãƒã‚¤ãƒˆæ–‡å­—åˆ—ã‚’ç”Ÿæˆã™ã‚‹
 	/// </summary>
-	/// <param name="codePoints">CodePoint\‘¢‘Ì‚Ì”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-	/// <param name="count">”z—ñ‚Ì’·‚³</param>
-	/// <returns>charŒ^‚Ì•¶š—ñ‚ğ‚ÂStringBlockƒIƒuƒWƒFƒNƒg</returns>
+	/// <param name="codePoints">CodePointæ§‹é€ ä½“ã®é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+	/// <param name="count">é…åˆ—ã®é•·ã•</param>
+	/// <returns>charå‹ã®æ–‡å­—åˆ—ã‚’æŒã¤StringBlockã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 	StringBlock<char> ToMultiByteStringBlock(const CodePoint* codePoints, size_t count) noexcept;
 }
 
-inline void* __cdecl operator new[](size_t _Size, int, const char*, int);// { return ::operator new[](_Size); }
-
-#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+//inline void* __cdecl operator new[](size_t _Size, int, const char*, int);// { return ::operator new[](_Size); }
+//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 
 //StringBlock
-namespace System {
-	export template<CharType str_t>
+export namespace System {
+	template<Concepts::CCharType str_t>
 	class StringBlock {
 	protected:
 		str_t* value = nullptr;
@@ -441,22 +441,25 @@ namespace System {
 			value[size - 1] = '\0';
 		}
 		~StringBlock() noexcept {
-			delete[] value;
+			std::allocator<str_t> al;
+			al.deallocate(value, size);
+
+			//delete[] value;
 			value = nullptr;
 			size = 0;
 		}
 	public:
 		/// <summary>
-		/// ‹ó•¶š—ñ‚ğæ“¾‚·‚é
+		/// ç©ºæ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		static StringBlock Empty() noexcept { return StringBlock(); }
 		/// <summary>
-		/// w’è‚µ‚½—v‘f”‚Ì—Ìˆæ‚ğ‚Â‹ó•¶š—ñ‚ğæ“¾‚·‚é
+		/// æŒ‡å®šã—ãŸè¦ç´ æ•°ã®é ˜åŸŸã‚’æŒã¤ç©ºæ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <param name="size">
-		/// —v‘f”B
-		/// n•¶š‚Ì•¶š—ñ‚Ég—p‚·‚éê‡Aƒkƒ‹I’[•¶š‚Ì‚½‚ß‚É(n+1)‚ğ
-		/// w’è‚·‚é•K—v‚ª‚ ‚é
+		/// è¦ç´ æ•°ã€‚
+		/// næ–‡å­—ã®æ–‡å­—åˆ—ã«ä½¿ç”¨ã™ã‚‹å ´åˆã€ãƒŒãƒ«çµ‚ç«¯æ–‡å­—ã®ãŸã‚ã«(n+1)ã‚’
+		/// æŒ‡å®šã™ã‚‹å¿…è¦ãŒã‚ã‚‹
 		/// </param>
 		static StringBlock CreateStringBlock(size_t size) noexcept {
 			StringBlock<str_t> ret;
@@ -465,24 +468,24 @@ namespace System {
 			ret.size = size;
 			return ret;
 		}
-	public:/* •¶š”z—ñæ“¾ */
+	public:/* æ–‡å­—é…åˆ—å–å¾— */
 		/// <summary>
-		/// •¶šŒ^”z—ñ‚ğæ“¾‚·‚é(const”Å)
+		/// æ–‡å­—å‹é…åˆ—ã‚’å–å¾—ã™ã‚‹(constç‰ˆ)
 		/// </summary>
 		const str_t* c_str() const noexcept { return value; }
 		/// <summary>
-		/// •¶šŒ^”z—ñ‚ğæ“¾‚·‚é
+		/// æ–‡å­—å‹é…åˆ—ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		str_t* c_str() noexcept { return value; }
-	public:/* •¶š—ñ‘€ì(const) */
+	public:/* æ–‡å­—åˆ—æ“ä½œ(const) */
 		/// <summary>
-		/// w’è‚µ‚½•¶š—ñ‚ğæ“ª‚©‚çŒŸõ‚·‚é
+		/// æŒ‡å®šã—ãŸæ–‡å­—åˆ—ã‚’å…ˆé ­ã‹ã‚‰æ¤œç´¢ã™ã‚‹
 		/// </summary>
-		/// <param name="src">ŒŸõ‚·‚é•¶š—ñ</param>
-		/// <param name="pos">ŒŸõ‚ğn‚ß‚éƒCƒ“ƒfƒbƒNƒX</param>
+		/// <param name="src">æ¤œç´¢ã™ã‚‹æ–‡å­—åˆ—</param>
+		/// <param name="pos">æ¤œç´¢ã‚’å§‹ã‚ã‚‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹</param>
 		/// <returns>
-		/// w’è‚µ‚½•¶š—ñ‚ÆÅ‰‚Éˆê’v‚µ‚½ˆÊ’u(æ“ª‚ÌƒCƒ“ƒfƒbƒNƒX)B
-		/// ˆê’v‚·‚é•”•ª‚ª‘¶İ‚µ‚È‚¢ê‡AStringBlock::npos‚ğ•Ô‚·
+		/// æŒ‡å®šã—ãŸæ–‡å­—åˆ—ã¨æœ€åˆã«ä¸€è‡´ã—ãŸä½ç½®(å…ˆé ­ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹)ã€‚
+		/// ä¸€è‡´ã™ã‚‹éƒ¨åˆ†ãŒå­˜åœ¨ã—ãªã„å ´åˆã€StringBlock::nposã‚’è¿”ã™
 		/// </returns>
 		size_t find(const StringBlock<str_t>& src, size_t pos = 0) const noexcept {
 			const size_t selfLen = Length();
@@ -501,13 +504,13 @@ namespace System {
 			return npos;
 		}
 		/// <summary>
-		/// w’è‚µ‚½•¶š—ñ‚ğ––”ö‚©‚çŒŸõ‚·‚é
+		/// æŒ‡å®šã—ãŸæ–‡å­—åˆ—ã‚’æœ«å°¾ã‹ã‚‰æ¤œç´¢ã™ã‚‹
 		/// </summary>
-		/// <param name="src">ŒŸõ‚·‚é•¶š—ñ</param>
-		/// <param name="pos">ŒŸõ‚ğn‚ß‚éƒCƒ“ƒfƒbƒNƒXB‚±‚ê‚Í•¶š—ñ‚Ìæ“ª‚Æ‚È‚éƒCƒ“ƒfƒbƒNƒX‚Å‚ ‚é</param>
+		/// <param name="src">æ¤œç´¢ã™ã‚‹æ–‡å­—åˆ—</param>
+		/// <param name="pos">æ¤œç´¢ã‚’å§‹ã‚ã‚‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã€‚ã“ã‚Œã¯æ–‡å­—åˆ—ã®å…ˆé ­ã¨ãªã‚‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã§ã‚ã‚‹</param>
 		/// <returns>
-		/// w’è‚µ‚½•¶š—ñ‚ÆÅ‰‚Éˆê’v‚µ‚½ˆÊ’u(æ“ª‚ÌƒCƒ“ƒfƒbƒNƒX)B
-		/// ˆê’v‚·‚é•”•ª‚ª‘¶İ‚µ‚È‚¢ê‡AStringBlock::npos‚ğ•Ô‚·
+		/// æŒ‡å®šã—ãŸæ–‡å­—åˆ—ã¨æœ€åˆã«ä¸€è‡´ã—ãŸä½ç½®(å…ˆé ­ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹)ã€‚
+		/// ä¸€è‡´ã™ã‚‹éƒ¨åˆ†ãŒå­˜åœ¨ã—ãªã„å ´åˆã€StringBlock::nposã‚’è¿”ã™
 		/// </returns>
 		size_t rfind(const StringBlock<str_t>& src, size_t pos = npos) const noexcept {
 			const size_t selfLen = Length();
@@ -526,72 +529,72 @@ namespace System {
 			return npos;
 		}
 		/// <summary>
-		/// •”•ª•¶š—ñ‚ğæ“¾‚·‚é
+		/// éƒ¨åˆ†æ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <param name="pos">
-		/// æ“¾‚·‚é•”•ª•¶š—ñ‚ÌŠJnˆÊ’u(ƒCƒ“ƒfƒbƒNƒX)B
-		/// ‚±‚Ì•¶š—ñ‚Ìƒkƒ‹I’[•¶š‚ÌƒCƒ“ƒfƒbƒNƒXˆÈã‚Ì’l‚ğw’è‚µ‚½ê‡A•K‚¸‹ó•¶š—ñ‚ğ•Ô‚·
+		/// å–å¾—ã™ã‚‹éƒ¨åˆ†æ–‡å­—åˆ—ã®é–‹å§‹ä½ç½®(ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹)ã€‚
+		/// ã“ã®æ–‡å­—åˆ—ã®ãƒŒãƒ«çµ‚ç«¯æ–‡å­—ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä»¥ä¸Šã®å€¤ã‚’æŒ‡å®šã—ãŸå ´åˆã€å¿…ãšç©ºæ–‡å­—åˆ—ã‚’è¿”ã™
 		/// </param>
 		/// <param name="n">
-		/// æ“¾‚·‚é•¶š—ñ‚Ì—v‘f”B
-		/// 0‚ğw’è‚µ‚½ê‡A•K‚¸‹ó•¶š—ñ‚ğ•Ô‚·B
-		/// ‚±‚Ì•¶š—ñ‚Ì—v‘f”‚æ‚è‘å‚«‚¢’l‚ğw’è‚µ‚½ê‡Aƒkƒ‹I’[•¶š‚Ü‚Åæ“¾‚·‚é
+		/// å–å¾—ã™ã‚‹æ–‡å­—åˆ—ã®è¦ç´ æ•°ã€‚
+		/// 0ã‚’æŒ‡å®šã—ãŸå ´åˆã€å¿…ãšç©ºæ–‡å­—åˆ—ã‚’è¿”ã™ã€‚
+		/// ã“ã®æ–‡å­—åˆ—ã®è¦ç´ æ•°ã‚ˆã‚Šå¤§ãã„å€¤ã‚’æŒ‡å®šã—ãŸå ´åˆã€ãƒŒãƒ«çµ‚ç«¯æ–‡å­—ã¾ã§å–å¾—ã™ã‚‹
 		/// </param>
 		StringBlock<str_t> substr(size_t pos, size_t n = npos) const noexcept {
 			if (!n || pos >= size - 1) return StringBlock<str_t>();
 			else return StringBlock<str_t>(value + pos, n);
 		}
-	public:/* •¶š—ñ‘€ì(”ñconst) */
+	public:/* æ–‡å­—åˆ—æ“ä½œ(éconst) */
 		/// <summary>
-		/// w’è‚µ‚½•¶š—ñ‚ğw’è‚µ‚½ˆÊ’u‚É‘‚«‚Ş
+		/// æŒ‡å®šã—ãŸæ–‡å­—åˆ—ã‚’æŒ‡å®šã—ãŸä½ç½®ã«æ›¸ãè¾¼ã‚€
 		/// </summary>
-		/// <param name="src">‘‚«‚Ş•¶š—ñ‚Ìæ“ª‚ğw‚·ƒ|ƒCƒ“ƒ^</param>
-		/// <param name="n">‘‚«‚Ş•¶š”</param>
-		/// <param name="pos">‘‚«‚İ‚ğn‚ß‚é‚±‚Ì•¶š—ñ‚ÌƒCƒ“ƒfƒbƒNƒX</param>
+		/// <param name="src">æ›¸ãè¾¼ã‚€æ–‡å­—åˆ—ã®å…ˆé ­ã‚’æŒ‡ã™ãƒã‚¤ãƒ³ã‚¿</param>
+		/// <param name="n">æ›¸ãè¾¼ã‚€æ–‡å­—æ•°</param>
+		/// <param name="pos">æ›¸ãè¾¼ã¿ã‚’å§‹ã‚ã‚‹ã“ã®æ–‡å­—åˆ—ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹</param>
 		StringBlock& strcpy(const str_t* src, size_t n, size_t pos) noexcept {
-			//”ÍˆÍŠO‚Ö‚Ì‘‚«‚İ‚Í‹Ö~
+			//ç¯„å›²å¤–ã¸ã®æ›¸ãè¾¼ã¿ã¯ç¦æ­¢
 			if (pos >= size) return *this;
-			//ÀÛ‚É‘‚«‚Ş•¶š”
+			//å®Ÿéš›ã«æ›¸ãè¾¼ã‚€æ–‡å­—æ•°
 			size_t count = size - pos - 1;
 			if (n < count) count = n;
-			//ƒkƒ‹I’[•¶š‚Í‘‚«‚±‚Ü‚È‚¢(•¶š—ñ‚Ì’·‚³‚Í•Ï‚í‚ç‚È‚¢)
+			//ãƒŒãƒ«çµ‚ç«¯æ–‡å­—ã¯æ›¸ãã“ã¾ãªã„(æ–‡å­—åˆ—ã®é•·ã•ã¯å¤‰ã‚ã‚‰ãªã„)
 			for (size_t i = 0; i < count && src[i]; ++i) value[pos + i] = src[i];
 			return *this;
 		}
 		/// <summary>
-		/// w’è‚µ‚½•¶š‚ğw’è‚µ‚½ˆÊ’u‚É‘‚«‚Ş
+		/// æŒ‡å®šã—ãŸæ–‡å­—ã‚’æŒ‡å®šã—ãŸä½ç½®ã«æ›¸ãè¾¼ã‚€
 		/// </summary>
-		/// <param name="c">‘‚«‚Ş•¶šBˆê—v‘f‚Å•\Œ»‚Å‚«‚È‚¢•¶š‚Í•¶š—ñ”Åstrcpy‚ğg—p‚·‚é</param>
-		/// <param name="pos">‘‚«‚İæ‚ÌƒCƒ“ƒfƒbƒNƒXBƒkƒ‹I’[•¶š‚Íã‘‚«‚Å‚«‚È‚¢</param>
+		/// <param name="c">æ›¸ãè¾¼ã‚€æ–‡å­—ã€‚ä¸€è¦ç´ ã§è¡¨ç¾ã§ããªã„æ–‡å­—ã¯æ–‡å­—åˆ—ç‰ˆstrcpyã‚’ä½¿ç”¨ã™ã‚‹</param>
+		/// <param name="pos">æ›¸ãè¾¼ã¿å…ˆã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã€‚ãƒŒãƒ«çµ‚ç«¯æ–‡å­—ã¯ä¸Šæ›¸ãã§ããªã„</param>
 		StringBlock& strcpy(const str_t c, size_t pos) noexcept {
 			if (pos < size - 1) value[pos] = c;
 			return *this;
 		}
-	public:/* Šg’£•¶š—ñ‘€ì(const) */
+	public:/* æ‹¡å¼µæ–‡å­—åˆ—æ“ä½œ(const) */
 		/// <summary>
-		/// •¶š—ñ‚Ì’·‚³(ƒkƒ‹I’[•¶š‚ğœ‚­—v‘f”)‚ğæ“¾‚·‚éB
-		/// •¡”‚Ì—v‘f‚Åˆê•¶š‚ğ•\‚·•¶šŒ^‚Ìê‡A•¶š”‚Æˆê’v‚µ‚È‚¢‰Â”\«‚ª‚ ‚é
+		/// æ–‡å­—åˆ—ã®é•·ã•(ãƒŒãƒ«çµ‚ç«¯æ–‡å­—ã‚’é™¤ãè¦ç´ æ•°)ã‚’å–å¾—ã™ã‚‹ã€‚
+		/// è¤‡æ•°ã®è¦ç´ ã§ä¸€æ–‡å­—ã‚’è¡¨ã™æ–‡å­—å‹ã®å ´åˆã€æ–‡å­—æ•°ã¨ä¸€è‡´ã—ãªã„å¯èƒ½æ€§ãŒã‚ã‚‹
 		/// </summary>
-		/// <returns>•¶š—ñ‚ªƒkƒ‹I’[‚Ì‚Æ‚«A–ß‚è’l‚Íƒkƒ‹I’[•¶š‚ÌƒCƒ“ƒfƒbƒNƒX‚É“™‚µ‚¢</returns>
+		/// <returns>æ–‡å­—åˆ—ãŒãƒŒãƒ«çµ‚ç«¯ã®ã¨ãã€æˆ»ã‚Šå€¤ã¯ãƒŒãƒ«çµ‚ç«¯æ–‡å­—ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã«ç­‰ã—ã„</returns>
 		size_t Length() const noexcept { for (size_t i = 0; i < size; ++i) if (value[i] == '\0') return i; return size; }
 		/// <summary>
-		/// “à•”‚ÉŠm•Û‚³‚ê‚Ä‚¢‚é—v‘f”‚ğæ“¾‚·‚é
+		/// å†…éƒ¨ã«ç¢ºä¿ã•ã‚Œã¦ã„ã‚‹è¦ç´ æ•°ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		size_t Capacity() const noexcept { return size; }
 		/// <summary>
-		/// ‚±‚Ì•¶š—ñ‚ª‹ó•¶š—ñ‚©’²‚×‚é
+		/// ã“ã®æ–‡å­—åˆ—ãŒç©ºæ–‡å­—åˆ—ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		bool IsNullOrEmpty() const noexcept { return !(value && size && value[0]); }
 		/// <summary>
-		/// w’è‚µ‚½•”•ª•¶š—ñ‚ğ‚·‚×‚Ä’uŠ·‚µ‚½•¶š—ñ‚ğæ“¾‚·‚é
+		/// æŒ‡å®šã—ãŸéƒ¨åˆ†æ–‡å­—åˆ—ã‚’ã™ã¹ã¦ç½®æ›ã—ãŸæ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="src">ŒŸõ‚·‚é•¶š—ñ</param>
-		/// <param name="dst">’uŠ·Œã‚Ì•¶š—ñ</param>
-		/// <returns>‚±‚Ì•¶š—ñ‚ÌŒŸõ•¶š—ñ‚Æˆê’v‚·‚é•”•ª‚ğ‚·‚×‚Ä’uŠ·‚µ‚½•¶š—ñ</returns>
+		/// <param name="src">æ¤œç´¢ã™ã‚‹æ–‡å­—åˆ—</param>
+		/// <param name="dst">ç½®æ›å¾Œã®æ–‡å­—åˆ—</param>
+		/// <returns>ã“ã®æ–‡å­—åˆ—ã®æ¤œç´¢æ–‡å­—åˆ—ã¨ä¸€è‡´ã™ã‚‹éƒ¨åˆ†ã‚’ã™ã¹ã¦ç½®æ›ã—ãŸæ–‡å­—åˆ—</returns>
 		StringBlock<str_t> Replace(const StringBlock<str_t>& src, const StringBlock<str_t>& dst) const noexcept {
 			const size_t srcLen = src.Length();
 			const size_t dstLen = dst.Length();
-			VectorBase<size_t> vec;	//ŒŸõŒ‹‰Ê‚Ì”z—ñ
+			VectorBase<size_t> vec;	//æ¤œç´¢çµæœã®é…åˆ—
 			size_t pos = 0;
 			do {
 				pos = find(src, pos);
@@ -599,9 +602,9 @@ namespace System {
 				vec.Add(pos);
 				pos += srcLen;
 			} while (true);
-			//ˆê‚Â‚àŒ©‚Â‚©‚ç‚È‚¢ê‡A’uŠ·‚µ‚È‚¢
+			//ä¸€ã¤ã‚‚è¦‹ã¤ã‹ã‚‰ãªã„å ´åˆã€ç½®æ›ã—ãªã„
 			if (!vec.Count()) return *this;
-			//—v‘f”‚Í{Œ³‚Ì•¶š—ñ‚Ì—v‘f” - (’uŠ·‰ñ” * ’uŠ·•¶š—ñ‚Ì—v‘f”‚Ì·) + ƒkƒ‹I’[•¶š }
+			//è¦ç´ æ•°ã¯{å…ƒã®æ–‡å­—åˆ—ã®è¦ç´ æ•° - (ç½®æ›å›æ•° * ç½®æ›æ–‡å­—åˆ—ã®è¦ç´ æ•°ã®å·®) + ãƒŒãƒ«çµ‚ç«¯æ–‡å­— }
 			StringBlock<str_t> ret = CreateStringBlock(Length() + vec.Count() * (dstLen - srcLen) + 1);
 			size_t selfCur = 0;
 			size_t retCur = 0;
@@ -657,7 +660,7 @@ namespace System {
 		bool operator!=(const StringBlock<str_t>& rhs) const noexcept { return !(*this == rhs); }
 	private:
 		/// <summary>
-		/// •¶šƒR[ƒh‚Ì”z—ñ‚ğæ“¾‚·‚é
+		/// æ–‡å­—ã‚³ãƒ¼ãƒ‰ã®é…åˆ—ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		VectorBase<Encoding::CodePoint> ToCodePoints() const noexcept {
 			using namespace Encoding;
@@ -671,7 +674,7 @@ namespace System {
 			} while (point.point != 0 && pos < size);
 			return ret;
 		}
-	public:/* •¶šŒ^•ÏŠ· */
+	public:/* æ–‡å­—å‹å¤‰æ› */
 		StringBlock<char8_t> ToU8StringBlock() const noexcept {
 			if constexpr (is_same_v<char8_t, str_t>) return StringBlock<char8_t>(*this);
 			else {

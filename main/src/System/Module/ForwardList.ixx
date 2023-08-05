@@ -1,3 +1,5 @@
+ï»¿module;
+#include "FUNCSIG.hpp"
 export module ForwardList;
 import Traits;
 import Exception;
@@ -94,11 +96,11 @@ export namespace System {
 			return !m_first;
 		}
 		T& Front() {
-			if (!m_first) throw System::InvalidOperationException(__FUNCSIG__, u"—v‘f‚ª‘¶Ý‚µ‚Ü‚¹‚ñB", __FILE__, __LINE__);
+			if (!m_first) throw System::InvalidOperationException(__FUNCSIG__, u"è¦ç´ ãŒå­˜åœ¨ã—ã¾ã›ã‚“ã€‚", __FILE__, __LINE__);
 			return m_first->value;
 		}
 		const T& Front() const {
-			if (!m_first) throw System::InvalidOperationException(__FUNCSIG__, u"—v‘f‚ª‘¶Ý‚µ‚Ü‚¹‚ñB", __FILE__, __LINE__);
+			if (!m_first) throw System::InvalidOperationException(__FUNCSIG__, u"è¦ç´ ãŒå­˜åœ¨ã—ã¾ã›ã‚“ã€‚", __FILE__, __LINE__);
 			return m_first->value;
 		}
 		void Clear() noexcept {

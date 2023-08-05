@@ -1,4 +1,4 @@
-module Image;
+﻿module Image;
 import BMP;
 import PNG;
 import TGA;

@@ -1,8 +1,8 @@
-module;
+﻿module;
 #include <memory.h>
-#include <cstring>
 module Memory;
 import CSTDINT;
+import <cstring>;
 
 namespace System::Memory {
 	inline constexpr bool MemcpyMode = 1;

@@ -1,4 +1,4 @@
-module Components:GameObject;
+﻿module Components:GameObject;
 import :Animator;
 import :MeshFilter;
 import :Camera;

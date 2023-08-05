@@ -1,31 +1,35 @@
-module;
-#include <concepts>
-#include <iterator>
-#include <type_traits>
-export module Traits;
-//import <type_traits>;
+ï»¿export module Traits;
 export import CSTDINT;
+import <concepts>;
+import <iterator>;
+import <type_traits>;
 
 export namespace System {
-	//[type_traits]ŒİŠ·FŒ^•ÏŠ·
+	//[type_traits]äº’æ›ï¼šå‹å¤‰æ›
 	namespace Traits {
 		template<typename T> struct remove_const { using type = T; };
-		template<typename T> struct remove_const<const T> { using type = T; };
+		template<typename T> struct remove_const<T const> { using type = T; };
 		template<typename T> struct remove_volatile { using type = T; };
-		template<typename T> struct remove_volatile<volatile T> { using type = T; };
+		template<typename T> struct remove_volatile<T volatile> { using type = T; };
 		template<typename T> struct remove_cv { using type = remove_const<typename remove_volatile<T>::type>::type; };
-		template<typename T> struct add_const { using type = const T; };
-		template<typename T> struct add_volatile { using type = volatile T; };
+		template<typename T> struct add_const { using type = T const; };
+		template<typename T> struct add_volatile { using type = T volatile; };
 		template<typename T> struct add_cv { using type = add_const<typename add_volatile<T>::type>::type; };
 		template<typename T> struct remove_reference { using type = T; };
 		template<typename T> struct remove_reference<T&> { using type = T; };
 		template<typename T> struct remove_reference<T&&> { using type = T; };
 		template<typename T> struct add_lvalue_reference { using type = typename remove_reference<T>::type&; };
-		template<typename T> struct add_rvalue_reference { using type = T&&; };
+		template<> struct add_lvalue_reference<void> { using type = void; };
+		template<typename T> struct add_rvalue_reference { using type = typename remove_reference<T>::type&&; };
 		template<> struct add_rvalue_reference<void> { using type = void; };
 		template<typename T> struct add_pointer { using type = typename remove_reference<T>::type*; };
+		template<typename T> struct add_pointer<T&> { using type = T; };
+		template<typename T> struct add_pointer<T&&> { using type = T; };
 		template<typename T> struct remove_pointer { using type = T; };
 		template<typename T> struct remove_pointer<T*> { using type = T; };
+		template<typename T> struct remove_pointer<T* const> { using type = T; };
+		template<typename T> struct remove_pointer<T* volatile> { using type = T; };
+		template<typename T> struct remove_pointer<T* const volatile> { using type = T; };
 	}
 	namespace Traits {
 		template<typename T> using remove_const_t = remove_const<T>::type;
@@ -42,7 +46,7 @@ export namespace System {
 		template<typename ...Args> using void_t = void;
 		template<class T> using remove_cvref_t = remove_cv_t<remove_reference_t<T>>;
 	}
-	//[type_traits]ŒİŠ·Fƒwƒ‹ƒp[Œ^
+	//[type_traits]äº’æ›ï¼šãƒ˜ãƒ«ãƒ‘ãƒ¼å‹
 	namespace Traits {
 		template<bool B, class T, class F> struct conditional { using type = T; };
 		template<class T, class F> struct conditional<true, T, F> { using type = T; };
@@ -66,13 +70,13 @@ export namespace System {
 		using false_type = bool_constant<false>;
 		template<bool B, typename T> using enable_if_t = enable_if<B, T>::type;
 	}
-	//[type_traits]ŒİŠ·FŒ^“¯m‚Ì”»’è
+	//[type_traits]äº’æ›ï¼šå‹åŒå£«ã®åˆ¤å®š
 	namespace Traits {
-		//‘æˆêƒeƒ“ƒvƒŒ[ƒgˆø”TŒ^(CVCüŠÜ‚Ş)‚ª‘æ“ñƒeƒ“ƒvƒŒ[ƒgˆø”ˆÈ~‚·‚×‚Ä‚Æˆê’v‚µ‚Ä‚¢‚é‚©”»’è
+		//ç¬¬ä¸€ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆå¼•æ•°Tå‹(CVä¿®é£¾å«ã‚€)ãŒç¬¬äºŒãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆå¼•æ•°ä»¥é™ã™ã¹ã¦ã¨ä¸€è‡´ã—ã¦ã„ã‚‹ã‹åˆ¤å®š
 		template<class T1, class T2, class ...Args> struct is_same : false_type {};
 		template<class T1, class ...Args> struct is_same<T1, T1, Args...> : is_same<T1, Args...> {};
 		template<class T> struct is_same<T, T> : true_type {};
-		//‘æˆêƒeƒ“ƒvƒŒ[ƒgˆø”TŒ^(CVCüŠÜ‚Ş)‚ª‘æ“ñƒeƒ“ƒvƒŒ[ƒgˆø”ˆÈ~‚ÉŠÜ‚Ü‚ê‚Ä‚¢‚é‚©”»’è
+		//ç¬¬ä¸€ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆå¼•æ•°Tå‹(CVä¿®é£¾å«ã‚€)ãŒç¬¬äºŒãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆå¼•æ•°ä»¥é™ã«å«ã¾ã‚Œã¦ã„ã‚‹ã‹åˆ¤å®š
 		template<class T, class First, class ...Args> struct is_any_of : is_any_of<T, Args...> {};
 		template<class T, class ...Args> struct is_any_of<T, T, Args...> : true_type {};
 		template<class T1, class T2> struct is_any_of<T1, T2> : false_type {};
@@ -82,12 +86,12 @@ export namespace System {
 		template<class T1, class T2, class ...Args> inline constexpr bool is_same_v = is_same<T1, T2, Args...>::value;
 		template<class T, class First, class ...Args> inline constexpr bool is_any_of_v = is_any_of<T, First, Args...>::value;
 	}
-	//[type_traits]ŒİŠ·F•]‰¿‚³‚ê‚È‚¢®‚Å‰E•Ó’l‚ğg—p‚·‚é
+	//[type_traits]äº’æ›ï¼šè©•ä¾¡ã•ã‚Œãªã„å¼ã§å³è¾ºå€¤ã‚’ä½¿ç”¨ã™ã‚‹
 	namespace Traits {
-		//•]‰¿‚³‚ê‚È‚¢®‚Å‰E•Ó’l‚ğg—p‚·‚é
+		//è©•ä¾¡ã•ã‚Œãªã„å¼ã§å³è¾ºå€¤ã‚’ä½¿ç”¨ã™ã‚‹
 		template<typename T> typename add_rvalue_reference<T>::type declval() noexcept;
 	}
-	//[type_traits]ŒİŠ·FŒ^”»’è
+	//[type_traits]äº’æ›ï¼šå‹åˆ¤å®š
 	namespace Traits {
 		template<typename T> struct is_pointer_internal : false_type {};
 		template<typename T> struct is_pointer_internal<T*> : true_type {};
@@ -128,6 +132,7 @@ export namespace System {
 		template<typename T> struct is_member_pointer : bool_constant<is_member_object_pointer<T>::value || is_member_function_pointer<T>::value> {};
 		template<typename T> struct is_function : false_type {};
 		template<typename T, typename ...Args> struct is_function<T(Args...)> : true_type {};
+		template<typename T, typename ...Args> struct is_function<T(Args...) noexcept> : true_type {};
 		template<typename T> struct is_enum : bool_constant<!(is_void<T>::value || is_integral<T>::value || is_floating_point<T>::value || is_array<T>::value || is_pointer<T>::value || is_reference<T>::value || is_member_pointer<T>::value || is_class_or_union<T>::value || is_function<T>::value)> {};
 		template<typename T> struct is_arithmetic : bool_constant<is_integral<T>::value || is_floating_point<T>::value> {};
 		template<typename T> struct is_fundamental : bool_constant<is_arithmetic<T>::value || is_void<T>::value || is_null_pointer<T>::value> {};
@@ -164,7 +169,7 @@ export namespace System {
 		template<class R, class F, class ...Args>
 		struct is_invocable_r : false_type {};
 		template<class R, class F, class ...Args>
-		requires requires() { is_convertible_v<decltype(declval<remove_cv_t<F>>()(declval<Args>()...)), R>; }
+		requires requires() { is_convertible<decltype(declval<remove_cv_t<F>>()(declval<Args>()...)), R>::value; }
 		struct is_invocable_r<R, F, Args...> : true_type {};
 		template<class T>
 		struct is_default_constructible : false_type{};
@@ -185,6 +190,7 @@ export namespace System {
 	namespace Traits {
 		template<class C> using is_class = std::is_class<C>;
 		template<class U> using is_union = std::is_union<U>;
+		template<class T> inline constexpr bool is_class_or_union_v = is_class_or_union<T>::value;
 	}
 	namespace Traits {
 		template<typename T> inline constexpr bool is_const_v = is_const<T>::value;
@@ -219,14 +225,22 @@ export namespace System {
 		template<class T> inline constexpr bool is_copy_constructible_v = is_copy_constructible<T>::value;
 		template<class T> inline constexpr bool is_move_constructible_v = is_move_constructible<T>::value;
 	}
-	//Š®‘S“]‘—
+	//[å›ºæœ‰] : å‹å¤‰æ›
+	namespace Traits {
+		template<typename T> struct toggle_const { using type = add_const_t<T>; };
+		template<typename T> struct toggle_const<T const> { using type = remove_const_t<T>; };
+	}
+	namespace Traits {
+		template<typename T> using toggle_const_t = toggle_const<T>::type;
+	}
+	//å®Œå…¨è»¢é€
 	namespace Traits {
 		template<class T>
 		constexpr T&& forward(remove_reference_t<T>& arg) noexcept { return static_cast<T&&>(arg); }
 		template<class T>
 		constexpr T&& forward(remove_reference_t<T>&& arg) noexcept { return static_cast<T&&>(arg); }
 	}
-	//[ŒÅ—L]Fƒeƒ“ƒvƒŒ[ƒg®”Œ^
+	//[å›ºæœ‰]ï¼šãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆæ•´æ•°å‹
 	namespace Traits {
 		template<bool, size_t>
 		struct int_type {
@@ -275,14 +289,14 @@ export namespace System {
 		};
 	}
 	namespace Traits {
-		//•„†‚Ì—L–³‚ÆŒ^ƒTƒCƒY‚©‚çw’è‚³‚ê‚é®”Œ^
-		//FFtrue -> •„†•t‚«, false -> •„†‚È‚µ
-		//NFƒoƒCƒg”
+		//ç¬¦å·ã®æœ‰ç„¡ã¨å‹ã‚µã‚¤ã‚ºã‹ã‚‰æŒ‡å®šã•ã‚Œã‚‹æ•´æ•°å‹
+		//Fï¼štrue -> ç¬¦å·ä»˜ã, false -> ç¬¦å·ãªã—
+		//Nï¼šãƒã‚¤ãƒˆæ•°
 		template<bool isSigned, size_t Byte> using int_t = typename int_type<isSigned, Byte>::type;
-		//int_t<isSigned, Byte>‚ÌŸ‚É‘å‚«‚¢ƒTƒCƒY‚Ì®”Œ^
+		//int_t<isSigned, Byte>ã®æ¬¡ã«å¤§ãã„ã‚µã‚¤ã‚ºã®æ•´æ•°å‹
 		template<bool isSigned, size_t Byte> using int_next = typename int_type<isSigned, Byte>::next;
 	}
-	//[type_traits]ŒİŠ·F—ñ‹“Œ^‚ÌŠî’êŒ^•ÏŠ·
+	//[type_traits]äº’æ›ï¼šåˆ—æŒ™å‹ã®åŸºåº•å‹å¤‰æ›
 	namespace Traits {
 		template<typename EnumType, bool b = is_enum<EnumType>::value>
 		struct underlying_type {};
@@ -294,7 +308,7 @@ export namespace System {
 	namespace Traits {
 		template<typename E> using underlying_type_t = typename underlying_type<E>::type;
 	}
-	//[ŒÅ—L]F”ñŒ^ƒeƒ“ƒvƒŒ[ƒg”äŠr
+	//[å›ºæœ‰]ï¼šéå‹ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆæ¯”è¼ƒ
 	namespace Traits {
 		//N1 < N2
 		template<typename T, T N1, T N2> inline constexpr bool is_less_v = N1 < N2;
@@ -307,7 +321,7 @@ export namespace System {
 		//N1 >= N2
 		template<typename T, T N1, T N2> inline constexpr bool is_greater_eq_v = is_greater_v<T, N1, N2> || is_eq_v<T, N1, N2>;
 	}
-	//[ŒÅ—L]FŒ^ƒTƒCƒY”äŠr
+	//[å›ºæœ‰]ï¼šå‹ã‚µã‚¤ã‚ºæ¯”è¼ƒ
 	namespace Traits {
 		template<typename T, typename U, bool F = sizeof(T) >= sizeof(U)>
 		struct compare_type {
@@ -321,50 +335,51 @@ export namespace System {
 		};
 	}
 	namespace Traits {
-		//TŒ^‚ÆUŒ^‚Ì‚¤‚¿AŒ^ƒTƒCƒY‚ª‘å‚«‚¢Œ^
-		//‚½‚¾‚µAŒ^ƒTƒCƒY‚ª“™‚µ‚¢ê‡ATŒ^
+		//Tå‹ã¨Uå‹ã®ã†ã¡ã€å‹ã‚µã‚¤ã‚ºãŒå¤§ãã„å‹
+		//ãŸã ã—ã€å‹ã‚µã‚¤ã‚ºãŒç­‰ã—ã„å ´åˆã€Tå‹
 		template<typename T, typename U> using greater_t = typename compare_type<T, U>::greater;
-		//TŒ^‚ÆUŒ^‚Ì‚¤‚¿AŒ^ƒTƒCƒY‚ª¬‚³‚¢Œ^
-		//‚½‚¾‚µAŒ^ƒTƒCƒY‚ª“™‚µ‚¢ê‡AUŒ^
+		//Tå‹ã¨Uå‹ã®ã†ã¡ã€å‹ã‚µã‚¤ã‚ºãŒå°ã•ã„å‹
+		//ãŸã ã—ã€å‹ã‚µã‚¤ã‚ºãŒç­‰ã—ã„å ´åˆã€Uå‹
 		template<typename T, typename U> using less_t = typename compare_type<T, U>::less;
 	}
-	//[ŒÅ—L]F2‚Â‚ÌŒ^‚ğ‚Â‹¤—p‘Ìƒeƒ“ƒvƒŒ[ƒg
+	//[å›ºæœ‰]ï¼š2ã¤ã®å‹ã‚’æŒã¤å…±ç”¨ä½“ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆ
 	namespace Traits {
-		//TŒ^ƒƒ“ƒofirst‚ÆUŒ^ƒƒ“ƒosecond‚ğ‚Â‹¤—p‘Ì
+		//Tå‹ãƒ¡ãƒ³ãƒfirstã¨Uå‹ãƒ¡ãƒ³ãƒsecondã‚’æŒã¤å…±ç”¨ä½“
 		template<typename T, typename U>
 		union UnionSet {
 			T first;
 			U second;
 		};
 	}
-	//[ŒÅ—L]F•‚“®¬”“_Œ^ƒrƒbƒgî•ñ
+	//[å›ºæœ‰]ï¼šæµ®å‹•å°æ•°ç‚¹å‹ãƒ“ãƒƒãƒˆæƒ…å ±
 	namespace Traits {
-		//IEEE-754‚É€‹’‚µ‚½•‚“®¬”“_”Œ^‚Ìw”•”ƒrƒbƒg”
+		//IEEE-754ã«æº–æ‹ ã—ãŸæµ®å‹•å°æ•°ç‚¹æ•°å‹ã®æŒ‡æ•°éƒ¨ãƒ“ãƒƒãƒˆæ•°
 		template<typename T> inline constexpr int EXP_DIGIT = T::exponent;
 		template<> inline constexpr int EXP_DIGIT<float> = 8;
 		template<> inline constexpr int EXP_DIGIT<double> = 11;
-		//IEEE-754‚É€‹’‚µ‚½•‚“®¬”“_”Œ^‚Ì‰¼”•”ƒrƒbƒg”
+		//IEEE-754ã«æº–æ‹ ã—ãŸæµ®å‹•å°æ•°ç‚¹æ•°å‹ã®ä»®æ•°éƒ¨ãƒ“ãƒƒãƒˆæ•°
 		template<typename T> inline constexpr int FRAC_DIGIT = T::fraction;
 		template<> inline constexpr int FRAC_DIGIT<float> = 23;
 		template<> inline constexpr int FRAC_DIGIT<double> = 52;
-		//IEEE-754‚É€‹’‚µ‚½•‚“®¬”“_”Œ^‚Ìw”•”‚É‚©‚©‚éƒoƒCƒAƒX’l‚Ìâ‘Î’l
+		//IEEE-754ã«æº–æ‹ ã—ãŸæµ®å‹•å°æ•°ç‚¹æ•°å‹ã®æŒ‡æ•°éƒ¨ã«ã‹ã‹ã‚‹ãƒã‚¤ã‚¢ã‚¹å€¤ã®çµ¶å¯¾å€¤
 		template<typename T> inline constexpr int EXP_BIAS = (1ull << (EXP_DIGIT<T> -1)) - 1;
 	}
-	//[ŒÅ—L]Fƒrƒbƒgƒ}ƒXƒN
+	//[å›ºæœ‰]ï¼šãƒ“ãƒƒãƒˆãƒã‚¹ã‚¯
 	namespace Traits {
-		//‰ºˆÊNƒrƒbƒg‚ª—§‚Á‚½size_tŒ^‚Ìƒrƒbƒgƒ}ƒXƒN’è”
-		//BITMASK_M<1, N>‚Æ“™‚µ‚¢
+		//ä¸‹ä½Nãƒ“ãƒƒãƒˆãŒç«‹ã£ãŸsize_tå‹ã®ãƒ“ãƒƒãƒˆãƒã‚¹ã‚¯å®šæ•°
+		//BITMASK_M<1, N>ã¨ç­‰ã—ã„
 		template<unsigned int N> inline constexpr uint64_t BITMASK_L = (1ull << (N - 1)) | BITMASK_L<N - 1>;
 		template<> inline constexpr uint64_t BITMASK_L<0> = 0;
-		//LSB‚ğ1ƒrƒbƒg–Ú‚Æ‚µ‚ÄALƒrƒbƒg–Ú‚©‚çHƒrƒbƒg–Ú‚Ü‚Å‚Ìƒrƒbƒg‚ª—§‚Á‚½size_tŒ^‚Ìƒrƒbƒgƒ}ƒXƒN’è”
-		//ƒeƒ“ƒvƒŒ[ƒgˆø”‚ÍL <= H‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
+		//LSBã‚’1ãƒ“ãƒƒãƒˆç›®ã¨ã—ã¦ã€Lãƒ“ãƒƒãƒˆç›®ã‹ã‚‰Hãƒ“ãƒƒãƒˆç›®ã¾ã§ã®ãƒ“ãƒƒãƒˆãŒç«‹ã£ãŸsize_tå‹ã®ãƒ“ãƒƒãƒˆãƒã‚¹ã‚¯å®šæ•°
+		//ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆå¼•æ•°ã¯L <= Hã§ãªã‘ã‚Œã°ãªã‚‰ãªã„
 		template<unsigned int L, unsigned int H> inline constexpr uint64_t BITMASK_M = (1ull << (H - 1)) | BITMASK_M<L, H - 1>;
 		template<unsigned int L> inline constexpr uint64_t BITMASK_M<L, L> = (1ull << (L - 1));
 	}
-	//[ŒÅ—L]FŒ^‘I‘ğƒeƒ“ƒvƒŒ[ƒg
+	//[å›ºæœ‰]ï¼šå‹é¸æŠãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆ
 	namespace Traits {
-		//Args...‚©‚çi”Ô–Ú‚ÌŒ^‚ğæ“¾
-		template<size_t i, class ...Args> struct one_of {
+		//Args...ã‹ã‚‰iç•ªç›®ã®å‹ã‚’å–å¾—
+		template<size_t i, class ...Args>
+		struct one_of {
 			using type = void;
 		};
 		template<size_t i, class Head, class ...Tail>
@@ -375,79 +390,29 @@ export namespace System {
 		};
 	}
 	namespace Traits {
-		//ƒpƒ‰ƒ[ƒ^ƒŠƒXƒgArgs‚Ìi”Ô–Ú‚ÌŒ^(ƒ[ƒƒCƒ“ƒfƒbƒNƒX)
+		//ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒªã‚¹ãƒˆArgsã®iç•ªç›®ã®å‹(ã‚¼ãƒ­ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹)
 		template<size_t i, typename ...Args> using one_of_t = one_of<i, Args...>::type;
 	}
-	//[ŒÅ—L] : •¡‡—vŒ‚Åg—p‚Å‚«‚éƒRƒ“ƒZƒvƒg({ ® } -> concept;)
+	//[å›ºæœ‰] : è¤‡åˆè¦ä»¶ã§ä½¿ç”¨ã§ãã‚‹ã‚³ãƒ³ã‚»ãƒ—ãƒˆ({ å¼ } -> concept;)
 	namespace Traits::Concepts {
 		template<class T1, class T2> concept same_as = std::same_as<T1, T2>;
 		template<class From, class To> concept convertible_to = std::convertible_to<From, To>;
 	}
-	//[ŒÅ—L]FƒRƒ“ƒZƒvƒg
-	namespace Traits {
-		template<class T> concept Unsigned = is_unsigned_v<T>;
-		template<class T> concept Signed = is_signed_v<T>;
-		template<class T> concept Integral = is_integral_v<T>;
-		template<class T> concept Floating = is_floating_point_v<T>;
-		template<class T> concept Arithmetic = Integral<T> || Floating<T>;
-		template<class T> concept CharType = is_any_of_v<T, char, char8_t, char16_t, char32_t, wchar_t>;
-		template<class T> concept Number = Arithmetic<T> && !CharType<T>;// is_any_of_v<T, int, uint8_t, int8_t, uint16_t, int16_t, uint32_t, int32_t, uint64_t, int64_t, float, double>;
-		template<class T> concept Pointer = is_pointer_v<T>;
-		template<class T> concept Enum = is_enum_v<T>;
-		template<class Src, class Dst>
-		concept CopyConstructible = requires(const remove_cvref_t<Src>& x) {
-			remove_cvref_t<Dst>(x);
-		};
-		template<class Src, class Dst>
-		concept MoveConstructible = requires(remove_cvref_t<Src>&& x) {
-			remove_cvref_t<Dst>(static_cast<remove_cvref_t<Src>&&>(x));
-		};
-		template<class Src, class Dst>
-		concept Constructible = CopyConstructible<Src, Dst> || MoveConstructible<Src, Dst>;
-
-		template<class T>
-		struct array_to_ptr {
-			using type = T;
-			static constexpr size_t Length = 0;
-		};
-		template<class T>
-		struct array_to_ptr<T[]> {
-			using type = T*;
-			static constexpr size_t Length = 0;
-		};
-		template<class T, size_t N>
-		struct array_to_ptr<T[N]> {
-			using type = T*;
-			static constexpr size_t Length = N;
-		};
-		template<class T> using array_to_ptr_t = array_to_ptr<T>::type;
-		template<class Dst, class Src>
-		concept ConvertibleFromPointer = requires() {
-			Pointer<Src>;
-			Traits::remove_reference_t<Dst>(Traits::declval<Src>());
-		};
-		template<class Dst, class Src>
-		concept Convertible = requires() {
-			Traits::remove_reference_t<Dst>(Traits::declval<Src>());
-		};
-
-		template<class Dst, class Src>
-		concept ConvertibleEx = requires() {
-			Convertible<Dst, Src> || ConvertibleFromPointer<Dst, Traits::array_to_ptr_t<Src>>;
-		};
-	}
-	//[ŒÅ—L] : ƒRƒ“ƒZƒvƒg
+	//[å›ºæœ‰] : ã‚³ãƒ³ã‚»ãƒ—ãƒˆ
 	namespace Traits::Concepts {
 		template<class T> concept CUnsigned = is_unsigned_v<T>;
 		template<class T> concept CSigned = is_signed_v<T>;
 		template<class T> concept CIntegral = is_integral_v<T>;
 		template<class T> concept CFloating = is_floating_point_v<T>;
-		template<class T> concept CArithmetic = Integral<T> || Floating<T>;
+		template<class T> concept CArithmetic = CIntegral<T> || CFloating<T>;
 		template<class T> concept CCharType = is_any_of_v<T, char, char8_t, char16_t, char32_t, wchar_t>;
-		template<class T> concept CNumber = Arithmetic<T> && !CharType<T>;// is_any_of_v<T, int, uint8_t, int8_t, uint16_t, int16_t, uint32_t, int32_t, uint64_t, int64_t, float, double>;
+		template<class T> concept CNumber = CArithmetic<T> && !CCharType<T>;// is_any_of_v<T, int, uint8_t, int8_t, uint16_t, int16_t, uint32_t, int32_t, uint64_t, int64_t, float, double>;
 		template<class T> concept CPointer = is_pointer_v<T>;
 		template<class T> concept CEnum = is_enum_v<T>;
+		template<class T> concept CClassOrUnion = is_class_or_union_v<T>;
 		template<class T, class U> concept CSame = is_same_v<T, U>;
+		template<class T, class U> concept CSameRemoveCV = is_same_v<remove_cv_t<T>, remove_cv_t<U>>;
+		template<class T, class U> concept CSameRemoveCVRef = is_same_v<remove_cvref_t<T>, remove_cvref_t<U>>;
 		template<class T> concept CBitFlag = CIntegral<T> || CEnum<T>;
 		template<class T> concept CDefaultConstructible = is_default_constructible_v<T>;
 		template<class T> concept CCopyConstructible = is_copy_constructible_v<T>;
@@ -466,6 +431,10 @@ export namespace System {
 		concept CCopyConstructibleFrom = CCopyConstructibleTo<Src, Dst>;
 		template<class Dst, class Src>
 		concept CMoveConstructibleFrom = CMoveConstructibleTo<Src, Dst>;
+		template<class Src, class Dst>
+		concept CConstructibleTo = CCopyConstructibleTo<Src, Dst> || CMoveConstructibleTo<Src, Dst>;
+		template<class Dst, class Src>
+		concept CConstructibleFrom = CCopyConstructibleFrom<Dst, Src> || CMoveConstructibleTo<Dst, Src>;
 		template<class T>
 		concept CIncrementable = requires(T & x) {
 			{ ++x } -> same_as<T&>;
@@ -477,69 +446,153 @@ export namespace System {
 			{ x-- } -> same_as<T>;
 		};
 	}
-	//[ŒÅ—L] : ƒƒ“ƒoƒ|ƒCƒ“ƒ^Œ^
+	//[å›ºæœ‰] : ãƒ¡ãƒ³ãƒãƒã‚¤ãƒ³ã‚¿å‹
 	namespace Traits {
-		template<class R, class T> using MemberPtr = R typename T::*;
+		//template<class R, class T> using MemberPtr = R typename T::*;
 	}
-	//[ŒÅ—L] : ŠÖ”Œ^(function_t)
+	//[å›ºæœ‰] : é–¢æ•°å‘¼ã³å‡ºã—å‹ã‚³ãƒ³ã‚»ãƒ—ãƒˆ
+	namespace Traits::Concepts {
+		template<class T>
+		concept CHasFunctionCallOperator = requires() {
+			&T::operator();
+		};
+		template<class T>
+		concept CIsCppFunction = is_function_v<T>;
+		template<class T>
+		concept CInvokable = CIsCppFunction<T> || CHasFunctionCallOperator<T>;
+	}
+	//[å›ºæœ‰] : é–¢æ•°å‹(function_t)
 	namespace Traits {
-		//args
-		namespace Internal {
-			struct args_void {
-				using type = void;
-				static constexpr bool exists = false;
+		namespace Internal{
+			template <class T>
+			struct function_ptr {
+				struct error{};
+				using ptr_type = error*;
+				using invoke_type = error;
+				using return_type = error;
+				template<size_t i>
+				using arg_type = error;
+				static constexpr bool is_noexcept_v = false;
+				static constexpr bool is_member_v = false;
+				static constexpr bool is_const_member_v = false;
+				static constexpr size_t args_count = 0;
 			};
-			template<size_t i, class Head, class ...Args>
-			struct args : Traits::conditional_t<sizeof...(Args) == 1, Traits::conditional_t<i == 1, args<i - 1, Args...>, args_void>, args<i - 1, Args...>> {};
-			template<class Head, class ...Args>
-			struct args<0, Head, Args...> {
-				using type = Head;
-				static constexpr bool exists = true;
+			template <class R, class... Args>
+			struct function_ptr<R (*)(Args...)> {
+				using ptr_type = R(*)(Args...);
+				using raw_invoke_type = R(Args...);
+				using invoke_type = R(Args...);
+				using return_type = R;
+				template <size_t i>
+				using arg_type = one_of_t<i, Args...>;
+				static constexpr bool is_noexcept_v = false;
+				static constexpr bool is_member_v = false;
+				static constexpr bool is_const_member_v = false;
+				static constexpr size_t args_count = sizeof...(Args);
 			};
-			template<class L, class R, class ...Args>
-			auto get_return(R(L::*)(Args...) const)->R;
-			template<class L, class R, class ...Args>
-			auto get_return(R(L::*)(Args...))->R;
-			template<size_t i, class L, class R, class ...Args>
-			auto get_args(R(L::*)(Args...) const)->args<i, Args...>;
-			template<class R, class ...Args>
-			using func_pointer = R(*)(Args...);
-			template<class L, class R, class ...Args>
-			func_pointer<R, Args...> get_funcptr(R(L::*)(Args...) const);
-			template<class L, class R, class ...Args>
-			func_pointer<R, Args...> get_funcptr(R(L::*)(Args...));
+			template <class R, class T, class... Args>
+			struct function_ptr<R (T::*)(Args...)> {
+				using ptr_type = R(T::*)(Args...);
+				using raw_invoke_type = R(Args...);
+				using invoke_type = R(Args...);
+				using return_type = R;
+				template <size_t i>
+				using arg_type = one_of_t<i, Args...>;
+				static constexpr bool is_noexcept_v = false;
+				static constexpr bool is_member_v = true;
+				static constexpr bool is_const_member_v = false;
+				static constexpr size_t args_count = sizeof...(Args);
+			};
+			template <class R, class T, class... Args>
+			struct function_ptr<R (T::*)(Args...) const> {
+				using ptr_type = R(T::*)(Args...) const;
+				using raw_invoke_type = R(Args...);
+				using invoke_type = R(Args...);
+				using return_type = R;
+				template <size_t i>
+				using arg_type = one_of_t<i, Args...>;
+				static constexpr bool is_noexcept_v = false;
+				static constexpr bool is_member_v = true;
+				static constexpr bool is_const_member_v = true;
+				static constexpr size_t args_count = sizeof...(Args);
+			};
+			template <class R, class... Args>
+			struct function_ptr<R (*)(Args...) noexcept> {
+				using ptr_type = R(*)(Args...) noexcept;
+				using raw_invoke_type = R(Args...) noexcept;
+				using invoke_type = R(Args...);
+				using return_type = R;
+				template <size_t i>
+				using arg_type = one_of_t<i, Args...>;
+				static constexpr bool is_noexcept_v = true;
+				static constexpr bool is_member_v = false;
+				static constexpr bool is_const_member_v = false;
+				static constexpr size_t args_count = sizeof...(Args);
+			};
+			template <class R, class T, class... Args>
+			struct function_ptr<R (T::*)(Args...) noexcept> {
+				using ptr_type = R(T::*)(Args...) noexcept;
+				using raw_invoke_type = R(Args...) noexcept;
+				using invoke_type = R(Args...);
+				using return_type = R;
+				template <size_t i>
+				using arg_type = one_of_t<i, Args...>;
+				static constexpr bool is_noexcept_v = true;
+				static constexpr bool is_member_v = true;
+				static constexpr bool is_const_member_v = false;
+				static constexpr size_t args_count = sizeof...(Args);
+			};
+			template <class R, class T, class... Args>
+			struct function_ptr<R (T::*)(Args...) const noexcept> {
+				using ptr_type = R(T::*)(Args...) const noexcept;
+				using raw_invoke_type = R(Args...) const noexcept;
+				using invoke_type = R(Args...);
+				using return_type = R;
+				template <size_t i>
+				using arg_type = one_of_t<i, Args...>;
+				static constexpr bool is_noexcept_v = true;
+				static constexpr bool is_member_v = true;
+				static constexpr bool is_const_member_v = true;
+				static constexpr size_t args_count = sizeof...(Args);
+			};
 		}
-		using namespace Internal;
-		template<class T>
-		struct function_type {
-			using return_type = void;
-			template<size_t i>
-			using args_type = void;
-			template<size_t i>
-			static constexpr bool exists_arg_v = false;
-		};
-		template<class T> requires requires(T x) { x.operator(); }
+
+		template<class T> struct function_type;
+		template<Concepts::CHasFunctionCallOperator T>
 		struct function_type<T> {
-			using type = Traits::remove_pointer_t<typename decltype(get_funcptr(&T::operator()))>;
-			using return_type = typename decltype(get_return(&T::operator()));
+			using ptr_type = decltype(&T::operator());
+			using invoke_type = Internal::function_ptr<ptr_type>::invoke_type;
+			using return_type = Internal::function_ptr<ptr_type>::return_type;
+			template <size_t i>
+			using arg_type = typename Internal::template function_ptr<ptr_type>::template arg_type<i>;
 			template<size_t i>
-			using args_type = typename decltype(get_args<i>(&T::operator()))::type;
-			template<size_t i>
-			static constexpr bool exists_arg_v = decltype(get_args<i>(&T::operator()))::exists;
+			static constexpr bool exists_arg_v = i < Internal::function_ptr<ptr_type>::args_count;
 		};
-		template<class R, class ...Args>
-		struct function_type<R(Args...)> {
-			using type = R(Args...);
-			using return_type = R;
-			template<size_t i>
-			using args_type = args<i, Args...>::type;
-			template<size_t i>
-			static constexpr bool exists_arg_v = args<i, Args...>::exists;
+		template <Concepts::CIsCppFunction T>
+		struct function_type<T> {
+			using ptr_type = T*;
+			using invoke_type = Internal::function_ptr<ptr_type>::invoke_type;
+			using return_type = Internal::function_ptr<ptr_type>::return_type;
+			template <size_t i>
+			using arg_type = typename Internal::template function_ptr<ptr_type>::template arg_type<i>;
+			template <size_t i>
+			static constexpr bool exists_arg_v = i < Internal::function_ptr<ptr_type>::args_count;
 		};
 		template<class T>
-		using function_t = function_type<T>::type;
+		using function_t = function_type<T>::invoke_type;
+
+		template<class R, class... Args>
+		struct make_function {
+			using type = R(Args...);
+		};
+		template<class R>
+		struct make_function<R, void> {
+			using type = R();
+		};
+		template<class R, class... Args>
+		using make_function_t = make_function<R, Args...>::type;
 	}
-	//[ŒÅ—L] : ƒpƒ‰ƒ[ƒ^ƒpƒbƒNŒ^(parameter_pack)
+	//[å›ºæœ‰] : ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ‘ãƒƒã‚¯å‹(parameter_pack)
 	namespace Traits {
 		template<class ...Args> struct parameter_pack {
 			static constexpr size_t count = 0;
@@ -560,7 +613,7 @@ export namespace System {
 			using head_t = Head;
 		};
 	}
-	//[ŒÅ—L] : ƒpƒ‰ƒ[ƒ^ƒpƒbƒN‘€ì
+	//[å›ºæœ‰] : ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ‘ãƒƒã‚¯æ“ä½œ
 	namespace Traits {
 		template<size_t N, class P> struct at { using type = void; };
 		template<size_t N, class T, class ...Args>
@@ -632,7 +685,7 @@ export namespace System {
 		template<class Sentinel, class P>
 		using split_param = typename split<Sentinel, P>::type;
 	}
-	//[ŒÅ—L] : ƒpƒ‰ƒ[ƒ^ƒpƒbƒN”»’è
+	//[å›ºæœ‰] : ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ‘ãƒƒã‚¯åˆ¤å®š
 	namespace Traits {
 		template<class P1, class P2>
 		consteval bool same_pack() noexcept {
@@ -665,7 +718,7 @@ export namespace System {
 			else return false;
 		}
 	}
-	//[ŒÅ—L] : ŠÖ”ƒRƒ“ƒZƒvƒg
+	//[å›ºæœ‰] : é–¢æ•°ã‚³ãƒ³ã‚»ãƒ—ãƒˆ
 	namespace Traits::Concepts {
 		template<class F, class T>
 		concept CConditionFunction = requires(F cond, const T & obj) {
@@ -676,7 +729,7 @@ export namespace System {
 			{comp(obj, obj)} -> same_as<strong_ordering>;
 		};
 	}
-	//[ŒÅ—L] : InvokableƒRƒ“ƒZƒvƒg(parameter_pack‚Ìg—p—á)
+	//[å›ºæœ‰] : Invokableã‚³ãƒ³ã‚»ãƒ—ãƒˆ(parameter_packã®ä½¿ç”¨ä¾‹)
 	namespace Traits::Concepts {
 		template<class F, class ...Args>
 		concept Invokable_Internal = requires(F f, Args ...args) {
@@ -696,7 +749,7 @@ export namespace System {
 			requires[]<template<class ...> class P, class ...A>(F f, P<A...> param) consteval { return Invokable_R_Internal<F, R, A...>; }(x, param);
 		};
 	}
-	//ƒCƒeƒŒ[ƒ^ŠÖ˜A
+	//ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿é–¢é€£
 	namespace Traits {
 		namespace Internal {
 			template<class T> using with_reference = T&;
@@ -735,7 +788,7 @@ export namespace System {
 		template<class T>
 		using iterator_dereference_value_t = iterator_dereference_value<T>::type;
 	}
-	//[ŒÅ—L] : ƒCƒeƒŒ[ƒ^‚É‚à‘Î‰‚µ‚½QÆŠO‚µŒ^
+	//[å›ºæœ‰] : ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã«ã‚‚å¯¾å¿œã—ãŸå‚ç…§å¤–ã—å‹
 	namespace Traits {
 		template<class T>
 		struct dereference { using type = T; };
@@ -746,7 +799,7 @@ export namespace System {
 		template<class T>
 		using dereference_t = dereference<T>::type;
 	}
-	//[ŒÅ—L] : ƒCƒeƒŒ[ƒ^ƒRƒ“ƒZƒvƒg
+	//[å›ºæœ‰] : ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚³ãƒ³ã‚»ãƒ—ãƒˆ
 	namespace Traits::Concepts {
 		template<class I> concept CInputIterator = std::input_iterator<I>;
 		template<class I, class T> concept COutputIterator = std::output_iterator<I, T>;
@@ -755,7 +808,7 @@ export namespace System {
 		template<class I> concept CRandomAccessIterator = std::random_access_iterator<I>;
 		template<class I> concept CContiguousIterator = std::contiguous_iterator<I>;
 	}
-	//©ìƒCƒeƒŒ[ƒ^“à‚Éusing iterator_concept = ...‚Æ‚µ‚Ä’è‹`‚·‚é(C++20ˆÈã)
+	//è‡ªä½œã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿å†…ã«using iterator_concept = ...ã¨ã—ã¦å®šç¾©ã™ã‚‹(C++20ä»¥ä¸Š)
 	namespace Traits {
 		using input_iterator_tag = std::input_iterator_tag;
 		using output_iterator_tag = std::output_iterator_tag;
@@ -764,16 +817,16 @@ export namespace System {
 		using random_access_iterator_tag = std::random_access_iterator_tag;
 		using contiguous_iterator_tag = std::contiguous_iterator_tag;
 	}
-	//[ŒÅ—L] : ƒ‰ƒbƒp[Œ^
+	//[å›ºæœ‰] : ãƒ©ãƒƒãƒ‘ãƒ¼å‹
 	namespace Traits {
 		/// <summary>
-		/// ‰Šú‰»ó‘Ô‚ğ•Û‚·‚éTŒ^•Ï”‚Ìƒ‰ƒbƒp[ƒNƒ‰ƒX
+		/// åˆæœŸåŒ–çŠ¶æ…‹ã‚’ä¿æŒã™ã‚‹Tå‹å¤‰æ•°ã®ãƒ©ãƒƒãƒ‘ãƒ¼ã‚¯ãƒ©ã‚¹
 		/// </summary>
-		/// <typeparam name="T">”CˆÓ‚ÌŒ^</typeparam>
+		/// <typeparam name="T">ä»»æ„ã®å‹</typeparam>
 		template<class T>
 		class InitializedVariant {
 			T m_value;
-			bool m_initialized = false;	//‰Šú‰»Ï‚İ‚Ì‚Æ‚«Atrue
+			bool m_initialized = false;	//åˆæœŸåŒ–æ¸ˆã¿ã®ã¨ãã€true
 		public:
 			constexpr InitializedVariant() noexcept = default;
 			constexpr InitializedVariant(const InitializedVariant<T>& arg) noexcept : m_value(arg.m_value), m_initialized(true) {}
@@ -800,16 +853,21 @@ export namespace System {
 			explicit constexpr operator bool() const noexcept { return m_initialized; }
 		};
 	}
-	//[ŒÅ—L] : Enum class ‰‰Zq©“®’è‹`Œ^
-	//template<> struct enabling_***_enum : true_type {};‚Å“Áê‰»‚·‚é‚±‚Æ‚ÅA
-	//‰‰Zq‚ğ©“®’è‹`‚Å‚«‚é
+	//[å›ºæœ‰] : Enum class æ¼”ç®—å­è‡ªå‹•å®šç¾©å‹
+	//template<> struct enabling_***_enum : true_type {};ã§ç‰¹æ®ŠåŒ–ã™ã‚‹ã“ã¨ã§ã€
+	//æ¼”ç®—å­ã‚’è‡ªå‹•å®šç¾©ã§ãã‚‹
 	namespace Traits {
-		template<Enum T> struct enabling_bitwise_for_enum : false_type {};
-		template<Enum T> struct enabling_and_or_for_enum : enabling_bitwise_for_enum<T> {};
-		template<class T> concept BitwiseEnum = enabling_bitwise_for_enum<T>::value;
-		template<class T> concept AndOrEnum = enabling_and_or_for_enum<T>::value;
+		template<Concepts::CEnum T> struct enabling_bitwise_for_enum : false_type {};
+		template<Concepts::CEnum T> struct enabling_and_or_for_enum : enabling_bitwise_for_enum<T> {};
 	}
-	//[ŒÅ—L] : ƒrƒbƒgƒtƒ‰ƒO‘€ì
+	//[å›ºæœ‰] : Enum class æ¼”ç®—å­ã‚³ãƒ³ã‚»ãƒ—ãƒˆ
+	namespace Traits::Concepts{
+		template<class T>
+		concept CBitwiseEnum = enabling_bitwise_for_enum<T>::value;
+		template<class T>
+		concept CAndOrEnum = enabling_and_or_for_enum<T>::value;
+	}
+	//[å›ºæœ‰] : ãƒ“ãƒƒãƒˆãƒ•ãƒ©ã‚°æ“ä½œ
 	namespace Traits {
 		template<Concepts::CBitFlag T, Concepts::CBitFlag U>
 		constexpr bool IncludeBitFlags(T value, U flags) noexcept {
@@ -825,33 +883,33 @@ export namespace System {
 	}
 }
 
-//Enum class ©“®’è‹`—p‰‰Zq
+//Enum class è‡ªå‹•å®šç¾©ç”¨æ¼”ç®—å­
 using namespace System::Traits;
-export template<AndOrEnum T>
+export template<Concepts::CAndOrEnum T>
 constexpr T operator&(T lhs, T rhs) noexcept {
 	return static_cast<T>(static_cast<underlying_type_t<T>>(lhs) & static_cast<underlying_type_t<T>>(rhs));
 }
-export template<AndOrEnum T>
+export template<Concepts::CAndOrEnum T>
 constexpr T operator|(T lhs, T rhs) noexcept {
 	return static_cast<T>(static_cast<underlying_type_t<T>>(lhs) | static_cast<underlying_type_t<T>>(rhs));
 }
-export template<BitwiseEnum T>
+export template<Concepts::CBitwiseEnum T>
 constexpr T operator^(T lhs, T rhs) noexcept {
 	return static_cast<T>(static_cast<underlying_type_t<T>>(lhs) ^ static_cast<underlying_type_t<T>>(rhs));
 }
-export template<BitwiseEnum T>
+export template<Concepts::CBitwiseEnum T>
 constexpr T operator~(T x) noexcept {
 	return static_cast<T>(~static_cast<underlying_type_t<T>>(x));
 }
-export template<AndOrEnum T>
+export template<Concepts::CAndOrEnum T>
 constexpr T& operator&=(T& lhs, T rhs) noexcept {
 	return lhs = lhs & rhs;
 }
-export template<AndOrEnum T>
+export template<Concepts::CAndOrEnum T>
 constexpr T& operator|=(T& lhs, T rhs) noexcept {
 	return lhs = lhs | rhs;
 }
-export template<BitwiseEnum T>
+export template<Concepts::CBitwiseEnum T>
 constexpr T& operator^=(T& lhs, T rhs) noexcept {
 	return lhs = lhs ^ rhs;
 }

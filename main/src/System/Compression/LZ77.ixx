@@ -1,4 +1,4 @@
-export module LZ77;
+﻿export module LZ77;
 import CSTDINT;
 import Traits;
 import Sorts;

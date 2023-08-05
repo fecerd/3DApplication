@@ -1,4 +1,4 @@
-module Components:Rigidbody;
+﻿module Components:Rigidbody;
 import :GameObject;
 using namespace System;
 using namespace Engine;

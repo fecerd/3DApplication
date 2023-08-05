@@ -1,4 +1,4 @@
-export module Color;
+﻿export module Color;
 import CSTDINT;
 //Color
 export namespace System::Drawing {

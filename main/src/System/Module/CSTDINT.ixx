@@ -1,4 +1,4 @@
-module;
+ï»¿module;
 #include <cstdint>
 #include <limits>
 #include <initializer_list>
@@ -27,7 +27,7 @@ inline constexpr size_t SIZEMAX = SIZE_MAX;
 #undef INFINITY
 #undef NAN
 
-//std®”Œ^
+//stdæ•´æ•°å‹
 export namespace System {
 	using uint8_t = std::uint8_t;
 	using uint16_t = std::uint16_t;
@@ -44,7 +44,7 @@ export namespace System {
 	using ptrdiff_t = ::ptrdiff_t;
 }
 
-//®”Œ^‚ÌÅ‘å’lEÅ¬’l
+//æ•´æ•°å‹ã®æœ€å¤§å€¤ãƒ»æœ€å°å€¤
 export namespace System {
 	inline constexpr uint8_t UINT8_MAX = 0xff;
 	inline constexpr uint8_t UINT8_MIN = 0x00;
@@ -135,13 +135,13 @@ namespace System {
 	};
 }
 
-//®”Œ^‚ÌÅ‘å’lEÅ¬’l(ƒeƒ“ƒvƒŒ[ƒg)
+//æ•´æ•°å‹ã®æœ€å¤§å€¤ãƒ»æœ€å°å€¤(ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆ)
 export namespace System {
 	template<class T> inline constexpr T MAX_VALUE = MAX<T>::value;
 	template<class T> inline constexpr T MIN_VALUE = MIN<T>::value;
 }
 
-//•‚“®¬”“_”‚Ì’è”
+//æµ®å‹•å°æ•°ç‚¹æ•°ã®å®šæ•°
 export namespace System {
 	inline constexpr float FLOAT_NAN = std::numeric_limits<float>::quiet_NaN();
 	inline constexpr double DOUBLE_NAN = std::numeric_limits<double>::quiet_NaN();
@@ -151,9 +151,9 @@ export namespace System {
 	inline constexpr long double LONGDOUBLE_INF = std::numeric_limits<long double>::infinity();
 }
 
-//“Áê‚È”’lŒ^
+//ç‰¹æ®Šãªæ•°å€¤å‹
 export namespace System {
-	//3ƒoƒCƒg®”
+	//3ãƒã‚¤ãƒˆæ•´æ•°
 	class uint24_c {
 		uint8_t m_data[3] = { 0, 0, 0 };
 	public:
@@ -178,7 +178,7 @@ export namespace System {
 		constexpr uint24_c operator|(const uint24_c& val) const noexcept { return uint24_c(static_cast<uint32_t>(*this) | static_cast<uint32_t>(val)); }
 	};
 
-	//F2DOT14ŒÅ’è¬”“_”Œ^
+	//F2DOT14å›ºå®šå°æ•°ç‚¹æ•°å‹
 	class f2dot14_c {
 		uint16_t m_data = 0x0000;
 	public:
@@ -234,7 +234,7 @@ export namespace System {
 		f2dot14_c& operator|=(const f2dot14_c& val) noexcept { m_data |= val.m_data; return *this; }
 	};
 
-	//4ƒoƒCƒgŒÅ’è¬”“_”Œ^(ãˆÊ2ƒoƒCƒg‚ª®”•”A‰ºˆÊ2ƒoƒCƒg‚ª¬”•”)
+	//4ãƒã‚¤ãƒˆå›ºå®šå°æ•°ç‚¹æ•°å‹(ä¸Šä½2ãƒã‚¤ãƒˆãŒæ•´æ•°éƒ¨ã€ä¸‹ä½2ãƒã‚¤ãƒˆãŒå°æ•°éƒ¨)
 	class fixed32_c {
 		int16_t integer = 0;
 		uint16_t fraction = 0;
@@ -261,7 +261,7 @@ export namespace System {
 			fraction = 0;
 			return *this;
 		}
-		//uint8_t[4]‚ğfixed32_c‚Æ‚µ‚Ä‰ğß‚µ‚ÄƒRƒs[‚·‚é
+		//uint8_t[4]ã‚’fixed32_cã¨ã—ã¦è§£é‡ˆã—ã¦ã‚³ãƒ”ãƒ¼ã™ã‚‹
 		fixed32_c& operator=(const uint8_t* data) noexcept {
 			integer = (data[0] << 8) | data[1];
 			fraction = (data[2] << 8) | data[3];

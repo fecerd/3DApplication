@@ -1,4 +1,4 @@
-export module BitStream;
+﻿export module BitStream;
 import CSTDINT;
 import Traits;
 using namespace System::Traits;
@@ -24,23 +24,23 @@ export namespace System {
 		inline bool EndOfStream() const noexcept { return m_currentBit == 8; }
 	private:
 		/// <summary>
-		/// [lowBit, highBit]�̃r�b�g�}�X�N���擾����
+		/// [lowBit, highBit]のビットマスクを取得する
 		/// </summary>
-		/// <param name="lowBit">�r�b�g��1�ł���ŉ��ʂ̃r�b�g�ԍ��B�͈͂�[0, sizeof(T) * 8 - 1]</param>
-		/// <param name="highBit">�r�b�g��1�ł���ŏ�ʂ̃r�b�g�ԍ��B�͈͂�[0, sizeof(T) * 8 - 1]</param>
-		/// <returns>T�^�̃r�b�g�}�X�N�l</returns>
-		template<Unsigned T>
+		/// <param name="lowBit">ビットが1である最下位のビット番号。範囲は[0, sizeof(T) * 8 - 1]</param>
+		/// <param name="highBit">ビットが1である最上位のビット番号。範囲は[0, sizeof(T) * 8 - 1]</param>
+		/// <returns>T型のビットマスク値</returns>
+		template<Concepts::CUnsigned T>
 		static constexpr T GetBitMask(uint8_t lowBit, uint8_t highBit) noexcept {
 			T ret = 0;
 			for (uint8_t i = lowBit; i <= highBit; ++i) ret |= 1ull << i;
 			return ret;
 		}
 		/// <summary>
-		/// ���т𔽓]�����r�b�g����擾����
+		/// 並びを反転したビット列を取得する
 		/// </summary>
-		/// <param name="bits">���т𔽓]����r�b�g��</param>
-		/// <returns>���т����]�����r�b�g��</returns>
-		template<Unsigned T>
+		/// <param name="bits">並びを反転するビット列</param>
+		/// <returns>並びが反転したビット列</returns>
+		template<Concepts::CUnsigned T>
 		static constexpr T ReverseBit(T bits) noexcept {
 			if constexpr (sizeof(T) >= 8) bits = ((bits & 0x00000000ffffffffull) << 32) | ((bits >> 32) & 0x00000000ffffffffull);
 			if constexpr (sizeof(T) >= 4) bits = ((bits & 0x0000ffff0000ffffull) << 16) | ((bits >> 16) & 0x0000ffff0000ffffull);
@@ -52,11 +52,11 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ���ݎw���Ă���o�C�g�Ƀf�[�^���������ށB�X�g���[���̃r�b�g�ʒu�͖��������
+		/// 現在指しているバイトにデータを書き込む。ストリームのビット位置は無視される
 		/// </summary>
-		/// <param name="byte">�������ޒl</param>
-		/// <param name="lowToHigh">��������ǂݍ��ޕ����Btrue�̂Ƃ��A�ŉ��ʃr�b�g����ǂݍ��ށB�������ݕ�����IsZeroStart�Ɉˑ�����</param>
-		/// <param name="seekNext">true�̂Ƃ��A���̃o�C�g�̐擪�܂ŃX�g���[����ǂݐi�߂�</param>
+		/// <param name="byte">書き込む値</param>
+		/// <param name="lowToHigh">第一引数を読み込む方向。trueのとき、最下位ビットから読み込む。書き込み方向はIsZeroStartに依存する</param>
+		/// <param name="seekNext">trueのとき、次のバイトの先頭までストリームを読み進める</param>
 		inline void SetByte(uint8_t byte, bool lowToHigh, bool seekNext = false) noexcept {
 			if (EndOfStream()) return;
 			m_data[m_currentByte] = lowToHigh == IsZeroStart ? byte : ReverseBit<uint8_t>(byte);
@@ -64,10 +64,10 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ���ݎw���Ă���r�b�g�Ƀf�[�^����������
+		/// 現在指しているビットにデータを書き込む
 		/// </summary>
-		/// <param name="bit">true�̂Ƃ���1���Afalse�̂Ƃ���0����������</param>
-		/// <param name="seekNext">true�̂Ƃ��A1�r�b�g�ǂݐi�߂�</param>
+		/// <param name="bit">trueのときは1を、falseのときは0を書き込む</param>
+		/// <param name="seekNext">trueのとき、1ビット読み進める</param>
 		inline void Set(bool bit, bool seekNext = false) noexcept {
 			if (EndOfStream()) return;
 			if (bit) m_data[m_currentByte] |= GetBitMask<uint8_t>(m_currentBit, m_currentBit);
@@ -75,12 +75,12 @@ export namespace System {
 			if (seekNext) operator++();
 		}
 		/// <summary>
-		/// ���ݎw���Ă���r�b�g��擪�Ƃ��ăr�b�g����������ށB�r�b�g��͑������Ŏw�肵���r�b�g�����O�����Ŏw�肵���r�b�g�Ɍ������ēǂݍ���
+		/// 現在指しているビットを先頭としてビット列を書き込む。ビット列は第二引数で指定したビットから第三引数で指定したビットに向かって読み込む
 		/// </summary>
-		/// <param name="bits">�������ރr�b�g��</param>
-		/// <param name="startBit">��������ǂݍ��ގn�_�ƂȂ�r�b�g�ԍ��B�͈͂�[0, 63]</param>
-		/// <param name="endBit">��������ǂݍ��ޏI�_�ƂȂ�r�b�g�ԍ��B�͈͂�[0, 63]�B</param>
-		/// <param name="seekNext">true�̂Ƃ��A�������񂾃r�b�g�������X�g���[����ǂݐi�߂�</param>
+		/// <param name="bits">書き込むビット列</param>
+		/// <param name="startBit">第一引数を読み込む始点となるビット番号。範囲は[0, 63]</param>
+		/// <param name="endBit">第一引数を読み込む終点となるビット番号。範囲は[0, 63]。</param>
+		/// <param name="seekNext">trueのとき、書き込んだビット数だけストリームを読み進める</param>
 		void Set(uint64_t bits, uint8_t startBit, uint8_t endBit, bool seekNext = false) noexcept {
 			if (EndOfStream()) return;
 			uint8_t currentBit = m_currentBit;
@@ -111,10 +111,10 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ���ݎw���Ă���o�C�g���擾����B�X�g���[���̃r�b�g�ʒu�͖��������
+		/// 現在指しているバイトを取得する。ストリームのビット位置は無視される
 		/// </summary>
-		/// <param name="seekNext">true�̂Ƃ��A���̃o�C�g�̐擪�܂ŃX�g���[����ǂݐi�߂�</param>
-		/// <returns>�ǂݎ����1�o�C�g�̃f�[�^</returns>
+		/// <param name="seekNext">trueのとき、次のバイトの先頭までストリームを読み進める</param>
+		/// <returns>読み取った1バイトのデータ</returns>
 		inline uint8_t GetByte(bool seekNext = false) noexcept {
 			if (EndOfStream()) return 0;
 			uint8_t ret = m_data[m_currentByte];
@@ -123,10 +123,10 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ���ݎw���Ă���r�b�g���擾����
+		/// 現在指しているビットを取得する
 		/// </summary>
-		/// <param name="seekNext">true�̂Ƃ��A�X�g���[����1�r�b�g�ǂݐi�߂�</param>
-		/// <returns>���ݎw���Ă���r�b�g��1�̂Ƃ���true���A0�̂Ƃ���false��Ԃ�</returns>
+		/// <param name="seekNext">trueのとき、ストリームを1ビット読み進める</param>
+		/// <returns>現在指しているビットが1のときはtrueを、0のときはfalseを返す</returns>
 		template<bool CheckEnd = false>
 		inline bool Get(bool seekNext = false) noexcept {
 			if constexpr (CheckEnd) {
@@ -137,13 +137,13 @@ export namespace System {
 			return ret;
 		}
 		/// <summary>
-		/// ���ݎw���Ă���r�b�g��擪�Ƃ���r�b�g����擾����
+		/// 現在指しているビットを先頭とするビット列を取得する
 		/// </summary>
-		/// <param name="bitCount">�擾����r�b�g��</param>
-		/// <param name="lowToHigh">true�̂Ƃ��A�r�b�g����ŉ��ʃr�b�g������ׂĎ擾����Bfalse�̂Ƃ��A�r�b�g����ŏ�ʃr�b�g������ׂĎ擾����</param>
-		/// <param name="seekNext">true�̂Ƃ��A�擾�����r�b�g�������X�g���[����i�߂�</param>
-		/// <returns>�r�b�g��</returns>
-		template<Unsigned T, bool CheckEnd = false>
+		/// <param name="bitCount">取得するビット数</param>
+		/// <param name="lowToHigh">trueのとき、ビット列を最下位ビットから並べて取得する。falseのとき、ビット列を最上位ビットから並べて取得する</param>
+		/// <param name="seekNext">trueのとき、取得したビット数だけストリームを進める</param>
+		/// <returns>ビット列</returns>
+		template<Concepts::CUnsigned T, bool CheckEnd = false>
 		inline T Get(uint8_t bitCount, bool lowToHigh, bool seekNext = false) noexcept {
 			if constexpr (CheckEnd) {
 				if (EndOfStream()) return 0;
@@ -182,13 +182,13 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ���ݎw���Ă���r�b�g��擪�Ƃ���r�b�g����t���Ŏ擾����
+		/// 現在指しているビットを先頭とするビット列を逆順で取得する
 		/// </summary>
-		/// <param name="bitCount">�擾����r�b�g��</param>
-		/// <param name="lowToHigh">true�̂Ƃ��A�r�b�g����ŉ��ʃr�b�g������ׂĎ擾����Bfalse�̂Ƃ��A�r�b�g����ŏ�ʃr�b�g������ׂĎ擾����</param>
-		/// <param name="seekNext">true�̂Ƃ��A�擾�����r�b�g�������X�g���[����i�߂�</param>
-		/// <returns>�t���̃r�b�g��B��������true�̂Ƃ��A�ŉ��ʃr�b�g�͍Ō�Ɏ擾�����r�b�g�ł���A����������1�������r�b�g�ԍ��̃r�b�g���ŏ��Ɏ擾�����r�b�g�ƂȂ�</returns>
-		template<Unsigned T>
+		/// <param name="bitCount">取得するビット数</param>
+		/// <param name="lowToHigh">trueのとき、ビット列を最下位ビットから並べて取得する。falseのとき、ビット列を最上位ビットから並べて取得する</param>
+		/// <param name="seekNext">trueのとき、取得したビット数だけストリームを進める</param>
+		/// <returns>逆順のビット列。第二引数がtrueのとき、最下位ビットは最後に取得したビットであり、第一引数から1引いたビット番号のビットが最初に取得したビットとなる</returns>
+		template<Concepts::CUnsigned T>
 		inline T GetReverseBit(uint8_t bitCount, bool lowToHigh, bool seekNext = false) noexcept {
 			T ret = Get<T>(bitCount, !lowToHigh, seekNext);
 			if (lowToHigh) return ret >> (sizeof(T) * 8 - bitCount);

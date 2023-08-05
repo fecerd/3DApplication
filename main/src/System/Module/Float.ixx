@@ -1,19 +1,20 @@
-export module Float;
+﻿export module Float;
 import CSTDINT;
 import Math;
 
 export namespace System {
 	struct Float2 {
 		union {
-			float x;
-			float r;
-		};
-		union {
-			float y;
-			float g;
+			struct {
+				float x;
+				float y;
+			};
+			struct {
+				float r;
+				float g;
+			};
 		};
 	public:
-		constexpr Float2() noexcept : Float2(0.f) {}
 		explicit constexpr Float2(float v) noexcept
 			: x(v), y(v) {}
 		constexpr Float2(float x, float y) noexcept
@@ -115,7 +116,6 @@ export namespace System {
 			float b;
 		};
 	public:
-		constexpr Float3() noexcept : Float3(0.f) {}
 		explicit constexpr Float3(float v) noexcept
 			: x(v), y(v), z(v) {}
 		constexpr Float3(float x, float y, float z) noexcept
@@ -208,36 +208,45 @@ export namespace System {
 	};
 
 	struct Float4 {
-		union {
+		// union {
+		// 	struct {
+		// 		union {
+		// 			struct {
+		// 				union {
+		// 					float x;
+		// 					float r;
+		// 				};
+		// 				union {
+		// 					float y;
+		// 					float g;
+		// 				};
+		// 			};
+		// 			Float2 xy;
+		// 			Float2 rg;
+		// 		};
+		// 		union ZB {
+		// 			float z;
+		// 			float b;
+		// 		};
+		// 	};
+		// 	Float3 xyz;
+		// 	Float3 rgb;
+		// };
+		// union {
+		// 	float w;
+		// 	float a;
+		// };
+		union{
 			struct {
-				union {
-					struct {
-						union {
-							float x;
-							float r;
-						};
-						union {
-							float y;
-							float g;
-						};
-					};
-					Float2 xy;
-					Float2 rg;
-				};
-				union {
-					float z;
-					float b;
-				};
+				float x;
+				float y;
+				float z;
+				float w;
 			};
 			Float3 xyz;
-			Float3 rgb;
-		};
-		union {
-			float w;
-			float a;
+			Float2 xy;
 		};
 	public:
-		constexpr Float4() noexcept : Float4(0.f) {}
 		explicit constexpr Float4(float v) noexcept
 			: x{ v }, y{ v }, z{ v }, w{ v } {}
 		constexpr Float4(float x, float y, float z, float w) noexcept
@@ -246,7 +255,8 @@ export namespace System {
 			: x(xy.x), y(xy.y), z(z), w(w) {}
 		constexpr Float4(const Float3& xyz, float w) noexcept
 			: x(xyz.x), y(xyz.y), z(xyz.z), w(w) {}
-		constexpr Float4(const Float4&) noexcept = default;
+		constexpr Float4(const Float4& arg) noexcept
+			: x{ arg.x }, y{ arg.y }, z{ arg.z }, w{ arg.w } {}
 	public:
 		static constexpr float Dot(const Float4& lhs, const Float4& rhs) noexcept {
 			return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;

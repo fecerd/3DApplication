@@ -1,4 +1,4 @@
-export module TypeID;
+﻿export module TypeID;
 import CSTDINT;
 import XOR128;
 

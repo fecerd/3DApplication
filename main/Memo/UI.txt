@@ -1,4 +1,4 @@
-
+﻿
 GameObject and UI
 
 GameObjectBase
@@ -41,7 +41,7 @@ Transform
 	union{
 		Vector3 localScale (x, y, z)
 		struct{
-			UIScaleMode uiScaleMode = Pixel(�e�ɂ�炸�s�N�Z���l�ŌŒ�), Relative(�e(���[�g�Ȃ�X�N���[�����W�n[0, 1])�ɑ΂���X�P�[���l)
+			UIScaleMode uiScaleMode = Pixel(親によらずピクセル値で固定), Relative(親(ルートならスクリーン座標系[0, 1])に対するスケール値)
 			union{
 				Size<uint32_t> pixelSize (width, height) [0, MAX_VALUE<uint32_t>]
 				Size<float> screenScale (w, h) [0, 1]

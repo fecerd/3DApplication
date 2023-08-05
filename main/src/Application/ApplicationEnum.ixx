@@ -1,4 +1,4 @@
-export module ApplicationEnum;
+﻿export module ApplicationEnum;
 import System;
 
 export namespace System::Application {

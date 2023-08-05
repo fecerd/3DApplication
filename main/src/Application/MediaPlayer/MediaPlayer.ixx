@@ -1,4 +1,4 @@
-export module MediaPlayer;
+﻿export module MediaPlayer;
 import System;
 import Drawing;
 import IWindow;

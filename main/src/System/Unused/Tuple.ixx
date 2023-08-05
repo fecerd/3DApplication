@@ -1,4 +1,4 @@
-export module Tuple;
+﻿export module Tuple;
 import CSTDINT;
 import Traits;
 using namespace System::Traits;

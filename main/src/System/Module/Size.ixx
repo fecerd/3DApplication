@@ -1,10 +1,10 @@
-export module Size;
+﻿export module Size;
 import CSTDINT;
 import Traits;
 import Objects;
 
 export namespace System {
-	template<System::Traits::Arithmetic T>
+	template<Traits::Concepts::CArithmetic T>
 	struct Size {
 		T width = 0;
 		T height = 0;

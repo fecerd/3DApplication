@@ -1,4 +1,4 @@
-export module Iterators;
+﻿export module Iterators;
 import CSTDINT;
 import Traits;
 using namespace System::Traits;
@@ -87,7 +87,7 @@ export namespace System {
 	public:
 		constexpr node_type*& GetNode() noexcept { return ptr; }
 		constexpr node_type* const& GetNode() const noexcept { return ptr; }
-	public: /* input/output_iterator�ɕK�{ */
+	public: /* input/output_iteratorに必須 */
 		constexpr iterator_type& operator++() noexcept { Increment(ptr); return *this; }
 		constexpr iterator_type operator++(int) noexcept { auto ret = *this; Increment(ptr); return ret; }
 		constexpr value_type& operator*() const noexcept { return *Get(ptr); }
@@ -113,7 +113,7 @@ export namespace System {
 	public:
 		constexpr node_type*& GetNode() noexcept { return ptr; }
 		constexpr node_type* const& GetNode() const noexcept { return ptr; }
-	public: /* input/output_iterator�ɕK�{ */
+	public: /* input/output_iteratorに必須 */
 		constexpr iterator_type& operator++() noexcept { Increment(ptr); return *this; }
 		constexpr iterator_type operator++(int) noexcept { auto ret = *this; Increment(ptr); return ret; }
 		constexpr value_type& operator*() const noexcept { return *Get(ptr); }
@@ -139,9 +139,9 @@ export namespace System {
 	public:
 		constexpr node_type*& GetNode() noexcept { return ptr; }
 		constexpr node_type* const& GetNode() const noexcept { return ptr; }
-	public: /* forward_iterator�ɕK�{ */
+	public: /* forward_iteratorに必須 */
 		constexpr bool operator==(const iterator_type& rhs) const noexcept { return Get(ptr) == Get(rhs.ptr); }
-	public: /* input/output_iterator�ɕK�{ */
+	public: /* input/output_iteratorに必須 */
 		constexpr iterator_type& operator++() noexcept { Increment(ptr); return *this; }
 		constexpr iterator_type operator++(int) noexcept { auto ret = *this; Increment(ptr); return ret; }
 		constexpr value_type& operator*() const noexcept { return *Get(ptr); }
@@ -167,12 +167,12 @@ export namespace System {
 	public:
 		constexpr node_type*& GetNode() noexcept { return ptr; }
 		constexpr node_type* const& GetNode() const noexcept { return ptr; }
-	public:/* bidirectional_iterator�ɕK�{ */
+	public:/* bidirectional_iteratorに必須 */
 		constexpr iterator_type& operator--() noexcept { Decrement(ptr); return *this; }
 		constexpr iterator_type operator--(int) noexcept { auto ret = *this; Decrement(ptr); return ret; }
-	public: /* forward_iterator�ɕK�{ */
+	public: /* forward_iteratorに必須 */
 		constexpr bool operator==(const iterator_type& rhs) const noexcept { return Get(ptr) == Get(rhs.ptr); }
-	public: /* input/output_iterator�ɕK�{ */
+	public: /* input/output_iteratorに必須 */
 		constexpr iterator_type& operator++() noexcept { Increment(ptr); return *this; }
 		constexpr iterator_type operator++(int) noexcept { auto ret = *this; Increment(ptr); return ret; }
 		constexpr value_type& operator*() const noexcept { return *Get(ptr); }
@@ -198,7 +198,7 @@ export namespace System {
 	public:
 		constexpr node_type*& GetNode() noexcept { return ptr; }
 		constexpr node_type* const& GetNode() const noexcept { return ptr; }
-	public: /* random_access_iterator�ɕK�{ */
+	public: /* random_access_iteratorに必須 */
 		constexpr iterator_type& operator+=(ptrdiff_t n) noexcept { Increment(ptr, n); return *this; }
 		constexpr iterator_type operator+(ptrdiff_t n) const noexcept { auto ret = *this; Increment(ret.ptr, n); return ret; }
 		friend constexpr iterator_type operator+(ptrdiff_t n, const iterator_type& rhs) noexcept { return rhs + n; }
@@ -206,12 +206,12 @@ export namespace System {
 		constexpr iterator_type operator-(ptrdiff_t n) const noexcept { auto ret = *this; Decrement(ret.ptr, n); return ret; }
 		constexpr value_type& operator[](ptrdiff_t n) const noexcept { return *(*this + n); }
 		constexpr auto operator<=>(const iterator_type& rhs) const noexcept { return Get(ptr) <=> Get(rhs.ptr); }
-	public:/* bidirectional_iterator�ɕK�{ */
+	public:/* bidirectional_iteratorに必須 */
 		constexpr iterator_type& operator--() noexcept { Decrement(ptr); return *this; }
 		constexpr iterator_type operator--(int) noexcept { auto ret = *this; Decrement(ptr); return ret; }
-	public: /* forward_iterator�ɕK�{ */
+	public: /* forward_iteratorに必須 */
 		constexpr bool operator==(const iterator_type& rhs) const noexcept { return Get(ptr) == Get(rhs.ptr); }
-	public: /* input/output_iterator�ɕK�{ */
+	public: /* input/output_iteratorに必須 */
 		constexpr iterator_type& operator++() noexcept { Increment(ptr); return *this; }
 		constexpr iterator_type operator++(int) noexcept { auto ret = *this; Increment(ptr); return ret; }
 		constexpr value_type& operator*() const noexcept { return *Get(ptr); }
@@ -237,12 +237,12 @@ export namespace System {
 	public:
 		constexpr node_type*& GetNode() noexcept { return ptr; }
 		constexpr node_type* const& GetNode() const noexcept { return ptr; }
-	public:/* contiguous_iterator�ɕK�{ */
+	public:/* contiguous_iteratorに必須 */
 		constexpr value_type* operator->() const noexcept {
 			if constexpr (is_same_v<node_type, value_type>) return ptr;
 			else return &(*(*ptr));
 		}
-	public: /* random_access_iterator�ɕK�{ */
+	public: /* random_access_iteratorに必須 */
 		constexpr iterator_type& operator+=(ptrdiff_t n) noexcept { Increment(ptr, n); return *this; }
 		constexpr iterator_type operator+(ptrdiff_t n) const noexcept { auto ret = *this; Increment(ret.ptr, n); return ret; }
 		friend constexpr iterator_type operator+(ptrdiff_t n, const iterator_type& rhs) noexcept { return rhs + n; }
@@ -250,12 +250,12 @@ export namespace System {
 		constexpr iterator_type operator-(ptrdiff_t n) const noexcept { auto ret = *this; Decrement(ret.ptr, n); return ret; }
 		constexpr value_type& operator[](ptrdiff_t n) const noexcept { return *(*this + n); }
 		constexpr auto operator<=>(const iterator_type& rhs) const noexcept { return Get(ptr) <=> Get(rhs.ptr); }
-	public:/* bidirectional_iterator�ɕK�{ */
+	public:/* bidirectional_iteratorに必須 */
 		constexpr iterator_type& operator--() noexcept { Decrement(ptr); return *this; }
 		constexpr iterator_type operator--(int) noexcept { auto ret = *this; Decrement(ptr); return ret; }
-	public: /* forward_iterator�ɕK�{ */
+	public: /* forward_iteratorに必須 */
 		constexpr bool operator==(const iterator_type& rhs) const noexcept { return Get(ptr) == Get(rhs.ptr); }
-	public: /* input/output_iterator�ɕK�{ */
+	public: /* input/output_iteratorに必須 */
 		constexpr iterator_type& operator++() noexcept { Increment(ptr); return *this; }
 		constexpr iterator_type operator++(int) noexcept { auto ret = *this; Increment(ptr); return ret; }
 		constexpr value_type& operator*() const noexcept { return *Get(ptr); }

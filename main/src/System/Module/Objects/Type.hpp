@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef Type_H
 #define Type_H
 #include "Object.hpp"
@@ -10,7 +10,7 @@ namespace System {
 		String* m_templateArgs = nullptr;
 		size_t m_templateCount = 0;
 	public:
-		Type() noexcept = default;
+		Type() noexcept {}
 		Type(const Type&) noexcept;
 		Type(Type&& arg) noexcept
 			: m_typeName(arg.m_typeName), m_templateArgs(arg.m_templateArgs), m_templateCount(arg.m_templateCount)
@@ -20,7 +20,7 @@ namespace System {
 			arg.m_templateCount = 0;
 		}
 		Type(const char16_t*) noexcept;
-		~Type() noexcept;
+		virtual ~Type() noexcept;
 	public:
 		bool Equals(const Object& obj) const noexcept override { return obj.GetTypeID() == GetTypeID() ? *this == static_cast<const Type&>(obj) : false; }
 		Type GetType() const noexcept override { return Type(TypeName<Type>::GetFullName().c_str()); }

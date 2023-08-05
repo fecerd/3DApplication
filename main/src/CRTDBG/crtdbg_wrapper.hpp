@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define CRTDBG_WRAPPER_H
 

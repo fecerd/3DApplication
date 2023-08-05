@@ -1,4 +1,4 @@
-export module Script1;
+ï»¿export module Script1;
 import System;
 import Application;
 import InputSystem;
@@ -8,15 +8,15 @@ using namespace System::Application;
 using namespace Engine;
 
 export class ControllerScript : public Script {
-	//ƒXƒNƒŠ[ƒ“x²•ûŒü‚ÌˆÚ“®—Ê[-1, 1]
+	//ã‚¹ã‚¯ãƒªãƒ¼ãƒ³xè»¸æ–¹å‘ã®ç§»å‹•é‡[-1, 1]
 	float horizontal = 0;
-	//ƒXƒNƒŠ[ƒ“z²•ûŒü‚ÌˆÚ“®—Ê[-1, 1]
+	//ã‚¹ã‚¯ãƒªãƒ¼ãƒ³zè»¸æ–¹å‘ã®ç§»å‹•é‡[-1, 1]
 	float vertical = 0;
-	//‚±‚ÌƒJƒƒ‰‚ğŠî€‚ÉˆÚ“®•ûŒü‚ğŒˆ’è‚·‚é
+	//ã“ã®ã‚«ãƒ¡ãƒ©ã‚’åŸºæº–ã«ç§»å‹•æ–¹å‘ã‚’æ±ºå®šã™ã‚‹
 	GameObject* camera = nullptr;
-	//ˆê“x‚ÌUpdateŠÖ”‚ÅˆÚ“®‚·‚éÅ‘å‹——£‚ÌŠî€
+	//ä¸€åº¦ã®Updateé–¢æ•°ã§ç§»å‹•ã™ã‚‹æœ€å¤§è·é›¢ã®åŸºæº–
 	float delta = 20;
-	//ˆê“I‚É•Ï‰»‚·‚édelta‚Ì”{—¦(Bƒ_ƒbƒVƒ…‚È‚Ç)
+	//ä¸€æ™‚çš„ã«å¤‰åŒ–ã™ã‚‹deltaã®å€ç‡(Bãƒ€ãƒƒã‚·ãƒ¥ãªã©)
 	float scale = 1;
 public:
 	using Script::Script;
@@ -114,22 +114,22 @@ public:
 };
 
 export class CameraManager : public Script {
-	//‚±‚ÌƒXƒNƒŠƒvƒg‚ªƒAƒ^ƒbƒ`‚³‚ê‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg‚Ìp¨B
-	//LookTarget‚É’Ç]‚·‚é
+	//ã“ã®ã‚¹ã‚¯ãƒªãƒ—ãƒˆãŒã‚¢ã‚¿ãƒƒãƒã•ã‚Œã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å§¿å‹¢ã€‚
+	//LookTargetã«è¿½å¾“ã™ã‚‹
 	Transform* m_cameraParent = nullptr;
 	//
 	Transform* m_cameraChild = nullptr;
 	Transform* m_camera = nullptr;
 public:
-	//ƒJƒƒ‰‚ª’Ç‚¢‚©‚¯‚éƒIƒuƒWƒFƒNƒg‚Ìp¨‚Ö‚ÌQÆ(ˆÊ’u)
+	//ã‚«ãƒ¡ãƒ©ãŒè¿½ã„ã‹ã‘ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å§¿å‹¢ã¸ã®å‚ç…§(ä½ç½®)
 	Transform* LookTarget = nullptr;
-	//’Ç‚¢‚©‚¯‚éƒIƒuƒWƒFƒNƒg‚©‚çƒJƒƒ‰‚Ü‚Å‚Ì‹——£
+	//è¿½ã„ã‹ã‘ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‹ã‚‰ã‚«ãƒ¡ãƒ©ã¾ã§ã®è·é›¢
 	float Distance = 10.f;
 	Vector3 OffsetPosition = Vector3(0, 1.f, 1.f);
-	//’Ç]ƒXƒs[ƒhB‘å‚«‚¢‚Ù‚Ç‘f‘‚­’Ç]‚·‚é
+	//è¿½å¾“ã‚¹ãƒ”ãƒ¼ãƒ‰ã€‚å¤§ãã„ã»ã©ç´ æ—©ãè¿½å¾“ã™ã‚‹
 	float speed = 5.f;
 private:
-	//’Ç‚¢‚©‚¯‚éƒIƒuƒWƒFƒNƒg‚ğ’†S‚Æ‚µ‚½ƒJƒƒ‰‚Ì‰ñ“]
+	//è¿½ã„ã‹ã‘ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä¸­å¿ƒã¨ã—ãŸã‚«ãƒ¡ãƒ©ã®å›è»¢
 	Quaternion LookRotation = Quaternion::Identity();
 	float currentYaw = 0;
 	float currentPitch = 20;

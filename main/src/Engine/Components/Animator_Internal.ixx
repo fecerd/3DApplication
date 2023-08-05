@@ -1,4 +1,4 @@
-export module Components:Animator_Internal;
+ï»¿export module Components:Animator_Internal;
 import System;
 export import Bone;
 import :Declaration;
@@ -36,7 +36,7 @@ namespace Animator_Internal {
 using namespace Animator_Internal;
 
 /// <summary>
-/// ƒL[ƒtƒŒ[ƒ€‚Ìƒ{[ƒ“î•ñ‚ğƒ{[ƒ“’PˆÊ‚ÅŠÇ—‚·‚é\‘¢‘Ì
+/// ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒœãƒ¼ãƒ³æƒ…å ±ã‚’ãƒœãƒ¼ãƒ³å˜ä½ã§ç®¡ç†ã™ã‚‹æ§‹é€ ä½“
 /// </summary>
 struct Engine::KeyBone {
 	size_t hash = 0;
@@ -53,20 +53,20 @@ public:
 };
 
 /// <summary>
-/// ƒ{[ƒ“’PˆÊ‚ÅƒAƒjƒ[ƒVƒ‡ƒ“î•ñ‚ğŠÇ—‚·‚éƒNƒ‰ƒX
+/// ãƒœãƒ¼ãƒ³å˜ä½ã§ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æƒ…å ±ã‚’ç®¡ç†ã™ã‚‹ã‚¯ãƒ©ã‚¹
 /// </summary>
 class Engine::MotionByBone {
-	Vector<KeyBone> m_keyBones;	//ƒL[ƒtƒŒ[ƒ€‚ª‘Å‚½‚ê‚Ä‚¢‚éƒ{[ƒ“î•ñ‚ğƒ{[ƒ“’PˆÊ‚Å‚Ü‚Æ‚ß‚½‚à‚Ì‚Ì“®“I”z—ñ
-	bool m_isAbsoluteTransform = false;	//ƒL[ƒtƒŒ[ƒ€‚Ìƒ{[ƒ“î•ñ‚ªâ‘ÎˆÊ’u‚Ì‚Æ‚«AtrueB‰Šúp¨‚©‚ç‚Ì‘Š‘Î•Ï‰»‚Ì‚Æ‚«Afalse
-	size_t m_maxFrameNo = 0;	//‚·‚×‚Ä‚ÌƒL[ƒtƒŒ[ƒ€‚Ì’†‚Åˆê”ÔÅŒã‚ÌƒtƒŒ[ƒ€”Ô†
+	Vector<KeyBone> m_keyBones;	//ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ãŒæ‰“ãŸã‚Œã¦ã„ã‚‹ãƒœãƒ¼ãƒ³æƒ…å ±ã‚’ãƒœãƒ¼ãƒ³å˜ä½ã§ã¾ã¨ã‚ãŸã‚‚ã®ã®å‹•çš„é…åˆ—
+	bool m_isAbsoluteTransform = false;	//ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒœãƒ¼ãƒ³æƒ…å ±ãŒçµ¶å¯¾ä½ç½®ã®ã¨ãã€trueã€‚åˆæœŸå§¿å‹¢ã‹ã‚‰ã®ç›¸å¯¾å¤‰åŒ–ã®ã¨ãã€false
+	size_t m_maxFrameNo = 0;	//ã™ã¹ã¦ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®ä¸­ã§ä¸€ç•ªæœ€å¾Œã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·
 public:
 	MotionByBone() noexcept = default;
 	MotionByBone(const MotionByBone&) noexcept = delete;
 	MotionByBone(MotionByBone&&) noexcept = default;
 	MotionByBone(const String& filePath) noexcept {
-		m_isAbsoluteTransform = false;	//VMDƒtƒ@ƒCƒ‹‚Í‰Šúp¨‚©‚ç‚Ì‘Š‘Î•Ï‰»‚ª‹L˜^‚³‚ê‚Ä‚¢‚é
+		m_isAbsoluteTransform = false;	//VMDãƒ•ã‚¡ã‚¤ãƒ«ã¯åˆæœŸå§¿å‹¢ã‹ã‚‰ã®ç›¸å¯¾å¤‰åŒ–ãŒè¨˜éŒ²ã•ã‚Œã¦ã„ã‚‹
 		Formats::VMD vmd(filePath);
-		for (Formats::VMDMotion& mot : vmd.motions) {	//VMDMotion‚Í‚ ‚éƒL[ƒtƒŒ[ƒ€‚Ì‚ ‚éƒ{[ƒ“ó‘Ô‚ğ•\‚·\‘¢‘Ì
+		for (Formats::VMDMotion& mot : vmd.motions) {	//VMDMotionã¯ã‚ã‚‹ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®ã‚ã‚‹ãƒœãƒ¼ãƒ³çŠ¶æ…‹ã‚’è¡¨ã™æ§‹é€ ä½“
 			String name = String(mot.boneName, 20);
 			size_t hash = name.GetHashCode();
 			KeyBone* keyBone = nullptr;
@@ -82,11 +82,11 @@ public:
 				m_keyBones.Add(static_cast<KeyBone&&>(tmp));
 				keyBone = m_keyBones.Items() + (m_keyBones.Count() - 1);
 			}
-			//ƒ{[ƒ“î•ñ‚ğ•ÏŠ·‚µ‚ÄŠi”[
+			//ãƒœãƒ¼ãƒ³æƒ…å ±ã‚’å¤‰æ›ã—ã¦æ ¼ç´
 			Bone* bone = new Bone();
 			CreateBoneFromVMDMotion(*bone, mot);
 			keyBone->bones.Add(bone);
-			//ÅŒã‚ÌƒtƒŒ[ƒ€”Ô†‚ğ•Û‘¶
+			//æœ€å¾Œã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã‚’ä¿å­˜
 			if (m_maxFrameNo < mot.frameNo) m_maxFrameNo = mot.frameNo;
 		}
 		for (KeyBone& k : m_keyBones) k.bones.Sort(true, [](Bone* const& lhs, Bone* const& rhs) { return lhs->id <=> rhs->id; });
@@ -94,17 +94,17 @@ public:
 	~MotionByBone() noexcept = default;
 public:
 	/// <summary>
-	/// ƒ{[ƒ“î•ñ‚ğƒ{[ƒ“’PˆÊ‚Å‚Ü‚Æ‚ß‚½\‘¢‘Ì‚Ì“®“I”z—ñ‚ğæ“¾‚·‚é
+	/// ãƒœãƒ¼ãƒ³æƒ…å ±ã‚’ãƒœãƒ¼ãƒ³å˜ä½ã§ã¾ã¨ã‚ãŸæ§‹é€ ä½“ã®å‹•çš„é…åˆ—ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	Vector<KeyBone>& GetKeyBones() noexcept { return m_keyBones; }
 	/// <summary>
-	/// ÅŒã‚ÌƒL[ƒtƒŒ[ƒ€”Ô†‚ğæ“¾‚·‚é
+	/// æœ€å¾Œã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	size_t GetEndFrameNo() const noexcept { return m_maxFrameNo; }
 	/// <summary>
-	/// ƒL[ƒtƒŒ[ƒ€‚Ìƒ{[ƒ“î•ñ‚ÌŠi”[•û–@‚ğæ“¾‚·‚é
+	/// ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒœãƒ¼ãƒ³æƒ…å ±ã®æ ¼ç´æ–¹æ³•ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
-	/// <returns>â‘ÎˆÊ’u‚Ìê‡‚Ítrue‚ğA‰Šúp¨‚©‚ç‚Ì‘Š‘Î•Ï‰»‚Ìê‡‚Ífalse‚ğ•Ô‚·</returns>
+	/// <returns>çµ¶å¯¾ä½ç½®ã®å ´åˆã¯trueã‚’ã€åˆæœŸå§¿å‹¢ã‹ã‚‰ã®ç›¸å¯¾å¤‰åŒ–ã®å ´åˆã¯falseã‚’è¿”ã™</returns>
 	bool IsAbsoluteTransform() const noexcept { return m_isAbsoluteTransform; }
 public:
 	MotionByBone& operator=(const MotionByBone&) noexcept = delete;
@@ -112,53 +112,53 @@ public:
 };
 
 /// <summary>
-/// ƒAƒjƒ[ƒVƒ‡ƒ“ƒf[ƒ^‚Ì1ƒL[ƒtƒŒ[ƒ€‚ğ•\‚·\‘¢‘Ì
+/// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãƒ‡ãƒ¼ã‚¿ã®1ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’è¡¨ã™æ§‹é€ ä½“
 /// </summary>
 struct Engine::Frame {
-	HashMap<String, Bone> bones = 3;	//ƒ{[ƒ“–¼‚ÅƒAƒNƒZƒX‚Å‚«‚é‚±‚ÌƒL[ƒtƒŒ[ƒ€‚ÉŠÜ‚Ü‚ê‚éƒ{[ƒ“î•ñB
-	size_t id = System::MAX_VALUE<size_t>;	//ƒtƒŒ[ƒ€”Ô†
+	HashMap<String, Bone> bones = 3;	//ãƒœãƒ¼ãƒ³åã§ã‚¢ã‚¯ã‚»ã‚¹ã§ãã‚‹ã“ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã«å«ã¾ã‚Œã‚‹ãƒœãƒ¼ãƒ³æƒ…å ±ã€‚
+	size_t id = System::MAX_VALUE<size_t>;	//ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·
 };
 
 /// <summary>
-/// ‚ ‚éƒtƒŒ[ƒ€”Ô†‚Ì‘O‚ÌƒL[ƒtƒŒ[ƒ€‚ÆŸ‚ÌƒL[ƒtƒŒ[ƒ€‚ğŠÜ‚Ş\‘¢‘Ì
+/// ã‚ã‚‹ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã®å‰ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã¨æ¬¡ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’å«ã‚€æ§‹é€ ä½“
 /// </summary>
 struct Engine::Frames {
-	Frame* prev = nullptr;	//‘O‚ÌƒL[ƒtƒŒ[ƒ€
-	Frame* next = nullptr;	//Ÿ‚ÌƒL[ƒtƒŒ[ƒ€
-	float t = 0;	//0‚ğ‘O‚ÌƒL[ƒtƒŒ[ƒ€A1‚ğŸ‚ÌƒL[ƒtƒŒ[ƒ€‚Æ‚µ‚½‚Æ‚«‚ÌŒ»İ‚ÌƒtƒŒ[ƒ€ˆÊ’u
+	Frame* prev = nullptr;	//å‰ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ 
+	Frame* next = nullptr;	//æ¬¡ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ 
+	float t = 0;	//0ã‚’å‰ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã€1ã‚’æ¬¡ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã¨ã—ãŸã¨ãã®ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ä½ç½®
 };
 
 /// <summary>
-/// ƒAƒjƒ[ƒVƒ‡ƒ“î•ñ‚ğŠÇ—‚·‚éƒNƒ‰ƒX
+/// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æƒ…å ±ã‚’ç®¡ç†ã™ã‚‹ã‚¯ãƒ©ã‚¹
 /// </summary>
 class Engine::Motion {
-	Vector<Frame*> m_frames;	//‚·‚×‚Ä‚ÌƒL[ƒtƒŒ[ƒ€‚Ì”z—ñ(‡˜‚Í•s’è)
-	bool m_isAbsoluteTransform = false;	//ƒL[ƒtƒŒ[ƒ€‚Ìƒ{[ƒ“î•ñ‚ªâ‘ÎˆÊ’u‚Ì‚Æ‚«AtrueB‰Šúp¨‚©‚ç‚Ì‘Š‘Î•Ï‰»‚Ì‚Æ‚«Afalse
-	size_t m_maxFrameNo = 0;	//‚·‚×‚Ä‚ÌƒL[ƒtƒŒ[ƒ€‚Ì’†‚Åˆê”ÔÅŒã‚ÌƒtƒŒ[ƒ€”Ô†
+	Vector<Frame*> m_frames;	//ã™ã¹ã¦ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®é…åˆ—(é †åºã¯ä¸å®š)
+	bool m_isAbsoluteTransform = false;	//ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒœãƒ¼ãƒ³æƒ…å ±ãŒçµ¶å¯¾ä½ç½®ã®ã¨ãã€trueã€‚åˆæœŸå§¿å‹¢ã‹ã‚‰ã®ç›¸å¯¾å¤‰åŒ–ã®ã¨ãã€false
+	size_t m_maxFrameNo = 0;	//ã™ã¹ã¦ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®ä¸­ã§ä¸€ç•ªæœ€å¾Œã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·
 public:
 	Motion() noexcept = default;
 	Motion(const Motion&) noexcept = delete;
 	Motion(Motion&&) noexcept = default;
 	Motion(const String& filePath) noexcept {
-		m_isAbsoluteTransform = false;	//VMDƒtƒ@ƒCƒ‹‚Í‰Šúp¨‚©‚ç‚Ì‘Š‘Î•Ï‰»‚ª‹L˜^‚³‚ê‚Ä‚¢‚é
+		m_isAbsoluteTransform = false;	//VMDãƒ•ã‚¡ã‚¤ãƒ«ã¯åˆæœŸå§¿å‹¢ã‹ã‚‰ã®ç›¸å¯¾å¤‰åŒ–ãŒè¨˜éŒ²ã•ã‚Œã¦ã„ã‚‹
 		Formats::VMD vmd(filePath);
-		for (Formats::VMDMotion& mot : vmd.motions) {	//VMDMotion‚Í‚ ‚éƒL[ƒtƒŒ[ƒ€‚Ì‚ ‚éƒ{[ƒ“ó‘Ô‚ğ•\‚·\‘¢‘Ì
+		for (Formats::VMDMotion& mot : vmd.motions) {	//VMDMotionã¯ã‚ã‚‹ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®ã‚ã‚‹ãƒœãƒ¼ãƒ³çŠ¶æ…‹ã‚’è¡¨ã™æ§‹é€ ä½“
 			Frame* frame = nullptr;
-			//‚·‚Å‚É’Ç‰Á‚³‚ê‚Ä‚¢‚éƒtƒŒ[ƒ€‚È‚çæ“¾
+			//ã™ã§ã«è¿½åŠ ã•ã‚Œã¦ã„ã‚‹ãƒ•ãƒ¬ãƒ¼ãƒ ãªã‚‰å–å¾—
 			for (Frame*& f : m_frames) {
 				if (f->id == mot.frameNo) {
 					frame = f;
 					break;
 				}
 			}
-			//–¢’Ç‰Á‚ÌƒtƒŒ[ƒ€‚È‚ç’Ç‰Á
+			//æœªè¿½åŠ ã®ãƒ•ãƒ¬ãƒ¼ãƒ ãªã‚‰è¿½åŠ 
 			if (!frame) {
 				frame = new Frame();
 				frame->id = mot.frameNo;
 				if (frame->id > m_maxFrameNo) m_maxFrameNo = frame->id;
 				m_frames.Add(frame);
 			}
-			//ƒ{[ƒ“î•ñ‚ğ•ÏŠ·‚µ‚ÄŠi”[
+			//ãƒœãƒ¼ãƒ³æƒ…å ±ã‚’å¤‰æ›ã—ã¦æ ¼ç´
 			Bone bone;
 			CreateBoneFromVMDMotion(bone, mot);
 			frame->bones.Insert(mot.boneName, static_cast<Bone&&>(bone));
@@ -169,14 +169,14 @@ public:
 	}
 public:
 	/// <summary>
-	/// w’è‚µ‚½ƒtƒŒ[ƒ€”Ô†‚Ì‘OŒã‚ÌƒL[ƒtƒŒ[ƒ€‚ğæ“¾‚·‚é
+	/// æŒ‡å®šã—ãŸãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã®å‰å¾Œã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
-	/// <param name="currentFrame">ƒtƒŒ[ƒ€”Ô†</param>
+	/// <param name="currentFrame">ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·</param>
 	/// <returns>
-	/// w’è‚µ‚½ƒtƒŒ[ƒ€”Ô†‚©‚çİ’è‚³‚ê‚½Frames\‘¢‘ÌB
-	/// w’è‚µ‚½ƒtƒŒ[ƒ€”Ô†‚Æˆê’v‚·‚éƒL[ƒtƒŒ[ƒ€‚ª‘¶İ‚·‚é‚Æ‚«A‘OŒã‚ÌƒL[ƒtƒŒ[ƒ€‚Íˆê’v‚µAƒtƒŒ[ƒ€•âŠÔˆÊ’u‚Í0‚Æ‚È‚éB
-	/// w’è‚µ‚½ƒtƒŒ[ƒ€”Ô†‚ªÅ‰‚ÌƒL[ƒtƒŒ[ƒ€”Ô†‚æ‚è¬‚³‚¢‚Æ‚«A‘O‚ÌƒL[ƒtƒŒ[ƒ€‚Ínullptr‚Æ‚È‚éB
-	/// w’è‚µ‚½ƒtƒŒ[ƒ€”Ô†‚ªÅŒã‚ÌƒL[ƒtƒŒ[ƒ€”Ô†‚æ‚è‘å‚«‚¢‚Æ‚«AŸ‚ÌƒL[ƒtƒŒ[ƒ€‚Ínullptr‚Æ‚È‚èAƒtƒŒ[ƒ€•âŠÔˆÊ’u‚Í0‚Æ‚È‚é
+	/// æŒ‡å®šã—ãŸãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã‹ã‚‰è¨­å®šã•ã‚ŒãŸFramesæ§‹é€ ä½“ã€‚
+	/// æŒ‡å®šã—ãŸãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã¨ä¸€è‡´ã™ã‚‹ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ãŒå­˜åœ¨ã™ã‚‹ã¨ãã€å‰å¾Œã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã¯ä¸€è‡´ã—ã€ãƒ•ãƒ¬ãƒ¼ãƒ è£œé–“ä½ç½®ã¯0ã¨ãªã‚‹ã€‚
+	/// æŒ‡å®šã—ãŸãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ãŒæœ€åˆã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã‚ˆã‚Šå°ã•ã„ã¨ãã€å‰ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã¯nullptrã¨ãªã‚‹ã€‚
+	/// æŒ‡å®šã—ãŸãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ãŒæœ€å¾Œã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã‚ˆã‚Šå¤§ãã„ã¨ãã€æ¬¡ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã¯nullptrã¨ãªã‚Šã€ãƒ•ãƒ¬ãƒ¼ãƒ è£œé–“ä½ç½®ã¯0ã¨ãªã‚‹
 	/// </returns>
 	Frames GetFrames(size_t currentFrame) noexcept {
 		Frames ret;
@@ -197,13 +197,13 @@ public:
 		return ret;
 	}
 	/// <summary>
-	/// ÅŒã‚ÌƒL[ƒtƒŒ[ƒ€”Ô†‚ğæ“¾‚·‚é
+	/// æœ€å¾Œã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	size_t GetEndFrameNo() const noexcept { return m_maxFrameNo; }
 	/// <summary>
-	/// ƒL[ƒtƒŒ[ƒ€‚Ìƒ{[ƒ“î•ñ‚ÌŠi”[•û–@‚ğæ“¾‚·‚é
+	/// ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒœãƒ¼ãƒ³æƒ…å ±ã®æ ¼ç´æ–¹æ³•ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
-	/// <returns>â‘ÎˆÊ’u‚Ìê‡‚Ítrue‚ğA‰Šúp¨‚©‚ç‚Ì‘Š‘Î•Ï‰»‚Ìê‡‚Ífalse‚ğ•Ô‚·</returns>
+	/// <returns>çµ¶å¯¾ä½ç½®ã®å ´åˆã¯trueã‚’ã€åˆæœŸå§¿å‹¢ã‹ã‚‰ã®ç›¸å¯¾å¤‰åŒ–ã®å ´åˆã¯falseã‚’è¿”ã™</returns>
 	bool IsAbsoluteTransform() const noexcept { return m_isAbsoluteTransform; }
 public:
 	Motion& operator=(const Motion&) noexcept = delete;
@@ -211,16 +211,16 @@ public:
 };
 
 /// <summary>
-/// AnimationƒNƒ‰ƒX‚ªŠÇ—‚·‚éó‘Ô‚ğ•\‚·ƒNƒ‰ƒX
+/// Animationã‚¯ãƒ©ã‚¹ãŒç®¡ç†ã™ã‚‹çŠ¶æ…‹ã‚’è¡¨ã™ã‚¯ãƒ©ã‚¹
 /// </summary>
 class Engine::State {
-	String m_name;	//‚±‚Ìó‘Ô‚Ì–¼‘O(AnimationƒNƒ‰ƒX‚ÌƒCƒ“ƒXƒ^ƒ“ƒX“à‚ÅˆêˆÓ)
-	bool m_useFrameMotion = true;	//true‚Ì‚Æ‚«MotionƒNƒ‰ƒX‚ğAfalse‚Ì‚Æ‚«MotionByBoneƒNƒ‰ƒX‚ğg—p‚·‚é
+	String m_name;	//ã“ã®çŠ¶æ…‹ã®åå‰(Animationã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹å†…ã§ä¸€æ„)
+	bool m_useFrameMotion = true;	//trueã®ã¨ãMotionã‚¯ãƒ©ã‚¹ã‚’ã€falseã®ã¨ãMotionByBoneã‚¯ãƒ©ã‚¹ã‚’ä½¿ç”¨ã™ã‚‹
 	union {
-		Motion* m_motion = nullptr;	//‚±‚Ìó‘Ô‚ÌƒAƒjƒ[ƒVƒ‡ƒ“
+		Motion* m_motion = nullptr;	//ã“ã®çŠ¶æ…‹æ™‚ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³
 		MotionByBone* m_motionByBone;
 	};
-	bool m_repeat = true;	//ƒAƒjƒ[ƒVƒ‡ƒ“‚ğƒŠƒs[ƒg‚·‚é‚©”Û‚©
+	bool m_repeat = true;	//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’ãƒªãƒ”ãƒ¼ãƒˆã™ã‚‹ã‹å¦ã‹
 public:
 	State() noexcept = default;
 	State(const String& name) noexcept : m_name(name) {}
@@ -231,16 +231,16 @@ public:
 	}
 public:
 	/// <summary>
-	/// ó‘Ô–¼‚ğİ’è‚·‚é
+	/// çŠ¶æ…‹åã‚’è¨­å®šã™ã‚‹
 	/// </summary>
 	void SetName(const String& name) noexcept { m_name = name; }
 	/// <summary>
-	/// ‚±‚Ìó‘Ô‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ğƒŠƒs[ƒgÄ¶‚·‚é‚©”Û‚©‚ğİ’è‚·‚é
+	/// ã“ã®çŠ¶æ…‹ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’ãƒªãƒ”ãƒ¼ãƒˆå†ç”Ÿã™ã‚‹ã‹å¦ã‹ã‚’è¨­å®šã™ã‚‹
 	/// </summary>
 	constexpr void SetRepeat(bool repeat) noexcept { m_repeat = repeat; }
 public:
 	/// <summary>
-	/// ó‘Ô–¼"Empty"A‰Šúp¨‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ğİ’è‚·‚é
+	/// çŠ¶æ…‹å"Empty"ã€åˆæœŸå§¿å‹¢ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’è¨­å®šã™ã‚‹
 	/// </summary>
 	void SetEmptyMotion(bool useFrameMotion = true) noexcept {
 		if (m_motion) {
@@ -253,9 +253,9 @@ public:
 		m_name = u"Empty";
 	}
 	/// <summary>
-	/// ƒAƒjƒ[ƒVƒ‡ƒ“ƒtƒ@ƒCƒ‹‚©‚çƒAƒjƒ[ƒVƒ‡ƒ“‚ğİ’è‚·‚é
+	/// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’è¨­å®šã™ã‚‹
 	/// </summary>
-	/// <param name="filePath">VMDƒtƒ@ƒCƒ‹–¼</param>
+	/// <param name="filePath">VMDãƒ•ã‚¡ã‚¤ãƒ«å</param>
 	void SetMotion(const String& filePath, bool useFrameMotion = true) noexcept {
 		if (m_motion) {
 			if (m_useFrameMotion) delete m_motion;
@@ -267,20 +267,20 @@ public:
 	}
 public:
 	/// <summary>
-	/// ó‘Ô–¼‚ğæ“¾‚·‚é
+	/// çŠ¶æ…‹åã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	const String& GetName() const noexcept { return m_name; }
 	/// <summary>
-	/// ‚±‚Ìó‘Ô‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ªƒŠƒs[ƒgÄ¶‚·‚é‚©”Û‚©‚ğæ“¾‚·‚é
+	/// ã“ã®çŠ¶æ…‹ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãŒãƒªãƒ”ãƒ¼ãƒˆå†ç”Ÿã™ã‚‹ã‹å¦ã‹ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	constexpr bool GetRepeat() const noexcept { return m_repeat; }
 	/// <summary>
-	/// MotionƒNƒ‰ƒX‚ğg—p‚µ‚Ä‚¢‚éê‡‚Ítrue‚ğAMotionByBoneƒNƒ‰ƒX‚ğg—p‚µ‚Ä‚¢‚éê‡‚Ífalse‚ğ•Ô‚·
+	/// Motionã‚¯ãƒ©ã‚¹ã‚’ä½¿ç”¨ã—ã¦ã„ã‚‹å ´åˆã¯trueã‚’ã€MotionByBoneã‚¯ãƒ©ã‚¹ã‚’ä½¿ç”¨ã—ã¦ã„ã‚‹å ´åˆã¯falseã‚’è¿”ã™
 	/// </summary>
 	constexpr bool IsFrameMotion() const noexcept { return m_useFrameMotion; }
 public:
 	/// <summary>
-	/// ‚±‚Ìó‘Ô‚ÌƒAƒjƒ[ƒVƒ‡ƒ“î•ñ‚ğæ“¾‚·‚é
+	/// ã“ã®çŠ¶æ…‹ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æƒ…å ±ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	template<bool useFrameMotion = true>
 	Traits::conditional_t<useFrameMotion, Motion*, MotionByBone*> GetMotion() noexcept {
@@ -290,29 +290,29 @@ public:
 };
 
 /// <summary>
-/// ó‘Ô‚Ì‘JˆÚğŒ‚Ìİ’è‚ğ•\‚·\‘¢‘Ì
+/// çŠ¶æ…‹ã®é·ç§»æ¡ä»¶ã®è¨­å®šã‚’è¡¨ã™æ§‹é€ ä½“
 /// </summary>
 struct Engine::Transition {
-	String before;	//‘JˆÚ‘O‚Ìó‘Ô–¼
-	String after;	//‘JˆÚŒã‚Ìó‘Ô–¼
-	Function<bool(GameObject&)> condition;	//‘JˆÚğŒ®Btrue‚Ì‚Æ‚«Aó‘Ô‚ª‘JˆÚ‚·‚é
+	String before;	//é·ç§»å‰ã®çŠ¶æ…‹å
+	String after;	//é·ç§»å¾Œã®çŠ¶æ…‹å
+	Function<bool(GameObject&)> condition;	//é·ç§»æ¡ä»¶å¼ã€‚trueã®ã¨ãã€çŠ¶æ…‹ãŒé·ç§»ã™ã‚‹
 public:
 	bool operator()(GameObject& gObj) noexcept { return condition(gObj); }
 	bool operator==(const Transition& rhs) noexcept { return before == rhs.before && after == rhs.after && condition == rhs.condition; }
 };
 
 /// <summary>
-/// AnimatorƒNƒ‰ƒX‚Åg—p‚³‚ê‚éó‘Ô‘JˆÚ‚ğŠÇ—‚·‚éƒNƒ‰ƒX
+/// Animatorã‚¯ãƒ©ã‚¹ã§ä½¿ç”¨ã•ã‚Œã‚‹çŠ¶æ…‹é·ç§»ã‚’ç®¡ç†ã™ã‚‹ã‚¯ãƒ©ã‚¹
 /// </summary>
 class Engine::AnimationController {
-	Vector<Transition> m_transitions;	//ó‘Ô‚Ì‘JˆÚğŒ‚Ì”z—ñ
+	Vector<Transition> m_transitions;	//çŠ¶æ…‹ã®é·ç§»æ¡ä»¶ã®é…åˆ—
 public:
 	/// <summary>
-	/// ‘JˆÚŒã‚Ìó‘Ô–¼‚ğæ“¾‚·‚é
+	/// é·ç§»å¾Œã®çŠ¶æ…‹åã‚’å–å¾—ã™ã‚‹
 	/// </summary>
-	/// <param name="before">Œ»İ‚Ìó‘Ô–¼</param>
-	/// <param name="gObj">AnimatorƒNƒ‰ƒX‚ªƒAƒ^ƒbƒ`‚³‚ê‚Ä‚¢‚éGameObject</param>
-	/// <returns>‘JˆÚŒã‚Ìó‘Ô–¼B•¡”‚Ì‘JˆÚæ‚ª‘¶İ‚·‚é‚Æ‚«A“o˜^‡‚ª‘‚¢ó‘Ô‚Ì–¼‘O‚ğ•Ô‚·B</returns>
+	/// <param name="before">ç¾åœ¨ã®çŠ¶æ…‹å</param>
+	/// <param name="gObj">Animatorã‚¯ãƒ©ã‚¹ãŒã‚¢ã‚¿ãƒƒãƒã•ã‚Œã¦ã„ã‚‹GameObject</param>
+	/// <returns>é·ç§»å¾Œã®çŠ¶æ…‹åã€‚è¤‡æ•°ã®é·ç§»å…ˆãŒå­˜åœ¨ã™ã‚‹ã¨ãã€ç™»éŒ²é †ãŒæ—©ã„çŠ¶æ…‹ã®åå‰ã‚’è¿”ã™ã€‚</returns>
 	const String& GetCurrentMotionName(const String& before, GameObject& gObj) noexcept {
 		for (auto& t : m_transitions) {
 			if (t.before != before) continue;
@@ -321,13 +321,13 @@ public:
 		return before;
 	}
 	/// <summary>
-	/// ‘JˆÚğŒ‚ğ’Ç‰Á‚·‚éB
-	/// ‘JˆÚ‘O‚Æ‘JˆÚæ‚Ìó‘Ô–¼‚ÍAnimatorƒNƒ‰ƒX‚ÌƒCƒ“ƒXƒ^ƒ“ƒX“à‚É‚È‚¢ó‘Ô–¼‚à’Ç‰Á‚Å‚«‚éB
-	/// ‚·‚Å‚É‘¶İ‚·‚é‘JˆÚ‘O‚Æ‘JˆÚæ‚Ì‘g‚İ‡‚í‚¹‚Ìê‡AğŒ®‚Ì‚İ•ÏX‚·‚é
+	/// é·ç§»æ¡ä»¶ã‚’è¿½åŠ ã™ã‚‹ã€‚
+	/// é·ç§»å‰ã¨é·ç§»å…ˆã®çŠ¶æ…‹åã¯Animatorã‚¯ãƒ©ã‚¹ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹å†…ã«ãªã„çŠ¶æ…‹åã‚‚è¿½åŠ ã§ãã‚‹ã€‚
+	/// ã™ã§ã«å­˜åœ¨ã™ã‚‹é·ç§»å‰ã¨é·ç§»å…ˆã®çµ„ã¿åˆã‚ã›ã®å ´åˆã€æ¡ä»¶å¼ã®ã¿å¤‰æ›´ã™ã‚‹
 	/// </summary>
-	/// <param name="before">‘JˆÚ‘O‚Ìó‘Ô–¼</param>
-	/// <param name="after">‘JˆÚæ‚Ìó‘Ô–¼</param>
-	/// <param name="condition">‘JˆÚğŒ®</param>
+	/// <param name="before">é·ç§»å‰ã®çŠ¶æ…‹å</param>
+	/// <param name="after">é·ç§»å…ˆã®çŠ¶æ…‹å</param>
+	/// <param name="condition">é·ç§»æ¡ä»¶å¼</param>
 	void AddTransition(const String& before, const String& after, const Function<bool(GameObject&)>& condition) noexcept {
 		for (auto& t : m_transitions) {
 			if (t.before == before && t.after == after) {
@@ -338,11 +338,11 @@ public:
 		m_transitions.Add(Transition{ before, after, condition });
 	}
 	/// <summary>
-	/// ‘JˆÚğŒ‚ğíœ‚·‚é
+	/// é·ç§»æ¡ä»¶ã‚’å‰Šé™¤ã™ã‚‹
 	/// </summary>
-	/// <param name="before">‘JˆÚ‘O‚Ìó‘Ô–¼</param>
-	/// <param name="after">‘JˆÚæ‚Ìó‘Ô–¼</param>
-	/// <returns>íœ‚É¬Œ÷‚µ‚½‚Æ‚«Atrue</returns>
+	/// <param name="before">é·ç§»å‰ã®çŠ¶æ…‹å</param>
+	/// <param name="after">é·ç§»å…ˆã®çŠ¶æ…‹å</param>
+	/// <returns>å‰Šé™¤ã«æˆåŠŸã—ãŸã¨ãã€true</returns>
 	bool RemoveTransition(const String& before, const String& after) noexcept {
 		for (auto& t : m_transitions) {
 			if (t.before == before && t.after == after) {

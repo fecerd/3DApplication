@@ -1,4 +1,4 @@
-export module IInputManager;
+﻿export module IInputManager;
 import System;
 export import InputSystemUtility;
 export import ApplicationUtility;

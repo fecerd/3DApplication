@@ -1,6 +1,5 @@
-module;
-#include <mutex>	//unique_lock, mutex
-export module ExclusiveObject;
+﻿export module ExclusiveObject;
+import <mutex>;	//unique_lock, mutex
 
 export namespace System {
 	template<class T>

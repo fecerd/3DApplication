@@ -1,4 +1,4 @@
-export module FlagSet;
+﻿export module FlagSet;
 import CSTDINT;
 import Traits;
 using namespace System;

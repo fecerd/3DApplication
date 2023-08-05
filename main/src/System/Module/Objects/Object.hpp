@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #ifndef Object_H
 #define Object_H
 import CSTDINT;
@@ -8,38 +8,38 @@ namespace System {
 	class Type;
 
 	/// <summary>
-	/// System–¼‘O‹óŠÔ‚Ìpublic‚ÈƒNƒ‰ƒX‚ÌŠî’êƒNƒ‰ƒX
+	/// Systemåå‰ç©ºé–“ã®publicãªã‚¯ãƒ©ã‚¹ã®åŸºåº•ã‚¯ãƒ©ã‚¹
 	/// </summary>
 	class Object {
 	public:
-		constexpr Object() noexcept = default;
-		constexpr virtual ~Object() noexcept = default;
+		constexpr Object() noexcept {}
+		virtual constexpr ~Object() noexcept {}
 	public:
 		/// <summary>
-		/// ‚±‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚Æˆø”‚ğDerived::operator==(const Derived&amp;)‚Å”äŠr‚·‚é
+		/// ã“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã¨å¼•æ•°ã‚’Derived::operator==(const Derived&amp;)ã§æ¯”è¼ƒã™ã‚‹
 		/// </summary>
-		/// <param name="obj">”äŠr‚·‚éObject</param>
-		/// <returns>DerivedŒ^‚Æ‚µ‚Ä“™‰¿‚Ìê‡AtrueB‚»‚êˆÈŠO‚Ìê‡Afalse</returns>
+		/// <param name="obj">æ¯”è¼ƒã™ã‚‹Object</param>
+		/// <returns>Derivedå‹ã¨ã—ã¦ç­‰ä¾¡ã®å ´åˆã€trueã€‚ãã‚Œä»¥å¤–ã®å ´åˆã€false</returns>
 		virtual bool Equals(const Object& obj) const noexcept { return *this == obj; }
 		/// <summary>
-		/// ƒnƒbƒVƒ…’l‚ğæ“¾‚·‚é
+		/// ãƒãƒƒã‚·ãƒ¥å€¤ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <returns>À‘•‚³‚ê‚Ä‚¢‚éŒ^‚Ì’l‚É‘Î‚µ‚ÄŒÅ—L‚ÌƒnƒbƒVƒ…’l</returns>
+		/// <returns>å®Ÿè£…ã•ã‚Œã¦ã„ã‚‹å‹ã®å€¤ã«å¯¾ã—ã¦å›ºæœ‰ã®ãƒãƒƒã‚·ãƒ¥å€¤</returns>
 		virtual size_t GetHashCode() const noexcept { return static_cast<size_t>(reinterpret_cast<uintptr_t>(this)); }
 		/// <summary>
-		/// TypeƒIƒuƒWƒFƒNƒg‚ğæ“¾‚·‚é
+		/// Typeã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <returns>‚±‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ÌŒ^‚ğw‚·TypeƒIƒuƒWƒFƒNƒg</returns>
+		/// <returns>ã“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã®å‹ã‚’æŒ‡ã™Typeã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 		virtual Type GetType() const noexcept = 0;
 		/// <summary>
-		/// •¶š—ñ‰»‚·‚é
+		/// æ–‡å­—åˆ—åŒ–ã™ã‚‹
 		/// </summary>
-		/// <returns>‚±‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ª‚Â’l‚ğ•\‚·StringƒIƒuƒWƒFƒNƒg</returns>
+		/// <returns>ã“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãŒæŒã¤å€¤ã‚’è¡¨ã™Stringã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</returns>
 		virtual String ToString() const noexcept = 0;
 		/// <summary>
-		/// Œ^ŒÅ—L‚ÌID‚ğæ“¾‚·‚é
+		/// å‹å›ºæœ‰ã®IDã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <returns>Œ^ŒÅ—L‚Ì4ƒoƒCƒg®”’l</returns>
+		/// <returns>å‹å›ºæœ‰ã®4ãƒã‚¤ãƒˆæ•´æ•°å€¤</returns>
 		virtual uint32_t GetTypeID() const noexcept = 0;
 	public:
 		bool operator==(const Object& obj) const noexcept { return this == &obj; }

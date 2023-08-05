@@ -1,4 +1,4 @@
-export module FBX;
+ï»¿export module FBX;
 import CSTDINT;
 import Objects;
 import CString;
@@ -9,11 +9,11 @@ using namespace System;
 
 export namespace System::Formats {
 	struct FBXArray {
-		//—v‘f”
+		//è¦ç´ æ•°
 		uint32_t m_count = 0;
-		//ƒGƒ“ƒR[ƒfƒBƒ“ƒOB0: ”ñˆ³kA1: zlibˆ³k(zlibƒwƒbƒ_ŠÜ‚Ş)
+		//ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã€‚0: éåœ§ç¸®ã€1: zlibåœ§ç¸®(zlibãƒ˜ãƒƒãƒ€å«ã‚€)
 		uint32_t m_encoding = 0;
-		//‘±‚­ƒf[ƒ^‚Ìƒtƒ@ƒCƒ‹ã‚Å‚ÌƒoƒCƒg”
+		//ç¶šããƒ‡ãƒ¼ã‚¿ã®ãƒ•ã‚¡ã‚¤ãƒ«ä¸Šã§ã®ãƒã‚¤ãƒˆæ•°
 		uint32_t m_byteSize = 0;
 		union {
 			bool* m_bool = nullptr;
@@ -78,12 +78,12 @@ export namespace System::Formats {
 	};
 
 	struct FBXSpecialData {
-		//‘±‚­ƒf[ƒ^‚ÌƒoƒCƒg”
+		//ç¶šããƒ‡ãƒ¼ã‚¿ã®ãƒã‚¤ãƒˆæ•°
 		uint32_t m_length = 0;
 		union {
-			//utf-8•¶š—ñB(Šî–{“I‚É)ƒkƒ‹I’[‚µ‚È‚¢
+			//utf-8æ–‡å­—åˆ—ã€‚(åŸºæœ¬çš„ã«)ãƒŒãƒ«çµ‚ç«¯ã—ãªã„
 			char8_t* m_string = nullptr;
-			//ƒoƒCƒiƒŠƒf[ƒ^
+			//ãƒã‚¤ãƒŠãƒªãƒ‡ãƒ¼ã‚¿
 			uint8_t* m_byte;
 		};
 	public:
@@ -143,8 +143,8 @@ export namespace System::Formats {
 			case 'C': {
 				uint8_t tmp;
 				file.ReadLE(tmp);
-				//'Y'0x59‚ªtrueA'T'0x54‚ªfalse‚¾‚ªA0x01‚Æ0x00‚Ìê‡‚à‚ ‚é‚½‚ßA
-				//Šï”‚Ì‚Æ‚«‚Ítrue‚Æ‚·‚é
+				//'Y'0x59ãŒtrueã€'T'0x54ãŒfalseã ãŒã€0x01ã¨0x00ã®å ´åˆã‚‚ã‚ã‚‹ãŸã‚ã€
+				//å¥‡æ•°ã®ã¨ãã¯trueã¨ã™ã‚‹
 				m_bool = tmp & 1;
 				break;
 			}
@@ -174,15 +174,15 @@ export namespace System::Formats {
 	};
 
 	struct FBXNode {
-		//ƒtƒ@ƒCƒ‹æ“ª‚©‚ç‚±‚Ìƒm[ƒh‚ÌŸ‚Ìƒm[ƒh‚Ìæ“ª‚Ö‚ÌƒIƒtƒZƒbƒg
+		//ãƒ•ã‚¡ã‚¤ãƒ«å…ˆé ­ã‹ã‚‰ã“ã®ãƒãƒ¼ãƒ‰ã®æ¬¡ã®ãƒãƒ¼ãƒ‰ã®å…ˆé ­ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ
 		uint64_t m_endOffset = 0;
-		//‘®«”
+		//å±æ€§æ•°
 		uint64_t m_numProperties = 0;
-		//‘S‘®«‚Ì‡ŒvƒoƒCƒg”
+		//å…¨å±æ€§ã®åˆè¨ˆãƒã‚¤ãƒˆæ•°
 		uint64_t m_propertyListLength = 0;
-		//ƒm[ƒh–¼
+		//ãƒãƒ¼ãƒ‰å
 		String m_name;
-		//‘®«ƒŠƒXƒg[m_numProperties]
+		//å±æ€§ãƒªã‚¹ãƒˆ[m_numProperties]
 		FBXProperty* m_properties = nullptr;
 		//
 		Vector<FBXNode*> m_children;

@@ -1,13 +1,13 @@
-export module Point;
+ï»¿export module Point;
 import CSTDINT;
 import Traits;
 import Objects;
 
 export namespace System {
 	/// <summary>
-	/// “ñŸŒ³À•WŒ^\‘¢‘Ì
+	/// äºŒæ¬¡å…ƒåº§æ¨™å‹æ§‹é€ ä½“
 	/// </summary>
-	template<System::Traits::Arithmetic T>
+	template<Traits::Concepts::CArithmetic T>
 	struct Point {
 		T x = 0;
 		T y = 0;
@@ -15,7 +15,7 @@ export namespace System {
 		constexpr Point() noexcept = default;
 		constexpr Point(const Point&) noexcept = default;
 		constexpr Point(T x, T y) noexcept : x(x), y(y) {}
-		constexpr Point(uint32_t dw) noexcept requires(System::Traits::is_integral_v<T> && sizeof(T) >= 2)
+		constexpr Point(uint32_t dw) noexcept requires(Traits::Concepts::CIntegral<T> && sizeof(T) >= 2)
 			: x(static_cast<T>((dw >> 16) & 0xffff)), y(static_cast<T>(dw & 0xffff)) {}
 		constexpr ~Point() noexcept = default;
 	public:

@@ -1,4 +1,4 @@
-export module TGA;
+﻿export module TGA;
 import CSTDINT;
 import Objects;
 import Image;
@@ -9,58 +9,58 @@ import Exception;
 
 export namespace System::Drawing {
 	class TGA {
-		//m_signature[18]�͂��̕�����(�k���I�[����)������
-		//"TRUEVISION-TARGA\0"(+�k���I�[)�̏ꍇ������H
+		//m_signature[18]はこの文字列(ヌル終端あり)を持つ
+		//"TRUEVISION-TARGA\0"(+ヌル終端)の場合もある？
 		static constexpr char Signature[18] = "TRUEVISION-XFILE.";
 	private:
-		//ImageID�t�B�[���h�̃o�C�g���B0�̂Ƃ��t�B�[���h�����݂��Ȃ�
+		//ImageIDフィールドのバイト長。0のときフィールドが存在しない
 		uint8_t m_idLength = 0;
-		//�J���[�}�b�v�̗L��(0:�Ȃ��A1:����)
+		//カラーマップの有無(0:なし、1:あり)
 		uint8_t m_colorMapType = 0;
-		//�摜�`��
-		//0: �Ȃ�
-		//1: �C���f�b�N�X�J���[(256�F)
-		//2: �t���J���[
-		//3: ����
-		//4�r�b�g��(8)��1�̂Ƃ�(9����11)�ARLE���k����Ă���
+		//画像形式
+		//0: なし
+		//1: インデックスカラー(256色)
+		//2: フルカラー
+		//3: 白黒
+		//4ビット目(8)が1のとき(9から11)、RLE圧縮されている
 		uint8_t m_imageType = 0;
-		//�J���[�}�b�v��ǂݍ��ނƂ��̊J�n�C���f�b�N�X
+		//カラーマップを読み込むときの開始インデックス
 		uint16_t m_firstEntryIndex = 0;
-		//�J���[�}�b�v�̐�
+		//カラーマップの数
 		uint16_t m_colorMapLength = 0;
-		//�G���g�����Ƃ̃r�b�g���B�ʏ�A15�A16�A24�A32�̂����ꂩ
+		//エントリごとのビット数。通常、15、16、24、32のいずれか
 		uint8_t m_colorMapEntrySize = 0;
-		//�X�N���[����ł̉摜�̍�����X���W
+		//スクリーン上での画像の左下のX座標
 		int16_t m_xOrigin = 0;
-		//�X�N���[����ł̉摜�̍�����Y���W
+		//スクリーン上での画像の左下のY座標
 		int16_t m_yOrigin = 0;
-		//�摜�̕�
+		//画像の幅
 		uint16_t m_width = 0;
-		//�摜�̍���
+		//画像の高さ
 		uint16_t m_height = 0;
-		//�s�N�Z�����Ƃ̃r�b�g���B�ʏ�A8�A16�A24�A32�̂����ꂩ
+		//ピクセルごとのビット数。通常、8、16、24、32のいずれか
 		uint8_t m_pixelDepth = 0;
-		//���ʂ���A
-		//0-3: ����(�A���t�@�`���l����I�[�o�[���C�@�\�Ɏg�p)
-		//4: 0�̂Ƃ�������E�A1�̂Ƃ��E���獶�Ɋi�[
-		//5: 0�̂Ƃ��������A1�̂Ƃ��ォ�牺�Ɋi�[
-		//6,7: ���g�p�̈�(0�Œ�)
+		//下位から、
+		//0-3: 属性(アルファチャネルやオーバーレイ機能に使用)
+		//4: 0のとき左から右、1のとき右から左に格納
+		//5: 0のとき下から上、1のとき上から下に格納
+		//6,7: 未使用領域(0固定)
 		uint8_t m_imageDescriptor = 0;
-		//�摜���ʎq�B[m_idLength]
+		//画像識別子。[m_idLength]
 		uint8_t* m_imageID = nullptr;
-		//�J���[�}�b�v�f�[�^�B
-		//m_colorMapType��1�̂Ƃ��̂ݑ��݂���B
+		//カラーマップデータ。
+		//m_colorMapTypeが1のときのみ存在する。
 		//[RoundUp(m_colorMapLength * m_colorMapEntrySize / 8)]
 		uint8_t* m_colorMap = nullptr;
-		//�摜�f�[�^
+		//画像データ
 		uint8_t* m_data = nullptr;
-		//�t�@�C���擪����g���̈�ւ̃I�t�Z�b�g
-		//0�̂Ƃ��A�g���̈悪���݂��Ȃ�
+		//ファイル先頭から拡張領域へのオフセット
+		//0のとき、拡張領域が存在しない
 		int32_t m_extensionAreaOffset = 0;
-		//�t�@�C���擪����J���҃f�B���N�g���ւ̃I�t�Z�b�g
-		//0�̂Ƃ��A�J���҃f�B���N�g�������݂��Ȃ�
+		//ファイル先頭から開発者ディレクトリへのオフセット
+		//0のとき、開発者ディレクトリが存在しない
 		int32_t m_developerDirectoryOffset = 0;
-		//TGA�t�H�[�}�b�g��\���W��
+		//TGAフォーマットを表す標識
 		char m_signature[18] = {};
 	public:
 		TGA() noexcept = default;
@@ -173,7 +173,7 @@ export namespace System::Drawing {
 			else {
 				if (m_imageType == 2) LoadTrueColor(pixels);
 			}
-			if (!pixels.Count()) throw LogicException(__FUNCSIG__, u"����TGA�`���̃T�|�[�g�͖������ł�", __FILE__, __LINE__);
+			if (!pixels.Count()) throw LogicException(__FUNCSIG__, u"このTGA形式のサポートは未実装です", __FILE__, __LINE__);
 			Image ret(m_width, m_height, static_cast<Vector<Pixel>&&>(pixels));
 			if (IsBottomToTop()) ret.Reverse();
 			return ret;

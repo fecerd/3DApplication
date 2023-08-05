@@ -1,4 +1,4 @@
-export module VMD;
+ï»¿export module VMD;
 import Module;
 import IO;
 using namespace System;
@@ -32,41 +32,41 @@ struct System::Formats::VMDMorph {
 	char name[15];
 	//uint8_t padding[1];
 	uint32_t frameNo;
-	float weight;	//ƒEƒFƒCƒg([0.0f, 1.0f])
+	float weight;	//ã‚¦ã‚§ã‚¤ãƒˆ([0.0f, 1.0f])
 };
 
 struct System::Formats::VMDCamera {
 	uint32_t frameNo;
-	float distance;	//‹——£
-	Vector3 pos;	//À•W
-	Vector3 eulerAngle;	//ƒIƒCƒ‰[Šp
-	uint8_t Interpolation[24];	//•âŠÔŒW”
-	uint32_t fov;	//‹–ìŠp
-	uint8_t persFlg;	//ƒp[ƒX‚ÌOn/Off
+	float distance;	//è·é›¢
+	Vector3 pos;	//åº§æ¨™
+	Vector3 eulerAngle;	//ã‚ªã‚¤ãƒ©ãƒ¼è§’
+	uint8_t Interpolation[24];	//è£œé–“ä¿‚æ•°
+	uint32_t fov;	//è¦–é‡è§’
+	uint8_t persFlg;	//ãƒ‘ãƒ¼ã‚¹ã®On/Off
 	//uint8_t padding[3];
 };
 
 struct System::Formats::VMDLight {
 	uint32_t frameNo;
-	Vector3 rgb;	//ŒõŒ¹F
-	Vector3 vec;	//•½sŒõü‚ÌƒxƒNƒgƒ‹
+	Vector3 rgb;	//å…‰æºè‰²
+	Vector3 vec;	//å¹³è¡Œå…‰ç·šã®ãƒ™ã‚¯ãƒˆãƒ«
 };
 
 struct System::Formats::VMDSelfShadow {
 	uint32_t frameNo;
-	uint8_t mode;	//‰eƒ‚[ƒh(0: ‰e‚È‚µ, 1: ƒ‚[ƒh1, 2: ƒ‚[ƒh2)
+	uint8_t mode;	//å½±ãƒ¢ãƒ¼ãƒ‰(0: å½±ãªã—, 1: ãƒ¢ãƒ¼ãƒ‰1, 2: ãƒ¢ãƒ¼ãƒ‰2)
 	//uint8_t padding[3];
-	float distance;	//‹——£
+	float distance;	//è·é›¢
 };
 
 struct System::Formats::VMDIKEnable {
 	struct IKINFO {
-		char name[20];	//‘ÎÛ‚Ìƒ{[ƒ“–¼
-		uint8_t enabled;	//‚±‚Ìƒ{[ƒ“‚ÌIK‚ª—LŒø‚©(0: false, 1:true)
+		char name[20];	//å¯¾è±¡ã®ãƒœãƒ¼ãƒ³å
+		uint8_t enabled;	//ã“ã®ãƒœãƒ¼ãƒ³ã®IKãŒæœ‰åŠ¹ã‹(0: false, 1:true)
 	};
 public:
 	uint32_t frameNo;
-	uint8_t visibleFlg;	//ƒ‚ƒfƒ‹‚Ì•\¦(0: false, 1: true)
+	uint8_t visibleFlg;	//ãƒ¢ãƒ‡ãƒ«ã®è¡¨ç¤º(0: false, 1: true)
 	uint32_t infoCount;
 	IKINFO* infos = nullptr;
 public:

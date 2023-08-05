@@ -1,4 +1,4 @@
-module Control;
+Ôªømodule Control;
 import Log;
 using namespace System;
 using namespace WinAPI;
@@ -271,15 +271,15 @@ void Control::Init_Internal() {
 	const Point<int32_t> pos = this->Pos;
 	const System::Size<int32_t> size = this->Size;
 	m_hWnd = CreateControl(m_wc.GetClassName(), pos.x, pos.y, size.width, size.height, this->Name, Parent ? Parent->GetHWND() : nullptr, hMenu, WindowStyle, WindowStyleEx);
-	if (!m_hWnd) throw System::Exception("ÉEÉBÉìÉhÉEÇÃê∂ê¨Ç…é∏îsÇµÇ‹ÇµÇΩÅB");
+	if (!m_hWnd) throw System::Exception("„Ç¶„Ç£„É≥„Éâ„Ç¶„ÅÆÁîüÊàê„Å´Â§±Êïó„Åó„Åæ„Åó„Åü„ÄÇ");
 	if (m_wc.GetWNDCLASSEXW()->lpfnWndProc != ControlProc) {
 		m_prevWndProc = reinterpret_cast<WNDPROC>(SetWindowLong(m_hWnd, GWL_WNDPROC, reinterpret_cast<int64_t>(ControlProc)));
-		if (!m_prevWndProc) throw System::Exception("ÉEÉBÉìÉhÉEÉvÉçÉVÅ[ÉWÉÉÇÃê›íËÇ…é∏îsÇµÇ‹ÇµÇΩÅB");
+		if (!m_prevWndProc) throw System::Exception("„Ç¶„Ç£„É≥„Éâ„Ç¶„Éó„É≠„Ç∑„Éº„Ç∏„É£„ÅÆË®≠ÂÆö„Å´Â§±Êïó„Åó„Åæ„Åó„Åü„ÄÇ");
 	}
 	GetAllControls().Insert(m_hWnd, this);
 
-	//WinAPIÇÃCreateWindowÇÕÉEÉBÉìÉhÉEÉTÉCÉYéwíËÇ»ÇÃÇ≈ÅA
-	//Ç±Ç±Ç≈ÉNÉâÉCÉAÉìÉgÉTÉCÉYÇ™éwíËÇµÇΩÉTÉCÉYÇ…Ç»ÇÈÇÊÇ§Ç…ÉäÉTÉCÉY
+	//WinAPI„ÅÆCreateWindow„ÅØ„Ç¶„Ç£„É≥„Éâ„Ç¶„Çµ„Ç§„Ç∫ÊåáÂÆö„Å™„ÅÆ„Åß„ÄÅ
+	//„Åì„Åì„Åß„ÇØ„É©„Ç§„Ç¢„É≥„Éà„Çµ„Ç§„Ç∫„ÅåÊåáÂÆö„Åó„Åü„Çµ„Ç§„Ç∫„Å´„Å™„Çã„Çà„ÅÜ„Å´„É™„Çµ„Ç§„Ç∫
 	this->Size = size;
 
 	CREATESTRUCTW cs;
@@ -352,7 +352,7 @@ LRESULT Control::EventProc(uint32_t msg, WPARAM wParam, LPARAM lParam) noexcept 
 		return 0;
 	}
 	case WM_SIZE: {
-		//Ç±ÇÃÉTÉCÉYÇÕÉNÉâÉCÉAÉìÉgÉTÉCÉY
+		//„Åì„ÅÆ„Çµ„Ç§„Ç∫„ÅØ„ÇØ„É©„Ç§„Ç¢„É≥„Éà„Çµ„Ç§„Ç∫
 		OnResized(ToResizeEventArgs(wParam, lParam));
 		return 0;
 	}

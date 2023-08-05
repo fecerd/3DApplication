@@ -1,4 +1,4 @@
-export module Components:Camera;
+ï»¿export module Components:Camera;
 import :Component;
 import :Declaration;
 import System;
@@ -99,8 +99,8 @@ public:
 			return ret >= 0.f ? ret : -ret;
 		}
 		else {
-			//fovxg—p‚É‚ÍAw = tan(fovx/2) * nearZ
-			//fovyg—p‚É‚ÍAw = tan(fovy/2) * nearZ / aspect
+			//fovxä½¿ç”¨æ™‚ã«ã¯ã€w = tan(fovx/2) * nearZ
+			//fovyä½¿ç”¨æ™‚ã«ã¯ã€w = tan(fovy/2) * nearZ / aspect
 			return Math::AtanDeg(Math::TanDeg(m_fov.y * 0.5f) / m_aspectHW) * 2.f;
 		}
 	}
@@ -113,8 +113,8 @@ public:
 			return ret >= 0.f ? ret : -ret;
 		}
 		else if (m_flag & CameraFlag::UseFovX) {
-			//fovxg—p‚É‚ÍAh = tan(fovx/2) * nearZ * aspect
-			//fovyg—p‚É‚ÍAh = tan(fovy/2) * nearZ
+			//fovxä½¿ç”¨æ™‚ã«ã¯ã€h = tan(fovx/2) * nearZ * aspect
+			//fovyä½¿ç”¨æ™‚ã«ã¯ã€h = tan(fovy/2) * nearZ
 			return Math::AtanDeg(Math::TanDeg(m_fov.x * 0.5f) * m_aspectHW) * 2.f;
 		}
 		else return m_fov.y;

@@ -1,4 +1,4 @@
-export module Module;
+﻿export module Module;
 export import Objects;
 export import BitStream;
 export import BSpline;

@@ -1,0 +1,107 @@
+---
+#private/protected/publicの位置(通常のインデントからの相対位置)
+AccessModifierOffset: -4
+AlignAferOpenBracket: false
+AlignArrayOfStructures: None
+AlignConsecutiveAssignments: false
+AlignOperands: false
+#行末コメント位置を揃えるか
+AlignTrailingComments: false
+#if () { }
+AllowShortBlockOnASingleLine: false
+#case X: break;
+AllowShortCaseLabelOnASingleLine: true
+#int func() { return 0; }
+AllowShortFunctionsOnASingleLine: All
+#if () a = 0;
+AllowShortIfStatementsOnASingleLine: true
+#while () continue;
+AllowShortIfStatementsOnASingleLine: true
+#関数戻り値後に改行するか
+AlwaysBreakAfterDefinitionReturnType: false
+#複数行の文字列リテラルを改行するか
+AlwaysBreakBeforeMultilineStrings: false
+#template<>後に改行するか
+AlwaysBreakTemplateDeclarations: true
+#関数の引数を1行にまとめるか
+BinPackArguments: true
+#関数宣言の引数を1行にまとめるか
+BinPackParameters: true
+#二項演算子をどう改行するか
+BreakBeforeBinaryOperators: NonAssignment
+#{}をどう改行するか
+BreakBeforeBraces: Attach
+#template<>とconceptの間に改行を挟むか
+BreakBeforeConceptDeclarations: Allowed
+#コンストラクタの初期化子の:と,を整列させるか
+BreakConstructorInitializersBeforeComma: true
+#行の長さの上限。0のとき無制限
+ColumnLimit: 0
+#コメントの自動改行を無効化
+CommentPragmas: ^
+#namespace A { namespace B } }のような表記を許可するか
+CompactNamespaces: false
+#コンストラクタの初期化子を1行ずつ表示するか
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+#コンストラクタ初期化子のインデント数
+ConstructorInitializerIndentWidth: 4
+#継続する行のインデント数
+ContinuationIndentWidth: 0
+#{}前後のスタイルをCpp11に適したものにするか
+Cpp11BracedListStyle: false
+#*や&の位置を元にフォーマットするか
+DerivePointerAlignment: false
+#private/protected/publicの後に空行を入れるか
+EmptyLineAfterAccessModifier: Never
+#private/protected/publicの前に空行を入れるか
+EmptyLineBeforeAccessModifier: Never
+#名前空間の閉じ括弧後に//namespace-nameコメントを挿入するか
+FixNamespaceComments: false
+#private/protected/publicが独自のインデントを持つか
+IndentAccessModifiers: false
+#caseラベルをインデントするか
+IndentCaseLabels: false
+#requires節をインデントするか
+IndentRequiresClause: true
+#インデント数
+IndentWidth: 4
+#関数宣言で型名の後に改行されたとき、インデントするか
+IndentWrappedFunctionNames: false
+#ブロックの最初の空行を残すか
+KeepEmptyLinesAtTheStartOfBlocks: false
+#名前空間ごとにインデントするか
+NamespaceIndentation: All
+#*や&の位置
+PointerAlignment: Left
+#requires節の位置をどうするか
+RequiresClausePosition: WithPreceding
+#requires式のインデントをどうするか
+RequiresExpressionIndentation: OuterScope
+#定義ブロックごとに空行で区切るか
+SeparateDefinitionBlocks: Leave
+#Cスタイルキャスト時に演算子と変数の間にスペースを入れるか
+SpaceAfterCStyleCast: false
+#代入演算子前にスペースを入れるか
+SpaceBeforeAssignmentOperators: true
+#template<T>をtemplate <T>にするか
+SpaceAfterTemplateKeyword: false
+#'('前にスペースを入れるか。"ControlStatement"ならfor/if/whileなどの後のみ適用される
+SpaceBeforeParens: ControlStatements
+#空括弧()の内部にスペースを入れるか
+SpaceInEmptyParentheses: false
+#1行コメント//の前にスペースをいくつ入れるか
+SpacesBeforeTrailingComments: 0
+#template<T>をtemplate< T >のようにするか
+SpacesInAngles: false
+#(float)xを( float )xのようにするか
+SpacesInCStyleCastParentheses: false
+#(x)を( x )のようにするか
+SpacesInParentheses: false
+#arr[i]をarr[ i ]のようにするか
+SpacesInSquareBrackets: false
+#Cpp03かCpp11に準拠したフォーマットを使用する。Cpp03のときA<B<C>>はA<B<C> >となる
+Standard: Cpp11
+#タブの幅
+TabWidth: 4
+#タブを使用するか。Never/Always/ForIndentation
+UseTab: ForIndentation

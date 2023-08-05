@@ -1,14 +1,12 @@
-export module DualQuaternion;
+ï»¿export module DualQuaternion;
 import Quaternion;
 import Vector3;
 import Math;
-using Quaternion = System::Quaternion;
-using Vector3 = System::Vector3;
 
 export namespace System {
 	/// <summary>
-	/// ‘olŒ³”‚ğ•\‚·ƒNƒ‰ƒX
-	/// Q = (w + iv1) + ƒÃ(w + iv2) (i^2 = -1, ƒÃ^2 = 0)
+	/// åŒå››å…ƒæ•°ã‚’è¡¨ã™ã‚¯ãƒ©ã‚¹
+	/// Q = (w + iv1) + Îµ(w + iv2) (i^2 = -1, Îµ^2 = 0)
 	/// </summary>
 	class DualQuaternion {
 	public:
@@ -22,37 +20,37 @@ export namespace System {
 		explicit constexpr DualQuaternion(const Quaternion& rot) noexcept : q0(rot), q1(0, 0, 0, 0) {}
 	public:
 		/// <summary>
-		/// À•W‚ğ‘olŒ³”‚Å•\Œ»‚µ‚½‚à‚Ì‚ğæ“¾‚·‚é
+		/// åº§æ¨™ã‚’åŒå››å…ƒæ•°ã§è¡¨ç¾ã—ãŸã‚‚ã®ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="position">À•W</param>
+		/// <param name="position">åº§æ¨™</param>
 		static constexpr DualQuaternion Position(const Vector3& position) noexcept {
 			return DualQuaternion(0, 0, 0, 1, position.x, position.y, position.z, 0);
 		}
 		/// <summary>
-		/// •½sˆÚ“®‚ğ‘olŒ³”‚Å•\Œ»‚µ‚½‚à‚Ì‚ğæ“¾‚·‚é
+		/// å¹³è¡Œç§»å‹•ã‚’åŒå››å…ƒæ•°ã§è¡¨ç¾ã—ãŸã‚‚ã®ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="translate">ˆÚ“®—Ê</param>
+		/// <param name="translate">ç§»å‹•é‡</param>
 		static constexpr DualQuaternion Translate(const Vector3& translate) noexcept {
 			return DualQuaternion(translate);
 		}
 		/// <summary>
-		/// ‰ñ“]‚ğ‘olŒ³”‚Å•\Œ»‚µ‚½‚à‚Ì‚ğæ“¾‚·‚é
+		/// å›è»¢ã‚’åŒå››å…ƒæ•°ã§è¡¨ç¾ã—ãŸã‚‚ã®ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="rotate">‰ñ“]</param>
+		/// <param name="rotate">å›è»¢</param>
 		static constexpr DualQuaternion Rotate(const Quaternion& rotate) noexcept {
 			return DualQuaternion(rotate);
 		}
 		/// <summary>
-		/// w’è‚µ‚½À•W‚©‚çŒ´“_‚É•½sˆÚ“®‚µ‚½ŒãAw’è‚µ‚½‰ñ“]‚ğs‚¢AŒ´“_‚©‚çw’è‚µ‚½À•W‚Ö•½sˆÚ“®‚·‚é•ÏŒ`‚ğæ“¾‚·‚é
+		/// æŒ‡å®šã—ãŸåº§æ¨™ã‹ã‚‰åŸç‚¹ã«å¹³è¡Œç§»å‹•ã—ãŸå¾Œã€æŒ‡å®šã—ãŸå›è»¢ã‚’è¡Œã„ã€åŸç‚¹ã‹ã‚‰æŒ‡å®šã—ãŸåº§æ¨™ã¸å¹³è¡Œç§»å‹•ã™ã‚‹å¤‰å½¢ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="rotate">‰ñ“]</param>
-		/// <param name="pos">À•W</param>
+		/// <param name="rotate">å›è»¢</param>
+		/// <param name="pos">åº§æ¨™</param>
 		static constexpr DualQuaternion RotateOrigin(const Quaternion& rotate, const Vector3 pos) noexcept {
 			Vector3 tmp = Vector3::Cross(Vector3(pos.x / 2, pos.y / 2, pos.z / 2), Vector3(rotate.x, rotate.y, rotate.z)) * 2;
 			return DualQuaternion(rotate.x, rotate.y, rotate.z, rotate.w, tmp.x, tmp.y, tmp.z, 0);
 		}
 		/// <summary>
-		/// ‹¤–ğ‚Ì‘olŒ³” Q' = (w - iv1) + ƒÃ(-w + iv2)‚ğæ“¾‚·‚é
+		/// å…±å½¹ã®åŒå››å…ƒæ•° Q' = (w - iv1) + Îµ(-w + iv2)ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		constexpr DualQuaternion Conjugate() const noexcept {
 			DualQuaternion ret = *this;
@@ -63,23 +61,23 @@ export namespace System {
 			return ret;
 		}
 		/// <summary>
-		/// ‚±‚ÌlŒ³”‚ª•\‚·•ÏŠ·‚Ì‹t‚ğæ“¾‚·‚éB
-		/// *this * Inverse() == DualQuaternion()‚Æ‚È‚é
+		/// ã“ã®å››å…ƒæ•°ãŒè¡¨ã™å¤‰æ›ã®é€†ã‚’å–å¾—ã™ã‚‹ã€‚
+		/// *this * Inverse() == DualQuaternion()ã¨ãªã‚‹
 		/// </summary>
 		constexpr DualQuaternion Inverse() const noexcept {
 			return DualQuaternion(-q0.x, -q0.y, -q0.z, q0.w, -q1.x, -q1.y, -q1.z, q1.w);
 		}
 		/// <summary>
-		/// À•W‚ğ‘olŒ³”‚Å•ÏŠ·‚·‚éB
-		/// ‹¤–ğ‚È‘olŒ³”‚ğQ'‚Æ‚µ‚ÄApos' = Q' * pos * Q‚ğŒvZ‚·‚é
+		/// åº§æ¨™ã‚’åŒå››å…ƒæ•°ã§å¤‰æ›ã™ã‚‹ã€‚
+		/// å…±å½¹ãªåŒå››å…ƒæ•°ã‚’Q'ã¨ã—ã¦ã€pos' = Q' * pos * Qã‚’è¨ˆç®—ã™ã‚‹
 		/// </summary>
-		/// <param name="pos">•ÏŠ·‚·‚éÀ•W</param>
+		/// <param name="pos">å¤‰æ›ã™ã‚‹åº§æ¨™</param>
 		constexpr Vector3 Multiple(const Vector3& pos) const noexcept {
 			return *this * pos;
 		}
 	public:
 		/// <summary>
-		/// â‘Î’l‚ªŒvZ‹@ƒGƒvƒVƒƒ“–¢–‚Ì¬•ª‚Ì’l‚ğ0‚É‚·‚é
+		/// çµ¶å¯¾å€¤ãŒè¨ˆç®—æ©Ÿã‚¨ãƒ—ã‚·ãƒ­ãƒ³æœªæº€ã®æˆåˆ†ã®å€¤ã‚’0ã«ã™ã‚‹
 		/// </summary>
 		constexpr DualQuaternion& FloorEpsilon() noexcept {
 			if (System::Math::Abs(q0.w) < System::Math::EPSILON<float>) q0.w *= 0;
@@ -94,10 +92,10 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// À•W‚ğ‘olŒ³”‚Å•ÏŠ·‚·‚éB
-		/// ‹¤–ğ‚È‘olŒ³”‚ğQ'‚Æ‚µ‚ÄApos' = Q' * pos * Q‚ğŒvZ‚·‚é
+		/// åº§æ¨™ã‚’åŒå››å…ƒæ•°ã§å¤‰æ›ã™ã‚‹ã€‚
+		/// å…±å½¹ãªåŒå››å…ƒæ•°ã‚’Q'ã¨ã—ã¦ã€pos' = Q' * pos * Qã‚’è¨ˆç®—ã™ã‚‹
 		/// </summary>
-		/// <param name="pos">•ÏŠ·‚·‚éÀ•W</param>
+		/// <param name="pos">å¤‰æ›ã™ã‚‹åº§æ¨™</param>
 		constexpr Vector3 operator*(const Vector3& rhs) const noexcept {
 			float x2, y2, z2, w2, xy, xz, xw, yz, yw, zw;
 			x2 = q0.x * q0.x;
@@ -117,15 +115,15 @@ export namespace System {
 			).FloorEpsilon();
 		}
 		/// <summary>
-		/// À•W‚ğ‘olŒ³”‚Å•ÏŠ·‚·‚éB
-		/// ‹¤–ğ‚È‘olŒ³”‚ğQ'‚Æ‚µ‚ÄApos' = Q' * pos * Q‚ğŒvZ‚·‚é
+		/// åº§æ¨™ã‚’åŒå››å…ƒæ•°ã§å¤‰æ›ã™ã‚‹ã€‚
+		/// å…±å½¹ãªåŒå››å…ƒæ•°ã‚’Q'ã¨ã—ã¦ã€pos' = Q' * pos * Qã‚’è¨ˆç®—ã™ã‚‹
 		/// </summary>
-		/// <param name="pos">•ÏŠ·‚·‚éÀ•W</param>
+		/// <param name="pos">å¤‰æ›ã™ã‚‹åº§æ¨™</param>
 		friend constexpr Vector3 operator*(const Vector3& lhs, const DualQuaternion& rhs) noexcept {
 			return rhs * lhs;
 		}
 		/// <summary>
-		/// ‘olŒ³”“¯m‚ğæZ‚·‚éB•ÏŒ`‡‚Í¶•Ó¨‰E•Ó
+		/// åŒå››å…ƒæ•°åŒå£«ã‚’ä¹—ç®—ã™ã‚‹ã€‚å¤‰å½¢é †ã¯å·¦è¾ºâ†’å³è¾º
 		/// </summary>
 		constexpr DualQuaternion operator*(const DualQuaternion& rhs) const noexcept {
 			DualQuaternion ret;
@@ -140,13 +138,13 @@ export namespace System {
 			return ret.FloorEpsilon();
 		}
 		/// <summary>
-		/// ‘olŒ³”“¯m‚ğæZ‚·‚éB•ÏŒ`‡‚Í¶•Ó¨‰E•Ó
+		/// åŒå››å…ƒæ•°åŒå£«ã‚’ä¹—ç®—ã™ã‚‹ã€‚å¤‰å½¢é †ã¯å·¦è¾ºâ†’å³è¾º
 		/// </summary>
 		constexpr DualQuaternion& operator*=(const DualQuaternion& rhs) noexcept { return *this = *this * rhs; }
 		constexpr DualQuaternion& operator=(const DualQuaternion&) noexcept = default;
 		constexpr bool operator==(const DualQuaternion&) const noexcept = default;
 		/// <summary>
-		/// ‘olŒ³”‚ªÀ•W‚ğ•\‚µ‚Ä‚¢‚é‚Æ‚İ‚È‚µ‚ÄAÀ•W‚ğæ“¾‚·‚é
+		/// åŒå››å…ƒæ•°ãŒåº§æ¨™ã‚’è¡¨ã—ã¦ã„ã‚‹ã¨ã¿ãªã—ã¦ã€åº§æ¨™ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		explicit constexpr operator System::Vector3() const noexcept { return System::Vector3(q1.x, q1.y, q1.z); }
 	};

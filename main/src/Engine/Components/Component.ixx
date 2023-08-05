@@ -1,4 +1,4 @@
-export module Components:Component;
+﻿export module Components:Component;
 export import System;
 import :Declaration;
 using namespace System;

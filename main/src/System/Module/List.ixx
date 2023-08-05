@@ -1,6 +1,12 @@
+ï»¿module;
+#include "FUNCSIG.hpp"
 export module List;
 import CSTDINT;
 import SmartPtr;
+import Traits;
+import Sorts;
+import Exception;
+import IEnumerable;
 
 //ListNode
 namespace System::Internal {
@@ -24,11 +30,6 @@ namespace System::Internal {
 	};
 }
 using namespace System::Internal;
-
-import Traits;
-import Sorts;
-import Exception;
-import IEnumerable;
 
 //ListIterator, List
 export namespace System {
@@ -149,7 +150,7 @@ export namespace System {
 			if (m_first != m_last) return *m_first->value;
 			throw LogicException(
 				__FUNCSIG__,
-				u"‹ó‚ÌƒŠƒXƒg‚Ì—v‘f‚ğæ“¾‚µ‚æ‚¤‚Æ‚µ‚Ü‚µ‚½B",
+				u"ç©ºã®ãƒªã‚¹ãƒˆã®è¦ç´ ã‚’å–å¾—ã—ã‚ˆã†ã¨ã—ã¾ã—ãŸã€‚",
 				__FILE__, __LINE__
 			);
 		}
@@ -157,7 +158,7 @@ export namespace System {
 			if (m_first != m_last) return *m_last->prev->value;
 			throw LogicException(
 				__FUNCSIG__,
-				u"‹ó‚ÌƒŠƒXƒg‚Ì—v‘f‚ğæ“¾‚µ‚æ‚¤‚Æ‚µ‚Ü‚µ‚½B",
+				u"ç©ºã®ãƒªã‚¹ãƒˆã®è¦ç´ ã‚’å–å¾—ã—ã‚ˆã†ã¨ã—ã¾ã—ãŸã€‚",
 				__FILE__, __LINE__
 			);
 		}
@@ -217,8 +218,8 @@ export namespace System {
 			}
 			else {
 				ListNode<T>* prev = ite.m_prev;
-				//ite.m_node‚ÍRemove()‚Å–³Œø‚É‚È‚Á‚Ä‚¢‚é‰Â”\«‚ª‚ ‚éB
-				//Šî–{“I‚ÉRemove()Œã‚ÌƒCƒeƒŒ[ƒ^‚Íg—p‚µ‚È‚¢‚ªA–ŒÌ–h~‚Ì‚½‚ß‚Éprev‚©‚çæ“¾‚µ‚Ä‚¨‚­B
+				//ite.m_nodeã¯Remove()ã§ç„¡åŠ¹ã«ãªã£ã¦ã„ã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹ã€‚
+				//åŸºæœ¬çš„ã«Remove()å¾Œã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã¯ä½¿ç”¨ã—ãªã„ãŒã€äº‹æ•…é˜²æ­¢ã®ãŸã‚ã«prevã‹ã‚‰å–å¾—ã—ã¦ãŠãã€‚
 				ListNode<T>* next = prev->next;
 				prev->next = node;
 				node->prev = prev;
@@ -340,10 +341,26 @@ export namespace System {
 		}
 	public:/* ICollection override */
 		IEnumerator<T> GetEnumerator() noexcept override {
-			for (T& x : *this) co_yield x;
+			for (T& x : *this)
+				co_yield x;
+
+			// if constexpr (Traits::Concepts::CCopyConstructible<T>){
+			// 	for (T &x : *this) co_yield x;
+			// }
+			// else {
+			// 	return IEnumerator<T>(System::coroutine_handle<System::promise_type<T, IEnumerator<T>>>{});
+			// }
 		}
 		IEnumerator<T const> GetEnumerator() const noexcept override {
-			for (T& x : *this) co_yield x;
+			for (T& x : *this)
+				co_yield x;
+
+			// if constexpr (Traits::Concepts::CCopyConstructible<T>) {
+			// 	for (T &x : *this) co_yield x;
+			// }
+			// else{
+			// 	return IEnumerator<T const>(System::coroutine_handle<System::promise_type<T const, IEnumerator<T const>>>{});
+			// }
 		}
 		IEnumerator<T> GetReverseEnumerator() noexcept override {
 			if (m_first == m_last) co_return;
@@ -352,6 +369,18 @@ export namespace System {
 				co_yield x;
 			}
 			co_yield *m_first->value;
+
+			// if constexpr (Traits::Concepts::CCopyConstructible<T>) {
+			// 	if (m_first == m_last) co_return;
+			// 	for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
+			// 		T &x = *ite;
+			// 		co_yield x;
+			// 	}
+			// 	co_yield *m_first->value;
+			// }
+			// else {
+			// 	return IEnumerator<T>(System::coroutine_handle<System::promise_type<T, IEnumerator<T>>>{});
+			// }
 		}
 		IEnumerator<T const> GetReverseEnumerator() const noexcept override {
 			if (m_first == m_last) co_return;
@@ -360,6 +389,18 @@ export namespace System {
 				co_yield x;
 			}
 			co_yield *m_first->value;
+
+			// if constexpr (Traits::Concepts::CCopyConstructible<T>) {
+			// 	if (m_first == m_last) co_return;
+			// 	for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
+			// 		T &x = *ite;
+			// 		co_yield x;
+			// 	}
+			// 	co_yield *m_first->value;
+			// }
+			// else {
+			// 	return IEnumerator<T const>(System::coroutine_handle<System::promise_type<T const, IEnumerator<T const>>>{});
+			// }
 		}
 	};
 }
@@ -382,11 +423,11 @@ namespace System {
 //export namespace System {
 //	template<class T>
 //	struct BidirectionalNode : IContainerNode {
-//		//”Ô•º‚Ìê‡Anullptr
+//		//ç•ªå…µã®å ´åˆã€nullptr
 //		UniquePtr<T> m_value = nullptr;
-//		//æ“ª‚Ìê‡Anullptr
+//		//å…ˆé ­ã®å ´åˆã€nullptr
 //		BidirectionalNode<T>* m_prev = nullptr;
-//		//”Ô•º‚Ìê‡Anullptr
+//		//ç•ªå…µã®å ´åˆã€nullptr
 //		BidirectionalNode<T>* m_next = nullptr;
 //	public:
 //		BidirectionalNode() noexcept = default;
@@ -588,22 +629,22 @@ namespace System {
 //		T& Front() {
 //			LockGuard lock{ m_mtx };
 //			if (Any()) return *(*m_first);
-//			throw InvalidOperationException(__FUNCSIG__, u"‹ó‚ÌƒŠƒXƒg‚Ì—v‘f‚ğæ“¾‚µ‚æ‚¤‚Æ‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+//			throw InvalidOperationException(__FUNCSIG__, u"ç©ºã®ãƒªã‚¹ãƒˆã®è¦ç´ ã‚’å–å¾—ã—ã‚ˆã†ã¨ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 //		}
 //		const T& Front() const {
 //			LockGuard lock{ m_mtx };
 //			if (Any()) return *(*m_first);
-//			throw InvalidOperationException(__FUNCSIG__, u"‹ó‚ÌƒŠƒXƒg‚Ì—v‘f‚ğæ“¾‚µ‚æ‚¤‚Æ‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+//			throw InvalidOperationException(__FUNCSIG__, u"ç©ºã®ãƒªã‚¹ãƒˆã®è¦ç´ ã‚’å–å¾—ã—ã‚ˆã†ã¨ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 //		}
 //		T& Back() {
 //			LockGuard lock{ m_mtx };
 //			if (m_last->m_prev) return *(*m_last->m_prev);
-//			throw InvalidOperationException(__FUNCSIG__, u"‹ó‚ÌƒŠƒXƒg‚Ì—v‘f‚ğæ“¾‚µ‚æ‚¤‚Æ‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+//			throw InvalidOperationException(__FUNCSIG__, u"ç©ºã®ãƒªã‚¹ãƒˆã®è¦ç´ ã‚’å–å¾—ã—ã‚ˆã†ã¨ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 //		}
 //		const T& Back() const {
 //			LockGuard lock{ m_mtx };
 //			if (m_last->m_prev) return *(*m_last->m_prev);
-//			throw InvalidOperationException(__FUNCSIG__, u"‹ó‚ÌƒŠƒXƒg‚Ì—v‘f‚ğæ“¾‚µ‚æ‚¤‚Æ‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+//			throw InvalidOperationException(__FUNCSIG__, u"ç©ºã®ãƒªã‚¹ãƒˆã®è¦ç´ ã‚’å–å¾—ã—ã‚ˆã†ã¨ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 //		}
 //		T* TryFront() noexcept {
 //			LockGuard lock{ m_mtx };

@@ -1,4 +1,4 @@
-export module Application;
+﻿export module Application;
 import System;
 import IApplicationManager;	//GetManager()
 export import IWindow;

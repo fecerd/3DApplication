@@ -1,14 +1,10 @@
-module;
-#include<coroutine>
-#include<exception>
-export module Coroutine;
-
-export namespace std {
-	using coroutine_traits = std::coroutine_traits;
-}
+﻿export module Coroutine;
+export import <coroutine>;	//std::coroutine_traits
+import <exception>;	//std::terminate
 
 export namespace System {
-	template<class T> using coroutine_handle = std::coroutine_handle<T>;
+	template <class T>
+	using coroutine_handle = std::coroutine_handle<T>;
 	using suspend_always = std::suspend_always;
 
 	struct static_promise {
@@ -16,3 +12,10 @@ export namespace System {
 		static void terminate() { return std::terminate(); }
 	};
 }
+
+// export namespace std {
+// 	template <class R, class... ArgTypes>
+// 	using coroutine_traits = std::coroutine_traits<R, ArgTypes...>;
+// 	template <class T>
+// 	using coroutine_handle = System::coroutine_handle<T>;
+// }

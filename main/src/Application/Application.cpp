@@ -1,4 +1,4 @@
-module Application;
+Ôªømodule Application;
 using namespace System;
 
 #ifndef SDL
@@ -10,7 +10,7 @@ namespace System::Application::Internal {
 		System::Application::Windows::ControlManager::ReleaseInterface();
 	}
 }
-#else	//WindowsÇ≈Ç‡SDLÇ≈Ç‡Ç»Ç¢èÍçá
+#else	//Windows„Åß„ÇÇSDL„Åß„ÇÇ„Å™„ÅÑÂ†¥Âêà
 
 #endif
 #else	//SDL

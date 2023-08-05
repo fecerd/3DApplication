@@ -1,4 +1,4 @@
-module SceneManager;
+ï»¿module SceneManager;
 using namespace System;
 using namespace System::Application;
 using namespace System::Application::Common3D;
@@ -28,7 +28,7 @@ void SceneManager::Rendering(RenderTarget renderTarget) noexcept {
 	}
 	Size<uint32_t> size = renderTarget.GetSize();
 	if (!size.width || !size.height) return;
-	//ƒV[ƒ“‚Ìƒrƒ…[ƒ|[ƒgŒvZ
+	//ã‚·ãƒ¼ãƒ³ã®ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆè¨ˆç®—
 	float rtAspect = static_cast<float>(size.width) / size.height;
 	float sceneAspect = 1920.f / 1080.f;
 	float rate = sceneAspect / rtAspect;
@@ -47,26 +47,26 @@ void SceneManager::Rendering(RenderTarget renderTarget) noexcept {
 	Camera& camera = cameraObj->GetComponent<Camera>();
 	camera.SetScreenAspect(rtAspect);
 	camera.UpdateHeap();
-	//ƒŒƒ^[ƒ{ƒbƒNƒX•`‰æ
+	//ãƒ¬ã‚¿ãƒ¼ãƒœãƒƒã‚¯ã‚¹æç”»
 	renderTarget.BeginCommand(true, true, true);
 	renderTarget.SetScissorRect();
 	renderTarget.SetViewport();
 	renderTarget.SetHeap(HeapType::Scene, sceneHeap);
 	renderTarget.SetHeap(HeapType::Camera, camera.GetHeap());
 	renderTarget.SetCommandList(letterboxObj->GetCommandList());
-	//ƒV[ƒ“•`‰æ
+	//ã‚·ãƒ¼ãƒ³æç”»
 	renderTarget.SetViewport(ViewportDesc{ x, y, w, h });
 	{
-		LockGuard lock{ m_mtx };	//m_activeScenes‚ğê—L
+		LockGuard lock{ m_mtx };	//m_activeScenesã‚’å°‚æœ‰
 		for (Scene* scene : m_activeScenes) {
-			//ƒV[ƒ“‚Ìó‘Ô‚ğŠm”F
+			//ã‚·ãƒ¼ãƒ³ã®çŠ¶æ…‹ã‚’ç¢ºèª
 			if (!Renderable(scene)) continue;
-			//ƒJƒƒ‰‚²‚Æ‚É
+			//ã‚«ãƒ¡ãƒ©ã”ã¨ã«
 			for (Camera* sceneCamera : scene->GetAllCamera()) {
 				if (!sceneCamera->IsUsedWindowRendering()) continue;
-				//ƒƒCƒ“ƒJƒƒ‰‚ÌRenderTarget‚©‚ç•`‰æÏ‚İƒeƒNƒXƒ`ƒƒ‚ğæ“¾
+				//ãƒ¡ã‚¤ãƒ³ã‚«ãƒ¡ãƒ©ã®RenderTargetã‹ã‚‰æç”»æ¸ˆã¿ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å–å¾—
 				Resource texture = sceneCamera->GetTexture(0);
-				//ƒV[ƒ“‚²‚Æ‚É”Âƒ|ƒŠƒSƒ“‚ğì¬
+				//ã‚·ãƒ¼ãƒ³ã”ã¨ã«æ¿ãƒãƒªã‚´ãƒ³ã‚’ä½œæˆ
 				GameObject* planeObj = planeObjects.At(scene);
 				if (!planeObj) {
 					planeObj = new GameObject(String::Joint(u"SceneManger: ", scene->GetName(), u": PlaneObj"));
@@ -76,10 +76,10 @@ void SceneManager::Rendering(RenderTarget renderTarget) noexcept {
 					material.renderer = Common3D::GetRenderer(Common3D::DefaultVideoRendererName);
 					planeObjects.Insert(scene, planeObj);
 				}
-				//ƒfƒvƒX’l‚Í•ÏX‚³‚ê‚éê‡‚ª‚ ‚é
+				//ãƒ‡ãƒ—ã‚¹å€¤ã¯å¤‰æ›´ã•ã‚Œã‚‹å ´åˆãŒã‚ã‚‹
 				planeObj->GetTransform().LocalPosition.z = scene->GetDepth();
 				planeObj->UpdateHeap();
-				//ƒV[ƒ“‚Ì–¾‚é‚³‚ÆƒAƒ‹ƒtƒ@’l‚Í•ÏX‚³‚ê‚éê‡‚ª‚ ‚é
+				//ã‚·ãƒ¼ãƒ³ã®æ˜ã‚‹ã•ã¨ã‚¢ãƒ«ãƒ•ã‚¡å€¤ã¯å¤‰æ›´ã•ã‚Œã‚‹å ´åˆãŒã‚ã‚‹
 				MeshFilter& mf = planeObj->GetComponent<MeshFilter>();
 				ReflectionsResourceDesc desc{};
 				desc.diffuse[0] = scene->GetBrightness();
@@ -87,7 +87,7 @@ void SceneManager::Rendering(RenderTarget renderTarget) noexcept {
 				desc.diffuse[2] = desc.diffuse[0];
 				desc.diffuse[3] = scene->GetAlpha();
 				mf.UpdateReflections(0, desc);
-				//ƒeƒNƒXƒ`ƒƒ‚ğİ’è
+				//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’è¨­å®š
 				mf.UpdateTexture(0, texture);
 				renderTarget.SetCommandList(planeObj->GetCommandList());
 			}

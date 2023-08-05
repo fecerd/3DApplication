@@ -1,4 +1,4 @@
-export module CheckBox;
+﻿export module CheckBox;
 import Control;
 using namespace WinAPI;
 

@@ -9,7 +9,7 @@ namespace System::Math_Internal {
 	template<> inline constexpr size_t Exp2<0ull> = 1ull;
 	template<size_t N> inline constexpr size_t Exp10 = 10ull * Exp10<N - 1>;
 	template<> inline constexpr size_t Exp10<0ull> = 1ull;
-	template<Floating T> inline constexpr T EPSILON = 0.0;
+	template<Concepts::CFloating T> inline constexpr T EPSILON = 0.0;
 	template<> inline constexpr float EPSILON<float> = 1.19209e-07f;
 	template<> inline constexpr double EPSILON<double> = 2.22044604925031e-16;
 	template<> inline constexpr long double EPSILON<long double> = 2.22044604925031e-16;
@@ -23,9 +23,9 @@ export namespace System {
 		Math() = delete;
 		~Math() = delete;
 	public:
-		template<Floating T>
+		template<Concepts::CFloating T>
 		static constexpr T PI = static_cast<T>(3.1415926535);
-		template<Floating T, uint32_t numerator, uint32_t denominator>
+		template<Concepts::CFloating T, uint32_t numerator, uint32_t denominator>
 		static constexpr T PIConstant = PI<T> * numerator / denominator;
 		static constexpr double E = 2.71828182845904523536;
 		static constexpr double LN2 = 0.693147180559945309417;
@@ -39,7 +39,7 @@ export namespace System {
 		static constexpr float NAN = FLOAT_NAN;
 	public:
 		//計算機イプシロンテンプレート
-		template<Floating T> static constexpr T EPSILON = Math_Internal::EPSILON<T>;
+		template<Concepts::CFloating T> static constexpr T EPSILON = Math_Internal::EPSILON<T>;
 	public:
 		template<size_t N> static constexpr size_t Exp2 = Math_Internal::Exp2<N>;
 		template<size_t N> static constexpr size_t Exp10 = Math_Internal::Exp10<N>;
@@ -48,12 +48,12 @@ export namespace System {
 		static constexpr size_t EXP_LIMIT = 30;	//Math::exp()の計算を打ち切る項数
 		static constexpr size_t SQRT_LIMIT = 10;	//Math::sqrt()の計算を打ち切る項数
 		static constexpr size_t TRIGO_LIMIT = 10;	//三角関数の計算を打ち切る項数
-		template<Floating T> static constexpr T SIGNIFICANT_DIGIT = static_cast<T>(0.000000001);	//第n項までの和と第n-1項までの和の絶対値の差がこの定数に収まる場合、級数計算を打ち切る
+		template<Concepts::CFloating T> static constexpr T SIGNIFICANT_DIGIT = static_cast<T>(0.000000001);	//第n項までの和と第n-1項までの和の絶対値の差がこの定数に収まる場合、級数計算を打ち切る
 	public:
 		/// <summary>
 		/// 引数の中で一番小さい値を取得する
 		/// </summary>
-		template<Arithmetic T, Arithmetic U, Arithmetic ...Args>
+		template<Concepts::CArithmetic T, Concepts::CArithmetic U, Concepts::CArithmetic ...Args>
 		static constexpr T Min(T first, U second, Args ...args) noexcept {
 			if constexpr (sizeof...(Args) == 0) return first < second ? first : second;
 			else return first < second ? min(first, args...) : min(second, args...);
@@ -61,7 +61,7 @@ export namespace System {
 		/// <summary>
 		/// 引数の中で一番大きい値を取得する
 		/// </summary>
-		template<Arithmetic T, Arithmetic U , Arithmetic ...Args>
+		template<Concepts::CArithmetic T, Concepts::CArithmetic U , Concepts::CArithmetic ...Args>
 		static constexpr T Max(T first, U second, Args ...args) noexcept {
 			if constexpr (sizeof...(Args) == 0) return first < second ? second : first;
 			else return first < second ? Math::Max(second, args...) : Math::Max(first, args...);
@@ -69,7 +69,7 @@ export namespace System {
 		/// <summary>
 		/// 絶対値を取得する
 		/// </summary>
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Abs(T n) noexcept -> Traits::conditional_t<Traits::is_integral_v<T>, Traits::int_t<false, sizeof(T)>, T> {
 			if constexpr (Traits::is_integral_v<T>) {
 				if constexpr (Traits::is_unsigned_v<T>) return static_cast<Traits::int_t<false, sizeof(T)>>(n);
@@ -81,7 +81,7 @@ export namespace System {
 		/// 符号を取得する
 		/// </summary>
 		/// <return>引数が正のときには1を、0のときには0を、負のときには-1を返す</return>
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr T Sign(const T x) noexcept {
 			if constexpr (is_unsigned_v<T>) return static_cast<T>(x == 0 ? 0 : 1);
 			else return static_cast<T>(x < 0 ? -1 : x == 0 ? 0 : 1);
@@ -89,7 +89,7 @@ export namespace System {
 		/// <summary>
 		/// 同じ数値型の変数の値を入れ替える
 		/// </summary>
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr void Swap(T& x, T& y) noexcept {
 			if (&x == &y) return;
 			if constexpr (is_integral_v<T>) {
@@ -110,7 +110,7 @@ export namespace System {
 		/// <typename name="T">浮動小数点数型</typename>
 		/// <typeparam name="R">関数の戻り値型。省略した場合、T型と同じバイト長の符号付き整数型</typeparam>
 		/// <param name="val">浮動小数点数</param>
-		template<Floating T, class R = Traits::int_t<true, sizeof(T)>>
+		template<Concepts::CFloating T, class R = Traits::int_t<true, sizeof(T)>>
 		static constexpr R Ceil(T val) noexcept {
 			if (val < 0) return -Floor(-val);
 			return val > static_cast<int64_t>(val) ? static_cast<R>(static_cast<int64_t>(val + 1)) : static_cast<R>(static_cast<int64_t>(val));
@@ -121,7 +121,7 @@ export namespace System {
 		/// <typename name="T">浮動小数点数型</typename>
 		/// <typeparam name="R">関数の戻り値型。省略した場合、T型と同じバイト長の符号付き整数型</typeparam>
 		/// <param name="val">浮動小数点数</param>
-		template<Floating T, class R = Traits::int_t<true, sizeof(T)>>
+		template<Concepts::CFloating T, class R = Traits::int_t<true, sizeof(T)>>
 		static constexpr R Floor(T val) noexcept {
 			return val >= 0 ? static_cast<R>(static_cast<int64_t>(val)) : -Ceil<R>(-val);
 		}
@@ -131,7 +131,7 @@ export namespace System {
 		/// <typename name="T">浮動小数点数型</typename>
 		/// <typeparam name="R">関数の戻り値型。省略した場合、T型と同じバイト長の符号付き整数型</typeparam>
 		/// <param name="val">浮動小数点数</param>
-		template<Floating T, class R = Traits::int_t<true, sizeof(T)>>
+		template<Concepts::CFloating T, class R = Traits::int_t<true, sizeof(T)>>
 		static constexpr R Round(T val) noexcept {
 			return static_cast<R>(static_cast<int64_t>(val >= 0 ? val + 0.5 : val - 0.5));
 		}
@@ -145,9 +145,9 @@ export namespace System {
 		/// 引数が正の無限大のとき、正の無限大を返す。
 		/// 戻り値型は引数型が浮動小数点数型のときには同じ型、それ以外の型のときにはdoubleになる
 		/// </returns>
-		template<Arithmetic T>
-		static constexpr auto Sqrt(T x) noexcept -> conditional_t<Floating<T>, T, double> {
-			if (Math::EqualZero(x)) return static_cast<conditional_t<Floating<T>, T, double>>(x);
+		template<Concepts::CArithmetic T>
+		static constexpr auto Sqrt(T x) noexcept -> conditional_t<Concepts::CFloating<T>, T, double> {
+			if (Math::EqualZero(x)) return static_cast<conditional_t<Concepts::CFloating<T>, T, double>>(x);
 			else if (x < 0 || Math::IsNan(x)) return Math::NAN;
 			else if (x == Math::INFINITY) return Math::INFINITY;
 			double dx = static_cast<double>(x);
@@ -156,7 +156,7 @@ export namespace System {
 			double y = Math::GenerateFloat<double>(Y);
 			double x2 = x * 0.5;
 			for (size_t i = 0; i < 5; ++i) y = y * (1.5 - (x2 * y * y));
-			if constexpr (Floating<T>) return static_cast<T>(x * y);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(x * y);
 			else return x * y;
 		}
 		/// <summary>
@@ -168,9 +168,9 @@ export namespace System {
 		/// 引数が正の無限大のとき、0を返す。
 		/// 戻り値型は引数型が浮動小数点数型のときには同じ型、それ以外の型のときにはdoubleになる
 		/// </returns>
-		template<Arithmetic T>
-		static constexpr auto SqrtInv(T x) noexcept -> conditional_t<Floating<T>, T, double> {
-			if (Math::EqualZero(x)) return static_cast<conditional_t<Floating<T>, T, double>>(x);
+		template<Concepts::CArithmetic T>
+		static constexpr auto SqrtInv(T x) noexcept -> conditional_t<Concepts::CFloating<T>, T, double> {
+			if (Math::EqualZero(x)) return static_cast<conditional_t<Concepts::CFloating<T>, T, double>>(x);
 			else if (x < 0 || Math::IsNan(x)) return Math::NAN;
 			else if (x == Math::INFINITY) return 0;
 			double dx = static_cast<double>(x);
@@ -179,11 +179,11 @@ export namespace System {
 			double y = Math::GenerateFloat<double>(Y);
 			double x2 = x * 0.5;
 			for (size_t i = 0; i < 5; ++i) y = y * (1.5 - (x2 * y * y));
-			if constexpr (Floating<T>) return static_cast<T>(y);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(y);
 			else return y;
 		}
 	public:
-		template<Floating T>
+		template<Concepts::CFloating T>
 		static constexpr bool IsInteger(T x) noexcept {
 			if (x == Math::INFINITY || x == -Math::INFINITY || x != x) return false;	//無限大と非数は整数でない
 			if (Math::EqualZero(x)) return true;	//0は整数
@@ -192,7 +192,7 @@ export namespace System {
 			if (Math::LessEq(static_cast<T>(static_cast<int_t<false, sizeof(T)>>(1ull) << FRAC_DIGIT<T>), x)) return true;	//1.00...0 * 2^(仮数部ビット数)以上のとき、小数点以下の桁は存在しない
 			return static_cast<T>(static_cast<int_t<false, sizeof(T)>>(x)) == x;	//xが[1, 1 * 2^(仮数部ビット数))の範囲内の場合、同じサイズ間で浮動小数点数型 -> 整数型 -> 浮動小数点数型とキャストすることで整数部が取得できる
 		}
-		template<Floating T>
+		template<Concepts::CFloating T>
 		static constexpr bool IsOdd(T x) noexcept {
 			if (x == Math::INFINITY || x == -Math::INFINITY || x != x) return false;	//無限大と非数は奇数でない
 			if (Math::EqualZero(x)) return false;	//0は奇数でない
@@ -202,7 +202,7 @@ export namespace System {
 			int_t<false, sizeof(T)> i = static_cast<int_t<false, sizeof(T)>>(x);	//xが[1, 1 * 2^(仮数部ビット数+1))の範囲内の場合、同じサイズ間で浮動小数点数型 -> 整数型 -> 浮動小数点数型とキャストすることで整数部が取得できる
 			return static_cast<T>(i) != x ? false : i % 2 != 0;
 		}
-		template<Floating T>
+		template<Concepts::CFloating T>
 		static constexpr bool IsEven(T x) noexcept {
 			if (x == Math::INFINITY || x == -Math::INFINITY || x != x) return false;	//無限大と非数は偶数でない
 			if (Math::EqualZero(x)) return true;	//0は偶数
@@ -213,9 +213,9 @@ export namespace System {
 			return static_cast<T>(i) != x ? false : i % 2 == 0;
 		}
 	public:
-		template<Integral T> static constexpr T Factorial(const T x) noexcept { return x == 0 ? 1 : x * Factorial(x - 1); }
+		template<Concepts::CIntegral T> static constexpr T Factorial(const T x) noexcept { return x == 0 ? 1 : x * Factorial(x - 1); }
 	public:
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Exp(const T x) noexcept {
 			if constexpr (is_floating_point_v<T>) {
 				if (x == INFINITY) return static_cast<T>(INFINITY);	//inf = e^inf
@@ -247,7 +247,7 @@ export namespace System {
 			if constexpr (is_floating_point_v<T>) return static_cast<T>(ret);
 			else return ret;
 		}
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Log(const T x) noexcept {
 			double ret = 0.0;	//戻り値
 			if (x < 0) ret = Math::NAN;	//底が負数の場合、対数は定義されない
@@ -276,7 +276,7 @@ export namespace System {
 			if constexpr (is_floating_point_v<T>) return static_cast<T>(ret);
 			else return ret;
 		}
-		template<Arithmetic T, Arithmetic U>
+		template<Concepts::CArithmetic T, Concepts::CArithmetic U>
 		static constexpr auto Pow(T x, U y) noexcept {
 			if constexpr (is_integral_v<T> && is_unsigned_v<U>) {
 				int_t<is_signed_v<T>, sizeof(size_t)> ret = x;
@@ -329,7 +329,7 @@ export namespace System {
 		}
 	public:
 		//lhs < rhs -> -1, lhs == rhs -> 0, lhs > rhs -> 1
-		template<Arithmetic L, Arithmetic R>
+		template<Concepts::CArithmetic L, Concepts::CArithmetic R>
 		static constexpr int Compare(const L lhs, const R rhs) noexcept {
 			if constexpr (Traits::is_floating_point_v<L> || Traits::is_floating_point_v<R>) {
 				double sub_abs = Math::Abs(static_cast<double>(lhs) - static_cast<double>(rhs));
@@ -340,15 +340,15 @@ export namespace System {
 			else if constexpr (Traits::is_signed_v<L>) return (lhs < 0 || lhs < rhs) ? -1 : (lhs == rhs ? 0 : 1);
 			else return rhs < 0 ? 1 : (lhs < rhs ? -1 : (lhs == rhs ? 0 : 1));
 		}
-		template<Arithmetic L, Arithmetic R> static constexpr bool Equal(const L lhs, const R rhs) noexcept { return Math::Compare(lhs, rhs) == 0; }
-		template<Arithmetic L, Arithmetic R> static constexpr bool Less(const L lhs, const R rhs) noexcept { return Math::Compare(lhs, rhs) < 0; }
-		template<Arithmetic L, Arithmetic R> static constexpr bool Greater(const L lhs, const R rhs) noexcept { return Math::Compare(lhs, rhs) > 0; }
-		template<Arithmetic L, Arithmetic R> static constexpr bool LessEq(const L lhs, const R rhs) noexcept { return Math::Compare(lhs, rhs) <= 0; }
-		template<Arithmetic L, Arithmetic R> static constexpr bool GreaterEq(const L lhs, const R rhs) noexcept { return Math::Compare(lhs, rhs) >= 0; }
-		template<Arithmetic T> static constexpr bool EqualZero(const T x) noexcept { return Math::Compare(x, static_cast<T>(0)) == 0; }
+		template<Concepts::CArithmetic L, Concepts::CArithmetic R> static constexpr bool Equal(const L lhs, const R rhs) noexcept { return Math::Compare(lhs, rhs) == 0; }
+		template<Concepts::CArithmetic L, Concepts::CArithmetic R> static constexpr bool Less(const L lhs, const R rhs) noexcept { return Math::Compare(lhs, rhs) < 0; }
+		template<Concepts::CArithmetic L, Concepts::CArithmetic R> static constexpr bool Greater(const L lhs, const R rhs) noexcept { return Math::Compare(lhs, rhs) > 0; }
+		template<Concepts::CArithmetic L, Concepts::CArithmetic R> static constexpr bool LessEq(const L lhs, const R rhs) noexcept { return Math::Compare(lhs, rhs) <= 0; }
+		template<Concepts::CArithmetic L, Concepts::CArithmetic R> static constexpr bool GreaterEq(const L lhs, const R rhs) noexcept { return Math::Compare(lhs, rhs) >= 0; }
+		template<Concepts::CArithmetic T> static constexpr bool EqualZero(const T x) noexcept { return Math::Compare(x, static_cast<T>(0)) == 0; }
 		//xが区画{leftend, rightend}内に存在する -> true, other -> false
 		//テンプレート引数はtrue -> 閉区間、false -> 開区間
-		template<Arithmetic T, bool left_closed, bool right_closed>
+		template<Concepts::CArithmetic T, bool left_closed, bool right_closed>
 		static constexpr bool InRange(const T x, const T leftend, const T rightend) noexcept {
 			if constexpr (left_closed && right_closed) return Math::LessEq(leftend, x) && Math::LessEq(x, rightend);
 			else if constexpr (left_closed) return Math::LessEq(leftend, x) && Math::Less(x, rightend);
@@ -356,15 +356,15 @@ export namespace System {
 			else return Math::Less(leftend, x) && Math::Less(x, rightend);
 		}
 		//xが開区間(leftend, rightend)内に存在する -> true, other -> false
-		template<Arithmetic T> static constexpr bool InOpenRange(const T x, const T leftend, const T rightend) noexcept { return Math::InRange<T, false, false>(x, leftend, rightend); }
+		template<Concepts::CArithmetic T> static constexpr bool InOpenRange(const T x, const T leftend, const T rightend) noexcept { return Math::InRange<T, false, false>(x, leftend, rightend); }
 		//xが閉区間[leftend, rightend]内に存在する -> true, other -> false
-		template<Arithmetic T> static constexpr bool InClosedRange(const T x, const T leftend, const T rightend) noexcept { return Math::InRange<T, true, true>(x, leftend, rightend); }
+		template<Concepts::CArithmetic T> static constexpr bool InClosedRange(const T x, const T leftend, const T rightend) noexcept { return Math::InRange<T, true, true>(x, leftend, rightend); }
 	public:
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr T Clamp(T x, T leftend, T rightend) noexcept { return Math::Less(x, leftend) ? leftend : Math::Greater(x, rightend) ? rightend : x; }
 #undef min
 #undef max
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr T ClampPeriodic(T x, T min, T max) noexcept {
 			if (!Less(min, max)) return x;
 			T range = max - min;
@@ -383,7 +383,7 @@ export namespace System {
 		/// 指定した位の数字[0, 9]。
 		/// 存在しない位を指定した場合、0を返す
 		/// </returns>
-		template<Traits::Integral T>
+		template<Concepts::CIntegral T>
 		static constexpr size_t GetDigit(T x, size_t n) noexcept {
 			if (CountDigit(x) <= n) return 0;
 			uint64_t t = 0;
@@ -397,7 +397,7 @@ export namespace System {
 		/// </summary>
 		/// <typeparam name="T">整数型</typeparam>
 		/// <param name="n">整数</param>
-		template<Integral T>
+		template<Concepts::CIntegral T>
 		static constexpr size_t CountDigit(T n) noexcept {
 			size_t tmp = Abs(n);
 			if (tmp >= Exp10<10>) {
@@ -423,16 +423,16 @@ export namespace System {
 			return 0;
 		}
 	public:
-		template<Floating T> static constexpr bool IsInf(T n) noexcept { return n == static_cast<T>(Math::INFINITY) || n == -static_cast<T>(Math::INFINITY); }
-		template<Floating T> static constexpr bool IsNan(T n) noexcept { return n != n; }
+		template<Concepts::CFloating T> static constexpr bool IsInf(T n) noexcept { return n == static_cast<T>(Math::INFINITY) || n == -static_cast<T>(Math::INFINITY); }
+		template<Concepts::CFloating T> static constexpr bool IsNan(T n) noexcept { return n != n; }
 		//浮動小数点数xの符号ビットが1 -> true, それ以外 -> false
 		//get_bit<>()が自己定義の場合、-0.0とNanの符号を正として扱う
-		template<Floating T> static constexpr bool SignBit(T x) noexcept { return Math::GetBit<T>(x) & Traits::BITMASK_M<sizeof(T) * 8, sizeof(T) * 8>; }
+		template<Concepts::CFloating T> static constexpr bool SignBit(T x) noexcept { return Math::GetBit<T>(x) & Traits::BITMASK_M<sizeof(T) * 8, sizeof(T) * 8>; }
 	public:
 		//IEEE754標準における浮動小数点数の内部表現のビット列から、浮動小数点数型を生成する
 		//符号なし4バイト整数型 -> float(単精度)
 		//符号なし8バイト整数型 -> double(倍精度)
-		template<Floating T>
+		template<Concepts::CFloating T>
 		static constexpr T GenerateFloat(const Traits::int_t<false, sizeof(T)> x) noexcept {
 			using BITTYPE = Traits::int_t<false, sizeof(T)>;
 			using STYPE = Traits::int_t<true, sizeof(T)>;
@@ -458,7 +458,7 @@ export namespace System {
 		/// </summary>
 		/// <param name="x">変換する浮動小数点数</param>
 		/// <returns>内部表現のビット列。Nanの仮数部は0固定</returns>
-		template<Floating T>
+		template<Concepts::CFloating T>
 		static constexpr Traits::int_t<false, sizeof(T)> GetBit(T x) noexcept {
 			using BITTYPE = Traits::int_t<false, sizeof(T)>;
 			using STYPE = Traits::int_t<true, sizeof(T)>;
@@ -485,24 +485,24 @@ export namespace System {
 	public:
 		//浮動小数点数fの指数部が示す値を取得する
 		//float型は0から255、double型は0から2047を返す
-		template<Floating T>
+		template<Concepts::CFloating T>
 		static constexpr uint64_t GetExp(T f) noexcept { return (Traits::BITMASK_M<Traits::FRAC_DIGIT<T> +1, Traits::FRAC_DIGIT<T> +Traits::EXP_DIGIT<T>> &Math::GetBit(f)) >> Traits::FRAC_DIGIT<T>; }
 		//浮動小数点数f = (-1)^s * 2^exp * 1.frac(0.frac)の指数expを取得する
 		//正規化数とNan、Infは(内部表現の値) - (バイアス値)を返し、非正規化数と0は1 - (バイアス値)を返す
-		template<Floating T> static constexpr int GetExpValue(T f) noexcept {
+		template<Concepts::CFloating T> static constexpr int GetExpValue(T f) noexcept {
 			uint64_t val = GetExp(f);
 			return val == 0 ? 1 - Traits::EXP_BIAS<T> : static_cast<int>(val) - Traits::EXP_BIAS<T>;
 		}
 		//浮動小数点数fが正規化数の場合、trueを返す
 		//非正規化数、Inf、Nan、0の場合、falseを返す
-		template<Floating T> static constexpr bool IsNormal(T f) noexcept { return Math::InClosedRange<uint64_t>(GetExp(f), 1, Traits::BITMASK_L<Traits::EXP_DIGIT<T>> -1); }
+		template<Concepts::CFloating T> static constexpr bool IsNormal(T f) noexcept { return Math::InClosedRange<uint64_t>(GetExp(f), 1, Traits::BITMASK_L<Traits::EXP_DIGIT<T>> -1); }
 		//浮動小数点数f = (-1)^s * 2^exp * 1.frac(0.frac)の仮数部1.frac(0.frac)を整数型で取得する
 		//Nanは実際の内部値にかかわらず0.10....0、Infは0.00....0として計算する
-		template<Floating T>
+		template<Concepts::CFloating T>
 		static constexpr uint64_t GetFracValue(T f) noexcept { return (Math::GetBit(f) & Traits::BITMASK_L<Traits::FRAC_DIGIT<T>>) | ((Math::IsNormal(f) ? 1ull : 0ull) << Traits::FRAC_DIGIT<T>); }
 	public:
 		//x[rad]の正弦を返す
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Sin(T x) noexcept {
 			double ret = 0.0;	//戻り値
 			if (EqualZero(x)) ret = static_cast<double>(x);	//0 = sin(±0)
@@ -535,19 +535,19 @@ export namespace System {
 					ret *= sign;
 				}
 			}
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//x[rad]の余弦を返す
 		//Math::Sin(x + Math::PI / 2.0)による実装(cos(x) = sin(x + π/2))
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Cos(T x) noexcept { return Math::Sin(static_cast<T>(x + PIConstant<double, 1, 2>)); }
 		/// <summary>
 		/// x[rad]の正弦と余弦を取得する
 		/// </summary>
 		/// <param name="outSin">正弦を返す変数への参照</param>
 		/// <param name="outCos">余弦を返す変数への参照</param>
-		template<Floating T>
+		template<Concepts::CFloating T>
 		static constexpr void SinCos(T x, T& outSin, T& outCos) noexcept {
 			x = ClampPeriodic<T>(x, 0.f, PIConstant<T, 2, 1>);
 			outSin = Sin(x);
@@ -558,17 +558,17 @@ export namespace System {
 		}
 		//x[rad]の正接を返す
 		//Math::Sin(x) / Math::Cos(x)による実装(tan(x) = sin(x) / cos(x))
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Tan(T x) noexcept {
 			const auto s = Math::Sin(x);
 			const auto c = Math::Cos(x);
 			double ret = Math::Equal(c, 0) ? s > 0 ? Math::INFINITY : -Math::INFINITY : s / c;
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//xの逆正接を返す([rad])
 //[x != Nan] -> [-PI / 2 <= ret <= PI / 2]
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Atan(T x) noexcept {
 			double ret = 0.0;	//戻り値
 			if (EqualZero(x)) ret = static_cast<double>(x);	//±0 = atan(±0)
@@ -592,13 +592,13 @@ export namespace System {
 				else if (x_abs < 2.4) ret = sign * (PIConstant<double, 1, 4> + maclaurin((x_abs - 1.0) / (x_abs + 1.0)));
 				else ret = sign * (PIConstant<double, 1, 2> - maclaurin(1.0 / x_abs));
 			}
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//対辺yと隣辺xから逆正接を返す([rad])
 		//[x != Nan && y != Nan] -> [-PI <= ret <= PI]
 		//Math::Atan(y / x) + (0, PI / 2, -PI / 2)による実装
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Atan2(T y, T x) noexcept {
 			double ret = 0.0;
 			if (EqualZero(y)) ret = Math::GreaterEq(x, 0) ? static_cast<double>(y) : PI<double>;
@@ -606,13 +606,13 @@ export namespace System {
 			else if (IsInf(y)) ret = Sign(y) * (x == Math::INFINITY ? PIConstant<double, 1, 4> : (x == -Math::INFINITY ? PIConstant<double, 3, 4> : PIConstant<double, 1, 2>));
 			else if (IsInf(x)) ret = x == Math::INFINITY ? static_cast<double>(y) * 0.0 : Sign(y) * PI<double>;
 			else ret = (x > 0 ? 0.0 : (y < 0 ? -PI<double> : PI<double>)) + Math::Atan(static_cast<double>(y) / static_cast<double>(x));
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//xの逆正弦を返す([rad])
 		//[-1.0 <= x <= 1.0] -> [-PI / 2 <= ret <= PI / 2]
 		//Math::Atan(x / (1 - x^2))による実装
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Asin(T x) noexcept {
 			double ret = 0.0;
 			if (EqualZero(x)) ret = static_cast<double>(x);
@@ -622,79 +622,79 @@ export namespace System {
 				const double c = Sqrt(1.0 - s * s);
 				ret = EqualZero(c) ? Sign(s) * PIConstant<double, 1, 2> : Math::Atan(s / c);
 			}
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//xの逆余弦を返す([rad])
 		//[-1.0 <= x <= 1.0] -> [0 <= ret <= PI]
 		//PI / 2 - Math::Asin(x)による実装
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Acos(T x) noexcept {
 			double ret = 0.0;
 			if (Equal(x, 1.0)) ret = 0.0;
 			else if (Equal(x, -1.0)) ret = PI<double>;
 			else if (Abs(x) > 1.0) ret = Math::NAN;
 			else ret = (PIConstant<double, 1, 2>) - Math::Asin(static_cast<double>(x));
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 	public:
 		//x[°]の正弦を返す
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto SinDeg(T x) noexcept {
 			double ret = Math::Clamp(Math::Sin(static_cast<double>(x) * Math::Deg2Rad), -1.0, 1.0);
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//x[°]の余弦を返す
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto CosDeg(T x) noexcept {
 			const double ret = Math::Clamp(Math::Cos(static_cast<double>(x) * Math::Deg2Rad), -1.0, 1.0);
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//x[°]の正弦と余弦を取得する
-		template<Floating T>
+		template<Concepts::CFloating T>
 		static constexpr void SinCosDeg(T x, T& outSin, T& outCos) noexcept {
 			SinCos(x * Math::Deg2Radf, outSin, outCos);
 		}
 		//x[°]の正接を返す
-		template<Arithmetic T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto TanDeg(T x) noexcept {
 			const double ret = Math::Tan(static_cast<double>(x) * Math::Deg2Rad);
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//xの逆正弦を返す([°])
 		//[-1.0 <= x <= 1.0] -> [-90.0 <= ret <= 90.0]
-		template<typename T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto AsinDeg(T x) noexcept {
 			const double ret = Clamp(Asin<double>(x) * Math::Rad2Deg, -90.0, 90.0);
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//xの逆余弦を返す([°])
 		//[-1.0 <= x <= 1.0] -> [0.0 <= ret <= 180.0]
-		template<typename T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto AcosDeg(T x) noexcept {
 			const double ret = Clamp(Acos<double>(Clamp<double>(x, -1.0, 1.0)) * Math::Rad2Deg, 0.0, 180.0);
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//xの逆正接を返す([°])
 		//[x != Nan] -> [-90.0 <= ret <= 90.0]
-		template<typename T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto AtanDeg(T x) noexcept {
 			const double ret = Clamp(Atan<double>(x) * Math::Rad2Deg, -90.0, 90.0);
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 		//対辺yと隣辺xから逆正接を返す([°])
 		//[x != Nan && y != Nan] -> [-180.0 <= ret <= 180.0]
-		template<typename T>
+		template<Concepts::CArithmetic T>
 		static constexpr auto Atan2Deg(T y, T x) noexcept {
 			const double ret = Clamp(Atan2<double>(y, x) * Math::Rad2Deg, -180.0, 180.0);
-			if constexpr (Floating<T>) return static_cast<T>(ret);
+			if constexpr (Concepts::CFloating<T>) return static_cast<T>(ret);
 			else return ret;
 		}
 	private:

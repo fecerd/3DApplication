@@ -1,7 +1,7 @@
-module;
+ï»¿module;
 #include<crtdbg.h>
+#include "FUNCSIG.hpp"
 #undef SIZE_MAX
-#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 export module IEnumerable;
 import Exception;
 import Function;
@@ -45,14 +45,14 @@ export namespace System {
 	template<class T> struct EnumerableIterator;
 
 	/// <summary>
-	/// ŠeEnumerator‚ÌŠî’êŒ^B
-	/// ƒˆ‰¼‘zŠÖ”begin, operator++, operator*‚ğƒI[ƒo[ƒ‰ƒCƒh‚·‚é•K—v‚ª‚ ‚é
+	/// å„Enumeratorã®åŸºåº•å‹ã€‚
+	/// ç´”ç²‹ä»®æƒ³é–¢æ•°begin, operator++, operator*ã‚’ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã™ã‚‹å¿…è¦ãŒã‚ã‚‹
 	/// </summary>
-	/// <typeparam name="T">—v‘fŒ^</typeparam>
+	/// <typeparam name="T">è¦ç´ å‹</typeparam>
 	template<class T>
 	struct IEnumeratorBase {
 	protected:
-		bool m_done = false;	//coroutine_handle<promise_type<T, IEnumerator<T>>>::done()‚ÌŒ‹‰Ê‚ğ‹L˜^‚·‚é
+		bool m_done = false;	//coroutine_handle<promise_type<T, IEnumerator<T>>>::done()ã®çµæœã‚’è¨˜éŒ²ã™ã‚‹
 	public:
 		constexpr IEnumeratorBase() noexcept = default;
 		constexpr IEnumeratorBase(IEnumeratorBase&& arg) noexcept : m_done(arg.m_done) { arg.m_done = true; }
@@ -63,43 +63,43 @@ export namespace System {
 		constexpr IEnumeratorBase& operator=(const IEnumeratorBase&) noexcept = delete;
 	public:
 		/// <summary>
-		/// Enumerator‚ÌÅ‰‚Ì—v‘f‚ğw‚·ƒCƒeƒŒ[ƒ^‚ğæ“¾‚·‚é
+		/// Enumeratorã®æœ€åˆã®è¦ç´ ã‚’æŒ‡ã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <remarks>
-		/// [À‘•‚Ì’ˆÓ]
-		/// •Û‚µ‚Ä‚¢‚éƒRƒ‹[ƒ`ƒ“‚ªI—¹ó‘Ô‚Ì‚Æ‚«A‚»‚ê‚ğ”jŠü‚µAV‚½‚ÉƒRƒ‹[ƒ`ƒ“‚ğ¶¬‚·‚éB
-		/// ‰Šú‰»‚³‚ê‚½ƒRƒ‹[ƒ`ƒ“‚ğƒCƒ“ƒNƒŠƒƒ“ƒg‚µ‚ÄAÅ‰‚Ì—v‘f‚Å’â~‚³‚¹‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
+		/// [å®Ÿè£…æ™‚ã®æ³¨æ„]
+		/// ä¿æŒã—ã¦ã„ã‚‹ã‚³ãƒ«ãƒ¼ãƒãƒ³ãŒçµ‚äº†çŠ¶æ…‹ã®ã¨ãã€ãã‚Œã‚’ç ´æ£„ã—ã€æ–°ãŸã«ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’ç”Ÿæˆã™ã‚‹ã€‚
+		/// åˆæœŸåŒ–ã•ã‚ŒãŸã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã—ã¦ã€æœ€åˆã®è¦ç´ ã§åœæ­¢ã•ã›ãªã‘ã‚Œã°ãªã‚‰ãªã„
 		/// </remarks>
 		virtual constexpr EnumerableIterator<T> begin() noexcept = 0;
 		/// <summary>
-		/// ƒRƒ‹[ƒ`ƒ“‚ÌI—¹ó‘Ô‚ğ•\‚·ƒCƒeƒŒ[ƒ^‚ğæ“¾‚·‚é
+		/// ã‚³ãƒ«ãƒ¼ãƒãƒ³ã®çµ‚äº†çŠ¶æ…‹ã‚’è¡¨ã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		constexpr EnumerableIterator<T> end() const noexcept { return EnumerableIterator<T>(); }
 		/// <summary>
-		/// ƒRƒ‹[ƒ`ƒ“‚ªI—¹‚µ‚Ä‚¢‚é‚©‚ğ’²‚×‚é
+		/// ã‚³ãƒ«ãƒ¼ãƒãƒ³ãŒçµ‚äº†ã—ã¦ã„ã‚‹ã‹ã‚’èª¿ã¹ã‚‹
 		/// </summary>
 		constexpr bool Done() const noexcept { return m_done; }
 	public:
 		/// <summary>
-		/// ƒRƒ‹[ƒ`ƒ“‚ği‚ß‚é
+		/// ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’é€²ã‚ã‚‹
 		/// </summary>
 		/// <remarks>
-		/// [À‘•‚Ì’ˆÓ]
+		/// [å®Ÿè£…æ™‚ã®æ³¨æ„]
 		/// <remarks>
 		virtual constexpr IEnumeratorBase<T>& operator++() noexcept = 0;
 		/// <summary>
-		/// Œ»İw‚µ‚Ä‚¢‚é—v‘f‚ğ•Ô‚·
+		/// ç¾åœ¨æŒ‡ã—ã¦ã„ã‚‹è¦ç´ ã‚’è¿”ã™
 		/// </summary>
 		virtual constexpr T& operator*() noexcept = 0;
 	public:
 		/// <summary>
-		/// ƒRƒ‹[ƒ`ƒ“‚ğ•¡»‚µAV‚½‚ÈIEnumerator‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğ•Ô‚·B
-		/// Šm•Û‚³‚ê‚½ƒƒ‚ƒŠ‚ÍIEnumerable‚ÌƒfƒXƒgƒ‰ƒNƒ^‚ÅACommonEnumerator::m_prev‚ğ
-		/// Ä‹A“I‚É’H‚Á‚Ä‰ğ•ú‚³‚ê‚é
+		/// ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’è¤‡è£½ã—ã€æ–°ãŸãªIEnumeratorã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’è¿”ã™ã€‚
+		/// ç¢ºä¿ã•ã‚ŒãŸãƒ¡ãƒ¢ãƒªã¯IEnumerableã®ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã€CommonEnumerator::m_prevã‚’
+		/// å†å¸°çš„ã«è¾¿ã£ã¦è§£æ”¾ã•ã‚Œã‚‹
 		/// </summary>
 		virtual constexpr IEnumeratorBase<T>* Clone() const noexcept = 0;
 		/// <summary>
-		/// ƒRƒ‹[ƒ`ƒ“‚ğ‹t‡‚É‚·‚é
+		/// ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’é€†é †ã«ã™ã‚‹
 		/// </summary>
 		virtual constexpr void Reverse() noexcept = 0;
 	};
@@ -110,30 +110,31 @@ export namespace System {
 	template<class T> class ICollection;
 
 	/// <summary>
-	/// ƒRƒ‹[ƒ`ƒ“ŠÖ”‚Ì–ß‚è’lŒ^
+	/// ã‚³ãƒ«ãƒ¼ãƒãƒ³é–¢æ•°ã®æˆ»ã‚Šå€¤å‹
 	/// </summary>
-	/// <typeparam name="T">ƒRƒ‹[ƒ`ƒ“‚ª•Ô‚·—v‘fŒ^</typeparam>
+	/// <typeparam name="T">ã‚³ãƒ«ãƒ¼ãƒãƒ³ãŒè¿”ã™è¦ç´ å‹</typeparam>
 	template<class T>
 	struct IEnumerator : public IEnumeratorBase<T> {
-		using promise_type = System::promise_type<T, IEnumerator<T>>;	//ƒRƒ‹[ƒ`ƒ“ŠÖ”‚Ìˆø”Œ^‚É•K{‚ÈƒGƒCƒŠƒAƒX
+		using promise_type = System::promise_type<T, IEnumerator<T>>;	//ã‚³ãƒ«ãƒ¼ãƒãƒ³é–¢æ•°ã®å¼•æ•°å‹ã«å¿…é ˆãªã‚¨ã‚¤ãƒªã‚¢ã‚¹
 	protected:
-		//ICollection‚Ì—v‘fŒ^
+		//ICollectionã®è¦ç´ å‹
 		using object_type = System::Traits::remove_cv_t<T>;
-		//‚±‚ÌIEnumerator‚ğ¶¬‚µ‚½ICollectionŒ^
+		//ã“ã®IEnumeratorã‚’ç”Ÿæˆã—ãŸICollectionå‹
 		using collection_type = System::Traits::conditional_t<System::Traits::is_const_v<T>, const ICollection<object_type>, ICollection<object_type>>;
-		//GetEnumerator()ŠÖ”‚ª¶¬‚·‚éƒRƒ‹[ƒ`ƒ“ƒnƒ“ƒhƒ‹Œ^
+		//GetEnumerator()é–¢æ•°ãŒç”Ÿæˆã™ã‚‹ã‚³ãƒ«ãƒ¼ãƒãƒ³ãƒãƒ³ãƒ‰ãƒ«å‹
 		using handle = coroutine_handle<System::promise_type<T, IEnumerator<T>>>;
 	protected:
-		//ƒRƒ‹[ƒ`ƒ“ƒnƒ“ƒhƒ‹
+		//ã‚³ãƒ«ãƒ¼ãƒãƒ³ãƒãƒ³ãƒ‰ãƒ«
 		handle m_handle = handle();
-		//‹t‡˜‚ğw’è‚·‚ébool’l‚ğˆø”‚É‚Æ‚èAIEnumerator‚ğ¶¬‚·‚éŠÖ”
-		//[this(ƒRƒ‹[ƒ`ƒ“‚ğ¶¬‚·‚éƒCƒ“ƒXƒ^ƒ“ƒX)](bool reverse) { return reverse ? GetReverseEnumerator() : GetEnumerator(); }
-		//‚Ì‚æ‚¤‚Èƒ‰ƒ€ƒ_®‚ğ•Û‚µAÄ¶¬‚Æ”½“]‚ğ‰Â”\‚É‚·‚é
+		//é€†é †åºã‚’æŒ‡å®šã™ã‚‹boolå€¤ã‚’å¼•æ•°ã«ã¨ã‚Šã€IEnumeratorã‚’ç”Ÿæˆã™ã‚‹é–¢æ•°
+		//[this(ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’ç”Ÿæˆã™ã‚‹ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹)](bool reverse) { return reverse ? GetReverseEnumerator() : GetEnumerator(); }
+		//ã®ã‚ˆã†ãªãƒ©ãƒ ãƒ€å¼ã‚’ä¿æŒã—ã€å†ç”Ÿæˆã¨åè»¢ã‚’å¯èƒ½ã«ã™ã‚‹
 		Function<IEnumerator<T>(bool)> m_enumFunc;
-		//Œ»İ‚ÌƒRƒ‹[ƒ`ƒ“‚ª‹t‡˜‚Ì‚Æ‚«Atrue
+		//ç¾åœ¨ã®ã‚³ãƒ«ãƒ¼ãƒãƒ³ãŒé€†é †åºã®ã¨ãã€true
 		bool m_reverse = false;
 	public:
-		//promise_type“à‚Åg—p‚³‚ê‚é‚½‚ß•K{
+		constexpr IEnumerator() noexcept = delete;
+		//promise_typeå†…ã§ä½¿ç”¨ã•ã‚Œã‚‹ãŸã‚å¿…é ˆ
 		constexpr IEnumerator(handle h) noexcept : m_handle(h) {}
 		constexpr IEnumerator(const Function<IEnumerator<T>(bool)>& getEnumFunc, bool reverse = false) noexcept
 			: m_reverse(reverse), m_enumFunc(getEnumFunc)
@@ -163,12 +164,12 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// Å‰‚Ì—v‘f‚ğw‚·ƒCƒeƒŒ[ƒ^‚ğæ“¾‚·‚é
+		/// æœ€åˆã®è¦ç´ ã‚’æŒ‡ã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		constexpr EnumerableIterator<T> begin() noexcept override {
-			//‚±‚ÌƒRƒ‹[ƒ`ƒ“‚ª‚·‚Å‚ÉÀs‚³‚ê‚Ä‚¢‚é(I—¹‚ğŠÜ‚Ş)‚Æ‚«AV‚½‚É¶¬‚·‚é
+			//ã“ã®ã‚³ãƒ«ãƒ¼ãƒãƒ³ãŒã™ã§ã«å®Ÿè¡Œã•ã‚Œã¦ã„ã‚‹(çµ‚äº†ã‚’å«ã‚€)ã¨ãã€æ–°ãŸã«ç”Ÿæˆã™ã‚‹
 			if (m_handle) *this = IEnumerator<T>(m_enumFunc, m_reverse);
-			operator++();	//m_handle.promise().value‚ÉÅ‰‚Ì—v‘f‚ğ“ü‚ê‚é
+			operator++();	//m_handle.promise().valueã«æœ€åˆã®è¦ç´ ã‚’å…¥ã‚Œã‚‹
 			return EnumerableIterator<T>(this);
 		}
 	public:
@@ -186,7 +187,7 @@ export namespace System {
 			*this = IEnumerator<T>(m_enumFunc, !m_reverse);
 		}
 	private:
-		//begin(), Reverse()“à‚Å‚Ì‚İg—p‚·‚é‚½‚ßprivate
+		//begin(), Reverse()å†…ã§ã®ã¿ä½¿ç”¨ã™ã‚‹ãŸã‚private
 		constexpr IEnumerator<T>& operator=(IEnumerator<T>&& rhs) noexcept {
 			if (this == &rhs) return *this;
 			if (m_handle) m_handle.destroy();
@@ -200,14 +201,14 @@ export namespace System {
 		}
 	};
 	template<class T>
-	IEnumerator(IEnumerator<T>&&, ICollection<T>*)->IEnumerator<T>;
+	IEnumerator(IEnumerator<T>&&, ICollection<T>*) -> IEnumerator<T>;
 }
 
 //CommonEnumerator
 export namespace System {
 	template<class Dst, class Src>
 	struct CommonEnumerator : public IEnumeratorBase<Dst> {
-		IEnumeratorBase<Src>* m_prev = nullptr;	//’¼‘O‚ÌEnumerator‚Ö‚Ìƒ|ƒCƒ“ƒ^
+		IEnumeratorBase<Src>* m_prev = nullptr;	//ç›´å‰ã®Enumeratorã¸ã®ãƒã‚¤ãƒ³ã‚¿
 	public:
 		constexpr CommonEnumerator(IEnumeratorBase<Src>* prev) noexcept : m_prev(prev) {}
 		virtual constexpr ~CommonEnumerator() noexcept {
@@ -227,14 +228,14 @@ export namespace System {
 //Enumerators
 export namespace System {
 	/// <summary>
-	/// SelectŠÖ”‚ª¶¬‚·‚éEnumerator
+	/// Selecté–¢æ•°ãŒç”Ÿæˆã™ã‚‹Enumerator
 	/// </summary>
-	/// <typeparam name="Dst">•ÏŠ·Œã‚Ì—v‘fŒ^</typeparam>
-	/// <typeparam name="Src">•ÏŠ·‘O‚Ì—v‘fŒ^</typeparam>
+	/// <typeparam name="Dst">å¤‰æ›å¾Œã®è¦ç´ å‹</typeparam>
+	/// <typeparam name="Src">å¤‰æ›å‰ã®è¦ç´ å‹</typeparam>
 	template<class Dst, class Src>
 	struct SelectEnumerator : public CommonEnumerator<Dst, Src> {
-		IEnumerator<Dst>* m_converter = nullptr;	//this->GetEnumerator()‚ª¶¬‚·‚éƒRƒ‹[ƒ`ƒ“‚ğ‚ÂEnumerator‚Ö‚Ìƒ|ƒCƒ“ƒ^
-		System::Function<Dst(Src&)> m_func;	//•ÏŠ·—pŠÖ”
+		IEnumerator<Dst>* m_converter = nullptr;	//this->GetEnumerator()ãŒç”Ÿæˆã™ã‚‹ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’æŒã¤Enumeratorã¸ã®ãƒã‚¤ãƒ³ã‚¿
+		System::Function<Dst(Src&)> m_func;	//å¤‰æ›ç”¨é–¢æ•°
 		using CommonEnumerator<Dst, Src>::m_prev;
 	public:
 		constexpr SelectEnumerator(IEnumeratorBase<Src>* prev, const System::Function<Dst(Src&)>& func) noexcept : CommonEnumerator<Dst, Src>(prev), m_func(func) {
@@ -248,12 +249,12 @@ export namespace System {
 		constexpr EnumerableIterator<Dst> begin() noexcept override {
 			if (!m_prev || !m_converter) return EnumerableIterator<Dst>();
 			m_prev->begin();
-			//•ÏŠ·‚Ég—p‚·‚éƒRƒ‹[ƒ`ƒ“‚ªI—¹‚µ‚Ä‚¢‚éê‡AV‚½‚É¶¬‚·‚é
+			//å¤‰æ›ã«ä½¿ç”¨ã™ã‚‹ã‚³ãƒ«ãƒ¼ãƒãƒ³ãŒçµ‚äº†ã—ã¦ã„ã‚‹å ´åˆã€æ–°ãŸã«ç”Ÿæˆã™ã‚‹
 			if (m_converter->Done()) {
 				delete m_converter;
 				m_converter = new IEnumerator<Dst>([this](bool) { return this->GetEnumerator(); }, false);
 			}
-			m_converter->begin();	//m_conveter“à‚Åm_prev‚ªg—p‚³‚ê‚é‚½‚ßAm_prev->begin()‚ÌŒã‚ÉŒÄ‚Ño‚·
+			m_converter->begin();	//m_conveterå†…ã§m_prevãŒä½¿ç”¨ã•ã‚Œã‚‹ãŸã‚ã€m_prev->begin()ã®å¾Œã«å‘¼ã³å‡ºã™
 			return EnumerableIterator<Dst>(m_converter);
 		}
 	public:
@@ -267,7 +268,7 @@ export namespace System {
 		constexpr SelectEnumerator<Dst, Src>* Clone() const noexcept override { return new SelectEnumerator<Dst, Src>(m_prev->Clone(), m_func); }
 	private:
 		/// <summary>
-		/// ’¼‘O‚ÌEnumerator‚Ì’l‚ğ•ÏŠ·—pŠÖ”‚Å•ÏŠ·‚µA—ñ‹“‚·‚é
+		/// ç›´å‰ã®Enumeratorã®å€¤ã‚’å¤‰æ›ç”¨é–¢æ•°ã§å¤‰æ›ã—ã€åˆ—æŒ™ã™ã‚‹
 		/// </summary>
 		IEnumerator<Dst> GetEnumerator() noexcept {
 			while (m_prev && !m_prev->Done()) {
@@ -279,14 +280,14 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// MemberSelectŠÖ”‚ª¶¬‚·‚éEnumerator
+	/// MemberSelecté–¢æ•°ãŒç”Ÿæˆã™ã‚‹Enumerator
 	/// </summary>
-	/// <typeparam name="Dst">ƒƒ“ƒo•Ï”‚ÌŒ^BƒCƒeƒŒ[ƒ^‚ÍDst&‚ğ•Ô‚·</typeparam>
-	/// <typeparam name="Src">’¼‘O‚ÌEnumerator‚ÌŒ^Bƒƒ“ƒo•Ï”‚ğ‚Â</typeparam>
+	/// <typeparam name="Dst">ãƒ¡ãƒ³ãƒå¤‰æ•°ã®å‹ã€‚ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã¯Dst&ã‚’è¿”ã™</typeparam>
+	/// <typeparam name="Src">ç›´å‰ã®Enumeratorã®å‹ã€‚ãƒ¡ãƒ³ãƒå¤‰æ•°ã‚’æŒã¤</typeparam>
 	template<class Dst, class Src>
 	struct MemberSelectEnumerator : public CommonEnumerator<Dst, Src> {
-		IEnumerator<Dst>* m_converter = nullptr;	//this->GetEnumerator()‚ª¶¬‚·‚éƒRƒ‹[ƒ`ƒ“‚ğ‚ÂEnumerator‚Ö‚Ìƒ|ƒCƒ“ƒ^
-		Dst Src::* m_member = nullptr;	//ƒƒ“ƒo•Ï”ƒ|ƒCƒ“ƒ^
+		IEnumerator<Dst>* m_converter = nullptr;	//this->GetEnumerator()ãŒç”Ÿæˆã™ã‚‹ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’æŒã¤Enumeratorã¸ã®ãƒã‚¤ãƒ³ã‚¿
+		Dst Src::* m_member = nullptr;	//ãƒ¡ãƒ³ãƒå¤‰æ•°ãƒã‚¤ãƒ³ã‚¿
 		using CommonEnumerator<Dst, Src>::m_prev;
 	public:
 		constexpr MemberSelectEnumerator(IEnumeratorBase<Src>* prev, Dst Src::* member) noexcept : CommonEnumerator<Dst, Src>(prev), m_member(member) {
@@ -300,12 +301,12 @@ export namespace System {
 		constexpr EnumerableIterator<Dst> begin() noexcept override {
 			if (!m_prev || !m_converter) return EnumerableIterator<Dst>();
 			m_prev->begin();
-			//•ÏŠ·‚Ég—p‚·‚éƒRƒ‹[ƒ`ƒ“‚ªI—¹‚µ‚Ä‚¢‚éê‡AV‚½‚É¶¬‚·‚é
+			//å¤‰æ›ã«ä½¿ç”¨ã™ã‚‹ã‚³ãƒ«ãƒ¼ãƒãƒ³ãŒçµ‚äº†ã—ã¦ã„ã‚‹å ´åˆã€æ–°ãŸã«ç”Ÿæˆã™ã‚‹
 			if (m_converter->Done()) {
 				delete m_converter;
 				m_converter = new IEnumerator<Dst>([this](bool) { return this->GetEnumerator(); }, false);
 			}
-			m_converter->begin();	//m_conveter“à‚Åm_prev‚ªg—p‚³‚ê‚é‚½‚ßAm_prev->begin()‚ÌŒã‚ÉŒÄ‚Ño‚·
+			m_converter->begin();	//m_conveterå†…ã§m_prevãŒä½¿ç”¨ã•ã‚Œã‚‹ãŸã‚ã€m_prev->begin()ã®å¾Œã«å‘¼ã³å‡ºã™
 			return EnumerableIterator<Dst>(m_converter);
 		}
 	public:
@@ -319,7 +320,7 @@ export namespace System {
 		constexpr MemberSelectEnumerator<Dst, Src>* Clone() const noexcept override { return new MemberSelectEnumerator<Dst, Src>(m_prev->Clone(), m_member); }
 	public:
 		/// <summary>
-		/// ’¼‘O‚ÌEnumerator‚Ì’l‚Ì‚Âƒƒ“ƒo•Ï”(QÆ)‚ğ—ñ‹“‚·‚é
+		/// ç›´å‰ã®Enumeratorã®å€¤ã®æŒã¤ãƒ¡ãƒ³ãƒå¤‰æ•°(å‚ç…§)ã‚’åˆ—æŒ™ã™ã‚‹
 		/// </summary>
 		IEnumerator<Dst> GetEnumerator() noexcept {
 			while (m_prev && !m_prev->Done()) {
@@ -330,12 +331,12 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// WhereŠÖ”‚ª¶¬‚·‚éEnumerator
+	/// Whereé–¢æ•°ãŒç”Ÿæˆã™ã‚‹Enumerator
 	/// </summary>
-	/// <typeparam name="T">—v‘fŒ^</typeparam>
+	/// <typeparam name="T">è¦ç´ å‹</typeparam>
 	template<class T>
 	struct WhereEnumerator : public CommonEnumerator<T, T> {
-		System::Function<bool(T const&)> m_func;	//ğŒ®
+		System::Function<bool(T const&)> m_func;	//æ¡ä»¶å¼
 		using CommonEnumerator<T, T>::m_prev;
 	public:
 		constexpr WhereEnumerator(IEnumeratorBase<T>* prev, const System::Function<bool(T const&)>& func) noexcept : CommonEnumerator<T, T>(prev), m_func(func) {}
@@ -367,22 +368,22 @@ export namespace System {
 //EnumerableIterator
 export namespace System {
 	/// <summary>
-	/// IEnumerable‚ª•Ô‚·ƒCƒeƒŒ[ƒ^Œ^
+	/// IEnumerableãŒè¿”ã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿å‹
 	/// </summary>
-	/// <typeparam name="T">—v‘fŒ^Boperator*‚ÅQÆ‚ªæ“¾‰Â”\</typeparam>
+	/// <typeparam name="T">è¦ç´ å‹ã€‚operator*ã§å‚ç…§ãŒå–å¾—å¯èƒ½</typeparam>
 	template<class T>
 	struct EnumerableIterator {
 		using value_type = T;
 		using iterator_concept = System::Traits::forward_iterator_tag;
 	protected:
-		IEnumeratorBase<T>* m_enumerator = nullptr;	//TŒ^—v‘f‚ğ—ñ‹“‚·‚éEnumerator‚Ö‚Ìƒ|ƒCƒ“ƒ^
+		IEnumeratorBase<T>* m_enumerator = nullptr;	//Tå‹è¦ç´ ã‚’åˆ—æŒ™ã™ã‚‹Enumeratorã¸ã®ãƒã‚¤ãƒ³ã‚¿
 	public:
 		EnumerableIterator() noexcept = default;
 		EnumerableIterator(IEnumeratorBase<T>* enumerator) noexcept : m_enumerator(enumerator) {}
 		~EnumerableIterator() noexcept { m_enumerator = nullptr; }
 	protected:
 		/// <summary>
-		/// ƒCƒeƒŒ[ƒ^‚ªÅŒã‚Ì—v‘f‚ğ‰z‚¦‚Ä‚¢‚é‚©’²‚×‚é
+		/// ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ãŒæœ€å¾Œã®è¦ç´ ã‚’è¶Šãˆã¦ã„ã‚‹ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		constexpr bool Done() const noexcept { return m_enumerator ? m_enumerator->Done() : true; }
 	public:
@@ -391,7 +392,7 @@ export namespace System {
 			return *this;
 		}
 		constexpr T& operator*() const {
-			if (!m_enumerator) throw System::InvalidOperationException(__FUNCSIG__, "ƒCƒeƒŒ[ƒ^‚ªIEnumerator‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğ‚Á‚Ä‚¢‚Ü‚¹‚ñB", __FILE__, __LINE__);
+			if (!m_enumerator) throw System::InvalidOperationException(__FUNCSIG__, "ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ãŒIEnumeratorã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’æŒã£ã¦ã„ã¾ã›ã‚“ã€‚", __FILE__, __LINE__);
 			return m_enumerator->operator*();
 		}
 		constexpr bool operator==(const EnumerableIterator<T>& rhs) const noexcept { return this->Done() == rhs.Done(); }
@@ -402,25 +403,25 @@ export namespace System {
 //IEnumerable
 export namespace System {
 	/// <summary>
-	/// ICollection‚Ì‚ÂŠeƒƒ\ƒbƒh‚Ì–ß‚è’lŒ^B
-	/// ƒƒ\ƒbƒhƒ`ƒF[ƒ“‚É‚æ‚èALinqƒ‰ƒCƒN‚Ì‹@”\‚ğ’ñ‹Ÿ‚·‚éB
-	/// begin, endŠÖ”‚ğg—p‚µ‚ÄAƒCƒeƒŒ[ƒ^‚ğæ“¾‚Å‚«‚é
+	/// ICollectionã®æŒã¤å„ãƒ¡ã‚½ãƒƒãƒ‰ã®æˆ»ã‚Šå€¤å‹ã€‚
+	/// ãƒ¡ã‚½ãƒƒãƒ‰ãƒã‚§ãƒ¼ãƒ³ã«ã‚ˆã‚Šã€Linqãƒ©ã‚¤ã‚¯ã®æ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹ã€‚
+	/// begin, endé–¢æ•°ã‚’ä½¿ç”¨ã—ã¦ã€ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’å–å¾—ã§ãã‚‹
 	/// </summary>
-	/// <typeparam name="T">—v‘fŒ^</typeparam>
+	/// <typeparam name="T">è¦ç´ å‹</typeparam>
 	template<class T>
 	class IEnumerable {
-		IEnumeratorBase<T>* m_last = nullptr;	//ƒƒ\ƒbƒhƒ`ƒF[ƒ“‚ÌÅŒã‚ÌEnumerator‚Ö‚Ìƒ|ƒCƒ“ƒ^
+		IEnumeratorBase<T>* m_last = nullptr;	//ãƒ¡ã‚½ãƒƒãƒ‰ãƒã‚§ãƒ¼ãƒ³ã®æœ€å¾Œã®Enumeratorã¸ã®ãƒã‚¤ãƒ³ã‚¿
 	public:
 		IEnumerable(IEnumerable<T>&& arg) noexcept : m_last(arg.m_last) { arg.m_last = nullptr; }
 		IEnumerable(IEnumeratorBase<T>* enumerator) noexcept : m_last(enumerator) {}
 		~IEnumerable() noexcept { delete m_last; m_last = nullptr; }
 	public:
 		/// <summary>
-		/// Å‰‚Ì—v‘f‚ğw‚·ƒCƒeƒŒ[ƒ^‚ğæ“¾‚·‚é
+		/// æœ€åˆã®è¦ç´ ã‚’æŒ‡ã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		EnumerableIterator<T> begin() const noexcept { return m_last ? m_last->begin() : EnumerableIterator<T>(); }
 		/// <summary>
-		/// I—¹‚ğ•\‚·ƒCƒeƒŒ[ƒ^‚ğæ“¾‚·‚é
+		/// çµ‚äº†ã‚’è¡¨ã™ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		EnumerableIterator<T> end() const noexcept { return m_last ? m_last->end() : EnumerableIterator<T>(); }
 	private:
@@ -431,23 +432,23 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// Å‰‚Ì—v‘f‚ğæ“¾‚·‚é
+		/// æœ€åˆã®è¦ç´ ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <exception>
-		/// —v‘f‚ª‘¶İ‚µ‚È‚¢ê‡ASystem::InvalidOperationException‚ğ‘—o‚·‚é
+		/// è¦ç´ ãŒå­˜åœ¨ã—ãªã„å ´åˆã€System::InvalidOperationExceptionã‚’é€å‡ºã™ã‚‹
 		/// </exception>
 		T& First() const {
 			EnumerableIterator<T> ite = begin(), e = end();
-			if (!(ite != e)) throw System::InvalidOperationException("IEnumerable::First(): —v‘f‚ª‘¶İ‚µ‚Ü‚¹‚ñB");
+			if (!(ite != e)) throw System::InvalidOperationException("IEnumerable::First(): è¦ç´ ãŒå­˜åœ¨ã—ã¾ã›ã‚“ã€‚");
 			T& ret = *ite;
 			for (; ite != e; ++ite);
 			return ret;
 		}
 		/// <summary>
-		/// Å‰‚Ì—v‘f‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾‚·‚é
+		/// æœ€åˆã®è¦ç´ ã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <returns>
-		/// —v‘f‚ª‘¶İ‚µ‚È‚¢ê‡Anullptr‚ğ•Ô‚·
+		/// è¦ç´ ãŒå­˜åœ¨ã—ãªã„å ´åˆã€nullptrã‚’è¿”ã™
 		/// <returns>
 		System::Traits::remove_cvref_t<T>* TryFirst() const noexcept {
 			EnumerableIterator<T> ite = begin(), e = end();
@@ -465,7 +466,7 @@ export namespace System {
 			return &ret;
 		}
 		/// <summary>
-		/// —v‘f”‚ğæ“¾‚·‚é
+		/// è¦ç´ æ•°ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		size_t EnumeratorCount() const noexcept {
 			size_t ret = 0;
@@ -476,15 +477,15 @@ export namespace System {
 		IEnumerable<T> Clone() const noexcept { return IEnumerable<T>(m_last->Clone()); }
 	public:
 		/// <summary>
-		/// Œ»İ‚Æ“¯‚¶IEnumerable‚ğæ“¾‚·‚é
+		/// ç¾åœ¨ã¨åŒã˜IEnumerableã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		IEnumerable<T> Chain() && noexcept { return To(m_last); }
 		IEnumerable<T> Chain() & noexcept { return IEnumerable<T>(m_last->Clone()); }
 		/// <summary>
-		/// w’è‚µ‚½ŠÖ”‚ğg—p‚µ‚ÄA•Ê‚Ì—v‘fŒ^‚ğ‚ÂIEnumerable‚ğæ“¾‚·‚é
+		/// æŒ‡å®šã—ãŸé–¢æ•°ã‚’ä½¿ç”¨ã—ã¦ã€åˆ¥ã®è¦ç´ å‹ã‚’æŒã¤IEnumerableã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <typeparam name="Dst">•ÏŠ·æ‚ÌŒ^</typeparam>
-		/// <param name="func">‚±‚ÌIEnumerable‚ª‚Â—v‘fŒ^‚Ö‚ÌQÆ‚ğˆø”‚Æ‚µA•ÏŠ·æ‚ÌŒ^‚ğ•Ô‚·ŠÖ”ƒIƒuƒWƒFƒNƒg</param>
+		/// <typeparam name="Dst">å¤‰æ›å…ˆã®å‹</typeparam>
+		/// <param name="func">ã“ã®IEnumerableãŒæŒã¤è¦ç´ å‹ã¸ã®å‚ç…§ã‚’å¼•æ•°ã¨ã—ã€å¤‰æ›å…ˆã®å‹ã‚’è¿”ã™é–¢æ•°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		template<class Dst>
 		IEnumerable<Dst> Select(const System::Function<Dst(T&)>& func) && noexcept {
 			return To(new SelectEnumerator<Dst, T>(m_last, func));
@@ -494,9 +495,9 @@ export namespace System {
 			return IEnumerable<Dst>(new SelectEnumerator<Dst, T>(m_last->Clone(), func));
 		}
 		/// <summary>
-		/// ğŒ®‚ğ–‚½‚·—v‘f‚ğ‚ÂIEnumerable‚ğæ“¾‚·‚é
+		/// æ¡ä»¶å¼ã‚’æº€ãŸã™è¦ç´ ã‚’æŒã¤IEnumerableã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="func">‚±‚ÌIEnumerable‚Ì—v‘fŒ^‚Ö‚ÌQÆ‚ğˆø”‚Æ‚µAboolŒ^‚ğ•Ô‚·ŠÖ”ƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="func">ã“ã®IEnumerableã®è¦ç´ å‹ã¸ã®å‚ç…§ã‚’å¼•æ•°ã¨ã—ã€boolå‹ã‚’è¿”ã™é–¢æ•°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		IEnumerable<T> Where(const System::Function<bool(T const&)>& func) && noexcept {
 			return To(new WhereEnumerator<T>(m_last, func));
 		}
@@ -504,21 +505,21 @@ export namespace System {
 			return IEnumerable<T>(new WhereEnumerator<T>(m_last->Clone(), func));
 		}
 		/// <summary>
-		/// w’è‚µ‚½ƒƒ“ƒo•Ï”ƒ|ƒCƒ“ƒ^‚ğg—p‚µ‚ÄAƒƒ“ƒo•Ï”‚Ö‚ÌQÆŒ^‚ğ‚ÂIEnumerable‚ğæ“¾‚·‚é
+		/// æŒ‡å®šã—ãŸãƒ¡ãƒ³ãƒå¤‰æ•°ãƒã‚¤ãƒ³ã‚¿ã‚’ä½¿ç”¨ã—ã¦ã€ãƒ¡ãƒ³ãƒå¤‰æ•°ã¸ã®å‚ç…§å‹ã‚’æŒã¤IEnumerableã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <typeparam name="Dst">ƒƒ“ƒo•Ï”Œ^</typeparam>
-		/// <typeparam name="M">ƒƒ“ƒo•Ï”ƒ|ƒCƒ“ƒ^Œ^</typeparam>
-		/// <param name="member">ƒƒ“ƒo•Ï”ƒ|ƒCƒ“ƒ^</param>
+		/// <typeparam name="Dst">ãƒ¡ãƒ³ãƒå¤‰æ•°å‹</typeparam>
+		/// <typeparam name="M">ãƒ¡ãƒ³ãƒå¤‰æ•°ãƒã‚¤ãƒ³ã‚¿å‹</typeparam>
+		/// <param name="member">ãƒ¡ãƒ³ãƒå¤‰æ•°ãƒã‚¤ãƒ³ã‚¿</param>
 		template<class Dst, class R>
-		IEnumerable<Dst> MemberSelect(System::Traits::MemberPtr<R, T> member) && noexcept {
+		IEnumerable<Dst> MemberSelect(R T::* member) && noexcept {
 			return To(new MemberSelectEnumerator<Dst, T>(m_last, member));
 		}
 		template<class Dst, class R>
-		IEnumerable<Dst> MemberSelect(System::Traits::MemberPtr<R, T> member) & noexcept {
+		IEnumerable<Dst> MemberSelect(R T::* member) & noexcept {
 			return IEnumerable<Dst>(new MemberSelectEnumerator<Dst, T>(m_last->Clone(), member));
 		}
 		/// <summary>
-		/// —v‘f‚Ì‡˜‚ğ”½“]‚µ‚½IEnumerable‚ğæ“¾‚·‚é
+		/// è¦ç´ ã®é †åºã‚’åè»¢ã—ãŸIEnumerableã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		IEnumerable<T> Reverse() && noexcept {
 			m_last->Reverse();
@@ -532,32 +533,43 @@ export namespace System {
 	};
 }
 
+template<class R, class T>
+struct member_ptr{
+	using type = void*;
+};
+template <class R, System::Traits::Concepts::CClassOrUnion T>
+struct member_ptr<R, T>{
+	using type = R T::*;
+};
+template <class R, class T>
+using member_ptr_t = member_ptr<R, T>::type;
+
 //ICollection
 export namespace System {
 	/// <summary>
-	/// Linqƒ‰ƒCƒN‚Ì‹@”\‚ğ’ñ‹Ÿ‚µ‚½‚¢ƒRƒ“ƒeƒiƒNƒ‰ƒX‚É‰¼‘zŒp³‚·‚éŠî’êƒNƒ‰ƒXB
-	/// GetEnumeratorŠÖ”‚ÆGetReverseEnumeratorŠÖ”‚ªƒI[ƒo[ƒ‰ƒCƒh•K{‚Å‚ ‚é(const/”ñconst—¼•û)
+	/// Linqãƒ©ã‚¤ã‚¯ã®æ©Ÿèƒ½ã‚’æä¾›ã—ãŸã„ã‚³ãƒ³ãƒ†ãƒŠã‚¯ãƒ©ã‚¹ã«ä»®æƒ³ç¶™æ‰¿ã™ã‚‹åŸºåº•ã‚¯ãƒ©ã‚¹ã€‚
+	/// GetEnumeratoré–¢æ•°ã¨GetReverseEnumeratoré–¢æ•°ãŒã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰å¿…é ˆã§ã‚ã‚‹(const/éconstä¸¡æ–¹)
 	/// </summary>
-	/// <typeparam name="T">—v‘fŒ^</typeparam>
+	/// <typeparam name="T">è¦ç´ å‹</typeparam>
 	template<class T>
 	class ICollection {
 	public:
 		constexpr ICollection() noexcept = default;
 	public:
 		/// <summary>
-		/// ‚±‚ÌƒRƒ“ƒeƒi‚ª‚Â—v‘f‚ğ—ñ‹“‚·‚é
+		/// ã“ã®ã‚³ãƒ³ãƒ†ãƒŠãŒæŒã¤è¦ç´ ã‚’åˆ—æŒ™ã™ã‚‹
 		/// </summary>
 		virtual IEnumerator<T> GetEnumerator() noexcept = 0;
 		/// <summary>
-		/// ‚±‚ÌƒRƒ“ƒeƒi‚ª‚Â—v‘f‚ğ—ñ‹“‚·‚é(const”Å)
+		/// ã“ã®ã‚³ãƒ³ãƒ†ãƒŠãŒæŒã¤è¦ç´ ã‚’åˆ—æŒ™ã™ã‚‹(constç‰ˆ)
 		/// </summary>
 		virtual IEnumerator<T const> GetEnumerator() const noexcept = 0;
 		/// <summary>
-		/// ‚±‚ÌƒRƒ“ƒeƒi‚ª‚Â—v‘f‚ğ‹t‡‚Å—ñ‹“‚·‚é
+		/// ã“ã®ã‚³ãƒ³ãƒ†ãƒŠãŒæŒã¤è¦ç´ ã‚’é€†é †ã§åˆ—æŒ™ã™ã‚‹
 		/// </summary>
 		virtual IEnumerator<T> GetReverseEnumerator() noexcept = 0;
 		/// <summary>
-		/// ‚±‚ÌƒRƒ“ƒeƒi‚ª‚Â—v‘f‚ğ‹t‡‚Å—ñ‹“‚·‚é(const”Å)
+		/// ã“ã®ã‚³ãƒ³ãƒ†ãƒŠãŒæŒã¤è¦ç´ ã‚’é€†é †ã§åˆ—æŒ™ã™ã‚‹(constç‰ˆ)
 		/// </summary>
 		virtual IEnumerator<T const> GetReverseEnumerator() const noexcept = 0;
 	private:
@@ -569,16 +581,16 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ‚±‚ÌƒRƒ“ƒeƒi‚ª‚Â—v‘f‚ğ‰ÁH‚¹‚¸—ñ‹“‚·‚éIEnumerable‚ğæ“¾‚·‚é
+		/// ã“ã®ã‚³ãƒ³ãƒ†ãƒŠãŒæŒã¤è¦ç´ ã‚’åŠ å·¥ã›ãšåˆ—æŒ™ã™ã‚‹IEnumerableã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		IEnumerable<T> Chain() noexcept { return IEnumerable<T>(GetPtr()); }
 		IEnumerable<T const> Chain() const noexcept { return IEnumerable<T const>(GetPtr()); }
 		/// <summary>
-		/// w’è‚µ‚½ŠÖ”‚Ìˆø”‚É‚±‚ÌƒRƒ“ƒeƒi‚ª‚Â—v‘f‚ğ“K—p‚µA–ß‚è’l‚ğ—ñ‹“‚·‚éIEnumerable‚ğæ“¾‚·‚éB
-		/// —v‘fŒ^‚Ì‚Âƒƒ“ƒo•Ï”‚Ö‚ÌQÆ‚ğ—ñ‹“‚·‚éê‡‚ÍA‚±‚ÌŠÖ”‚Ì‘ã‚í‚è‚ÉMemberSelect()ŠÖ”‚ğg—p‚·‚é
+		/// æŒ‡å®šã—ãŸé–¢æ•°ã®å¼•æ•°ã«ã“ã®ã‚³ãƒ³ãƒ†ãƒŠãŒæŒã¤è¦ç´ ã‚’é©ç”¨ã—ã€æˆ»ã‚Šå€¤ã‚’åˆ—æŒ™ã™ã‚‹IEnumerableã‚’å–å¾—ã™ã‚‹ã€‚
+		/// è¦ç´ å‹ã®æŒã¤ãƒ¡ãƒ³ãƒå¤‰æ•°ã¸ã®å‚ç…§ã‚’åˆ—æŒ™ã™ã‚‹å ´åˆã¯ã€ã“ã®é–¢æ•°ã®ä»£ã‚ã‚Šã«MemberSelect()é–¢æ•°ã‚’ä½¿ç”¨ã™ã‚‹
 		/// </summary>
-		/// <typeparam name="Dst">–ß‚è’l‚ÌŒ^</typeparam>
-		/// <param name="func">—v‘fŒ^‚ÌQÆ‚ğˆø”‚É‚Æ‚èA”CˆÓ‚ÌŒ^‚ğ•Ô‚·•ÏŠ·ŠÖ”</param>
+		/// <typeparam name="Dst">æˆ»ã‚Šå€¤ã®å‹</typeparam>
+		/// <param name="func">è¦ç´ å‹ã®å‚ç…§ã‚’å¼•æ•°ã«ã¨ã‚Šã€ä»»æ„ã®å‹ã‚’è¿”ã™å¤‰æ›é–¢æ•°</param>
 		template<class Dst>
 		IEnumerable<Dst> Select(const System::Function<Dst(T&)>& func) noexcept {
 			return IEnumerable<Dst>(new SelectEnumerator<Dst, T>(GetPtr(), func));
@@ -588,27 +600,27 @@ export namespace System {
 			return IEnumerable<Dst>(new SelectEnumerator<Dst, T const>(GetPtr(), func));
 		}
 		/// <summary>
-		/// ‚±‚ÌƒRƒ“ƒeƒi‚ª‚Â—v‘f‚Ì’†‚©‚çw’è‚µ‚½ŠÖ”‚ªtrue‚ğ•Ô‚·‚à‚Ì‚ğ—ñ‹“‚·‚éIEnumerable‚ğæ“¾‚·‚é
+		/// ã“ã®ã‚³ãƒ³ãƒ†ãƒŠãŒæŒã¤è¦ç´ ã®ä¸­ã‹ã‚‰æŒ‡å®šã—ãŸé–¢æ•°ãŒtrueã‚’è¿”ã™ã‚‚ã®ã‚’åˆ—æŒ™ã™ã‚‹IEnumerableã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="func">—v‘fŒ^‚Ö‚ÌconstQÆ‚ğˆø”‚É‚Æ‚èAboolŒ^‚ğ•Ô‚·ğŒŠÖ”</param>
+		/// <param name="func">è¦ç´ å‹ã¸ã®constå‚ç…§ã‚’å¼•æ•°ã«ã¨ã‚Šã€boolå‹ã‚’è¿”ã™æ¡ä»¶é–¢æ•°</param>
 		IEnumerable<T> Where(const System::Function<bool(T const&)>& func) noexcept { return IEnumerable<T>(new WhereEnumerator<T>(GetPtr(), func)); }
 		IEnumerable<T const> Where(const System::Function<bool(T const&)>& func) const noexcept { return IEnumerable<T const>(new WhereEnumerator<T const>(GetPtr(), func)); }
 		/// <summary>
-		/// ‚±‚ÌƒRƒ“ƒeƒi‚ª‚Â—v‘f‚Ìw’è‚µ‚½ƒƒ“ƒo•Ï”‚ğ—ñ‹“‚·‚éIEnumerable‚ğæ“¾‚·‚éB
-		/// ‚±‚ÌŠÖ”‚É‚æ‚Á‚Äæ“¾‚µ‚½IEnumerable‚ÌƒCƒeƒŒ[ƒ^‚Íw’è‚µ‚½ƒƒ“ƒo•Ï”‚Ö‚ÌQÆ‚ğ•\‚·
+		/// ã“ã®ã‚³ãƒ³ãƒ†ãƒŠãŒæŒã¤è¦ç´ ã®æŒ‡å®šã—ãŸãƒ¡ãƒ³ãƒå¤‰æ•°ã‚’åˆ—æŒ™ã™ã‚‹IEnumerableã‚’å–å¾—ã™ã‚‹ã€‚
+		/// ã“ã®é–¢æ•°ã«ã‚ˆã£ã¦å–å¾—ã—ãŸIEnumerableã®ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚¿ã¯æŒ‡å®šã—ãŸãƒ¡ãƒ³ãƒå¤‰æ•°ã¸ã®å‚ç…§ã‚’è¡¨ã™
 		/// </summary>
-		/// <typeparam name="Dst">ƒƒ“ƒo•Ï”Œ^</typeparam>
-		/// <param name="member">—v‘fŒ^‚ª‚Âƒƒ“ƒo•Ï”ƒ|ƒCƒ“ƒ^</param>
-		template<class Dst>
-		IEnumerable<Dst> MemberSelect(System::Traits::MemberPtr<Dst, T> member) noexcept requires(System::Traits::is_class_v<T> || System::Traits::is_union_v<T>) {
+		/// <typeparam name="Dst">ãƒ¡ãƒ³ãƒå¤‰æ•°å‹</typeparam>
+		/// <param name="member">è¦ç´ å‹ãŒæŒã¤ãƒ¡ãƒ³ãƒå¤‰æ•°ãƒã‚¤ãƒ³ã‚¿</param>
+		template <class Dst>
+		IEnumerable<Dst> MemberSelect(member_ptr_t<Dst, T> member) noexcept requires(System::Traits::Concepts::CClassOrUnion<T>) {
 			return IEnumerable<Dst>(new MemberSelectEnumerator<Dst, T>(GetPtr(), member));
 		}
-		template<class Dst>
-		IEnumerable<const Dst> MemberSelect(System::Traits::MemberPtr<Dst, T> member) const noexcept requires(System::Traits::is_class_v<T> || System::Traits::is_union_v<T>) {
+		template <class Dst>
+		IEnumerable<const Dst> MemberSelect(member_ptr_t<Dst, T> member) const noexcept requires(System::Traits::Concepts::CClassOrUnion<T>) {
 			return IEnumerable<const Dst>(new SelectEnumerator<const Dst, T const>(GetPtr(), member));
 		}
 		/// <summary>
-		/// ‚±‚ÌƒRƒ“ƒeƒi‚ª‚Â—v‘f‚ğ‹t‡‚É—ñ‹“‚·‚éIEnumerable‚ğæ“¾‚·‚é
+		/// ã“ã®ã‚³ãƒ³ãƒ†ãƒŠãŒæŒã¤è¦ç´ ã‚’é€†é †ã«åˆ—æŒ™ã™ã‚‹IEnumerableã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		IEnumerable<T> Reverse() noexcept { return IEnumerable<T>(GetPtr(true)); }
 		IEnumerable<T const> Reverse() const noexcept { return IEnumerable<T const>(GetPtr(true)); }

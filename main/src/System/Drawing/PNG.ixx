@@ -1,4 +1,4 @@
-export module PNG;
+ï»¿export module PNG;
 import Objects;
 import Image;
 import File;
@@ -134,7 +134,7 @@ export namespace System::Drawing {
 			if (!ihdr) return Vector<uint8_t>();
 			const size_t widthBit = static_cast<size_t>(ihdr->width) * ihdr->bitDepth * ihdr->GetChannelCount();
 			const size_t widthByte = widthBit % 8 == 0 ? widthBit / 8 : widthBit / 8 + 1;
-			const size_t dataSize = (widthByte + 1) * ihdr->height;	//(ˆês‚ ‚½‚è‚ÌƒoƒCƒg” + ƒtƒBƒ‹ƒ^[1ƒoƒCƒg) * s”
+			const size_t dataSize = (widthByte + 1) * ihdr->height;	//(ä¸€è¡Œã‚ãŸã‚Šã®ãƒã‚¤ãƒˆæ•° + ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼1ãƒã‚¤ãƒˆ) * è¡Œæ•°
 			Compression::ZlibView zlib(idatData.Items(), idatData.Count());
 			uint8_t* compressedData = zlib.GetCompressedData();
 			if (!compressedData) return Vector<uint8_t>();
@@ -149,10 +149,10 @@ export namespace System::Drawing {
 			const size_t dataCount = raw.Count();
 			for (size_t i = 0; i < dataCount;) {
 				uint8_t filter = data[i++];
-				const size_t lineEnd = i + widthByte;	//Ÿ‚Ìƒ‰ƒCƒ“‚ÌƒtƒBƒ‹ƒ^[‚ğw‚·ƒCƒ“ƒfƒbƒNƒX
+				const size_t lineEnd = i + widthByte;	//æ¬¡ã®ãƒ©ã‚¤ãƒ³ã®ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼ã‚’æŒ‡ã™ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 				if (lineEnd > dataCount) break;
 				if (filter == 1) {
-					i += bytesPerPixel;	//1ƒsƒNƒZƒ‹–Ú‚ğ”ò‚Î‚·
+					i += bytesPerPixel;	//1ãƒ”ã‚¯ã‚»ãƒ«ç›®ã‚’é£›ã°ã™
 					for (; i < lineEnd; ++i) {
 						data[i] += data[i - bytesPerPixel];
 					}
@@ -161,15 +161,15 @@ export namespace System::Drawing {
 					for (; i < lineEnd; ++i) data[i] += data[i - widthByte - 1];
 				}
 				else if (filter == 3) {
-					for (size_t j = 0; j < bytesPerPixel; ++j, ++i) data[i] += data[i - widthByte - 1] / 2;	//1ƒsƒNƒZƒ‹–Ú‚Íã’i‚Ì‚İQÆ
+					for (size_t j = 0; j < bytesPerPixel; ++j, ++i) data[i] += data[i - widthByte - 1] / 2;	//1ãƒ”ã‚¯ã‚»ãƒ«ç›®ã¯ä¸Šæ®µã®ã¿å‚ç…§
 					for (; i < lineEnd; ++i) data[i] += (data[i - bytesPerPixel] + data[i - widthByte - 1]) / 2;
 				}
 				else if (filter == 4) {
-					for (size_t j = 0; j < bytesPerPixel; ++j, ++i) data[i] += data[i - widthByte - 1];	//1ƒsƒNƒZƒ‹–Ú‚Í^ã‚ÌƒoƒCƒg‚Ì‚İQÆ
+					for (size_t j = 0; j < bytesPerPixel; ++j, ++i) data[i] += data[i - widthByte - 1];	//1ãƒ”ã‚¯ã‚»ãƒ«ç›®ã¯çœŸä¸Šã®ãƒã‚¤ãƒˆã®ã¿å‚ç…§
 					for (; i < lineEnd; ++i) {
-						uint8_t a = data[i - bytesPerPixel];	//¶
-						uint8_t b = data[i - widthByte - 1];	//^ã
-						uint8_t c = data[i - widthByte - 1 - bytesPerPixel];	//¶ã
+						uint8_t a = data[i - bytesPerPixel];	//å·¦
+						uint8_t b = data[i - widthByte - 1];	//çœŸä¸Š
+						uint8_t c = data[i - widthByte - 1 - bytesPerPixel];	//å·¦ä¸Š
 						int32_t p = a + b - c;
 						uint32_t pa = Math::Abs(p - a);
 						uint32_t pb = Math::Abs(p - b);

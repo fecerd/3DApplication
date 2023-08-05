@@ -1,4 +1,4 @@
-module;
+﻿module;
 #define NOMINMAX
 #include<Windows.h>
 export module WinAPI_Messages;

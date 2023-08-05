@@ -1,4 +1,4 @@
-export module Components:Script;
+﻿export module Components:Script;
 import :Component;
 import System;
 export import EventArgs;

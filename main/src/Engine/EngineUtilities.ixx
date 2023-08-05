@@ -1,4 +1,4 @@
-export module EngineUtilities;
+﻿export module EngineUtilities;
 import Module;
 using namespace System;
 

@@ -1,4 +1,4 @@
-export module TextBox;
+﻿export module TextBox;
 import Control;
 using namespace WinAPI;
 

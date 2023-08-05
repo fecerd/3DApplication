@@ -1,4 +1,4 @@
-export module IWindow;
+ï»¿export module IWindow;
 import System;
 export import EventArgs;
 export import ApplicationUtility;
@@ -35,7 +35,7 @@ export namespace System::Application {
 		int32_t Width = DEFAULT_WINDOWSIZE;
 		int32_t Height = DEFAULT_WINDOWSIZE;
 		CursorType Cursor = CursorType::Default;
-		uint64_t FixedTimeStep = 20;	//ƒ~ƒŠ•b
+		uint64_t FixedTimeStep = 20;	//ãƒŸãƒªç§’
 	};
 }
 

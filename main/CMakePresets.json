@@ -12,9 +12,9 @@
 			"binaryDir": "${sourceDir}/build/${presetName}",
 			"installDir": "${sourceDir}/build/${presetName}",
 			"cacheVariables": {
-				"CMAKE_C_COMPILER": "cl.exe",
-				"CMAKE_CXX_COMPILER": "cl.exe",
-				"STD_INCLUDE_DIR": "C:/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32820/include",
+				"CMAKE_C_COMPILER": "C:/PROGRA~1/Microsoft Visual Studio/2022/Preview/VC/Tools/MSVC/14.37.32820/bin/HostX64/x64/cl.exe",
+				"CMAKE_CXX_COMPILER": "C:/PROGRA~1/Microsoft Visual Studio/2022/Preview/VC/Tools/MSVC/14.37.32820/bin/HostX64/x64/cl.exe",
+				"STD_INCLUDE_DIR": "C:/PROGRA~1/Microsoft Visual Studio/2022/Preview/VC/Tools/MSVC/14.37.32820/include",
 				"MSBUILD": "true"
 			},
 			"condition": {
@@ -40,7 +40,7 @@
 			"cacheVariables": {
 				"CMAKE_C_COMPILER": "cl.exe",
 				"CMAKE_CXX_COMPILER": "cl.exe",
-				"STD_INCLUDE_DIR": "C:/PROGRA~1/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.37.32820/include",
+				"STD_INCLUDE_DIR": "C:/PROGRA~1/Microsoft Visual Studio/2022/Preview/VC/Tools/MSVC/14.37.32820/include",
 				"MSVC": "true"
 			},
 			"condition": {
@@ -58,7 +58,7 @@
 			"cacheVariables": {
 				"CMAKE_C_COMPILER": "gcc.exe",
 				"CMAKE_CXX_COMPILER": "g++.exe",
-				"STD_INCLUDE_DIR": "C:/msys64/mingw64/include/c++/13.1.0",
+				"STD_INCLUDE_DIR": "C:/msys64/mingw64/include/c++/13.2.0",
 				"GCC": "true"
 			},
 			"condition": {

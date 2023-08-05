@@ -1,4 +1,4 @@
-export module Common3DInterface;
+﻿export module Common3DInterface;
 import System;
 export import Common3DUtilities;
 using namespace System::Drawing;

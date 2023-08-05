@@ -1,4 +1,4 @@
-export module Counter;
+﻿export module Counter;
 import Traits;
 import Thread;
 

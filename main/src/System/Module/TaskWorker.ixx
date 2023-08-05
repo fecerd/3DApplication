@@ -1,41 +1,50 @@
+ï»¿module;
+#include <memory>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+#include <functional>
 export module TaskWorker;
 import CSTDINT;
 import Traits;
-import Thread;
-import Function;
-export import SmartPtr;
+//import Thread;
+//import Function;
+//import SmartPtr;
+
 
 //TaskState
 export namespace System {
 	enum class TaskState : uint8_t {
-		Empty = 0,	//”jŠü‚³‚ê‚½ƒ^ƒXƒN
-		Ready,	//Às‰Â”\ƒ^ƒXƒN
-		Running,	//Às’†ƒ^ƒXƒN
-		Suspended,	//ˆê’â~’†ƒ^ƒXƒN
-		Finished,	//I—¹ƒ^ƒXƒN
-		Force	//‹­§ƒ^ƒXƒN(ˆê’â~–½—ß‚ğ–³‹)
+		Empty = 0,	//ç ´æ£„ã•ã‚ŒãŸã‚¿ã‚¹ã‚¯
+		Ready,	//å®Ÿè¡Œå¯èƒ½ã‚¿ã‚¹ã‚¯
+		Running,	//å®Ÿè¡Œä¸­ã‚¿ã‚¹ã‚¯
+		Suspended,	//ä¸€æ™‚åœæ­¢ä¸­ã‚¿ã‚¹ã‚¯
+		Finished,	//çµ‚äº†ã‚¿ã‚¹ã‚¯
+		Force	//å¼·åˆ¶ã‚¿ã‚¹ã‚¯(ä¸€æ™‚åœæ­¢å‘½ä»¤ã‚’ç„¡è¦–)
 	};
 }
 
 //TaskData
 namespace System {
 	class TaskStateBase {
-		mutable Mutex m_state_mtx;
-		ConditionVariable m_state_cv;
-		SharedPtr<TaskState> m_state = std::make_shared<TaskState>(TaskState::Ready);
-		SharedPtr<bool> m_worker_running;
+		mutable std::mutex m_state_mtx;
+		mutable std::condition_variable m_state_cv;
+		std::shared_ptr<TaskState> m_state = std::make_shared<TaskState>(TaskState::Ready);
+		std::shared_ptr<bool> m_worker_running;
 		bool m_once;
 	public:
 		TaskStateBase() noexcept : m_worker_running(std::make_shared<bool>(true)), m_once(true) {}
-		TaskStateBase(const SharedPtr<bool>& worker_running, bool once) noexcept
+		TaskStateBase(const std::shared_ptr<bool>& worker_running, bool once) noexcept
 			: m_worker_running(worker_running), m_once(once) {}
+		TaskStateBase(const TaskStateBase&) noexcept = delete;
+		TaskStateBase(TaskStateBase&&) noexcept = delete;
 		~TaskStateBase() noexcept {
-			LockGuard lock{ m_state_mtx };
+			std::lock_guard lock{ m_state_mtx };
 			*m_state = TaskState::Empty;
 		}
-	public:/* ƒ^ƒXƒNó‘Ôæ“¾ */
+	public:/* ã‚¿ã‚¹ã‚¯çŠ¶æ…‹å–å¾— */
 		TaskState GetState() const noexcept {
-			LockGuard lock{ m_state_mtx };
+			std::lock_guard lock{ m_state_mtx };
 			return *m_state;
 		}
 		bool IsReady() const noexcept {
@@ -45,179 +54,202 @@ namespace System {
 			return GetState() == TaskState::Finished;
 		}
 		bool Once() const noexcept {
-			LockGuard lock{ m_state_mtx };
+			std::lock_guard lock{ m_state_mtx };
 			return m_once;
 		}
 		void Once(bool once) noexcept {
-			LockGuard lock{ m_state_mtx };
+			std::lock_guard lock{ m_state_mtx };
 			m_once = once;
 		}
-	public:/* Worker‘¤‚©‚ç‚Ì‘€ì */
+	public:/* Workerå´ã‹ã‚‰ã®æ“ä½œ */
 		void Notify() noexcept {
-			LockGuard lock{ m_state_mtx };
+			std::lock_guard lock{ m_state_mtx };
 			m_state_cv.notify_all();
 		}
-	public:/* Promise‘¤‚Ì‘€ì */
+	public:/* Promiseå´ã®æ“ä½œ */
 		/// <summary>
-		/// Finished -> Ready‚Ì‘JˆÚ(’Ê’m‚µ‚È‚¢)
+		/// Finished -> Readyã®é·ç§»(é€šçŸ¥ã—ãªã„)
 		/// </summary>
 		void Ready() noexcept {
-			LockGuard state_lock{ m_state_mtx };
+			std::lock_guard state_lock{ m_state_mtx };
 			if (*m_state != TaskState::Finished) return;
 			*m_state = TaskState::Ready;
 		}
 		/// <summary>
-		/// Running -> Suspend‚Ì‘JˆÚ
-		/// ‚±‚ÌŠÖ”‚ğŒÄ‚Ño‚µ‚½ƒXƒŒƒbƒh‚Í•ÊƒXƒŒƒbƒh‚©‚çRun()‚ªŒÄ‚Ño‚³‚ê‚é‚Ü‚ÅƒuƒƒbƒN‚³‚ê‚é
+		/// Running -> Suspendã®é·ç§»
+		/// ã“ã®é–¢æ•°ã‚’å‘¼ã³å‡ºã—ãŸã‚¹ãƒ¬ãƒƒãƒ‰ã¯åˆ¥ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰Run()ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹ã¾ã§ãƒ–ãƒ­ãƒƒã‚¯ã•ã‚Œã‚‹
 		/// </summary>
 		void Suspend() noexcept {
-			UniqueLock state_lock{ m_state_mtx };
+			std::unique_lock state_lock{ m_state_mtx };
 			if (*m_state != TaskState::Running) return;
 			*m_state = TaskState::Suspended;
 			m_state_cv.notify_all();
 			m_state_cv.wait(state_lock, [this] { return *m_state == TaskState::Running || !*m_worker_running; });
 		}
 		/// <summary>
-		/// Running -> Finished‚Ì‘JˆÚ
-		/// ƒ^ƒXƒN‚ÌÅŒã‚ÉŒÄ‚Ño‚·
+		/// Running -> Finishedã®é·ç§»
+		/// ã‚¿ã‚¹ã‚¯ã®æœ€å¾Œã«å‘¼ã³å‡ºã™
 		/// </summary>
 		void Finish() noexcept {
-			LockGuard lock{ m_state_mtx };
+			std::lock_guard lock{ m_state_mtx };
 			if (*m_state != TaskState::Running) return;
-			//Running -> Finished‚ÌˆÚs‚ğ’Ê’m
+			//Running -> Finishedã®ç§»è¡Œã‚’é€šçŸ¥
 			*m_state = TaskState::Finished;
 			m_state_cv.notify_all();
 		}
-	public: /* Promise, Future‘o•û‚©‚çŒÄ‚×‚é‘€ì */
+	public: /* Promise, FutureåŒæ–¹ã‹ã‚‰å‘¼ã¹ã‚‹æ“ä½œ */
 		/// <summary>
-		/// Promise: Ready -> Running‚Ì‘JˆÚ(’Ê’m‚µ‚È‚¢)
-		/// Future: Suspend -> Running‚Ì‘JˆÚ(’Ê’m‚·‚é)
+		/// Promise: Ready -> Runningã®é·ç§»(é€šçŸ¥ã—ãªã„)
+		/// Future: Suspend -> Runningã®é·ç§»(é€šçŸ¥ã™ã‚‹)
 		/// </summary>
 		void Run() noexcept {
-			LockGuard state_lock{ m_state_mtx };
+			std::lock_guard state_lock{ m_state_mtx };
 			if (*m_state == TaskState::Ready) *m_state = TaskState::Running;
 			else if (*m_state == TaskState::Suspended) {
 				*m_state = TaskState::Running;
 				m_state_cv.notify_all();
 			}
 		}
-	public: /* Future‘¤‚Ì‘€ì */
+	public: /* Futureå´ã®æ“ä½œ */
 		/// <summary>
-		/// ƒ^ƒXƒNŠÖ”‚ªw’è‚µ‚½ó‘Ô‚É‚È‚é‚Ü‚Å‘Ò‹@‚·‚é
+		/// ã‚¿ã‚¹ã‚¯é–¢æ•°ãŒæŒ‡å®šã—ãŸçŠ¶æ…‹ã«ãªã‚‹ã¾ã§å¾…æ©Ÿã™ã‚‹
 		/// </summary>
-		/// <param name="state">Suspend, Finished, Force‚Ì‚¢‚¸‚ê‚©</param>
+		/// <param name="state">Suspend, Finished, Forceã®ã„ãšã‚Œã‹</param>
 		void Wait(TaskState state) noexcept {
 			if (state != TaskState::Suspended && state != TaskState::Force && state != TaskState::Finished) return;
 			do {
 				{
-					//ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚ÅƒƒbƒNæ“¾
-					UniqueLock state_lock{ m_state_mtx };
+					//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ãƒ­ãƒƒã‚¯å–å¾—
+					std::unique_lock state_lock{ m_state_mtx };
 					m_state_cv.wait(
 						state_lock,
 						[this, state] {
 							if (*m_state == state || *m_state == TaskState::Empty) return true;
-							//Suspend‚ÍFinish‚É‚à”²‚¯‚ç‚ê‚é
+							//Suspendã¯Finishæ™‚ã«ã‚‚æŠœã‘ã‚‰ã‚Œã‚‹(ç¾åœ¨ã¯æ©Ÿèƒ½å‰Šé™¤)
 							//if (state == TaskState::Suspended) return *m_state == TaskState::Finished;
 
-							//Force‚ÍSuspend, Finish‚É‚©‚©‚í‚ç‚¸A’â~ó‘Ô‚È‚ç”²‚¯‚é
-							else if (state == TaskState::Force) return *m_state == TaskState::Suspended || *m_state == TaskState::Finished;
+							//Forceã¯Suspend, Finishã«ã‹ã‹ã‚ã‚‰ãšã€åœæ­¢çŠ¶æ…‹ãªã‚‰æŠœã‘ã‚‹
+							if (state == TaskState::Force) return *m_state == TaskState::Suspended || *m_state == TaskState::Finished;
 							else return false;
 						}
 					);
-					//ForceˆÈŠO‚ğ‘Ò‹@‚µ‚Ä‚¢‚éê‡A‚à‚µ‚­‚ÍForce‚ğ‘Ò‹@‚µ‚Ä‚¢‚ÄŒ»İ‚Ìó‘Ô‚ªFinished‚Ìê‡AWaitI—¹
+					//Forceä»¥å¤–ã‚’å¾…æ©Ÿã—ã¦ã„ã‚‹å ´åˆã€ã‚‚ã—ãã¯Forceã‚’å¾…æ©Ÿã—ã¦ã„ã¦ç¾åœ¨ã®çŠ¶æ…‹ãŒFinishedã®å ´åˆã€Waitçµ‚äº†
 					if (state != TaskState::Force || *m_state == TaskState::Finished) break;
 				}
-				//Force‚ğ‘Ò‹@‚µ‚Ä‚¢‚ÄŒ»İ‚Ìó‘Ô‚ªSuspended‚Ì‚Æ‚«AƒƒbƒN‚ğ‰ğœ‚µ‚ÄSuspend -> Running
+				//Forceã‚’å¾…æ©Ÿã—ã¦ã„ã¦ç¾åœ¨ã®çŠ¶æ…‹ãŒSuspendedã®ã¨ãã€ãƒ­ãƒƒã‚¯ã‚’è§£é™¤ã—ã¦Suspend -> Running
 				Run();
 			} while (true);
 		}
+	public:
+		TaskStateBase& operator=(const TaskStateBase&) noexcept = delete;
+		TaskStateBase& operator=(TaskStateBase&& rhs) noexcept = delete;
 	};
+
 	template<class R>
 	class TaskValueBase {
 	public:
 		using r_t = Traits::remove_cv_t<R>;
-		using const_r_t = const r_t;
-	protected: /* ’l */
-		mutable Mutex m_value_mtx;
-		UniquePtr<r_t> m_value = nullptr;
-		//‘O‰ñ‚ÌGetValueˆÈ~‚ÉSetValue‚³‚ê‚½ê‡Atrue
+		using const_r_t = r_t const;
+	protected:
+		mutable std::mutex m_value_mtx;
+		std::unique_ptr<r_t> m_value = nullptr;
+		//å‰å›ã®GetValue()ä»¥é™ã«SetValue()ã•ã‚ŒãŸå ´åˆã€true
 		mutable bool m_isChangedValue = false;
 	public:
 		TaskValueBase() noexcept = default;
+		TaskValueBase(const TaskValueBase&) noexcept = delete;
+		TaskValueBase(TaskValueBase&& arg) noexcept = delete;
 		~TaskValueBase() noexcept = default;
-	public:/* ’l‘€ì */
-		template<class T>
+	public:/* å€¤æ“ä½œ */
+		template<Traits::Concepts::CMoveConstructibleTo<r_t> T>
 		void SetValue(T&& value) noexcept {
-			LockGuard lock{ m_value_mtx };
-			if (m_value) *m_value = static_cast<T&&>(value);
-			else m_value = Unique<r_t>(static_cast<T&&>(value));
+			std::lock_guard lock{ m_value_mtx };
+			if (m_value) *m_value = System::move(value);
+			else m_value = std::make_unique<r_t>(System::move(value));
 			m_isChangedValue = true;
 		}
 		bool HasValue() const noexcept {
-			LockGuard lock{ m_value_mtx };
+			std::lock_guard lock{ m_value_mtx };
 			return static_cast<bool>(m_value);
 		}
 		r_t& GetValue() noexcept {
-			LockGuard lock{ m_value_mtx };
+			std::lock_guard lock{ m_value_mtx };
 			m_isChangedValue = false;
 			return *m_value;
 		}
 		const_r_t& GetValue() const noexcept {
-			LockGuard lock{ m_value_mtx };
+			std::lock_guard lock{ m_value_mtx };
 			m_isChangedValue = false;
 			return *m_value;
 		}
 		bool IsValueChanged() const noexcept {
-			LockGuard lock{ m_value_mtx };
+			std::lock_guard lock{ m_value_mtx };
 			return m_isChangedValue;
 		}
+	public:
+		TaskValueBase& operator=(const TaskValueBase&) noexcept = delete;
+		TaskValueBase& operator=(TaskValueBase&& rhs) noexcept = delete;
+	};
+
+	template<class S>
+	class TaskSuspendBase {
+	public:
+		static constexpr bool IsNotVoid = !Traits::is_void_v<Traits::remove_cv_t<S>>;
+		using s_t = Traits::conditional_t<IsNotVoid, Traits::remove_cv_t<S>, bool>;
+		using const_s_t = s_t const;
+	private:
+		mutable std::mutex m_suspend_mtx;
+		std::unique_ptr<s_t> m_suspendValue = nullptr;
+		//å‰å›ã®GetSuspendValue()ä»¥é™ã«SetSuspendValue()ã•ã‚ŒãŸå ´åˆã€true
+		mutable bool m_isChangedSuspendValue = false;
+	public:
+		TaskSuspendBase() noexcept = default;
+		TaskSuspendBase(const TaskSuspendBase&) noexcept = delete;
+		TaskSuspendBase(TaskSuspendBase&&) noexcept = delete;
+		~TaskSuspendBase() noexcept = default;
+	public:
+		template <Traits::Concepts::CMoveConstructibleTo<s_t> T>
+		void SetSuspendValue(T&& value) noexcept requires(IsNotVoid) {
+			std::lock_guard lock{m_suspend_mtx};
+			if (m_suspendValue) *m_suspendValue = System::move(value);
+			else m_suspendValue = std::make_unique<s_t>(System::move(value));
+			m_isChangedSuspendValue = true;
+		}
+		bool HasSuspendValue() const noexcept requires(IsNotVoid) {
+			std::lock_guard lock{m_suspend_mtx};
+			return static_cast<bool>(m_suspendValue);
+		}
+		auto& GetSuspendValue() noexcept requires(IsNotVoid) {
+			std::lock_guard lock{m_suspend_mtx};
+			m_isChangedSuspendValue = false;
+			return *m_suspendValue;
+		}
+		auto& GetSuspendValue() const noexcept requires(IsNotVoid) {
+			std::lock_guard lock{m_suspend_mtx};
+			m_isChangedSuspendValue = false;
+			return *m_suspendValue;
+		}
+		bool IsSuspendValueChanged() const noexcept requires(IsNotVoid) {
+			std::lock_guard lock{m_suspend_mtx};
+			return m_isChangedSuspendValue;
+		}
+	public:
+		TaskSuspendBase<S>& operator=(const TaskSuspendBase<S>&) noexcept = delete;
+		TaskSuspendBase<S>& operator=(TaskSuspendBase<S>&&) noexcept = delete;
 	};
 
 	template<class R, class S>
-	class TaskData : public TaskStateBase, public TaskValueBase<R> {
+	class TaskData : public TaskStateBase, public TaskValueBase<R>, public TaskSuspendBase<S> {
 	public:
-		using s_t = Traits::remove_cv_t<S>;
-		using const_s_t = const s_t;
-	private: /* ˆê’â~‚Ì’l */
-		using TaskValueBase<R>::m_value_mtx;
-		UniquePtr<s_t> m_suspendValue = nullptr;
-		mutable bool m_isChangedSuspendValue = false;
-	public:
-		TaskData() noexcept = default;
-		TaskData(const SharedPtr<bool>& worker_running, bool once) noexcept : TaskStateBase(worker_running, once) {}
-		~TaskData() noexcept = default;
-	public:
-		template<class T>
-		void SetSuspendValue(T&& value) noexcept {
-			LockGuard lock{ m_value_mtx };
-			if (m_suspendValue) *m_suspendValue = static_cast<T&&>(value);
-			else m_suspendValue = Unique<s_t>(static_cast<T&&>(value));
-			m_isChangedSuspendValue = true;
-		}
-		bool HasSuspendValue() const noexcept {
-			LockGuard lock{ m_value_mtx };
-			return static_cast<bool>(m_suspendValue);
-		}
-		s_t& GetSuspendValue() noexcept {
-			LockGuard lock{ m_value_mtx };
-			m_isChangedSuspendValue = false;
-			return *m_suspendValue;
-		}
-		const_s_t& GetSuspendValue() const noexcept {
-			LockGuard lock{ m_value_mtx };
-			m_isChangedSuspendValue = false;
-			return *m_suspendValue;
-		}
-		bool IsSuspendValueChanged() const noexcept {
-			LockGuard lock{ m_value_mtx };
-			return m_isChangedSuspendValue;
-		}
-	};
-	template<class R>
-	class TaskData<R, void> : public TaskStateBase, public TaskValueBase<R> {
+		using TaskValueBase<R>::r_t;
+		using TaskValueBase<R>::const_r_t;
+		using TaskSuspendBase<S>::s_t;
+		using TaskSuspendBase<S>::const_s_t;
+		static constexpr bool Suspendable = TaskSuspendBase<S>::IsNotVoid;
 	public:
 		TaskData() noexcept = default;
-		TaskData(const SharedPtr<bool>& worker_running, bool once) noexcept : TaskStateBase(worker_running, once) {}
+		TaskData(const std::shared_ptr<bool>& worker_running, bool once) noexcept
+			: TaskStateBase(worker_running, once), TaskValueBase<R>(), TaskSuspendBase<S>() {}
 		~TaskData() noexcept = default;
 	};
 }
@@ -231,58 +263,40 @@ export namespace System {
 		using s_t = TaskData<R, S>::s_t;
 		using const_r_t = TaskData<R, S>::const_r_t;
 		using const_s_t = TaskData<R, S>::const_s_t;
-	private:
-		SharedPtr<TaskData<R, S>> m_ptr;
 	public:
-		TaskFuture() noexcept = default;
-		TaskFuture(const TaskFuture&) noexcept = delete;
-		TaskFuture(TaskFuture&&) noexcept = default;
+		static constexpr bool Suspendable = TaskData<R, S>::Suspendable;
+	private:
+		std::shared_ptr<TaskData<R, S>> m_ptr;
+	public:
+		TaskFuture() noexcept : m_ptr(nullptr) {}
+		TaskFuture(const TaskFuture<R, S>&) noexcept = delete;
+		TaskFuture(TaskFuture<R, S>&& arg) noexcept : m_ptr(System::move(arg.m_ptr)) {}
 		~TaskFuture() noexcept = default;
 	private:
 		friend class TaskPromise<R, S>;
-		TaskFuture(const SharedPtr<TaskData<R, S>>& arg) noexcept : m_ptr(arg) {}
+		TaskFuture(const std::shared_ptr<TaskData<R, S>>& arg) noexcept : m_ptr(arg) {}
 	public:
 		void Wait(TaskState state) noexcept { m_ptr->Wait(state); }
 		void Run() noexcept { m_ptr->Run(); }
 	public:
 		bool IsFinished() const noexcept { return m_ptr->IsFinished(); }
-		template<class T>
-		void SetValue(T&& value) noexcept { m_ptr->SetValue(static_cast<T&&>(value)); }
+		template<Traits::Concepts::CMoveConstructibleTo<r_t> T>
+		void SetValue(T&& value) noexcept { m_ptr->SetValue(System::move(value)); }
 		r_t& GetValue() noexcept { return m_ptr->GetValue(); }
 		const_r_t& GetValue() const noexcept { return m_ptr->GetValue(); }
 		bool HasValue() const noexcept { return m_ptr->HasValue(); }
-		template<class T>
-		void SetSuspendValue(T&& value) noexcept { m_ptr->SetSuspendValue(static_cast<T&&>(value)); }
-		s_t& GetSuspendValue() noexcept { return m_ptr->GetSuspendValue(); }
-		const_s_t& GetSuspendValue() const noexcept { return m_ptr->GetSuspendValue(); }
-		bool HasSuspendValue() const noexcept { return m_ptr->HasSuspendValue(); }
+		template<Traits::Concepts::CMoveConstructibleTo<s_t> T>
+		void SetSuspendValue(T&& value) noexcept requires(Suspendable) { m_ptr->SetSuspendValue(System::move(value)); }
+		auto& GetSuspendValue() noexcept requires(Suspendable) { return m_ptr->GetSuspendValue(); }
+		auto& GetSuspendValue() const noexcept requires(Suspendable) { return m_ptr->GetSuspendValue(); }
+		bool HasSuspendValue() const noexcept requires(Suspendable) { return m_ptr->HasSuspendValue(); }
 	public:
-		TaskFuture<R, S>& operator=(TaskFuture<R, S>&& rhs) noexcept = default;
-	};
-	template<class R>
-	class TaskFuture<R, void> {
-		using r_t = TaskData<R, void>::r_t;
-		using const_r_t = TaskData<R, void>::const_r_t;
-	private:
-		SharedPtr<TaskData<R, void>> m_ptr;
-	public:
-		TaskFuture() noexcept = default;
-		TaskFuture(const TaskFuture&) noexcept = delete;
-		TaskFuture(TaskFuture&&) noexcept = default;
-		~TaskFuture() noexcept = default;
-	private:
-		friend class TaskPromise<R, void>;
-		TaskFuture(const SharedPtr<TaskData<R, void>>& arg) noexcept : m_ptr(arg) {}
-	public:
-		void Wait(TaskState state) noexcept { m_ptr->Wait(state); }
-		void Run() noexcept { m_ptr->Run(); }
-	public:
-		bool IsFinished() const noexcept { return m_ptr->IsFinished(); }
-		template<class T>
-		void SetValue(T&& value) noexcept { m_ptr->SetValue(static_cast<T&&>(value)); }
-		r_t& GetValue() noexcept { return m_ptr->GetValue(); }
-		const_r_t& GetValue() const noexcept { return m_ptr->GetValue(); }
-		bool HasValue() const noexcept { return m_ptr->HasValue(); }
+		TaskFuture<R, S>& operator=(const TaskFuture<R, S>&) noexcept = delete;
+		TaskFuture<R, S>& operator=(TaskFuture<R, S>&& rhs) noexcept {
+			if (this == &rhs) return *this;
+			m_ptr = System::move(rhs.m_ptr);
+			return *this;
+		}
 	};
 
 	template<class R, class S>
@@ -291,82 +305,66 @@ export namespace System {
 		using s_t = TaskData<R, S>::s_t;
 		using const_r_t = TaskData<R, S>::const_r_t;
 		using const_s_t = TaskData<R, S>::const_s_t;
+	public:
+		static constexpr bool Suspendable = TaskData<R, S>::Suspendable;
 	private:
 		friend struct TaskNode;
-		SharedPtr<TaskData<R, S>> m_ptr;
+		std::shared_ptr<TaskData<R, S>> m_ptr;
 	public:
 		TaskPromise() noexcept : m_ptr(std::make_shared<TaskData<R, S>>()) {}
-		TaskPromise(const SharedPtr<bool>& worker_running, bool once) noexcept : m_ptr(std::make_shared<TaskData<R, S>>(worker_running, once)) {}
-		TaskPromise(const TaskPromise&) noexcept = default;
-		TaskPromise(TaskPromise&&) noexcept = default;
+		TaskPromise(const std::shared_ptr<bool>& worker_running, bool once) noexcept : m_ptr(std::make_shared<TaskData<R, S>>(worker_running, once)) {}
+		TaskPromise(const TaskPromise<R, S>& arg) noexcept : m_ptr(arg.m_ptr) {}
+		TaskPromise(TaskPromise<R, S>&& arg) noexcept : m_ptr(System::move(arg.m_ptr)) {}
 		~TaskPromise() noexcept = default;
 	public:
 		TaskFuture<R, S> GetFuture() noexcept { return TaskFuture<R, S>(m_ptr); }
 	public:
 		void RemoveTask() noexcept { m_ptr->Once(true); }
 		void Run() noexcept { m_ptr->Run(); }
-		void Suspend() noexcept { m_ptr->Suspend(); }
+		void Suspend() noexcept requires(Suspendable) { m_ptr->Suspend(); }
 		void Finish() noexcept { m_ptr->Finish(); }
 	public:
-		template<class T>
-		void SetValue(T&& value) noexcept { m_ptr->SetValue(static_cast<T&&>(value)); }
+		template<Traits::Concepts::CMoveConstructibleTo<r_t> T>
+		void SetValue(T&& value) noexcept { m_ptr->SetValue(System::move(value)); }
 		r_t& GetValue() noexcept { return m_ptr->GetValue(); }
 		const_r_t& GetValue() const noexcept { return m_ptr->GetValue(); }
 		bool HasValue() const noexcept { return m_ptr->HasValue(); }
-		template<class T>
-		void SetSuspendValue(T&& value) noexcept { m_ptr->SetSuspendValue(static_cast<T&&>(value)); }
-		s_t& GetSuspendValue() noexcept { return m_ptr->GetSuspendValue(); }
-		const_s_t& GetSuspendValue() const noexcept { return m_ptr->GetSuspendValue(); }
-		bool HasSuspendValue() const noexcept { return m_ptr->HasSuspendValue(); }
-	};
-	template<class R>
-	class TaskPromise<R, void> {
-		using r_t = TaskData<R, void>::r_t;
-		using const_r_t = TaskData<R, void>::const_r_t;
-	private:
-		friend struct TaskNode;
-		SharedPtr<TaskData<R, void>> m_ptr;
+		template<Traits::Concepts::CMoveConstructibleTo<s_t> T>
+		void SetSuspendValue(T&& value) noexcept requires(Suspendable) { m_ptr->SetSuspendValue(System::move(value)); }
+		auto& GetSuspendValue() noexcept requires(Suspendable) { return m_ptr->GetSuspendValue(); }
+		auto& GetSuspendValue() const noexcept requires(Suspendable) { return m_ptr->GetSuspendValue(); }
+		bool HasSuspendValue() const noexcept requires(Suspendable) { return m_ptr->HasSuspendValue(); }
 	public:
-		TaskPromise() noexcept : m_ptr(std::make_shared<TaskData<R, void>>()) {}
-		TaskPromise(const SharedPtr<bool>& worker_running, bool once) noexcept : m_ptr(std::make_shared<TaskData<R, void>>(worker_running, once)) {}
-		TaskPromise(const TaskPromise&) noexcept = default;
-		TaskPromise(TaskPromise&&) noexcept = default;
-		~TaskPromise() noexcept = default;
-	public:
-		TaskFuture<R, void> GetFuture() noexcept { return TaskFuture<R, void>(m_ptr); }
-	public:
-		void RemoveTask() noexcept { m_ptr->Once(true); }
-		void Run() noexcept { m_ptr->Run(); }
-		void Finish() noexcept { m_ptr->Finish(); }
-	public:
-		template<class T>
-		void SetValue(T&& value) noexcept { m_ptr->SetValue(static_cast<T&&>(value)); }
-		r_t& GetValue() noexcept { return m_ptr->GetValue(); }
-		const_r_t& GetValue() const noexcept { return m_ptr->GetValue(); }
-		bool HasValue() const noexcept { return m_ptr->HasValue(); }
+		TaskPromise<R, S>& operator=(const TaskPromise<R, S>& rhs) noexcept = default;
+		TaskPromise<R, S>& operator=(TaskPromise<R, S>&& rhs) noexcept = default;
 	};
 }
 
 //TaskNode
 namespace System {
 	struct TaskNode {
-		SharedPtr<TaskStateBase> m_state;
-		Function<void(void)> m_task;
+		std::shared_ptr<TaskStateBase> m_state;
+		std::function<void(void)> m_task;
 		TaskNode* m_prev = nullptr;
 		TaskNode* m_next = nullptr;
 		uint32_t m_level = MAX_VALUE<uint32_t>;
 	public:
 		TaskNode() noexcept = default;
 		template<class R, class S>
-		TaskNode(TaskPromise<R, S>& p, const Function<void(TaskPromise<R, S>&)>& task, uint32_t level) noexcept
-			: m_level(level)
-		{
-			m_state = p.m_ptr;
-			m_task = [task = task, p = static_cast<TaskPromise<R, S>&&>(p)]() mutable {
+		TaskNode(TaskPromise<R, S>&& p, const std::function<void(TaskPromise<R, S>&)>& task, uint32_t level) noexcept
+			: m_state(p.m_ptr), m_level(level)
+		{			
+			m_task = [task = task, p = System::move(p)]() mutable {
 				task(p);
 				p.Finish();
 			};
 		}
+		TaskNode(const TaskNode&) noexcept  = delete;
+		TaskNode(TaskNode&&) noexcept = delete;
+		~TaskNode() noexcept = default;
+	public:
+		TaskNode& operator=(const TaskNode&) noexcept = delete;
+		TaskNode& operator=(TaskNode&&) noexcept = delete;
 	};
 }
 
@@ -374,32 +372,32 @@ namespace System {
 export namespace System {
 	class TaskWorker {
 	private:
-		mutable Mutex m_main_mtx;
-		ConditionVariable m_main_cv;
-		SharedPtr<bool> m_running = std::make_shared<bool>(true);
+		mutable std::mutex m_main_mtx;
+		std::condition_variable m_main_cv;
+		std::shared_ptr<bool> m_running = std::make_shared<bool>(true);
 		TaskNode* m_begin = nullptr;
 		TaskNode* m_end = nullptr;
 		uint32_t m_currentLevel = 0;
 	private:
-		UniquePtr<Thread[]> m_threads;
+		std::unique_ptr<std::thread[]> m_threads;
 		const uint32_t m_threadCount;
 	private:
 		void ThreadRunloop() noexcept {
 			while (true) {
 				TaskNode* node = nullptr;
-				Function<void(void)>* task = nullptr;
+				std::function<void(void)>* task = nullptr;
 				{
-					UniqueLock main_lock{ m_main_mtx };
-					//ƒfƒXƒgƒ‰ƒNƒ^‚©‚ç‚ÌI—¹A‚à‚µ‚­‚Íƒ^ƒXƒN‚Ì’Ç‰Á(0ŒÂ‚Å‚È‚­‚È‚é)‚ğ‘Ò‹@
+					std::unique_lock main_lock{ m_main_mtx };
+					//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã‹ã‚‰ã®çµ‚äº†ã€ã‚‚ã—ãã¯ã‚¿ã‚¹ã‚¯ã®è¿½åŠ (0å€‹ã§ãªããªã‚‹)ã‚’å¾…æ©Ÿ
 					m_main_cv.wait(
 						main_lock,
 						[this] {
 							return !*m_running || m_begin != m_end;
 						}
 					);
-					//ƒfƒXƒgƒ‰ƒNƒ^‚©‚ç‚ÌI—¹‚Ìê‡AƒXƒŒƒbƒhI—¹
+					//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã‹ã‚‰ã®çµ‚äº†ã®å ´åˆã€ã‚¹ãƒ¬ãƒƒãƒ‰çµ‚äº†
 					if (!*m_running) return;
-					//æ“ª‚©‚çŸ‚ÌReadyó‘Ô‚Ìˆ—‚Ü‚Å‚·‚×‚Ä‚Ìƒ^ƒXƒN‚ªFinishedó‘Ô‚È‚çtrue
+					//å…ˆé ­ã‹ã‚‰æ¬¡ã®ReadyçŠ¶æ…‹ã®å‡¦ç†ã¾ã§ã™ã¹ã¦ã®ã‚¿ã‚¹ã‚¯ãŒFinishedçŠ¶æ…‹ãªã‚‰true
 					bool finished = true;
 					node = m_begin;
 					while (node != m_end) {
@@ -413,7 +411,7 @@ export namespace System {
 							else {
 								TaskNode* tmp = m_begin;
 								while (tmp != m_end) {
-									//ˆê“x‚µ‚©ŒÄ‚Ño‚³‚ê‚È‚¢ƒ^ƒXƒN‚ğƒm[ƒhƒŠƒXƒg‚©‚çíœ‚·‚é
+									//ä¸€åº¦ã—ã‹å‘¼ã³å‡ºã•ã‚Œãªã„ã‚¿ã‚¹ã‚¯ã‚’ãƒãƒ¼ãƒ‰ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤ã™ã‚‹
 									if (tmp->m_state->Once()) {
 										TaskNode* prev = tmp->m_prev;
 										TaskNode* next = tmp->m_next;
@@ -433,20 +431,20 @@ export namespace System {
 							}
 						}
 						else {
-							//‰½‚©‚µ‚ç‚Ìƒ^ƒXƒN‚ªI—¹‚ğ’Ê’m‚·‚éA‚à‚µ‚­‚ÍƒfƒXƒgƒ‰ƒNƒ^‚ªƒXƒŒƒbƒhI—¹‚ğ’Ê’m‚·‚é‚Ü‚Å‘Ò‹@
+							//ä½•ã‹ã—ã‚‰ã®ã‚¿ã‚¹ã‚¯ãŒçµ‚äº†ã‚’é€šçŸ¥ã™ã‚‹ã€ã‚‚ã—ãã¯ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ãŒã‚¹ãƒ¬ãƒƒãƒ‰çµ‚äº†ã‚’é€šçŸ¥ã™ã‚‹ã¾ã§å¾…æ©Ÿ
 							m_main_cv.wait(main_lock);
 							if (!*m_running) return;
 							continue;
 						}
 					}
-					//ƒ^ƒXƒN‚Ìó‘Ô‚ğReady -> Run‚É‘JˆÚ
+					//ã‚¿ã‚¹ã‚¯ã®çŠ¶æ…‹ã‚’Ready -> Runã«é·ç§»
 					node->m_state->Run();
-					//ƒ^ƒXƒNŠÖ”‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾
+					//ã‚¿ã‚¹ã‚¯é–¢æ•°ã¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’å–å¾—
 					task = &node->m_task;
 				}
-				//ƒ^ƒXƒN“à‚ÅFinish()‚ªŒÄ‚Î‚êRunning -> Finish‘JˆÚ
+				//ã‚¿ã‚¹ã‚¯å†…ã§Finish()ãŒå‘¼ã°ã‚ŒRunning -> Finishé·ç§»
 				(*task)();
-				//ƒ^ƒXƒN‚ÌI—¹‚ğ’Ê’m
+				//ã‚¿ã‚¹ã‚¯ã®çµ‚äº†ã‚’é€šçŸ¥
 				m_main_cv.notify_all();
 			}
 		}
@@ -455,25 +453,27 @@ export namespace System {
 		TaskWorker(uint32_t threadCount) noexcept : m_threadCount(threadCount) {
 			m_begin = new TaskNode{};
 			m_end = m_begin;
-			m_threads = Unique<Thread[]>(m_threadCount);
+			m_threads = std::make_unique<std::thread[]>(m_threadCount);
 			for (uint32_t i = 0; i < m_threadCount; ++i) {
-				m_threads[i] = Thread([this] { this->ThreadRunloop(); });
+				m_threads[i] = std::thread([this] { this->ThreadRunloop(); });
 			}
 		}
+		TaskWorker(const TaskWorker&) noexcept = delete;
+		TaskWorker(TaskWorker&&) noexcept = delete;
 		~TaskWorker() noexcept {
 			{
-				LockGuard main_lock{ m_main_mtx };
+				std::lock_guard main_lock{ m_main_mtx };
 				*m_running = false;
-				//ƒXƒŒƒbƒhI—¹‚ğ’Ê’m
+				//ã‚¹ãƒ¬ãƒƒãƒ‰çµ‚äº†ã‚’é€šçŸ¥
 				m_main_cv.notify_all();
 				//
 				for (TaskNode* node = m_begin; node != m_end; node = node->m_next) {
 					node->m_state->Notify();
 				}
 			}
-			//ƒXƒŒƒbƒh‚ªI‚í‚é‚Ü‚Å‘Ò‹@
-			for (uint32_t i = 0; i < m_threadCount; ++i) m_threads[i].Join();
-			//ƒm[ƒhƒŠƒXƒg”jŠü(‚±‚Ì“_‚ÅƒTƒuƒXƒŒƒbƒh‚ÍI—¹‚µ‚Ä‚¢‚é‚½‚ß”r‘¼§Œä•s—v)
+			//ã‚¹ãƒ¬ãƒƒãƒ‰ãŒçµ‚ã‚ã‚‹ã¾ã§å¾…æ©Ÿ
+			for (uint32_t i = 0; i < m_threadCount; ++i) m_threads[i].join();
+			//ãƒãƒ¼ãƒ‰ãƒªã‚¹ãƒˆç ´æ£„(ã“ã®æ™‚ç‚¹ã§ã‚µãƒ–ã‚¹ãƒ¬ãƒƒãƒ‰ã¯çµ‚äº†ã—ã¦ã„ã‚‹ãŸã‚æ’ä»–åˆ¶å¾¡ä¸è¦)
 			TaskNode* next = m_begin;
 			while (next) {
 				TaskNode* cur = next;
@@ -486,16 +486,16 @@ export namespace System {
 	public:
 		template<class R, class S, class Functor>
 		TaskFuture<R, S> Push(Functor&& task, uint32_t level, bool once) noexcept {
-			LockGuard main_lock{ m_main_mtx };
+			std::lock_guard main_lock{ m_main_mtx };
 			TaskPromise<R, S> p(m_running, once);
 			TaskFuture<R, S> ret = p.GetFuture();
 			if (!*m_running) {
 				p.Finish();
 				return ret;
 			}
-			//ƒ^ƒXƒN‚ğƒm[ƒhƒŠƒXƒg‚É’Ç‰Á
-			TaskNode* tmp = new TaskNode(p, Function<void(TaskPromise<R, S>&)>(task), level);
-			//æ“ª‚©‚çŒŸõ‚µ‚Ä‰‚ß‚Ä’Ç‰Á‚·‚éƒ^ƒXƒN‚æ‚èƒŒƒxƒ‹‚ª‚‚­‚È‚éƒ^ƒXƒN
+			//ã‚¿ã‚¹ã‚¯ã‚’ãƒãƒ¼ãƒ‰ãƒªã‚¹ãƒˆã«è¿½åŠ 
+			TaskNode* tmp = new TaskNode(System::move(p), std::function<void(TaskPromise<R, S>&)>(System::move(task)), level);
+			//å…ˆé ­ã‹ã‚‰æ¤œç´¢ã—ã¦åˆã‚ã¦è¿½åŠ ã™ã‚‹ã‚¿ã‚¹ã‚¯ã‚ˆã‚Šãƒ¬ãƒ™ãƒ«ãŒé«˜ããªã‚‹ã‚¿ã‚¹ã‚¯
 			TaskNode* next = m_begin;
 			while (next != m_end && next->m_level <= level) next = next->m_next;
 			TaskNode* prev = next->m_prev;
@@ -504,7 +504,7 @@ export namespace System {
 			tmp->m_prev = prev;
 			tmp->m_next = next;
 			next->m_prev = tmp;
-			//ƒm[ƒh’Ç‰Á‚ğ’Ê’m
+			//ãƒãƒ¼ãƒ‰è¿½åŠ ã‚’é€šçŸ¥
 			m_main_cv.notify_all();
 			return ret;
 		}
@@ -514,5 +514,8 @@ export namespace System {
 				level, once
 			);
 		}
+	public:
+		TaskWorker& operator=(const TaskWorker&) noexcept = delete;
+		TaskWorker& operator=(TaskWorker&&) noexcept = delete;
 	};
 }

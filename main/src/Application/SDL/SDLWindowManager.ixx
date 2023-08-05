@@ -1,4 +1,4 @@
-export module SDLWindowManager;
+﻿export module SDLWindowManager;
 import System;
 import IApplicationManager;
 using namespace System;

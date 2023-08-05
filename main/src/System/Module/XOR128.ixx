@@ -1,4 +1,4 @@
-export module XOR128;
+﻿export module XOR128;
 import CSTDINT;
 
 //XOR128

@@ -1,21 +1,21 @@
-export module Matrix;
+ï»¿export module Matrix;
 import CSTDINT;
 import Vector3;
 import Math;
 
 export namespace System {
 	/// <summary>
-	/// 4s4—ñs—ñ‚ğ•\‚·ƒNƒ‰ƒXB
-	/// float[16]‚Ì“à•”’l‚ğ—ñ—Dæ‚Æ‚µ‚Äˆµ‚¤B
-	/// msn—ñ‚Ì—v‘f‚ğmnA4ŸŒ³ƒxƒNƒgƒ‹‚ÌŠe—v‘f‚ğ(x, y, z, w)‚Æ‚·‚é‚ÆA
+	/// 4è¡Œ4åˆ—è¡Œåˆ—ã‚’è¡¨ã™ã‚¯ãƒ©ã‚¹ã€‚
+	/// float[16]ã®å†…éƒ¨å€¤ã‚’åˆ—å„ªå…ˆã¨ã—ã¦æ‰±ã†ã€‚
+	/// mè¡Œnåˆ—ã®è¦ç´ ã‚’mnã€4æ¬¡å…ƒãƒ™ã‚¯ãƒˆãƒ«ã®å„è¦ç´ ã‚’(x, y, z, w)ã¨ã™ã‚‹ã¨ã€
 	/// | 00, 01, 02, 03 | | x  |
 	/// | 10, 11, 12, 13 | | y  |
 	/// | 20, 21, 22, 23 | | z  |
 	/// | 30, 31, 32, 33 | | w |
-	/// ‚Ì‚æ‚¤‚ÉæZ‚·‚éB
-	/// “à•”’l‚Í
+	/// ã®ã‚ˆã†ã«ä¹—ç®—ã™ã‚‹ã€‚
+	/// å†…éƒ¨å€¤ã¯
 	/// { 00, 10, 20, 30, 01, 11, 21, 31, 02, 12, 22, 32, 03, 13, 23, 33 }
-	/// ‚Ì‚æ‚¤‚É•À‚ñ‚Å‚¢‚éB
+	/// ã®ã‚ˆã†ã«ä¸¦ã‚“ã§ã„ã‚‹ã€‚
 	/// </summary>
 	class Matrix {
 	public:
@@ -24,26 +24,26 @@ export namespace System {
 		constexpr Matrix() noexcept = default;
 		constexpr Matrix(const Matrix&) noexcept = default;
 		/// <summary>
-		/// ƒRƒ“ƒXƒgƒ‰ƒNƒ^ŒÄ‚Ño‚µ
+		/// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿å‘¼ã³å‡ºã—
 		/// Matrix{
 		///	00, 01, 02, 03,
 		///	10, 11, 12, 13,
 		///	20, 21, 22, 23,
 		///	30, 31, 32, 33
 		/// };
-		/// ‚ğ‚»‚Ì‚Ü‚Üs—ñ‚Æ‚İ‚È‚µ‚Ä‰Šú‰»‚·‚éB
-		/// ˆø”‚Ì‡˜‚ÆMatrixƒNƒ‰ƒX‚Ì“à•”ƒƒ‚ƒŠƒŒƒCƒAƒEƒg‚Íˆê’v‚µ‚È‚¢‚Ì‚Å’ˆÓ
+		/// ã‚’ãã®ã¾ã¾è¡Œåˆ—ã¨ã¿ãªã—ã¦åˆæœŸåŒ–ã™ã‚‹ã€‚
+		/// å¼•æ•°ã®é †åºã¨Matrixã‚¯ãƒ©ã‚¹ã®å†…éƒ¨ãƒ¡ãƒ¢ãƒªãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã¯ä¸€è‡´ã—ãªã„ã®ã§æ³¨æ„
 		/// </summary>
 		constexpr Matrix(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23, float m30, float m31, float m32, float m33) noexcept
 			: m_matrix{ m00, m10, m20, m30, m01, m11, m21, m31, m02, m12, m22, m32, m03, m13, m23, m33 } {}
 	public:
 		/// <summary>
-		/// ’PˆÊs—ñ‚ğæ“¾‚·‚éBƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^ŒÄ‚Ño‚µ‚Æ“¯“™‚Å‚ ‚é
+		/// å˜ä½è¡Œåˆ—ã‚’å–å¾—ã™ã‚‹ã€‚ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿å‘¼ã³å‡ºã—ã¨åŒç­‰ã§ã‚ã‚‹
 		/// </summary>
 		static constexpr Matrix Identity() noexcept { return Matrix(); }
 	public:
 		/// <summary>
-		/// “]’us—ñ‚ğæ“¾‚·‚é
+		/// è»¢ç½®è¡Œåˆ—ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		constexpr Matrix Transpose() const noexcept {
 			return Matrix{
@@ -55,9 +55,9 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// s—ñ“¯m‚ÌæZ‚ğŒvZ‚·‚é
+		/// è¡Œåˆ—åŒå£«ã®ä¹—ç®—ã‚’è¨ˆç®—ã™ã‚‹
 		/// </summary>
-		/// <param name="rhs">‚±‚Ìs—ñ‚É‰E‚©‚çæZ‚·‚és—ñ</param>
+		/// <param name="rhs">ã“ã®è¡Œåˆ—ã«å³ã‹ã‚‰ä¹—ç®—ã™ã‚‹è¡Œåˆ—</param>
 		constexpr Matrix Mul(const Matrix& rhs) const noexcept {
 			Matrix ret;
 			ret[0] = m_matrix[0] * rhs.m_matrix[0] + m_matrix[4] * rhs.m_matrix[1] + m_matrix[8] * rhs.m_matrix[2] + m_matrix[12] * rhs.m_matrix[3];
@@ -79,12 +79,12 @@ export namespace System {
 			return ret;
 		}
 		/// <summary>
-		/// ‚±‚Ìs—ñ‚ğOŸŒ³ƒxƒNƒgƒ‹‚Ì¶‚©‚çæZ‚·‚éB
-		/// ƒxƒNƒgƒ‹‚Íw¬•ª‚ğ’Ç‰Á‚µ‚½4s1—ñ‚ÌlŸŒ³ƒxƒNƒgƒ‹(x, y, z, w = 1)‚Æ‚µ‚ÄŒvZ‚³‚êA
-		/// ŒvZŒã‚Ìw‚Åx, y, z¬•ª‚ğŠ„‚Á‚½’l‚ğOŸŒ³ƒxƒNƒgƒ‹‚Æ‚µ‚Ä•Ô‚·B
-		/// ŒvZŒã‚Ìw‚ª0‚É‚È‚é‚Æ‚«A‘S¬•ª‚Ìâ‘Î’l‚Í–³ŒÀ‘å‚É‚È‚é
+		/// ã“ã®è¡Œåˆ—ã‚’ä¸‰æ¬¡å…ƒãƒ™ã‚¯ãƒˆãƒ«ã®å·¦ã‹ã‚‰ä¹—ç®—ã™ã‚‹ã€‚
+		/// ãƒ™ã‚¯ãƒˆãƒ«ã¯wæˆåˆ†ã‚’è¿½åŠ ã—ãŸ4è¡Œ1åˆ—ã®å››æ¬¡å…ƒãƒ™ã‚¯ãƒˆãƒ«(x, y, z, w = 1)ã¨ã—ã¦è¨ˆç®—ã•ã‚Œã€
+		/// è¨ˆç®—å¾Œã®wã§x, y, zæˆåˆ†ã‚’å‰²ã£ãŸå€¤ã‚’ä¸‰æ¬¡å…ƒãƒ™ã‚¯ãƒˆãƒ«ã¨ã—ã¦è¿”ã™ã€‚
+		/// è¨ˆç®—å¾Œã®wãŒ0ã«ãªã‚‹ã¨ãã€å…¨æˆåˆ†ã®çµ¶å¯¾å€¤ã¯ç„¡é™å¤§ã«ãªã‚‹
 		/// </summary>
-		/// <param name="rhs">w = 1‚ğ’Ç‰Á‚µ‚½4s1—ñ‚Ìs—ñ‚Æ‚µ‚Ä‰ğß‚³‚ê‚éOŸŒ³ƒxƒNƒgƒ‹</param>
+		/// <param name="rhs">w = 1ã‚’è¿½åŠ ã—ãŸ4è¡Œ1åˆ—ã®è¡Œåˆ—ã¨ã—ã¦è§£é‡ˆã•ã‚Œã‚‹ä¸‰æ¬¡å…ƒãƒ™ã‚¯ãƒˆãƒ«</param>
 		constexpr Vector3 Mul(const Vector3& rhs) const noexcept {
 			float x, y, z, w;
 			x = m_matrix[0] * rhs.x + m_matrix[4] * rhs.y + m_matrix[8] * rhs.z + m_matrix[12];

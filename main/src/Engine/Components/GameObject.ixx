@@ -1,4 +1,4 @@
-module;
+ï»¿module;
 #include <crtdbg.h>
 #define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 export module Components:GameObject;
@@ -75,7 +75,7 @@ public:
 	C& GetComponent() const {
 		C* tmp = GetComponentPtr<C>();
 		if (tmp) return *tmp;
-		throw InvalidOperationException(__FUNCSIG__, u"•Û‚µ‚Ä‚¢‚È‚¢Component‚ª—v‹‚³‚ê‚Ü‚µ‚½B", __FILE__, __LINE__);
+		throw InvalidOperationException(__FUNCSIG__, u"ä¿æŒã—ã¦ã„ãªã„ComponentãŒè¦æ±‚ã•ã‚Œã¾ã—ãŸã€‚", __FILE__, __LINE__);
 	}
 	template<CComponent C>
 	bool HasComponent() const noexcept {
@@ -110,7 +110,7 @@ public:
 	S& GetScript() const {
 		S* tmp = GetScriptPtr<S>();
 		if (tmp) return *tmp;
-		throw InvalidOperationException(__FUNCSIG__, u"•Û‚µ‚Ä‚¢‚È‚¢Script‚ª—v‹‚³‚ê‚Ü‚µ‚½B", __FILE__, __LINE__);
+		throw InvalidOperationException(__FUNCSIG__, u"ä¿æŒã—ã¦ã„ãªã„ScriptãŒè¦æ±‚ã•ã‚Œã¾ã—ãŸã€‚", __FILE__, __LINE__);
 	}
 	template<CScript S>
 	bool HasScript() const noexcept {

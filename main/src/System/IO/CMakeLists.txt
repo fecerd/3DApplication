@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+﻿cmake_minimum_required(VERSION 3.8)
 
 FSetModuleFileFlags(${CMAKE_CURRENT_SOURCE_DIR})
 add_library(IO_0 OBJECT

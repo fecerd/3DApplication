@@ -1,4 +1,4 @@
-export module Components:MeshFilter;
+ï»¿export module Components:MeshFilter;
 import :Component;
 import System;
 import Bone;
@@ -35,10 +35,10 @@ export namespace Engine {
 		ManagedObject<BoneInfo> m_boneInfo;
 	public:
 		using Component::Component;
-	public: /* ƒ}ƒeƒŠƒAƒ‹XVŠÖ˜A */
+	public: /* ãƒãƒ†ãƒªã‚¢ãƒ«æ›´æ–°é–¢é€£ */
 		/// <summary>
-		/// ƒ}ƒeƒŠƒAƒ‹‚Ì•ÏX‚ğŠm’è‚·‚éB
-		/// Material‚ÌŠeƒƒ“ƒo‚ğ’¼Ú•ÏX‚µ‚½Œã‚É‚±‚ÌŠÖ”‚ğŒÄ‚Ño‚³‚È‚¢‚ÆA•\¦‚É”½‰f‚³‚ê‚È‚¢
+		/// ãƒãƒ†ãƒªã‚¢ãƒ«ã®å¤‰æ›´ã‚’ç¢ºå®šã™ã‚‹ã€‚
+		/// Materialã®å„ãƒ¡ãƒ³ãƒã‚’ç›´æ¥å¤‰æ›´ã—ãŸå¾Œã«ã“ã®é–¢æ•°ã‚’å‘¼ã³å‡ºã•ãªã„ã¨ã€è¡¨ç¤ºã«åæ˜ ã•ã‚Œãªã„
 		/// </summary>
 		bool UpdateMaterialHeap() noexcept;
 		bool UpdateReflections(uint32_t materialIndex, const ReflectionsResourceDesc& desc) noexcept;
@@ -68,17 +68,17 @@ export namespace Engine {
 			if (m_materials.Count() <= materialIndex) return Renderer();
 			else return m_materials[materialIndex].renderer;
 		}
-	public: /* ƒ‚ƒfƒ‹ƒf[ƒ^“Ç‚İ‚İŠÖ˜A */
+	public: /* ãƒ¢ãƒ‡ãƒ«ãƒ‡ãƒ¼ã‚¿èª­ã¿è¾¼ã¿é–¢é€£ */
 		bool LoadPlane(Drawing::Color diffuseColor = Drawing::Colors::White) noexcept;
 		bool LoadTriangle(Drawing::Color diffuseColor = Drawing::Colors::White) noexcept;
 		bool LoadCube(Drawing::Color diffuseColor = Drawing::Colors::White) noexcept;
 		bool LoadSphere(Drawing::Color diffuseColor = Drawing::Colors::White) noexcept;
 		bool LoadModelForPMD(const String& filename, bool calcTangentSpace = true) noexcept;
-	public: /* Materialæ“¾ŠÖ˜A */
+	public: /* Materialå–å¾—é–¢é€£ */
 		Vector<Material>& GetMaterials() noexcept { return m_materials; }
 		const Vector<Material>& GetMaterials() const noexcept { return m_materials; }
 		uint32_t GetMaterialCount() const noexcept { return static_cast<uint32_t>(m_materials.Count()); }
-	public: /* ƒ{[ƒ“î•ñæ“¾ŠÖ˜A */
+	public: /* ãƒœãƒ¼ãƒ³æƒ…å ±å–å¾—é–¢é€£ */
 		Vector<Bone>& GetBones() noexcept { return m_boneInfo->bones; }
 		const Vector<Bone>& GetBones() const noexcept { return m_boneInfo->bones; }
 		size_t GetBoneID(const String& boneName) const noexcept {
@@ -86,7 +86,7 @@ export namespace Engine {
 			return ret ? *ret : MAX_VALUE<size_t>;
 		}
 		Vector<IK>& GetIKs() noexcept { return m_boneInfo->iks; }
-	public: /* Common3DŠÖ˜A */
+	public: /* Common3Dé–¢é€£ */
 		MeshResource GetMeshResource() const noexcept { return m_meshResource; }
 		Heap GetHeap() const noexcept { return m_materialHeap; }
 	public:

@@ -1,30 +1,32 @@
-module;
-#include <iostream>
+﻿module;
 #ifdef _WINDOWS
 #include <Windows.h>
 #endif
 module Exception;
+import <iostream>;
 
-void System::Terminate(const LogicException& ex) noexcept {
+namespace System{
+	void Terminate(const LogicException &ex) noexcept {
 #ifdef _DEBUG
 #ifdef _CONSOLE
-	std::cout << ex.what() << std::endl;
+		std::cout << ex.what() << std::endl;
 #elif _WINDOWS
-	OutputDebugStringA(ex.what());
-	OutputDebugStringA('\n');
+		OutputDebugStringA(ex.what());
+		OutputDebugStringA("\n");
 #endif
 #endif
-	std::terminate();
-}
+		std::terminate();
+	}
 
-void System::Terminate(const Exception& ex) noexcept {
+	void Terminate(const Exception &ex) noexcept {
 #ifdef _DEBUG
 #ifdef _CONSOLE
-	std::cout << ex.what() << std::endl;
+		std::cout << ex.what() << std::endl;
 #elif _WINDOWS
-	OutputDebugStringA(ex.what());
-	OutputDebugStringA('\n');
+		OutputDebugStringA(ex.what());
+		OutputDebugStringA("\n");
 #endif
 #endif
-	std::terminate();
+		std::terminate();
+	}
 }

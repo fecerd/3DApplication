@@ -1,4 +1,4 @@
-export module Components:Light;
+﻿export module Components:Light;
 import :Component;
 import System;
 using namespace System;

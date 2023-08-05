@@ -1,4 +1,4 @@
-export module ApplicationUtility;
+﻿export module ApplicationUtility;
 import System;
 
 export namespace System::Application {

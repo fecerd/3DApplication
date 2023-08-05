@@ -1,6 +1,6 @@
-module;
+ï»¿module;
 #define DIRECTINPUT_VERSION 0x0800
-//ƒ}ƒNƒÄ’è‹`—}§
+//ãƒã‚¯ãƒ­å†å®šç¾©æŠ‘åˆ¶
 #undef __SPECSTRINGS_STRICT_LEVEL
 #define __SPECSTRINGS_STRICT_LEVEL 0
 #pragma warning(disable : 5105)
@@ -457,10 +457,10 @@ export namespace System::Application::Windows {
 			IDirectInputDevice8* device = nullptr;
 			HRESULT hr = diInterface.CreateDevice(deviceInstance.guidInstance, &device, nullptr);
 			if (hr != DI_OK) return nullptr;
-			//JOYSTICK‚Æ‚µ‚Äg—p
+			//JOYSTICKã¨ã—ã¦ä½¿ç”¨
 			hr = device->SetDataFormat(&c_dfDIJoystick);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚ÍJoystick‚Æ‚µ‚Äg—p‚Å‚«‚Ü‚¹‚ñB"));
-			//²ƒ‚[ƒhİ’è
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã¯Joystickã¨ã—ã¦ä½¿ç”¨ã§ãã¾ã›ã‚“ã€‚"));
+			//è»¸ãƒ¢ãƒ¼ãƒ‰è¨­å®š
 			DIPROPDWORD diprop{};
 			diprop.diph.dwSize = sizeof(diprop);
 			diprop.diph.dwHeaderSize = sizeof(diprop.diph);
@@ -468,16 +468,16 @@ export namespace System::Application::Windows {
 			diprop.diph.dwObj = 0;
 			diprop.dwData = IsAbsAxis ? DIPROPAXISMODE_ABS : DIPROPAXISMODE_REL;
 			hr = device->SetProperty(DIPROP_AXISMODE, &diprop.diph);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚É²ƒ‚[ƒh‚ğİ’è‚Å‚«‚Ü‚¹‚ñB"));
-			//ƒfƒbƒhƒ][ƒ“İ’è
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã«è»¸ãƒ¢ãƒ¼ãƒ‰ã‚’è¨­å®šã§ãã¾ã›ã‚“ã€‚"));
+			//ãƒ‡ãƒƒãƒ‰ã‚¾ãƒ¼ãƒ³è¨­å®š
 			diprop.diph.dwSize = sizeof(diprop);
 			diprop.diph.dwHeaderSize = sizeof(diprop.diph);
 			diprop.diph.dwHow = DIPH_DEVICE;
 			diprop.diph.dwObj = 0;
 			diprop.dwData = 2000;	//20%
 			hr = device->SetProperty(DIPROP_DEADZONE, &diprop.diph);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚Éƒfƒbƒhƒ][ƒ“‚ğİ’è‚Å‚«‚Ü‚¹‚ñB"));
-			//²‚Ì’l‚Ì”ÍˆÍİ’è
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã«ãƒ‡ãƒƒãƒ‰ã‚¾ãƒ¼ãƒ³ã‚’è¨­å®šã§ãã¾ã›ã‚“ã€‚"));
+			//è»¸ã®å€¤ã®ç¯„å›²è¨­å®š
 			DIPROPRANGE range{};
 			range.diph.dwSize = sizeof(range);
 			range.diph.dwHeaderSize = sizeof(range.diph);
@@ -486,67 +486,67 @@ export namespace System::Application::Windows {
 			range.lMin = -XAxisAbs;
 			range.lMax = XAxisAbs;
 			hr = device->SetProperty(DIPROP_RANGE, &range.diph);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚ÉƒXƒeƒBƒbƒN1‚ÌX²‚Ì”ÍˆÍ‚ğİ’è‚Å‚«‚Ü‚¹‚ñB"));
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã«ã‚¹ãƒ†ã‚£ãƒƒã‚¯1ã®Xè»¸ã®ç¯„å›²ã‚’è¨­å®šã§ãã¾ã›ã‚“ã€‚"));
 			range.diph.dwObj = DIJOFS_Y;
 			range.lMin = -YAxisAbs;
 			range.lMax = YAxisAbs;
 			hr = device->SetProperty(DIPROP_RANGE, &range.diph);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚ÉƒXƒeƒBƒbƒN1‚ÌY²‚Ì”ÍˆÍ‚ğİ’è‚Å‚«‚Ü‚¹‚ñB"));
-			//DualShock4‚Å‚Í‰EƒXƒeƒBƒbƒN‚ÌX²‚ªZ²AY²‚ªZ‰ñ“]‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚é
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã«ã‚¹ãƒ†ã‚£ãƒƒã‚¯1ã®Yè»¸ã®ç¯„å›²ã‚’è¨­å®šã§ãã¾ã›ã‚“ã€‚"));
+			//DualShock4ã§ã¯å³ã‚¹ãƒ†ã‚£ãƒƒã‚¯ã®Xè»¸ãŒZè»¸ã€Yè»¸ãŒZå›è»¢ã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã‚‹
 			range.diph.dwObj = DIJOFS_Z;
 			range.lMin = -XAxisAbs;
 			range.lMax = XAxisAbs;
 			hr = device->SetProperty(DIPROP_RANGE, &range.diph);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚ÉƒXƒeƒBƒbƒN2‚ÌX²‚Ì”ÍˆÍ‚ğİ’è‚Å‚«‚Ü‚¹‚ñB"));
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã«ã‚¹ãƒ†ã‚£ãƒƒã‚¯2ã®Xè»¸ã®ç¯„å›²ã‚’è¨­å®šã§ãã¾ã›ã‚“ã€‚"));
 			range.diph.dwObj = DIJOFS_RZ;
 			range.lMin = -YAxisAbs;
 			range.lMax = YAxisAbs;
 			hr = device->SetProperty(DIPROP_RANGE, &range.diph);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚ÉƒXƒeƒBƒbƒN2‚ÌY²‚Ì”ÍˆÍ‚ğİ’è‚Å‚«‚Ü‚¹‚ñB"));
-			//ƒoƒbƒtƒ@ƒTƒCƒYİ’è
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã«ã‚¹ãƒ†ã‚£ãƒƒã‚¯2ã®Yè»¸ã®ç¯„å›²ã‚’è¨­å®šã§ãã¾ã›ã‚“ã€‚"));
+			//ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚ºè¨­å®š
 			diprop.diph.dwSize = sizeof(diprop);
 			diprop.diph.dwHeaderSize = sizeof(diprop.diph);
 			diprop.diph.dwObj = 0;
 			diprop.diph.dwHow = DIPH_DEVICE;
-			diprop.dwData = BufferCount + 1;//ƒoƒbƒtƒ@”‚Íİ’è‚µ‚½”‚æ‚è1­‚È‚­‚È‚é‚½‚ß
+			diprop.dwData = BufferCount + 1;//ãƒãƒƒãƒ•ã‚¡æ•°ã¯è¨­å®šã—ãŸæ•°ã‚ˆã‚Š1å°‘ãªããªã‚‹ãŸã‚
 			hr = device->SetProperty(DIPROP_BUFFERSIZE, &diprop.diph);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚Éƒoƒbƒtƒ@ƒTƒCƒY‚ğİ’è‚Å‚«‚Ü‚¹‚ñB"));
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã«ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚ºã‚’è¨­å®šã§ãã¾ã›ã‚“ã€‚"));
 			return device;
 		}
 		static IDirectInputDevice8* CreateKeyboardDevice(IDirectInput8& diInterface, const DIDEVICEINSTANCE& deviceInstance) noexcept {
 			IDirectInputDevice8* device = nullptr;
 			HRESULT hr = diInterface.CreateDevice(deviceInstance.guidInstance, &device, nullptr);
 			if (hr != DI_OK) return nullptr;
-			//Keyboard‚Æ‚µ‚Äg—p
+			//Keyboardã¨ã—ã¦ä½¿ç”¨
 			hr = device->SetDataFormat(&c_dfDIKeyboard);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚ÍKeyBoard‚Æ‚µ‚Äg—p‚Å‚«‚Ü‚¹‚ñB"));
-			//ƒoƒbƒtƒ@ƒTƒCƒYİ’è
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã¯KeyBoardã¨ã—ã¦ä½¿ç”¨ã§ãã¾ã›ã‚“ã€‚"));
+			//ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚ºè¨­å®š
 			DIPROPDWORD diprop{};
 			diprop.diph.dwSize = sizeof(diprop);
 			diprop.diph.dwHeaderSize = sizeof(diprop.diph);
 			diprop.diph.dwObj = 0;
 			diprop.diph.dwHow = DIPH_DEVICE;
-			diprop.dwData = BufferCount + 1;//ƒoƒbƒtƒ@”‚Íİ’è‚µ‚½”‚æ‚è1­‚È‚­‚È‚é‚½‚ß
+			diprop.dwData = BufferCount + 1;//ãƒãƒƒãƒ•ã‚¡æ•°ã¯è¨­å®šã—ãŸæ•°ã‚ˆã‚Š1å°‘ãªããªã‚‹ãŸã‚
 			hr = device->SetProperty(DIPROP_BUFFERSIZE, &diprop.diph);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚Éƒoƒbƒtƒ@ƒTƒCƒY‚ğİ’è‚Å‚«‚Ü‚¹‚ñB"));
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã«ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚ºã‚’è¨­å®šã§ãã¾ã›ã‚“ã€‚"));
 			return device;
 		}
 		static IDirectInputDevice8* CreateMouseDevice(IDirectInput8& diInterface, const DIDEVICEINSTANCE& deviceInstance) noexcept {
 			IDirectInputDevice8* device = nullptr;
 			HRESULT hr = diInterface.CreateDevice(deviceInstance.guidInstance, &device, nullptr);
 			if (hr != DI_OK) return nullptr;
-			//Mouse‚Æ‚µ‚Äg—p
+			//Mouseã¨ã—ã¦ä½¿ç”¨
 			hr = device->SetDataFormat(&c_dfDIMouse);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚ÍMouse‚Æ‚µ‚Äg—p‚Å‚«‚Ü‚¹‚ñB"));
-			//ƒoƒbƒtƒ@ƒTƒCƒYİ’è
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã¯Mouseã¨ã—ã¦ä½¿ç”¨ã§ãã¾ã›ã‚“ã€‚"));
+			//ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚ºè¨­å®š
 			DIPROPDWORD diprop{};
 			diprop.diph.dwSize = sizeof(diprop);
 			diprop.diph.dwHeaderSize = sizeof(diprop.diph);
 			diprop.diph.dwObj = 0;
 			diprop.diph.dwHow = DIPH_DEVICE;
-			diprop.dwData = BufferCount + 1;//ƒoƒbƒtƒ@”‚Íİ’è‚µ‚½”‚æ‚è1­‚È‚­‚È‚é‚½‚ß
+			diprop.dwData = BufferCount + 1;//ãƒãƒƒãƒ•ã‚¡æ•°ã¯è¨­å®šã—ãŸæ•°ã‚ˆã‚Š1å°‘ãªããªã‚‹ãŸã‚
 			hr = device->SetProperty(DIPROP_BUFFERSIZE, &diprop.diph);
-			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"‚Éƒoƒbƒtƒ@ƒTƒCƒY‚ğİ’è‚Å‚«‚Ü‚¹‚ñB"));
+			if (hr != DI_OK) return SafeRelease(device, String::Joint(GetDeviceName(*device, true), u"ã«ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚ºã‚’è¨­å®šã§ãã¾ã›ã‚“ã€‚"));
 			return device;
 		}
 	private:
@@ -627,7 +627,7 @@ export namespace System::Application::Windows {
 			};
 			void(*UpdateFunc)(IDirectInputDevice8&, DirectInputState&) = nullptr;
 			switch (instance.dwDevType & 0xff) {
-			//DualShock‚ÌƒfƒoƒCƒXƒ^ƒCƒv‚Í1stPerson‚È‚Ì‚Å•K—v
+			//DualShockã®ãƒ‡ãƒã‚¤ã‚¹ã‚¿ã‚¤ãƒ—ã¯1stPersonãªã®ã§å¿…è¦
 			case DI8DEVTYPE_1STPERSON:
 			case DI8DEVTYPE_JOYSTICK:
 			case DI8DEVTYPE_GAMEPAD:
@@ -718,7 +718,7 @@ export namespace System::Application::Windows {
 			};
 			void(*UpdateFunc)(DirectInputState&, const DIDEVICEOBJECTDATA&) = nullptr;
 			switch (instance.dwDevType & 0xff) {
-			//DualShock‚ÌƒfƒoƒCƒXƒ^ƒCƒv‚Í1stPerson‚È‚Ì‚Å•K—v
+			//DualShockã®ãƒ‡ãƒã‚¤ã‚¹ã‚¿ã‚¤ãƒ—ã¯1stPersonãªã®ã§å¿…è¦
 			case DI8DEVTYPE_1STPERSON:
 			case DI8DEVTYPE_JOYSTICK:
 			case DI8DEVTYPE_GAMEPAD:
@@ -728,7 +728,7 @@ export namespace System::Application::Windows {
 				UpdateFunc = UpdateKeyboard;
 				break;
 			case DI8DEVTYPE_MOUSE: {
-				//DIMOUSESTATE‚Ì²‚Í‘Š‘Î‰^“®‚Ì‚½‚ßA–ˆƒtƒŒ[ƒ€‰Šú‰»‚·‚é
+				//DIMOUSESTATEã®è»¸ã¯ç›¸å¯¾é‹å‹•ã®ãŸã‚ã€æ¯ãƒ•ãƒ¬ãƒ¼ãƒ åˆæœŸåŒ–ã™ã‚‹
 				DIMOUSESTATE& mouse = state.GetCurrentMouse();
 				mouse.lX = 0;
 				mouse.lY = 0;
@@ -742,14 +742,14 @@ export namespace System::Application::Windows {
 			if (!UpdateFunc) return;
 			do {
 				DIDEVICEOBJECTDATA data;
-				//æ“¾‚·‚éÅ‘åƒoƒbƒtƒ@”(ŠÖ”ŒÄ‚Ño‚µŒã‚Íæ“¾‚µ‚½ƒoƒbƒtƒ@”)
+				//å–å¾—ã™ã‚‹æœ€å¤§ãƒãƒƒãƒ•ã‚¡æ•°(é–¢æ•°å‘¼ã³å‡ºã—å¾Œã¯å–å¾—ã—ãŸãƒãƒƒãƒ•ã‚¡æ•°)
 				DWORD bufferCount = 1;
-				//‘æ4ˆø”‚ğDIGDD_PEEK‚É‚·‚é‚ÆAƒoƒbƒtƒ@‚ªíœ‚³‚ê‚È‚¢(¡‰ñ‚Í0‚ğw’è‚µ‚Äíœ‚·‚é)
+				//ç¬¬4å¼•æ•°ã‚’DIGDD_PEEKã«ã™ã‚‹ã¨ã€ãƒãƒƒãƒ•ã‚¡ãŒå‰Šé™¤ã•ã‚Œãªã„(ä»Šå›ã¯0ã‚’æŒ‡å®šã—ã¦å‰Šé™¤ã™ã‚‹)
 				hr = device.GetDeviceData(sizeof(data), &data, &bufferCount, 0);
 				if (FAILED(hr) || !bufferCount) break;
 				if (hr == DI_BUFFEROVERFLOW) {
 					WinAPI::OutputDebugString(
-						String::Joint(GetDeviceName(device, true), u"‚ªƒoƒbƒtƒ@ƒI[ƒo[ƒtƒ[‚ğ‹N‚±‚µ‚Ä‚¢‚Ü‚·B\n").w_str()
+						String::Joint(GetDeviceName(device, true), u"ãŒãƒãƒƒãƒ•ã‚¡ã‚ªãƒ¼ãƒãƒ¼ãƒ•ãƒ­ãƒ¼ã‚’èµ·ã“ã—ã¦ã„ã¾ã™ã€‚\n").w_str()
 					);
 				}
 				UpdateFunc(state, data);
@@ -809,8 +809,8 @@ export namespace System::Application::Windows {
 			state.Update();
 			for (size_t i = 0; i < deviceCount; ++i) {
 				IDirectInputDevice8*& device = devices[i];
-				//ƒEƒBƒ“ƒhƒE‚ÌƒtƒH[ƒJƒX‚ªØ‚è‘Ö‚í‚é‚½‚Ñ‚Éæ“¾‚µ‚È‚¨‚·•K—v‚ª‚ ‚é‚½‚ßA–ˆƒ‹[ƒvŒÄ‚Ño‚µ‚Ä‚¨‚­
-				//(AcquireŠÖ”‚ÍŒÄ‚Ño‚µ•s—v‚Èê‡‚É‰½‚à‚¹‚¸S_FALSE‚ğ•Ô‚·)
+				//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ãŒåˆ‡ã‚Šæ›¿ã‚ã‚‹ãŸã³ã«å–å¾—ã—ãªãŠã™å¿…è¦ãŒã‚ã‚‹ãŸã‚ã€æ¯ãƒ«ãƒ¼ãƒ—å‘¼ã³å‡ºã—ã¦ãŠã
+				//(Acquireé–¢æ•°ã¯å‘¼ã³å‡ºã—ä¸è¦ãªå ´åˆã«ä½•ã‚‚ã›ãšS_FALSEã‚’è¿”ã™)
 				HRESULT hr = device->Acquire();
 				if (hr != DI_OK && hr != S_FALSE) continue;
 				if (m_useBuffer) UpdateDeviceByBuffer(*device);

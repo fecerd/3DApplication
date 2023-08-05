@@ -1,4 +1,4 @@
-export module InputSystemUtility;
+Ôªøexport module InputSystemUtility;
 import System;
 using namespace System;
 
@@ -106,7 +106,7 @@ export namespace System::Application {
 		KeyNum9 = 0x69,
 		KeyMultiply = 0x6A,
 		KeyAdd,
-		KeySeparator,	//ÉeÉìÉLÅ[Enter
+		KeySeparator,	//„ÉÜ„É≥„Ç≠„ÉºEnter
 		KeySubstract,
 		KeyDecimal,
 		KeyDivide = 0x6f,

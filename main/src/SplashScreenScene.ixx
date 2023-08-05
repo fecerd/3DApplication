@@ -1,4 +1,4 @@
-export module SplashScreenScene;
+﻿export module SplashScreenScene;
 export import Engine;
 export import Common3D;
 import Application;

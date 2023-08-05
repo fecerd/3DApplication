@@ -1,4 +1,4 @@
-module Log;
+Ôªømodule Log;
 import Thread;
 
 namespace System::Application {
@@ -21,7 +21,7 @@ namespace System::Application {
 		WinAPI::OutputDebugStringI(n, true);
 	}
 }
-#else	//WindowsÇ≈Ç‡SDLÇ≈Ç‡Ç»Ç¢èÍçá
+#else	//Windows„Åß„ÇÇSDL„Åß„ÇÇ„Å™„ÅÑÂ†¥Âêà
 namespace System::Application {
 	void Log(const String& str) noexcept {
 		LockGuard lock{ GetLogMutex() };

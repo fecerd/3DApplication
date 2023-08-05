@@ -1,11 +1,11 @@
-export module TypeName;
+ï»¿export module TypeName;
 import CSTDINT;
 import Traits;
 import StringBlock;
 
 export namespace System {
 	/// <summary>
-	/// TypeName::GetTypeSpecifier()ŠÖ”‚ª•Ô‚·Œ^w’èq‚ğ•\‚·—ñ‹“Œ^
+	/// TypeName::GetTypeSpecifier()é–¢æ•°ãŒè¿”ã™å‹æŒ‡å®šå­ã‚’è¡¨ã™åˆ—æŒ™å‹
 	/// </summary>
 	enum class TypeSpecifier : uint8_t {
 		NONE = 0,
@@ -19,6 +19,7 @@ namespace System {
 	namespace TypeName_Internal {
 		template<size_t size, size_t N>
 		constexpr CStringBlock<char16_t, size> TrimName(const char(&name)[size], const char(&funcname)[N]) noexcept {
+			return CStringBlock<char16_t, size>();
 			size_t e = size;
 			for (; e-- > 0;) if (name[e] == '>') break;
 			if (e == 0) return CStringBlock<char16_t, size>();
@@ -44,9 +45,25 @@ namespace System {
 			return ret;
 		}
 		template<class T>
-		constexpr auto GetTypeName() { return TrimName(__FUNCSIG__, "GetTypeName"); }
+		constexpr auto GetTypeName() {
+#if defined(__clang__) || defined(__GNUC__)
+			return TrimName(__PRETTY_FUNCTION__, "GetTypeName");
+#elif defined(_MSC_VER)
+			return TrimName(__FUNCSIG__, "GetTypeName");
+#else
+			return CStringBlock<char16_t, 1>();
+#endif
+		}
 		template<class E, E V>
-		constexpr auto GetEnumName() { return TrimName(__FUNCSIG__, "GetEnumName"); }
+		constexpr auto GetEnumName() {
+#if defined(__clang__) || defined(__GNUC__)
+			return TrimName(__PRETTY_FUNCTION__, "GetEnumName");
+#elif defined(_MSC_VER)
+			return TrimName(__FUNCSIG__, "GetEnumName");
+#else
+			return CStringBlock<char16_t, 1>();
+#endif
+		}
 	}
 }
 
@@ -89,11 +106,11 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// Œ^T‚Ì–¼‘O‹óŠÔ‚ÅCü‚³‚ê‚½–¼‘O‚ğæ“¾‚·‚é
+		/// å‹Tã®åå‰ç©ºé–“ã§ä¿®é£¾ã•ã‚ŒãŸåå‰ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		static constexpr const nametype& GetFullName() noexcept { return FullName; }
 		/// <summary>
-		/// Œ^T‚Ì–¼‘O‚ğæ“¾‚·‚é
+		/// å‹Tã®åå‰ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		static constexpr nametype GetTypeName() noexcept {
 			const char16_t* data = FullName.c_str();
@@ -102,7 +119,7 @@ export namespace System {
 			return nametype(result.b, result.e - result.b);
 		}
 		/// <summary>
-		/// Œ^T‚Ì–¼‘O‹óŠÔ‚ğæ“¾‚·‚é
+		/// å‹Tã®åå‰ç©ºé–“ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		static constexpr nametype GetNamespace() noexcept {
 			constexpr nametype typeName = GetTypeName();
@@ -113,10 +130,10 @@ export namespace System {
 			for (; s < fullNameLength; ++s) if (data[s] == u' ') break;
 			size_t length = fullNameLength - typeNameLength - (s + 1);
 			if (length < 2) return nametype();
-			else return nametype(data + s + 1, length - 2);	//ÅŒã‚Ì::‚ğœ‚­
+			else return nametype(data + s + 1, length - 2);	//æœ€å¾Œã®::ã‚’é™¤ã
 		}
 		/// <summary>
-		/// Œ^T‚ÌŒ^w’èq(struct, class union, enum)‚ğæ“¾‚·‚é
+		/// å‹Tã®å‹æŒ‡å®šå­(struct, class union, enum)ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		static constexpr TypeSpecifier GetTypeSpecifier() noexcept {
 			constexpr const char16_t* data = FullName.c_str();
@@ -126,10 +143,10 @@ export namespace System {
 			else return TypeSpecifier::NONE;
 		}
 		/// <summary>
-		/// Œ^T‚ÌŠÔÚQÆƒŒƒxƒ‹(ƒ|ƒCƒ“ƒ^‚Ì”)‚ğæ“¾‚·‚é
+		/// å‹Tã®é–“æ¥å‚ç…§ãƒ¬ãƒ™ãƒ«(ãƒã‚¤ãƒ³ã‚¿ã®æ•°)ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <returns>
-		/// Œ^T‚ªƒ|ƒCƒ“ƒ^‚Å‚È‚¢ê‡A0‚ğ•Ô‚·
+		/// å‹TãŒãƒã‚¤ãƒ³ã‚¿ã§ãªã„å ´åˆã€0ã‚’è¿”ã™
 		/// </returns>
 		static constexpr size_t GetLevelsOfPointer() noexcept {
 			constexpr const char16_t* data = FullName.c_str();
@@ -148,7 +165,7 @@ export namespace System {
 	class EnumName {
 	public:
 		/// <summary>
-		/// —ñ‹“q–¼‚ğæ“¾‚·‚é
+		/// åˆ—æŒ™å­åã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <returns></returns>
 		template<E val>

@@ -1,4 +1,4 @@
-export module CodePoint;
+ï»¿export module CodePoint;
 import CSTDINT;
 import Traits;
 using namespace System;
@@ -14,7 +14,7 @@ export namespace System::Encoding {
 
 export namespace System::Encoding {
 	/// <summary>
-	/// charŒ^‚ÌƒR[ƒhƒy[ƒW‚ğw’è‚·‚é\‘¢‘ÌBGetCodePoint&lt;char&gt;()‚Åg—p‚³‚ê‚é
+	/// charå‹ã®ã‚³ãƒ¼ãƒ‰ãƒšãƒ¼ã‚¸ã‚’æŒ‡å®šã™ã‚‹æ§‹é€ ä½“ã€‚GetCodePoint&lt;char&gt;()ã§ä½¿ç”¨ã•ã‚Œã‚‹
 	/// </summary>
 	struct charset {
 		static CodePageFlag char_CodePage;
@@ -25,30 +25,30 @@ export namespace System::Encoding {
 //charset
 export namespace System::Encoding {
 	/// <summary>
-	/// charŒ^‚ÌƒR[ƒhƒy[ƒW‚ğw’è‚·‚éB
-	/// GetCodePoint()ŠÖ”‚É‚¨‚¢‚ÄAcharŒ^•¶š—ñ‚Í
-	/// ‚±‚±‚Åw’è‚µ‚½ƒR[ƒhƒy[ƒW‚ÅƒGƒ“ƒR[ƒfƒBƒ“ƒO‚³‚ê‚Ä‚¢‚é‚Æ‰ğß‚³‚ê‚é
+	/// charå‹ã®ã‚³ãƒ¼ãƒ‰ãƒšãƒ¼ã‚¸ã‚’æŒ‡å®šã™ã‚‹ã€‚
+	/// GetCodePoint()é–¢æ•°ã«ãŠã„ã¦ã€charå‹æ–‡å­—åˆ—ã¯
+	/// ã“ã“ã§æŒ‡å®šã—ãŸã‚³ãƒ¼ãƒ‰ãƒšãƒ¼ã‚¸ã§ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã•ã‚Œã¦ã„ã‚‹ã¨è§£é‡ˆã•ã‚Œã‚‹
 	/// </summary>
-	/// <param name="flag">w’è‚·‚éƒR[ƒhƒy[ƒW‚ğ•\‚·—ñ‹“’l</param>
+	/// <param name="flag">æŒ‡å®šã™ã‚‹ã‚³ãƒ¼ãƒ‰ãƒšãƒ¼ã‚¸ã‚’è¡¨ã™åˆ—æŒ™å€¤</param>
 	void SetCharset(CodePageFlag flag) noexcept { charset::char_CodePage = flag; }
 }
 
 //CodePoint
 export namespace System::Encoding {
 	/// <summary>
-	/// GetCodePointŠÖ”‚ª•Ô‚·\‘¢‘Ì
+	/// GetCodePointé–¢æ•°ãŒè¿”ã™æ§‹é€ ä½“
 	/// </summary>
 	struct CodePoint {
-		//codePage‚Åw’è‚³‚ê‚½•¶šƒGƒ“ƒR[ƒh‚Ì•„†ˆÊ’u
+		//codePageã§æŒ‡å®šã•ã‚ŒãŸæ–‡å­—ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã®ç¬¦å·ä½ç½®
 		uint32_t point = 0;
-		//GetCodePointŠÖ”‚ªg—p‚µ‚½—v‘f”
+		//GetCodePointé–¢æ•°ãŒä½¿ç”¨ã—ãŸè¦ç´ æ•°
 		uint8_t count = 0;
-		//GetCodePointŠÖ”‚Ìƒeƒ“ƒvƒŒ[ƒgˆø”‚ªwchar, char8_t, char16_t, char32_t‚Ìê‡AUnicodeB
-		//char‚Ìê‡AUnicode‚©Shift_JIS(CP932)
+		//GetCodePointé–¢æ•°ã®ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆå¼•æ•°ãŒwchar, char8_t, char16_t, char32_tã®å ´åˆã€Unicodeã€‚
+		//charã®å ´åˆã€Unicodeã‹Shift_JIS(CP932)
 		CodePageFlag codePage = CodePageFlag::Unicode;
 	public:
 		/// <summary>
-		/// ƒR[ƒhƒ|ƒCƒ“ƒg‚ªUVS(Unicode Variation Selector)‚©’²‚×‚é
+		/// ã‚³ãƒ¼ãƒ‰ãƒã‚¤ãƒ³ãƒˆãŒUVS(Unicode Variation Selector)ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		bool IsUVS() const noexcept {
 			if (codePage != CodePageFlag::Unicode) return false;
@@ -77,7 +77,7 @@ export namespace System::Encoding {
 		return ret;
 	}
 
-	template<CharType str_t>
+	template<Concepts::CCharType str_t>
 	CodePoint GetCodePoint(const str_t* str) {
 		CodePoint ret;
 		if (!str) return ret;
@@ -87,22 +87,22 @@ export namespace System::Encoding {
 		}
 		else if  constexpr (is_same_v<str_t, wchar_t>) {
 			ret.codePage = CodePageFlag::Unicode;
-			//sizeof(wchar_t) == 2‚Ìê‡AUTF16‚Æ‚·‚é
+			//sizeof(wchar_t) == 2ã®å ´åˆã€UTF16ã¨ã™ã‚‹
 			if constexpr (sizeof(wchar_t) == 2) {
-				//ƒTƒƒQ[ƒgƒyƒA(4ƒoƒCƒg•¶š)
+				//ã‚µãƒ­ã‚²ãƒ¼ãƒˆãƒšã‚¢(4ãƒã‚¤ãƒˆæ–‡å­—)
 				if ((str[0] & BITMASK_M<11, 15>) == 0xd800u) {
 					ret.count = 2;
-					//0b110111xxxxxxxxxx‚Íƒ[ƒTƒƒQ[ƒgA0b110110xxxxxxxxxx‚ÍƒnƒCƒTƒƒQ[ƒg
+					//0b110111xxxxxxxxxxã¯ãƒ­ãƒ¼ã‚µãƒ­ã‚²ãƒ¼ãƒˆã€0b110110xxxxxxxxxxã¯ãƒã‚¤ã‚µãƒ­ã‚²ãƒ¼ãƒˆ
 					if (str[0] & 0xdc00u) ret.point = (str[0] & 0x03ffu) | ((str[1] & 0x03ffu) << 10u);
 					else ret.point = (str[1] & 0x03ffu) | ((str[0] & 0x03ffu) << 10u);
 				}
-				//2ƒoƒCƒg•¶š
+				//2ãƒã‚¤ãƒˆæ–‡å­—
 				else {
 					ret.count = 1;
 					ret.point = static_cast<uint32_t>(str[0]);
 				}
 			}
-			//sizeof(wchar_t) == 4‚Ìê‡AUTF32‚Æ‚·‚é
+			//sizeof(wchar_t) == 4ã®å ´åˆã€UTF32ã¨ã™ã‚‹
 			else if constexpr (sizeof(wchar_t) == 4) {
 				ret.count = 1;
 				ret.point = str[0];
@@ -125,14 +125,14 @@ export namespace System::Encoding {
 		}
 		else if constexpr (is_same_v<str_t, char16_t>) {
 			ret.codePage = CodePageFlag::Unicode;
-			//ƒTƒƒQ[ƒgƒyƒA(4ƒoƒCƒg•¶š)
+			//ã‚µãƒ­ã‚²ãƒ¼ãƒˆãƒšã‚¢(4ãƒã‚¤ãƒˆæ–‡å­—)
 			if ((str[0] & BITMASK_M<11, 15>) == 0xd800u) {
 				ret.count = 2;
-				//0b110111xxxxxxxxxx‚Íƒ[ƒTƒƒQ[ƒgA0b110110xxxxxxxxxx‚ÍƒnƒCƒTƒƒQ[ƒg
+				//0b110111xxxxxxxxxxã¯ãƒ­ãƒ¼ã‚µãƒ­ã‚²ãƒ¼ãƒˆã€0b110110xxxxxxxxxxã¯ãƒã‚¤ã‚µãƒ­ã‚²ãƒ¼ãƒˆ
 				if (str[0] & 0xdc00u) ret.point = (str[0] & 0x03ffu) | ((str[1] & 0x03ffu) << 10u);
 				else ret.point = (str[1] & 0x03ffu) | ((str[0] & 0x03ffu) << 10u);
 			}
-			//2ƒoƒCƒg•¶š
+			//2ãƒã‚¤ãƒˆæ–‡å­—
 			else {
 				ret.count = 1;
 				ret.point = static_cast<uint32_t>(str[0]);

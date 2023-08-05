@@ -1,4 +1,4 @@
-export module EventArgs;
+﻿export module EventArgs;
 import System;
 import ApplicationUtility;	//IPaintContext
 using namespace System;
@@ -136,11 +136,11 @@ export namespace System::Application {
 export namespace System::Application {
 	enum class ResizeType : uint8_t {
 		UNDEFINED = 0,
-		RESTORED,		//�ŏ����ł��ő剻�ł��Ȃ��A�T�C�Y���ύX���ꂽ
-		MINIMIZED,		//�ŏ������ꂽ
-		MAXIMIZED,	//�ő剻���ꂽ
-		MAXSHOW,		//���̃E�B���h�E�̍ő剻���������ꂽ
-		MAXHIDE			//���̃E�B���h�E���ő剻����
+		RESTORED,		//最小化でも最大化でもなく、サイズが変更された
+		MINIMIZED,		//最小化された
+		MAXIMIZED,	//最大化された
+		MAXSHOW,		//他のウィンドウの最大化が解除された
+		MAXHIDE			//他のウィンドウが最大化した
 	};
 }
 

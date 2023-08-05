@@ -1,4 +1,4 @@
-export module ResourcePath;
+﻿export module ResourcePath;
 import Objects;
 import Path;
 using namespace System;

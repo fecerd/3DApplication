@@ -1,4 +1,4 @@
-export module OpenType;
+ï»¿export module OpenType;
 import :Internal;
 import HashMap;
 export import IFont;
@@ -7,10 +7,10 @@ import Encoding;
 //TabelRecordIndex
 namespace System {
 	/// <summary>
-	/// Šeƒe[ƒuƒ‹‚ªOpenType::m_tableRecords‚Ì‚Ç‚ÌƒCƒ“ƒfƒbƒNƒX‚É‘Î‰‚µ‚Ä‚¢‚é‚©•\‚·\‘¢‘Ì
+	/// å„ãƒ†ãƒ¼ãƒ–ãƒ«ãŒOpenType::m_tableRecordsã®ã©ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã«å¯¾å¿œã—ã¦ã„ã‚‹ã‹è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct TableRecordIndex {
-		static constexpr uint16_t NoImpl = 0xffffu;	//‘¶İ‚µ‚È‚¢ƒe[ƒuƒ‹
+		static constexpr uint16_t NoImpl = 0xffffu;	//å­˜åœ¨ã—ãªã„ãƒ†ãƒ¼ãƒ–ãƒ«
 		uint16_t cmap = NoImpl;
 		uint16_t head = NoImpl;
 		uint16_t hhea = NoImpl;
@@ -33,9 +33,9 @@ namespace System {
 		}
 	public:
 		/// <summary>
-		/// TableRecord‚Ì“®“I”z—ñ‚©‚çŠeƒe[ƒuƒ‹‚Ö‚ÌƒIƒtƒZƒbƒg’l‚ğ“Ç‚İ‚İA•Û‘¶‚·‚é
+		/// TableRecordã®å‹•çš„é…åˆ—ã‹ã‚‰å„ãƒ†ãƒ¼ãƒ–ãƒ«ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆå€¤ã‚’èª­ã¿è¾¼ã¿ã€ä¿å­˜ã™ã‚‹
 		/// </summary>
-		/// <param name="tableRecords">TableRecordŒ^‚Ì“®“I”z—ñ</param>
+		/// <param name="tableRecords">TableRecordå‹ã®å‹•çš„é…åˆ—</param>
 		constexpr void Set(const Vector<TableRecord>& tableRecords) noexcept {
 			const ptrdiff_t count = tableRecords.end() - tableRecords.begin();
 			for (uint16_t i = 0; i < count; ++i) {
@@ -55,7 +55,7 @@ namespace System {
 			}
 		}
 		/// <summary>
-		/// OpenTypeƒtƒHƒ“ƒg‚É•K{‚Èƒe[ƒuƒ‹‚ª‚·‚×‚Ä‘¶İ‚·‚é‚©’²‚×‚é
+		/// OpenTypeãƒ•ã‚©ãƒ³ãƒˆã«å¿…é ˆãªãƒ†ãƒ¼ãƒ–ãƒ«ãŒã™ã¹ã¦å­˜åœ¨ã™ã‚‹ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		constexpr bool HasRequiredTables() const noexcept {
 			return cmap != NoImpl && head != NoImpl && hhea != NoImpl
@@ -65,25 +65,25 @@ namespace System {
 	};
 }
 
-//OpenTypeƒNƒ‰ƒX–¢À‘•ƒe[ƒuƒ‹
+//OpenTypeã‚¯ãƒ©ã‚¹æœªå®Ÿè£…ãƒ†ãƒ¼ãƒ–ãƒ«
 namespace System {
-/*SVGƒAƒEƒgƒ‰ƒCƒ“—pƒe[ƒuƒ‹*/
+/*SVGã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³ç”¨ãƒ†ãƒ¼ãƒ–ãƒ«*/
 	//SVG m_svg;
-/*ƒrƒbƒgƒ}ƒbƒvƒOƒŠƒt—pƒe[ƒuƒ‹*/
+/*ãƒ“ãƒƒãƒˆãƒãƒƒãƒ—ã‚°ãƒªãƒ•ç”¨ãƒ†ãƒ¼ãƒ–ãƒ«*/
 	//EBDT m_ebdt;
 	//EBLC m_eblc;
 	//EBSC m_ebsc;
 	//CBDT m_cbdt;
 	//CBLC m_cblc;
 	//SBIX m_sbix;
-/*Šg’£‹@”\ƒe[ƒuƒ‹*/
+/*æ‹¡å¼µæ©Ÿèƒ½ãƒ†ãƒ¼ãƒ–ãƒ«*/
 	//BASE m_base;
 	//GDEF m_gdef;
 	//GPOS m_gpos;
 	//GSUB m_gsub;
 	//JSTF m_jstf;
 	//MATH m_math;
-/*OpenTypeƒtƒHƒ“ƒgƒoƒŠƒG[ƒVƒ‡ƒ“(HDMX, VDMX•s—v)*/
+/*OpenTypeãƒ•ã‚©ãƒ³ãƒˆãƒãƒªã‚¨ãƒ¼ã‚·ãƒ§ãƒ³(HDMX, VDMXä¸è¦)*/
 	//AVAR m_avar;
 	//CVAR m_cvar;
 	//FVAR m_fvar;
@@ -92,10 +92,10 @@ namespace System {
 	//MVAR m_mvar;
 	//STAT m_stat;
 	//VVAR m_vvar;
-/*ƒJƒ‰[ƒtƒHƒ“ƒg(CBDT, CBLC, SBIX, SVG•K{)*/
+/*ã‚«ãƒ©ãƒ¼ãƒ•ã‚©ãƒ³ãƒˆ(CBDT, CBLC, SBIX, SVGå¿…é ˆ)*/
 	//COLR m_colr;
 	//CPAL m_cpal;
-/*‚»‚Ì‘¼*/
+/*ãã®ä»–*/
 	//DSIG m_dsig;
 	//HDMX m_hdmx;
 	//KERN m_kern;
@@ -114,7 +114,7 @@ export namespace System {
 		OffsetTable m_offsetTable;
 		Vector<TableRecord> m_tableRecords;
 		TableRecordIndex m_tableIndex;
-	public://•K{ƒe[ƒuƒ‹
+	public://å¿…é ˆãƒ†ãƒ¼ãƒ–ãƒ«
 		CMAP m_cmap;
 		HEAD m_head;
 		HHEA m_hhea;
@@ -123,14 +123,14 @@ export namespace System {
 		//NAME m_name;
 		//OS_2 m_os2;
 		//POST m_post;
-	public:/*TrueTypeƒAƒEƒgƒ‰ƒCƒ“—pƒe[ƒuƒ‹*/
+	public:/*TrueTypeã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³ç”¨ãƒ†ãƒ¼ãƒ–ãƒ«*/
 		LOCA m_loca;
 		GLYF m_glyf;
 		//CVT m_cvt;
 		//FPGM m_fpgm;
 		//PREP m_prep;
 		//GASP m_gasp;
-	public:/*CFFƒAƒEƒgƒ‰ƒCƒ“—pƒe[ƒuƒ‹*/
+	public:/*CFFã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³ç”¨ãƒ†ãƒ¼ãƒ–ãƒ«*/
 		CFF1 m_cff1;
 		//CFF2 m_cff2;
 		//VORG m_vorg;
@@ -138,10 +138,10 @@ export namespace System {
 		System::Drawing::Pixel m_baseLineColor = System::Drawing::Colors::Red;
 		System::Drawing::Pixel m_contoursColor = System::Drawing::Colors::Green;
 	private:
-		//ƒGƒ‰[‚Ég—p‚·‚é•0‚‚³0‚ÌƒOƒŠƒt‰æ‘œ
+		//ã‚¨ãƒ©ãƒ¼æ™‚ã«ä½¿ç”¨ã™ã‚‹å¹…0é«˜ã•0ã®ã‚°ãƒªãƒ•ç”»åƒ
 		const System::Drawing::Image m_notdef = System::Drawing::Image();
-		//ˆê“x•`‰æ‚µ‚½ƒOƒŠƒt‰æ‘œ‚ğƒLƒƒƒbƒVƒ…‚·‚éƒnƒbƒVƒ…ƒ}ƒbƒvB
-		//[Key: ƒXƒP[ƒ‹(ç•ª—¦), Value: [Key: ƒOƒŠƒtID, Value: ƒOƒŠƒt‰æ‘œ]]
+		//ä¸€åº¦æç”»ã—ãŸã‚°ãƒªãƒ•ç”»åƒã‚’ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã™ã‚‹ãƒãƒƒã‚·ãƒ¥ãƒãƒƒãƒ—ã€‚
+		//[Key: ã‚¹ã‚±ãƒ¼ãƒ«(åƒåˆ†ç‡), Value: [Key: ã‚°ãƒªãƒ•ID, Value: ã‚°ãƒªãƒ•ç”»åƒ]]
 		mutable System::HashMap<uint32_t, System::HashMap<uint16_t, System::Drawing::Image>> m_caches = 3;
 	public:
 		bool Load(const String& filename) noexcept {
@@ -155,7 +155,7 @@ export namespace System {
 				m_tableRecords.Add(tmp);
 			}
 			m_tableIndex.Set(m_tableRecords);
-			//•K{ƒe[ƒuƒ‹
+			//å¿…é ˆãƒ†ãƒ¼ãƒ–ãƒ«
 			if (!m_tableIndex.HasRequiredTables()) return false;
 			if (!m_cmap.QuickLoad(file, m_tableRecords[m_tableIndex.cmap].offset)) return false;
 			if (!m_head.Load(file, m_tableRecords[m_tableIndex.head].offset)) return false;
@@ -169,7 +169,7 @@ export namespace System {
 			if (m_tableIndex.glyf != TableRecordIndex::NoImpl) {
 				if (!m_glyf.Load(file, m_tableRecords[m_tableIndex.glyf].offset, m_maxp, m_hmtx, m_loca)) return false;
 			}
-			//CFFƒAƒEƒgƒ‰ƒCƒ“
+			//CFFã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³
 			if (m_offsetTable.HasCFF()) {
 				if (m_tableIndex.cff1 != TableRecordIndex::NoImpl) {
 					if (!m_cff1.Load(file, m_tableRecords[m_tableIndex.cff1].offset, m_maxp)) return false;
@@ -318,7 +318,7 @@ export namespace System {
 			ret = false;
 			co_yield ret;
 		}
-	public:/* IFontƒI[ƒo[ƒ‰ƒCƒh */
+	public:/* IFontã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ */
 		int16_t GetAscenderLine(uint32_t scalePermill) const noexcept override {
 			return static_cast<int16_t>(m_hhea.ascender * (scalePermill / 1000.f));
 		}

@@ -1,4 +1,4 @@
-module;
+ï»¿module;
 #include "DirectXHeader.hpp"
 export module DirectXHelper;
 import System;
@@ -27,7 +27,7 @@ export namespace System::Application::Windows::DirectX::Helpers {
 		if (tmp6) tmp6->Release();
 		IDXGIFactory4* tmp4 = nullptr;
 		if (CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&tmp4)) == S_OK) return tmp4;
-		else throw Exception(__FUNCSIG__, "DXGIFactory‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+		else throw Exception(__FUNCSIG__, "DXGIFactoryã®ç”Ÿæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 	}
 	IDXGIAdapter* GetAdapter(IDXGIFactory4& factory, const String& name) noexcept {
 		Vector<IDXGIAdapter*> adapters;
@@ -57,10 +57,10 @@ export namespace System::Application::Windows::DirectX::Helpers {
 	IDXGIAdapter* CreateDXGIAdapter(IDXGIFactory4& factory) {
 		IDXGIAdapter* ret = GetAdapter(factory, nullptr);
 		if (ret) return ret;
-		else throw Exception(__FUNCSIG__, "DXGIAdapter‚Ìæ“¾‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+		else throw Exception(__FUNCSIG__, "DXGIAdapterã®å–å¾—ã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 	}
 	IDXGISwapChain4* CreateDXGISwapChain(IDXGIFactory4& factory, ID3D12CommandQueue& cmdQueue, HWND hWnd, uint32_t bufferCount) {
-		if (!hWnd) throw LogicException(__FUNCSIG__, "DXGISwapChain‚Ì¶¬‚É‚Ínullptr‚Å‚È‚¢ƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹‚ª•K—v‚Å‚·B", __FILE__, __LINE__);
+		if (!hWnd) throw LogicException(__FUNCSIG__, "DXGISwapChainã®ç”Ÿæˆã«ã¯nullptrã§ãªã„ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«ãŒå¿…è¦ã§ã™ã€‚", __FILE__, __LINE__);
 		DXGI_SWAP_CHAIN_DESC1 desc{};
 		desc.Width = 0;
 		desc.Height = 0;
@@ -76,15 +76,15 @@ export namespace System::Application::Windows::DirectX::Helpers {
 		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		IDXGISwapChain4* ret = nullptr;
 		if (factory.CreateSwapChainForHwnd(&cmdQueue, hWnd, &desc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(&ret)) == S_OK) return ret;
-		else throw Exception(__FUNCSIG__, "DXGISwapChain‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+		else throw Exception(__FUNCSIG__, "DXGISwapChainã®ç”Ÿæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 	}
 }
-//Direct3D‰Šú‰»—p
+//Direct3DåˆæœŸåŒ–ç”¨
 export namespace System::Application::Windows::DirectX::Helpers {
 	void EnableDebugLayer() {
 		ID3D12Debug* debugLayer = nullptr;
 		if (D3D12GetDebugInterface(IID_PPV_ARGS(&debugLayer)) != S_OK)
-			throw Exception(__FUNCSIG__, "ƒfƒoƒbƒOƒCƒ“ƒ^[ƒtƒF[ƒX‚Ìæ“¾‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+			throw Exception(__FUNCSIG__, "ãƒ‡ãƒãƒƒã‚°ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®å–å¾—ã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 		debugLayer->EnableDebugLayer();
 		debugLayer->Release();
 	}
@@ -106,17 +106,17 @@ export namespace System::Application::Windows::DirectX::Helpers {
 #endif
 			return ret;
 		}
-		else throw Exception(__FUNCSIG__, "D3DDevice‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+		else throw Exception(__FUNCSIG__, "D3DDeviceã®ç”Ÿæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 	}
 	ID3D12CommandAllocator* CreateCommandAllocator(ID3D12Device& device) {
 		ID3D12CommandAllocator* ret = nullptr;
 		if (device.CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&ret)) == S_OK) return ret;
-		else throw Exception(__FUNCSIG__, "D3DCommandAllocator‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+		else throw Exception(__FUNCSIG__, "D3DCommandAllocatorã®ç”Ÿæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 	}
 	ID3D12GraphicsCommandList* CreateCommandList(ID3D12Device& device, ID3D12CommandAllocator& allocator, ID3D12PipelineState* initialState = nullptr) {
 		ID3D12GraphicsCommandList* ret = nullptr;
 		if (device.CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, &allocator, initialState, IID_PPV_ARGS(&ret)) == S_OK) return ret;
-		else throw Exception(__FUNCSIG__, "D3DCommandList‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+		else throw Exception(__FUNCSIG__, "D3DCommandListã®ç”Ÿæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 	}
 	ID3D12CommandQueue* CreateCommandQueue(ID3D12Device& device) {
 		D3D12_COMMAND_QUEUE_DESC desc;
@@ -126,15 +126,15 @@ export namespace System::Application::Windows::DirectX::Helpers {
 		desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 		ID3D12CommandQueue* ret = nullptr;
 		if (device.CreateCommandQueue(&desc, IID_PPV_ARGS(&ret)) == S_OK) return ret;
-		else throw Exception(__FUNCSIG__, "D3DCommandQueue‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+		else throw Exception(__FUNCSIG__, "D3DCommandQueueã®ç”Ÿæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 	}
 	ID3D12Fence* CreateFence(ID3D12Device& device) {
 		ID3D12Fence* ret = nullptr;
 		if (device.CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&ret)) == S_OK) return ret;
-		else throw Exception(__FUNCSIG__, "D3DFence‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+		else throw Exception(__FUNCSIG__, "D3DFenceã®ç”Ÿæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 	}
 }
-//GPU“¯Šú—p
+//GPUåŒæœŸç”¨
 export namespace System::Application::Windows::DirectX::Helpers {
 	uint64_t Signal(ID3D12CommandQueue& cmdQueue, ID3D12Fence& fence) noexcept {
 		static uint64_t fenceVal = 0;
@@ -158,10 +158,10 @@ export namespace System::Application::Windows::DirectX::Helpers {
 	}
 	ID3D12Resource* CreateTextureResource(ID3D12Device& device, uint64_t width, uint32_t height) noexcept {
 		D3D12_RESOURCE_DESC resDesc{};
-		resDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;	//ƒeƒNƒXƒ`ƒƒ‚ÌAlignment‚Í0, 4, 64KBA‚à‚µ‚­‚Í4MBB‚±‚±‚Å‚Í64KB
+		resDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;	//ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®Alignmentã¯0, 4, 64KBã€ã‚‚ã—ãã¯4MBã€‚ã“ã“ã§ã¯64KB
 		resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		resDesc.DepthOrArraySize = 1;
-		resDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;	//ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚Éİ’è‚Å‚«‚é
+		resDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;	//ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã«è¨­å®šã§ãã‚‹
 		resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		resDesc.MipLevels = 1;
@@ -202,20 +202,20 @@ export namespace System::Application::Windows::DirectX::Helpers {
 		bufDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		ID3D12Resource* ret = nullptr;
 		if (device.CreateCommittedResource(&prop, D3D12_HEAP_FLAG_NONE, &bufDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&ret)) < S_OK)
-			throw Exception(__FUNCSIG__, "ƒoƒbƒtƒ@‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+			throw Exception(__FUNCSIG__, "ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 		return ret;
 	}
 	template<class T>
 	ID3D12Resource* CreateBuffer(ID3D12Device& device, const T* data, size_t count) {
 		if (!data)
 			throw LogicException(
-				__FUNCSIG__, u"nullptr‚©‚çƒoƒbƒtƒ@‚ğì¬‚·‚é‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñB", __FILE__, __LINE__
+				__FUNCSIG__, u"nullptrã‹ã‚‰ãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆã™ã‚‹ã“ã¨ã¯ã§ãã¾ã›ã‚“ã€‚", __FILE__, __LINE__
 			);
 		const size_t size = sizeof(T) * count;
 		ID3D12Resource* buffer = CreateEmptyBuffer(device, size);
 		T* map = nullptr;
 		if (buffer->Map(0, nullptr, reinterpret_cast<void**>(&map)) < S_OK)
-			throw Exception(__FUNCSIG__, "ƒoƒbƒtƒ@‚Ìƒ}ƒbƒv‚É¸”s‚µ‚Ü‚µ‚½B", __FILE__, __LINE__);
+			throw Exception(__FUNCSIG__, "ãƒãƒƒãƒ•ã‚¡ã®ãƒãƒƒãƒ—ã«å¤±æ•—ã—ã¾ã—ãŸã€‚", __FILE__, __LINE__);
 		Copy(data, map, size);
 		buffer->Unmap(0, nullptr);
 		return buffer;
@@ -284,7 +284,7 @@ export namespace System::Application::Windows::DirectX::Helpers {
 		device.CreateDepthStencilView(resource, &desc, handle);
 	}
 }
-//ƒ‰ƒXƒ^ƒCƒUƒXƒe[ƒgİ’è—p
+//ãƒ©ã‚¹ã‚¿ã‚¤ã‚¶ã‚¹ãƒ†ãƒ¼ãƒˆè¨­å®šç”¨
 export namespace System::Application::Windows::DirectX::Helpers {
 	D3D12_VIEWPORT GetViewPort(uint32_t width, uint32_t height) noexcept {
 		D3D12_VIEWPORT viewport{};

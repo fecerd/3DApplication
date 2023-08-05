@@ -1,4 +1,4 @@
-module Components:MeshFilter;
+ï»¿module Components:MeshFilter;
 import :GameObject;
 import EngineUtilities;
 using namespace System;
@@ -213,10 +213,10 @@ bool MeshFilter::LoadCube(Drawing::Color diffuseColor) noexcept {
 		vert[3].SetBoneNo(0, 0);
 		vert[3].boneWeight = 255;
 		vert[3].SetUV(1, 1);
-		//Z²•‰•ûŒü
+		//Zè»¸è² æ–¹å‘
 		desc.vertices.AddRange(vert, 4);
 		desc.indices.AddRange(indices, 6);
-		//Z²³•ûŒü
+		//Zè»¸æ­£æ–¹å‘
 		vert[0].pos = Vector3(1, 1, 1);
 		vert[0].normal.z = 1;
 		vert[0].binormal.x = -1;
@@ -232,7 +232,7 @@ bool MeshFilter::LoadCube(Drawing::Color diffuseColor) noexcept {
 		desc.vertices.AddRange(vert, 4);
 		for (int i = 0; i < 6; ++i) indices[i] += 4;
 		desc.indices.AddRange(indices, 6);
-		//X²•‰•ûŒü
+		//Xè»¸è² æ–¹å‘
 		vert[0].pos = Vector3(-1, 1, 1);
 		vert[0].normal = Vector3(-1, 0, 0);
 		vert[0].binormal = Vector3(0, 0, -1);
@@ -248,7 +248,7 @@ bool MeshFilter::LoadCube(Drawing::Color diffuseColor) noexcept {
 		desc.vertices.AddRange(vert, 4);
 		for (int i = 0; i < 6; ++i) indices[i] += 4;
 		desc.indices.AddRange(indices, 6);
-		//X²³•ûŒü
+		//Xè»¸æ­£æ–¹å‘
 		vert[0].pos = Vector3(1, 1, -1);
 		vert[0].normal.x = 1;
 		vert[0].binormal.z = 1;
@@ -264,7 +264,7 @@ bool MeshFilter::LoadCube(Drawing::Color diffuseColor) noexcept {
 		desc.vertices.AddRange(vert, 4);
 		for (int i = 0; i < 6; ++i) indices[i] += 4;
 		desc.indices.AddRange(indices, 6);
-		//Y²•‰•ûŒü
+		//Yè»¸è² æ–¹å‘
 		vert[0].pos = Vector3(-1, -1, -1);
 		vert[0].normal = Vector3(0, -1, 0);
 		vert[0].binormal = Vector3(1, 0, 0);
@@ -284,7 +284,7 @@ bool MeshFilter::LoadCube(Drawing::Color diffuseColor) noexcept {
 		desc.vertices.AddRange(vert, 4);
 		for (int i = 0; i < 6; ++i) indices[i] += 4;
 		desc.indices.AddRange(indices, 6);
-		//Y²³•ûŒü
+		//Yè»¸æ­£æ–¹å‘
 		vert[0].pos = Vector3(-1, 1, 1);
 		vert[0].normal.y = 1;
 		vert[0].tangent.z = -1;
@@ -345,7 +345,7 @@ bool MeshFilter::LoadSphere(Drawing::Color diffuseColor) noexcept {
 				Math::SinCos(longitude, dx, dz);
 				dx *= dxz;
 				dz *= dxz;
-				//ŒvZŒë·‚ğl—¶‚µ‚È‚¯‚ê‚ÎAnormal‚Í³‹K‰»Ï‚İ
+				//è¨ˆç®—èª¤å·®ã‚’è€ƒæ…®ã—ãªã‘ã‚Œã°ã€normalã¯æ­£è¦åŒ–æ¸ˆã¿
 				vert.normal = Vector3(dx, dy, dz);
 				vert.pos = vert.normal * radius;
 				vert.binormal = Vector3(0, 0, 0);
@@ -389,7 +389,7 @@ bool MeshFilter::LoadSphere(Drawing::Color diffuseColor) noexcept {
 bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) noexcept {
 	Formats::PMD pmd{ filename };
 	if (!pmd) return false;
-	//ƒƒbƒVƒ…ƒf[ƒ^‚ğì¬
+	//ãƒ¡ãƒƒã‚·ãƒ¥ãƒ‡ãƒ¼ã‚¿ã‚’ä½œæˆ
 	m_meshResource = Common3D::GetMeshResource(filename);
 	if (!m_meshResource) {
 		Common3D::MeshDesc desc{};
@@ -410,7 +410,7 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 				desc.vertices.Add(v);
 				desc.indices.Add(i++);
 				mod = mod >= 2 ? 0 : ++mod;
-				//ÚƒxƒNƒgƒ‹‹óŠÔ‚ğŒvZ‚µ‚Äİ’è‚·‚é
+				//æ¥ãƒ™ã‚¯ãƒˆãƒ«ç©ºé–“ã‚’è¨ˆç®—ã—ã¦è¨­å®šã™ã‚‹
 				if (!mod) {
 					Vertex& v2 = desc.vertices[i - 1];
 					Vertex& v1 = desc.vertices[i - 2];
@@ -484,7 +484,7 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 		m_meshResource = Common3D::CreateMeshResource(filename, desc);
 		if (!m_meshResource) return false;
 	}
-	//ƒ}ƒeƒŠƒAƒ‹î•ñ‚©‚çƒŠƒ\[ƒX‚ğì¬(İ’è)
+	//ãƒãƒ†ãƒªã‚¢ãƒ«æƒ…å ±ã‹ã‚‰ãƒªã‚½ãƒ¼ã‚¹ã‚’ä½œæˆ(è¨­å®š)
 	m_materials.Reserve(pmd.materials.Count());
 	const IO::Path modelPath = IO::Path(filename).GetDirectory();
 	Common3D::Renderer mmdRenderer = Common3D::GetRenderer(Common3D::DefaultMMDRendererName);
@@ -493,7 +493,7 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 	Common3D::Resource toonTexture = Common3D::GetResource(Common3D::DefaultToonTextureName);
 	for (Formats::PMDMaterial& material : pmd.materials) {
 		Material m;
-		//Šeí”½Ë—p’è”ƒŠƒ\[ƒX
+		//å„ç¨®åå°„ç”¨å®šæ•°ãƒªã‚½ãƒ¼ã‚¹
 		ReflectionsResourceDesc desc{};
 		desc.diffuse[0] = material.diffuse.x;
 		desc.diffuse[1] = material.diffuse.y;
@@ -507,7 +507,7 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 		desc.ambient[1] = material.ambient.y;
 		desc.ambient[2] = material.ambient.z;
 		m.reflections = Common3D::CreateResource(String::Empty(), desc.GetData(), desc.GetCount());
-		//ŠeíƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX
+		//å„ç¨®ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒªã‚½ãƒ¼ã‚¹
 		bool exists[3]{};	//texture, sph, spa
 		for (const String& path : material.GetTextureFilePaths()) {
 			const IO::Path fullPath = modelPath.CreatePath(path);
@@ -548,7 +548,7 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 		if (!exists[0]) m.texture = whiteTexture;
 		if (!exists[1]) m.sphereM = whiteTexture;
 		if (!exists[2]) m.sphereA = blackTexture;
-		//ƒgƒD[ƒ“ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX
+		//ãƒˆã‚¥ãƒ¼ãƒ³ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒªã‚½ãƒ¼ã‚¹
 		const IO::Path toonFullPath = modelPath.CreatePath(material.GetToonTexturePath());
 		m.toon = Common3D::GetResource(toonFullPath.PathName());
 		if (!m.toon) {
@@ -560,7 +560,7 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 		m_materials.Add(static_cast<Material&&>(m));
 	}
 	UpdateMaterialHeap();
-	//ƒ{[ƒ“î•ñ‚ğ•ÏŠ·‚·‚é
+	//ãƒœãƒ¼ãƒ³æƒ…å ±ã‚’å¤‰æ›ã™ã‚‹
 	m_boneInfo = ManagedObject<BoneInfo>(filename, new BoneInfo());
 	Vector<Bone>& bones = m_boneInfo->bones;
 	HashMap<String, size_t>& boneIDs = m_boneInfo->boneIDs;
@@ -578,7 +578,7 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 		bones.Add(static_cast<Bone&&>(tmp));
 		boneIDs.Insert(bone.boneName, i);
 	}
-	//IKƒ{[ƒ“î•ñ‚ğ•ÏŠ·‚·‚é
+	//IKãƒœãƒ¼ãƒ³æƒ…å ±ã‚’å¤‰æ›ã™ã‚‹
 	Vector<IK>& iks = m_boneInfo->iks;
 	iks.Reserve(pmd.iks.Count());
 	for (Formats::PMDIK& ik : pmd.iks) {

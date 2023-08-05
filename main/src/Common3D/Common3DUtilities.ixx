@@ -1,10 +1,10 @@
-export module Common3DUtilities;
+ï»¿export module Common3DUtilities;
 import System;
 using namespace System::Drawing;
 
 //Constant
 export namespace System::Application::Common3D {
-	//ƒVƒF[ƒ_‚Å“¯‚Éˆ—‚Å‚«‚éƒ{[ƒ“”
+	//ã‚·ã‚§ãƒ¼ãƒ€ã§åŒæ™‚ã«å‡¦ç†ã§ãã‚‹ãƒœãƒ¼ãƒ³æ•°
 	inline constexpr uint32_t BoneMatrixCount = 256;
 	inline constexpr CString DefaultCameraHeapName = u"DefaultCameraHeap";
 	inline constexpr CString DefaultObjectHeapName = u"DefaultObjectHeap";
@@ -107,8 +107,8 @@ export namespace System::Application::Common3D {
 	};
 
 	/// <summary>
-	/// ƒŒƒ“ƒ_ƒŠƒ“ƒOƒ‚[ƒh
-	/// DirectX‚Å‚ÍRootSignature‚ğw’è‚·‚é
+	/// ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ãƒ¢ãƒ¼ãƒ‰
+	/// DirectXã§ã¯RootSignatureã‚’æŒ‡å®šã™ã‚‹
 	/// </summary>
 	enum class RenderingMode : uint8_t {
 		Standard,
@@ -128,7 +128,7 @@ export namespace System::Application::Common3D {
 	};
 
 	/// <summary>
-	/// w’è‚µ‚½Œü‚«‚Ìƒ|ƒŠƒSƒ“‚ğ•`‰æ‚µ‚È‚¢
+	/// æŒ‡å®šã—ãŸå‘ãã®ãƒãƒªã‚´ãƒ³ã‚’æç”»ã—ãªã„
 	/// </summary>
 	enum class CullingMode : uint8_t {
 		None,
@@ -232,7 +232,7 @@ export namespace System::Application::Common3D {
 	};
 
 	struct SceneResourceDesc2 {
-		//Œõ‚ÌŒ¸Š—¦(x, y, z)
+		//å…‰ã®æ¸›è¡°ç‡(x, y, z)
 		Float4 attenuation = Float4();
 		Float4 clusterCount = Float4(ClusterXCount, ClusterYCount, ClusterZCount, 0.f);
 	public:
@@ -290,11 +290,11 @@ export namespace System::Application::Common3D {
 	};
 
 	/// <summary>
-	/// ƒrƒ…[ƒ|[ƒg‚ÌƒTƒCƒY‚ğw’è‚·‚é\‘¢‘ÌB
-	/// ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚Ì‚Ç‚Ì”ÍˆÍ‚ğ•`‰æ‚Ég—p‚·‚é‚©w’è‚·‚éB
-	/// ’l‚ÍƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚ÌƒTƒCƒY‚É‘Î‚·‚é”{—¦‚ÅA
-	/// ¶ã‚ª(0, 0)A‰E‰º‚ª(1, 1)‚Å‚ ‚éB
-	/// (OpenGL‚Å‚à“¯‚¶‹““®‚É‚·‚é‚É‚Í“à•”‚Åã‰º”½“]‚·‚é•K—v‚ ‚è)
+	/// ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆã®ã‚µã‚¤ã‚ºã‚’æŒ‡å®šã™ã‚‹æ§‹é€ ä½“ã€‚
+	/// ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®ã©ã®ç¯„å›²ã‚’æç”»ã«ä½¿ç”¨ã™ã‚‹ã‹æŒ‡å®šã™ã‚‹ã€‚
+	/// å€¤ã¯ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®ã‚µã‚¤ã‚ºã«å¯¾ã™ã‚‹å€ç‡ã§ã€
+	/// å·¦ä¸ŠãŒ(0, 0)ã€å³ä¸‹ãŒ(1, 1)ã§ã‚ã‚‹ã€‚
+	/// (OpenGLã§ã‚‚åŒã˜æŒ™å‹•ã«ã™ã‚‹ã«ã¯å†…éƒ¨ã§ä¸Šä¸‹åè»¢ã™ã‚‹å¿…è¦ã‚ã‚Š)
 	/// </summary>
 	struct ViewportDesc {
 		float x = 0.f;
@@ -310,11 +310,11 @@ export namespace System::Application::Common3D {
 	};
 
 	/// <summary>
-	/// ƒVƒU[‹éŒ`‚ÌƒTƒCƒY‚ğw’è‚·‚é\‘¢‘ÌB
-	/// ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚Ì‚Ç‚Ì”ÍˆÍ‚Ö‚Ì•`‰æ‚ğ—LŒø‚É‚·‚é‚©w’è‚·‚éB
-	/// ’l‚ÍƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚ÌƒTƒCƒY‚É‘Î‚·‚é”{—¦‚ÅA
-	/// ¶ã‚ª(0, 0)A‰E‰º‚ª(1, 1)‚Å‚ ‚é
-	/// (OpenGL‚Å‚à“¯‚¶‹““®‚É‚·‚é‚É‚Í“à•”‚Åã‰º”½“]‚·‚é•K—v‚ ‚è)
+	/// ã‚·ã‚¶ãƒ¼çŸ©å½¢ã®ã‚µã‚¤ã‚ºã‚’æŒ‡å®šã™ã‚‹æ§‹é€ ä½“ã€‚
+	/// ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®ã©ã®ç¯„å›²ã¸ã®æç”»ã‚’æœ‰åŠ¹ã«ã™ã‚‹ã‹æŒ‡å®šã™ã‚‹ã€‚
+	/// å€¤ã¯ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®ã‚µã‚¤ã‚ºã«å¯¾ã™ã‚‹å€ç‡ã§ã€
+	/// å·¦ä¸ŠãŒ(0, 0)ã€å³ä¸‹ãŒ(1, 1)ã§ã‚ã‚‹
+	/// (OpenGLã§ã‚‚åŒã˜æŒ™å‹•ã«ã™ã‚‹ã«ã¯å†…éƒ¨ã§ä¸Šä¸‹åè»¢ã™ã‚‹å¿…è¦ã‚ã‚Š)
 	/// </summary>
 	struct ScissorRectDesc {
 		float x = 0.f;

@@ -1,4 +1,4 @@
-export module Scene1;
+ï»¿export module Scene1;
 import System;
 import Common3D;
 import Engine;
@@ -209,7 +209,7 @@ public:
 		sphere->GetTransform().LocalPosition = Vector3(-10, 15, 0);
 		sphere->AddComponent<MeshFilter>().LoadSphere();
 		this->AddObject(sphere);
-		//ƒtƒB[ƒ‹ƒh
+		//ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰
 		{
 			GameObject* container = new GameObject(u"Field Container");
 			this->AddObject(container);

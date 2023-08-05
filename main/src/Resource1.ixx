@@ -1,4 +1,4 @@
-export module Resource1;
+Ôªøexport module Resource1;
 import System;
 import IO;
 export import ResourcePath;
@@ -11,8 +11,8 @@ export namespace ResourcePaths::Font {
 }
 
 export namespace ResourcePaths::Model {
-	constexpr CString Miku = uR"(.\Model\èââπÉ~ÉN.pmd)";
-	constexpr CString Rin = uR"(.\Model\ãæâπÉäÉì.pmd)";
+	constexpr CString Miku = uR"(.\Model\ÂàùÈü≥„Éü„ÇØ.pmd)";
+	constexpr CString Rin = uR"(.\Model\Èè°Èü≥„É™„É≥.pmd)";
 	constexpr CString ClassRoom = uR"(.\Model\Classroom\classroom.pmd)";
 	constexpr CString Desk = uR"(.\Model\Classroom\desk.pmd)";
 	constexpr CString UnityChan = uR"(.\Model\UnityChan\Models\unitychan.pmd)";
@@ -25,7 +25,7 @@ export namespace ResourcePaths::Motion {
 
 export namespace ResourcePaths::Audio {
 	constexpr CString Field = uR"(.\Audio\MusMus-BGM-154.mp3)";
-	constexpr CString Lesson = uR"(.\Audio\01 ÉåÉbÉXÉì.mp3)";
+	constexpr CString Lesson = uR"(.\Audio\01 „É¨„ÉÉ„Çπ„É≥.mp3)";
 	constexpr CString Corrent1 = uR"(.\Audio\correct_answer1.mp3)";
 	constexpr CString Corrent2 = uR"(.\Audio\correct_answer2.mp3)";
 	constexpr CString Corrent3 = uR"(.\Audio\correct_answer3.mp3)";

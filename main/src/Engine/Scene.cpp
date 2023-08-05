@@ -1,4 +1,4 @@
-module Scene;
+ï»¿module Scene;
 import Components;
 using namespace System;
 using namespace System::Application;
@@ -44,11 +44,11 @@ void Scene::UpdateHeap() noexcept {
 
 void Scene::Draw() noexcept {
 	OnPreDraw();
-	//ƒq[ƒvXV
+	//ãƒ’ãƒ¼ãƒ—æ›´æ–°
 	for (GameObject* gObj : m_gameObjects) gObj->UpdateAllHeap();
 	this->UpdateHeap();
 	Heap sceneHeap = this->GetHeap();
-	//ƒJƒƒ‰‚²‚Æ‚É•`‰æ
+	//ã‚«ãƒ¡ãƒ©ã”ã¨ã«æç”»
 	for (Camera* camera : this->GetAllCamera()) {
 		Heap cameraHeap = camera->GetHeap();
 		RenderTarget renderTarget = camera->GetRenderTarget();

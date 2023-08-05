@@ -1,4 +1,4 @@
-export module BMP;
+ï»¿export module BMP;
 import Objects;
 import Image;
 using Image = System::Drawing::Image;
@@ -9,25 +9,25 @@ import Exception;
 
 namespace System::Drawing {
 	/// <summary>
-	/// BMPƒtƒ@ƒCƒ‹‚Ìƒtƒ@ƒCƒ‹ƒwƒbƒ_‚ğ•\‚·\‘¢‘Ì
+	/// BMPãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct BitmapFileHeader {
-		//ƒtƒ@ƒCƒ‹ƒ^ƒCƒv‚Ì•W¯B{ 'B', 'M' }ŒÅ’è
+		//ãƒ•ã‚¡ã‚¤ãƒ«ã‚¿ã‚¤ãƒ—ã®æ¨™è­˜ã€‚{ 'B', 'M' }å›ºå®š
 		uint8_t bfType[2];
-		//ƒtƒ@ƒCƒ‹‚ÌƒoƒCƒg’·BƒfƒR[ƒ_‚Íg—p‚·‚×‚«‚Å‚È‚¢
+		//ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒã‚¤ãƒˆé•·ã€‚ãƒ‡ã‚³ãƒ¼ãƒ€ã¯ä½¿ç”¨ã™ã¹ãã§ãªã„
 		uint32_t bfSize;
-		//—\–ñ—ÌˆæB0ŒÅ’è
+		//äºˆç´„é ˜åŸŸã€‚0å›ºå®š
 		uint16_t bfReserved1;
-		//—\–ñ—ÌˆæB0ŒÅ’è
+		//äºˆç´„é ˜åŸŸã€‚0å›ºå®š
 		uint16_t bfReserved2;
-		//ƒtƒ@ƒCƒ‹‚Ìæ“ª‚©‚ç‰æ‘œƒf[ƒ^‚Ü‚Å‚ÌƒIƒtƒZƒbƒg(ƒoƒCƒg)
-		//0ˆÈŠO‚Ìê‡AƒfƒR[ƒ_‚Íg—p‚µ‚Ä‚à‚æ‚¢
+		//ãƒ•ã‚¡ã‚¤ãƒ«ã®å…ˆé ­ã‹ã‚‰ç”»åƒãƒ‡ãƒ¼ã‚¿ã¾ã§ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ(ãƒã‚¤ãƒˆ)
+		//0ä»¥å¤–ã®å ´åˆã€ãƒ‡ã‚³ãƒ¼ãƒ€ã¯ä½¿ç”¨ã—ã¦ã‚‚ã‚ˆã„
 		uint32_t bfOffBits;
 	public:
 		/// <summary>
-		/// ƒtƒ@ƒCƒ‹ƒwƒbƒ_‚ğ“Ç‚İæ‚é
+		/// ãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€ã‚’èª­ã¿å–ã‚‹
 		/// </summary>
-		/// <param name="file">Œ»İˆÊ’u‚ªBitmapFileHeader‚Ìæ“ª‚ğw‚µ‚Ä‚¢‚éFileƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="file">ç¾åœ¨ä½ç½®ãŒBitmapFileHeaderã®å…ˆé ­ã‚’æŒ‡ã—ã¦ã„ã‚‹Fileã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		bool Load(IO::FileStream& file) noexcept {
 			file.ReadLE(bfType);
 			if (bfType[0] != 'B' || (bfType[1] != 'M')) return false;
@@ -38,9 +38,9 @@ namespace System::Drawing {
 			return static_cast<bool>(file);
 		}
 		/// <summary>
-		/// FileƒIƒuƒWƒFƒNƒg‚ÌŒ»İˆÊ’u‚Éƒtƒ@ƒCƒ‹ƒwƒbƒ_‚ğ‘‚«‚Ş
+		/// Fileã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç¾åœ¨ä½ç½®ã«ãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€ã‚’æ›¸ãè¾¼ã‚€
 		/// </summary>
-		/// <param name="file">‘‚«‚İæ‚ÌFileƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="file">æ›¸ãè¾¼ã¿å…ˆã®Fileã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		void Write(IO::FileStream& file) const noexcept {
 			file.WriteLE(bfType);
 			file.WriteLE(bfSize);
@@ -50,10 +50,10 @@ namespace System::Drawing {
 		}
 	public:
 		/// <summary>
-		/// ƒtƒ@ƒCƒ‹ƒTƒCƒY‚Æ‰æ‘œƒf[ƒ^‚Ü‚Å‚ÌƒIƒtƒZƒbƒg‚ğw’è‚µ‚Ä‰Šú‰»‚·‚é
+		/// ãƒ•ã‚¡ã‚¤ãƒ«ã‚µã‚¤ã‚ºã¨ç”»åƒãƒ‡ãƒ¼ã‚¿ã¾ã§ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’æŒ‡å®šã—ã¦åˆæœŸåŒ–ã™ã‚‹
 		/// </summary>
-		/// <param name="fileSize">ƒtƒ@ƒCƒ‹‘S‘Ì‚ÌƒoƒCƒg’·B0‚Å‚à‚æ‚¢</param>
-		/// <param name="pixelDataOffset">ƒtƒ@ƒCƒ‹‚Ìæ“ª‚©‚ç‰æ‘œƒf[ƒ^‚Ü‚Å‚ÌƒIƒtƒZƒbƒg(ƒoƒCƒg)B0‚Å‚à‚æ‚¢</param>
+		/// <param name="fileSize">ãƒ•ã‚¡ã‚¤ãƒ«å…¨ä½“ã®ãƒã‚¤ãƒˆé•·ã€‚0ã§ã‚‚ã‚ˆã„</param>
+		/// <param name="pixelDataOffset">ãƒ•ã‚¡ã‚¤ãƒ«ã®å…ˆé ­ã‹ã‚‰ç”»åƒãƒ‡ãƒ¼ã‚¿ã¾ã§ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ(ãƒã‚¤ãƒˆ)ã€‚0ã§ã‚‚ã‚ˆã„</param>
 		void Init(uint32_t fileSize, uint32_t pixelDataOffset) noexcept {
 			bfType[0] = 'B';
 			bfType[1] = 'M';
@@ -64,15 +64,15 @@ namespace System::Drawing {
 		}
 	};
 
-	//OS/2‚Åg—p‚³‚ê‚Ä‚¢‚½COREƒ^ƒCƒv‚Ìî•ñƒwƒbƒ_‚ğ•\‚·\‘¢‘Ì
+	//OS/2ã§ä½¿ç”¨ã•ã‚Œã¦ã„ãŸCOREã‚¿ã‚¤ãƒ—ã®æƒ…å ±ãƒ˜ãƒƒãƒ€ã‚’è¡¨ã™æ§‹é€ ä½“
 	struct BitmapCoreInfoHeader {
-		//‰æ‘œƒf[ƒ^‚Ì•B1ˆÈã‚Ì”’l‚ª“ü‚é
+		//ç”»åƒãƒ‡ãƒ¼ã‚¿ã®å¹…ã€‚1ä»¥ä¸Šã®æ•°å€¤ãŒå…¥ã‚‹
 		uint16_t bcWidth;
-		//‰æ‘œƒf[ƒ^‚Ì‚‚³B1ˆÈã‚Ì”’l‚ª“ü‚é
+		//ç”»åƒãƒ‡ãƒ¼ã‚¿ã®é«˜ã•ã€‚1ä»¥ä¸Šã®æ•°å€¤ãŒå…¥ã‚‹
 		uint16_t bcHeight;
-		//ƒ`ƒƒƒ“ƒlƒ‹”B1ŒÅ’è
+		//ãƒãƒ£ãƒ³ãƒãƒ«æ•°ã€‚1å›ºå®š
 		uint16_t bcPlanes;
-		//ƒsƒNƒZƒ‹‚²‚Æ‚Ìƒrƒbƒg”B1, 4, 8, 24‚ğg—p‚·‚é
+		//ãƒ”ã‚¯ã‚»ãƒ«ã”ã¨ã®ãƒ“ãƒƒãƒˆæ•°ã€‚1, 4, 8, 24ã‚’ä½¿ç”¨ã™ã‚‹
 		uint16_t bcBitCount;
 	public:
 		bool Load(IO::FileStream& file) noexcept {
@@ -101,42 +101,42 @@ namespace System::Drawing {
 		}
 	};
 
-	//•W€“I‚Èî•ñƒwƒbƒ_‚ğ•\‚·\‘¢‘Ì
+	//æ¨™æº–çš„ãªæƒ…å ±ãƒ˜ãƒƒãƒ€ã‚’è¡¨ã™æ§‹é€ ä½“
 	struct BitmapInfoInfoHeader {
-		//‰æ‘œ‚Ì•(px)B0ˆÈ‰º‚É‚Í‚È‚ç‚È‚¢
+		//ç”»åƒã®å¹…(px)ã€‚0ä»¥ä¸‹ã«ã¯ãªã‚‰ãªã„
 		int32_t biWidth;
-		//‰æ‘œ‚Ì‚‚³(px)B0ˆÈŠO‚Ì”’l‚ª“ü‚éB
-		//³”‚Ìê‡A‰æ‘œƒf[ƒ^‚Í‰º‚Ìs‚©‚çŠi”[‚³‚ê(ƒ{ƒgƒ€ƒAƒbƒv)A
-		//•‰”‚Ìê‡A‰æ‘œƒf[ƒ^‚Íã‚Ìs‚©‚çŠi”[‚³‚ê‚é(ƒgƒbƒvƒ_ƒEƒ“)
+		//ç”»åƒã®é«˜ã•(px)ã€‚0ä»¥å¤–ã®æ•°å€¤ãŒå…¥ã‚‹ã€‚
+		//æ­£æ•°ã®å ´åˆã€ç”»åƒãƒ‡ãƒ¼ã‚¿ã¯ä¸‹ã®è¡Œã‹ã‚‰æ ¼ç´ã•ã‚Œ(ãƒœãƒˆãƒ ã‚¢ãƒƒãƒ—)ã€
+		//è² æ•°ã®å ´åˆã€ç”»åƒãƒ‡ãƒ¼ã‚¿ã¯ä¸Šã®è¡Œã‹ã‚‰æ ¼ç´ã•ã‚Œã‚‹(ãƒˆãƒƒãƒ—ãƒ€ã‚¦ãƒ³)
 		int32_t biHeight;
-		//ƒ`ƒƒƒ“ƒlƒ‹”B1ŒÅ’è
+		//ãƒãƒ£ãƒ³ãƒãƒ«æ•°ã€‚1å›ºå®š
 		uint16_t biPlanes;
-		//ƒsƒNƒZƒ‹‚²‚Æ‚Ìƒrƒbƒg”B
-		//0, 1, 4, 8, 16, 24, 32‚Ì‚¢‚¸‚ê‚©‚ğg—p‚·‚é
+		//ãƒ”ã‚¯ã‚»ãƒ«ã”ã¨ã®ãƒ“ãƒƒãƒˆæ•°ã€‚
+		//0, 1, 4, 8, 16, 24, 32ã®ã„ãšã‚Œã‹ã‚’ä½¿ç”¨ã™ã‚‹
 		uint16_t biBitCount;
-		//‰æ‘œƒf[ƒ^‚ÌŒ`®‚ğ•\‚·B
-		//0: ”ñˆ³kŒ`®BbiBitCount‚Í0ˆÈŠO‚ğg—p‚·‚éB
-		//1: 8ƒrƒbƒgRLEŒ`®BbiBitCount‚Í8ŒÅ’èB
-		//2: 4ƒrƒbƒgRLEŒ`®BbiBitCount‚Í4ŒÅ’èB
-		//3: ƒrƒbƒgƒtƒB[ƒ‹ƒh‚ğ‚Â”ñˆ³kŒ`®BbiBitCount‚Í16‚©32‚ğg—p‚·‚éB
-		//4: JPEGŒ`®BbiBitCount‚Í0ŒÅ’èB
-		//5: PNGŒ`®BbiBitCount‚Í0ŒÅ’èB
+		//ç”»åƒãƒ‡ãƒ¼ã‚¿ã®å½¢å¼ã‚’è¡¨ã™ã€‚
+		//0: éåœ§ç¸®å½¢å¼ã€‚biBitCountã¯0ä»¥å¤–ã‚’ä½¿ç”¨ã™ã‚‹ã€‚
+		//1: 8ãƒ“ãƒƒãƒˆRLEå½¢å¼ã€‚biBitCountã¯8å›ºå®šã€‚
+		//2: 4ãƒ“ãƒƒãƒˆRLEå½¢å¼ã€‚biBitCountã¯4å›ºå®šã€‚
+		//3: ãƒ“ãƒƒãƒˆãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚’æŒã¤éåœ§ç¸®å½¢å¼ã€‚biBitCountã¯16ã‹32ã‚’ä½¿ç”¨ã™ã‚‹ã€‚
+		//4: JPEGå½¢å¼ã€‚biBitCountã¯0å›ºå®šã€‚
+		//5: PNGå½¢å¼ã€‚biBitCountã¯0å›ºå®šã€‚
 		uint32_t biCompression;
-		//‰æ‘œƒf[ƒ^‚ÌƒoƒCƒg’·
+		//ç”»åƒãƒ‡ãƒ¼ã‚¿ã®ãƒã‚¤ãƒˆé•·
 		uint32_t biSizeImage;
-		//‰¡•ûŒü‚Ì1ƒ[ƒgƒ‹‚²‚Æ‚ÌƒsƒNƒZƒ‹”B
-		//•s—v‚Èê‡A0‚ğŠi”[‚·‚é
+		//æ¨ªæ–¹å‘ã®1ãƒ¡ãƒ¼ãƒˆãƒ«ã”ã¨ã®ãƒ”ã‚¯ã‚»ãƒ«æ•°ã€‚
+		//ä¸è¦ãªå ´åˆã€0ã‚’æ ¼ç´ã™ã‚‹
 		int32_t biXPixPerMeter;
-		//c•ûŒü‚Ì1ƒ[ƒgƒ‹‚²‚Æ‚ÌƒsƒNƒZƒ‹”B
-		//•s—v‚Èê‡A0‚ğŠi”[‚·‚é
+		//ç¸¦æ–¹å‘ã®1ãƒ¡ãƒ¼ãƒˆãƒ«ã”ã¨ã®ãƒ”ã‚¯ã‚»ãƒ«æ•°ã€‚
+		//ä¸è¦ãªå ´åˆã€0ã‚’æ ¼ç´ã™ã‚‹
 		int32_t biYPixPerMeter;
-		//ƒJƒ‰[ƒpƒŒƒbƒg‚ÉŠi”[‚³‚ê‚éF”B
-		//‚±‚Ì’l‚ª0‚©‚ÂAbiBitCount‚ª8ˆÈ‰º‚Ìê‡A
-		//ƒJƒ‰[ƒpƒŒƒbƒg‚ÌF”‚Í(2^biBitCount)ŒÂ‚É‚È‚é
+		//ã‚«ãƒ©ãƒ¼ãƒ‘ãƒ¬ãƒƒãƒˆã«æ ¼ç´ã•ã‚Œã‚‹è‰²æ•°ã€‚
+		//ã“ã®å€¤ãŒ0ã‹ã¤ã€biBitCountãŒ8ä»¥ä¸‹ã®å ´åˆã€
+		//ã‚«ãƒ©ãƒ¼ãƒ‘ãƒ¬ãƒƒãƒˆã®è‰²æ•°ã¯(2^biBitCount)å€‹ã«ãªã‚‹
 		uint32_t biClrUsed;
-		//ƒJƒ‰[ƒpƒŒƒbƒg‚ÌF‚Ì‚¤‚¿A³Šm‚É•\¦‚·‚×‚«F‚Ì”B
-		//ƒJƒ‰[ƒpƒŒƒbƒg‚Ìæ“ª‚©‚çA‚±‚Ì”’l‚Ì•ª‚ÌF‚ªd—vF‚Å‚ ‚éB
-		//0‚Ìê‡A‚·‚×‚Ä‚ÌF‚ªd—vF‚Æ‚È‚é
+		//ã‚«ãƒ©ãƒ¼ãƒ‘ãƒ¬ãƒƒãƒˆã®è‰²ã®ã†ã¡ã€æ­£ç¢ºã«è¡¨ç¤ºã™ã¹ãè‰²ã®æ•°ã€‚
+		//ã‚«ãƒ©ãƒ¼ãƒ‘ãƒ¬ãƒƒãƒˆã®å…ˆé ­ã‹ã‚‰ã€ã“ã®æ•°å€¤ã®åˆ†ã®è‰²ãŒé‡è¦è‰²ã§ã‚ã‚‹ã€‚
+		//0ã®å ´åˆã€ã™ã¹ã¦ã®è‰²ãŒé‡è¦è‰²ã¨ãªã‚‹
 		uint32_t biClrImportant;
 	public:
 		bool Load(IO::FileStream& file) noexcept {
@@ -184,33 +184,33 @@ namespace System::Drawing {
 		}
 	};
 
-	//V4ƒ^ƒCƒv‚Ìî•ñƒwƒbƒ_‚ğ•\‚·\‘¢‘Ì
+	//V4ã‚¿ã‚¤ãƒ—ã®æƒ…å ±ãƒ˜ãƒƒãƒ€ã‚’è¡¨ã™æ§‹é€ ä½“
 	struct BitmapV4InfoHeader : public BitmapInfoInfoHeader {
-		//Ô¬•ª‚ÌƒJƒ‰[ƒ}ƒXƒN’lBƒrƒbƒgƒtƒB[ƒ‹ƒh‚ğ‚Â”ñˆ³kŒ`®‚Ìê‡A—LŒø
+		//èµ¤æˆåˆ†ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯å€¤ã€‚ãƒ“ãƒƒãƒˆãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚’æŒã¤éåœ§ç¸®å½¢å¼ã®å ´åˆã€æœ‰åŠ¹
 		uint32_t bv4RedMask;
-		//—Î¬•ª‚ÌƒJƒ‰[ƒ}ƒXƒN’lBƒrƒbƒgƒtƒB[ƒ‹ƒh‚ğ‚Â”ñˆ³kŒ`®‚Ìê‡A—LŒø
+		//ç·‘æˆåˆ†ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯å€¤ã€‚ãƒ“ãƒƒãƒˆãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚’æŒã¤éåœ§ç¸®å½¢å¼ã®å ´åˆã€æœ‰åŠ¹
 		uint32_t bv4GreenMask;
-		//Â¬•ª‚ÌƒJƒ‰[ƒ}ƒXƒN’lBƒrƒbƒgƒtƒB[ƒ‹ƒh‚ğ‚Â”ñˆ³kŒ`®‚Ìê‡A—LŒø
+		//é’æˆåˆ†ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯å€¤ã€‚ãƒ“ãƒƒãƒˆãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚’æŒã¤éåœ§ç¸®å½¢å¼ã®å ´åˆã€æœ‰åŠ¹
 		uint32_t bv4BlueMask;
-		//ƒAƒ‹ƒtƒ@¬•ª‚ÌƒJƒ‰[ƒ}ƒXƒN’lBƒrƒbƒgƒtƒB[ƒ‹ƒh‚ğ‚Â”ñˆ³kŒ`®‚Ìê‡A—LŒø
+		//ã‚¢ãƒ«ãƒ•ã‚¡æˆåˆ†ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯å€¤ã€‚ãƒ“ãƒƒãƒˆãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚’æŒã¤éåœ§ç¸®å½¢å¼ã®å ´åˆã€æœ‰åŠ¹
 		uint32_t bv4AlphaMask;
-		//F‹óŠÔƒ^ƒCƒvBV4ƒ^ƒCƒv‚Ìî•ñƒwƒbƒ_‚Å‚Í0ŒÅ’èB
-		//"BGRs"(0x73524742): sRGB‹óŠÔ‚ğ‚Â
-		//" niW"(0x57696e20): Windows•W€‚ÌF‹óŠÔ‚ğ‚Â
-		//"KNIL"(0x4c494e4b): BMPƒtƒ@ƒCƒ‹“à‚ÉF‹óŠÔƒvƒƒtƒ@ƒCƒ‹ƒtƒ@ƒCƒ‹‚Ö‚ÌƒpƒX‚ªŠÜ‚Ü‚ê‚é
-		//"DEBM"(0x4d424544): BMPƒtƒ@ƒCƒ‹“à‚ÉF‹óŠÔƒvƒƒtƒ@ƒCƒ‹‚ª–„‚ß‚Ü‚ê‚Ä‚¢‚é
+		//è‰²ç©ºé–“ã‚¿ã‚¤ãƒ—ã€‚V4ã‚¿ã‚¤ãƒ—ã®æƒ…å ±ãƒ˜ãƒƒãƒ€ã§ã¯0å›ºå®šã€‚
+		//"BGRs"(0x73524742): sRGBç©ºé–“ã‚’æŒã¤
+		//" niW"(0x57696e20): Windowsæ¨™æº–ã®è‰²ç©ºé–“ã‚’æŒã¤
+		//"KNIL"(0x4c494e4b): BMPãƒ•ã‚¡ã‚¤ãƒ«å†…ã«è‰²ç©ºé–“ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ãƒ•ã‚¡ã‚¤ãƒ«ã¸ã®ãƒ‘ã‚¹ãŒå«ã¾ã‚Œã‚‹
+		//"DEBM"(0x4d424544): BMPãƒ•ã‚¡ã‚¤ãƒ«å†…ã«è‰²ç©ºé–“ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ãŒåŸ‹ã‚è¾¼ã¾ã‚Œã¦ã„ã‚‹
 		uint32_t bv4CSType;
-		//CIEXYZƒJƒ‰[ƒ‚ƒfƒ‹‚ÌÔ¬•ª‚ÌÀ•W(x, y, z)Bbv4CSType‚ª0‚Ìê‡A—LŒø
+		//CIEXYZã‚«ãƒ©ãƒ¼ãƒ¢ãƒ‡ãƒ«ã®èµ¤æˆåˆ†ã®åº§æ¨™(x, y, z)ã€‚bv4CSTypeãŒ0ã®å ´åˆã€æœ‰åŠ¹
 		int32_t bv4RedEndPoint[3];
-		//CIEXYZƒJƒ‰[ƒ‚ƒfƒ‹‚Ì—Î¬•ª‚ÌÀ•W(x, y, z)Bbv4CSType‚ª0‚Ìê‡A—LŒø
+		//CIEXYZã‚«ãƒ©ãƒ¼ãƒ¢ãƒ‡ãƒ«ã®ç·‘æˆåˆ†ã®åº§æ¨™(x, y, z)ã€‚bv4CSTypeãŒ0ã®å ´åˆã€æœ‰åŠ¹
 		int32_t bv4GreenEndPoint[3];
-		//CIEXYZƒJƒ‰[ƒ‚ƒfƒ‹‚ÌÂ¬•ª‚ÌÀ•W(x, y, z)Bbv4CSType‚ª0‚Ìê‡A—LŒø
+		//CIEXYZã‚«ãƒ©ãƒ¼ãƒ¢ãƒ‡ãƒ«ã®é’æˆåˆ†ã®åº§æ¨™(x, y, z)ã€‚bv4CSTypeãŒ0ã®å ´åˆã€æœ‰åŠ¹
 		int32_t bv4BlueEndPoint[3];
-		//CIE‚ÌxyYF“x‹óŠÔ‚É‚¨‚¯‚éY‚ÌÔ¬•ª‚ğ•\‚·B16.16‚ÌŒÅ’è¬”“_”
+		//CIEã®xyYè‰²åº¦ç©ºé–“ã«ãŠã‘ã‚‹Yã®èµ¤æˆåˆ†ã‚’è¡¨ã™ã€‚16.16ã®å›ºå®šå°æ•°ç‚¹æ•°
 		uint32_t bv4GammaRed;
-		//CIE‚ÌxyYF“x‹óŠÔ‚É‚¨‚¯‚éY‚Ì—Î¬•ª‚ğ•\‚·B16.16‚ÌŒÅ’è¬”“_”
+		//CIEã®xyYè‰²åº¦ç©ºé–“ã«ãŠã‘ã‚‹Yã®ç·‘æˆåˆ†ã‚’è¡¨ã™ã€‚16.16ã®å›ºå®šå°æ•°ç‚¹æ•°
 		uint32_t bv4GammaGreen;
-		//CIE‚ÌxyYF“x‹óŠÔ‚É‚¨‚¯‚éY‚ÌÂ¬•ª‚ğ•\‚·B16.16‚ÌŒÅ’è¬”“_”
+		//CIEã®xyYè‰²åº¦ç©ºé–“ã«ãŠã‘ã‚‹Yã®é’æˆåˆ†ã‚’è¡¨ã™ã€‚16.16ã®å›ºå®šå°æ•°ç‚¹æ•°
 		uint32_t bv4GammaBlue;
 	public:
 		bool Load(IO::FileStream& file, uint32_t biSize) noexcept {
@@ -280,22 +280,22 @@ namespace System::Drawing {
 		}
 	};
 
-	//V5ƒ^ƒCƒv‚Ìî•ñƒwƒbƒ_‚ğ•\‚·\‘¢‘Ì
+	//V5ã‚¿ã‚¤ãƒ—ã®æƒ…å ±ãƒ˜ãƒƒãƒ€ã‚’è¡¨ã™æ§‹é€ ä½“
 	struct BitmapV5InfoHeader : public BitmapV4InfoHeader {
-		//sRGBF‹óŠÔƒ^ƒCƒvB
-		//1: SaturationB}‚âƒOƒ‰ƒt‚Ég—pB
-		//2: Relative ColorimetricBƒƒS‚âƒfƒUƒCƒ“‰æ‚Ég—pB
-		//4: PerceptualBÊ^‚â•—Œi‰æ‚Ég—pB
-		//8: Absolute ColorimetricBƒvƒŒƒrƒ…[‚Ég—pB
+		//sRGBè‰²ç©ºé–“ã‚¿ã‚¤ãƒ—ã€‚
+		//1: Saturationã€‚å›³ã‚„ã‚°ãƒ©ãƒ•ã«ä½¿ç”¨ã€‚
+		//2: Relative Colorimetricã€‚ãƒ­ã‚´ã‚„ãƒ‡ã‚¶ã‚¤ãƒ³ç”»ã«ä½¿ç”¨ã€‚
+		//4: Perceptualã€‚å†™çœŸã‚„é¢¨æ™¯ç”»ã«ä½¿ç”¨ã€‚
+		//8: Absolute Colorimetricã€‚ãƒ—ãƒ¬ãƒ“ãƒ¥ãƒ¼ã«ä½¿ç”¨ã€‚
 		uint32_t bv5Intent;
-		//î•ñƒwƒbƒ_‚Ìæ“ª‚©‚çF‹óŠÔƒvƒƒtƒ@ƒCƒ‹ƒf[ƒ^‚Ö‚ÌƒIƒtƒZƒbƒg(ƒoƒCƒg)B
-		//BitmapV4InfoHeader::bv4CStype‚ªA
-		//	"KNIL"(link)‚Ìê‡Aƒvƒƒtƒ@ƒCƒ‹ƒf[ƒ^‚Íƒtƒ@ƒCƒ‹ƒpƒX‚ğ•\‚·ƒkƒ‹I’[‚Ì•¶š—ñB
-		//	"DEBM"(embedded)‚Ìê‡Aƒvƒƒtƒ@ƒCƒ‹ƒf[ƒ^‚Íbv5ProfileSize(ƒoƒCƒg)‚Ì–„‚ß‚İƒf[ƒ^B
+		//æƒ…å ±ãƒ˜ãƒƒãƒ€ã®å…ˆé ­ã‹ã‚‰è‰²ç©ºé–“ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‡ãƒ¼ã‚¿ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ(ãƒã‚¤ãƒˆ)ã€‚
+		//BitmapV4InfoHeader::bv4CStypeãŒã€
+		//	"KNIL"(link)ã®å ´åˆã€ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‡ãƒ¼ã‚¿ã¯ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹ã‚’è¡¨ã™ãƒŒãƒ«çµ‚ç«¯ã®æ–‡å­—åˆ—ã€‚
+		//	"DEBM"(embedded)ã®å ´åˆã€ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‡ãƒ¼ã‚¿ã¯bv5ProfileSize(ãƒã‚¤ãƒˆ)ã®åŸ‹ã‚è¾¼ã¿ãƒ‡ãƒ¼ã‚¿ã€‚
 		uint32_t bv5ProfileData;
-		//ƒvƒƒtƒ@ƒCƒ‹ƒf[ƒ^‚ÌƒoƒCƒg’·
+		//ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‡ãƒ¼ã‚¿ã®ãƒã‚¤ãƒˆé•·
 		uint32_t bv5ProfileSize;
-		//—\–ñ—ÌˆæB0ŒÅ’è
+		//äºˆç´„é ˜åŸŸã€‚0å›ºå®š
 		uint32_t bv5Reserved;
 	public:
 		bool Load(IO::FileStream& file, uint32_t biSize) noexcept {
@@ -333,10 +333,10 @@ namespace System::Drawing {
 	};
 
 	/// <summary>
-	/// BMPƒtƒ@ƒCƒ‹‚Ìî•ñƒwƒbƒ_‚ğ•\‚·\‘¢‘Ì
+	/// BMPãƒ•ã‚¡ã‚¤ãƒ«ã®æƒ…å ±ãƒ˜ãƒƒãƒ€ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct BitmapInfoHeader {
-		//‚±‚Ìƒwƒbƒ_‚ÌƒoƒCƒg’·
+		//ã“ã®ãƒ˜ãƒƒãƒ€ã®ãƒã‚¤ãƒˆé•·
 		uint32_t biSize = 0;
 		union {
 			BitmapCoreInfoHeader core;
@@ -346,9 +346,9 @@ namespace System::Drawing {
 		};
 	public:
 		/// <summary>
-		/// î•ñƒwƒbƒ_‚ğ“Ç‚İæ‚é
+		/// æƒ…å ±ãƒ˜ãƒƒãƒ€ã‚’èª­ã¿å–ã‚‹
 		/// </summary>
-		/// <param name="file">Œ»İˆÊ’u‚ªBitmapInfoHeader‚Ìæ“ª‚ğw‚µ‚Ä‚¢‚éFileƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="file">ç¾åœ¨ä½ç½®ãŒBitmapInfoHeaderã®å…ˆé ­ã‚’æŒ‡ã—ã¦ã„ã‚‹Fileã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		bool Load(IO::FileStream& file) noexcept {
 			file.ReadLE(biSize);
 			if (biSize == 12) return core.Load(file);
@@ -356,9 +356,9 @@ namespace System::Drawing {
 			else return false;
 		}
 		/// <summary>
-		/// FileƒIƒuƒWƒFƒNƒg‚ÌŒ»İˆÊ’u‚Éî•ñƒwƒbƒ_‚ğ‘‚«‚Ş
+		/// Fileã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç¾åœ¨ä½ç½®ã«æƒ…å ±ãƒ˜ãƒƒãƒ€ã‚’æ›¸ãè¾¼ã‚€
 		/// </summary>
-		/// <param name="file">‘‚«‚İæ‚ÌFileƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="file">æ›¸ãè¾¼ã¿å…ˆã®Fileã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		void Write(IO::FileStream& file) const noexcept {
 			file.WriteLE(biSize);
 			if (biSize == 12) core.Write(file);
@@ -366,17 +366,17 @@ namespace System::Drawing {
 		}
 	public:
 		/// <summary>
-		/// î•ñƒwƒbƒ_ƒTƒCƒY‚Æ‰æ‘œƒf[ƒ^‚Ì•A‚‚³AƒsƒNƒZƒ‹‚²‚Æ‚Ìƒrƒbƒg”‚ğw’è‚µ‚Ä‰Šú‰»‚·‚é
+		/// æƒ…å ±ãƒ˜ãƒƒãƒ€ã‚µã‚¤ã‚ºã¨ç”»åƒãƒ‡ãƒ¼ã‚¿ã®å¹…ã€é«˜ã•ã€ãƒ”ã‚¯ã‚»ãƒ«ã”ã¨ã®ãƒ“ãƒƒãƒˆæ•°ã‚’æŒ‡å®šã—ã¦åˆæœŸåŒ–ã™ã‚‹
 		/// </summary>
 		/// <param name="infoHeaderSize">
-		/// î•ñƒwƒbƒ_‚ÌƒTƒCƒYB
-		/// 12, 40, 52, 56, 60, 96, 108, 112, 120, 124‚Ì‚¢‚¸‚ê‚©‚ğw’è‚·‚éB
+		/// æƒ…å ±ãƒ˜ãƒƒãƒ€ã®ã‚µã‚¤ã‚ºã€‚
+		/// 12, 40, 52, 56, 60, 96, 108, 112, 120, 124ã®ã„ãšã‚Œã‹ã‚’æŒ‡å®šã™ã‚‹ã€‚
 		/// </param>
-		/// <param name="width">‰æ‘œƒf[ƒ^‚Ì•(px)B0ˆÈŠO‚Ì’l‚ğw’è‚·‚é</param>
- 		/// <param name="height">‰æ‘œƒf[ƒ^‚Ì‚‚³(px)B0ˆÈŠO‚Ì’l‚ğw’è‚·‚é</param>
+		/// <param name="width">ç”»åƒãƒ‡ãƒ¼ã‚¿ã®å¹…(px)ã€‚0ä»¥å¤–ã®å€¤ã‚’æŒ‡å®šã™ã‚‹</param>
+ 		/// <param name="height">ç”»åƒãƒ‡ãƒ¼ã‚¿ã®é«˜ã•(px)ã€‚0ä»¥å¤–ã®å€¤ã‚’æŒ‡å®šã™ã‚‹</param>
 		/// <param name="bitCount">
-		/// ƒsƒNƒZƒ‹‚²‚Æ‚Ìƒrƒbƒg”B
-		/// 0, 1, 4, 8, 16, 24, 32‚Ì‚¢‚¸‚ê‚©‚ğw’è‚·‚é
+		/// ãƒ”ã‚¯ã‚»ãƒ«ã”ã¨ã®ãƒ“ãƒƒãƒˆæ•°ã€‚
+		/// 0, 1, 4, 8, 16, 24, 32ã®ã„ãšã‚Œã‹ã‚’æŒ‡å®šã™ã‚‹
 		/// </param>
 		void Init(uint32_t infoHeaderSize, uint32_t width, int32_t height, uint16_t bitCount) noexcept {
 			biSize = infoHeaderSize;
@@ -385,7 +385,7 @@ namespace System::Drawing {
 		}
 	public:
 		/// <summary>
-		/// î•ñƒwƒbƒ_‚©‚çABMPƒtƒ@ƒCƒ‹‚ÉƒrƒbƒgƒtƒB[ƒ‹ƒh‚ªŠÜ‚Ü‚ê‚é‚©’²‚×‚é
+		/// æƒ…å ±ãƒ˜ãƒƒãƒ€ã‹ã‚‰ã€BMPãƒ•ã‚¡ã‚¤ãƒ«ã«ãƒ“ãƒƒãƒˆãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ãŒå«ã¾ã‚Œã‚‹ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		bool ExistsBitField() const noexcept {
 			return biSize == 40
@@ -393,7 +393,7 @@ namespace System::Drawing {
 				&& info.biCompression == 3;
 		}
 		/// <summary>
-		/// î•ñƒwƒbƒ_‚©‚çABMPƒtƒ@ƒCƒ‹‚ÉƒJƒ‰[ƒpƒŒƒbƒg‚ªŠÜ‚Ü‚ê‚é‚©’²‚×‚é
+		/// æƒ…å ±ãƒ˜ãƒƒãƒ€ã‹ã‚‰ã€BMPãƒ•ã‚¡ã‚¤ãƒ«ã«ã‚«ãƒ©ãƒ¼ãƒ‘ãƒ¬ãƒƒãƒˆãŒå«ã¾ã‚Œã‚‹ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		bool ExistsPalette() const noexcept {
 			if (biSize != 12 && biSize < 40) return false;
@@ -407,7 +407,7 @@ namespace System::Drawing {
 			}
 		}
 		/// <summary>
-		/// BMPƒtƒ@ƒCƒ‹‚ÉŠÜ‚Ü‚ê‚éƒJƒ‰[ƒpƒŒƒbƒg”‚ğæ“¾‚·‚é
+		/// BMPãƒ•ã‚¡ã‚¤ãƒ«ã«å«ã¾ã‚Œã‚‹ã‚«ãƒ©ãƒ¼ãƒ‘ãƒ¬ãƒƒãƒˆæ•°ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		uint32_t GetPaletteCount() const noexcept {
 			if (!ExistsPalette()) return 0;
@@ -415,44 +415,44 @@ namespace System::Drawing {
 			return 1ul << (biSize == 12 ? core.bcBitCount : info.biBitCount);
 		}
 		/// <summary>
-		/// ƒsƒNƒZƒ‹‚²‚Æ‚Ìƒrƒbƒg”‚ğæ“¾‚·‚é
+		/// ãƒ”ã‚¯ã‚»ãƒ«ã”ã¨ã®ãƒ“ãƒƒãƒˆæ•°ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		uint16_t GetBitCount() const noexcept {
 			return IsCoreHeader() ? core.bcBitCount : info.biBitCount;
 		}
 		/// <summary>
-		/// ‚±‚Ìî•ñƒwƒbƒ_‚ªCOREƒ^ƒCƒv‚©’²‚×‚é
+		/// ã“ã®æƒ…å ±ãƒ˜ãƒƒãƒ€ãŒCOREã‚¿ã‚¤ãƒ—ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		bool IsCoreHeader() const noexcept { return biSize == 12; }
 		/// <summary>
-		/// ‰æ‘œƒf[ƒ^‚ªƒgƒbƒvƒ_ƒEƒ“(ã‚Ìs->‰º‚Ìs‚Ì‡‚É•À‚ñ‚Å‚¢‚é)‚©’²‚×‚é
+		/// ç”»åƒãƒ‡ãƒ¼ã‚¿ãŒãƒˆãƒƒãƒ—ãƒ€ã‚¦ãƒ³(ä¸Šã®è¡Œ->ä¸‹ã®è¡Œã®é †ã«ä¸¦ã‚“ã§ã„ã‚‹)ã‹èª¿ã¹ã‚‹
 		/// </summary>
 		bool HasTopDownImageData() const noexcept {
 			return IsCoreHeader() ? false : info.biHeight < 0;
 		}
 		/// <summary>
-		/// ‰æ‘œƒf[ƒ^‚Ì1s‚²‚Æ‚ÌƒoƒCƒg’·(ƒpƒfƒBƒ“ƒOŠÜ‚Ş)‚ğæ“¾‚·‚é
+		/// ç”»åƒãƒ‡ãƒ¼ã‚¿ã®1è¡Œã”ã¨ã®ãƒã‚¤ãƒˆé•·(ãƒ‘ãƒ‡ã‚£ãƒ³ã‚°å«ã‚€)ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		uint32_t GetLineSize() const noexcept {
 			if (biSize != 12 && biSize < 40) return 0;
 			return biSize == 12 ? core.GetLineSize() : info.GetLineSize();
 		}
 		/// <summary>
-		/// ‰æ‘œƒf[ƒ^‚Ì•(px)‚ğæ“¾‚·‚é
+		/// ç”»åƒãƒ‡ãƒ¼ã‚¿ã®å¹…(px)ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		uint32_t GetWidth() const noexcept {
 			if (biSize != 12 && biSize < 40) return 0;
 			return static_cast<uint32_t>(biSize == 12 ? core.bcWidth : info.biWidth);
 		}
 		/// <summary>
-		/// ‰æ‘œƒf[ƒ^‚Ì‚‚³(px)‚ğæ“¾‚·‚é
+		/// ç”»åƒãƒ‡ãƒ¼ã‚¿ã®é«˜ã•(px)ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		uint32_t GetHeight() const noexcept {
 			if (biSize != 12 && biSize < 40) return 0;
 			return static_cast<uint32_t>(biSize == 12 ? core.bcHeight : System::Math::Abs(info.biHeight));
 		}
 		/// <summary>
-		/// ‰æ‘œƒf[ƒ^‚ÌƒoƒCƒg’·(ƒpƒfƒBƒ“ƒOŠÜ‚Ş)‚ğæ“¾‚·‚é
+		/// ç”»åƒãƒ‡ãƒ¼ã‚¿ã®ãƒã‚¤ãƒˆé•·(ãƒ‘ãƒ‡ã‚£ãƒ³ã‚°å«ã‚€)ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		size_t GetImageDataSize() const noexcept {
 			uint32_t lineSize = GetLineSize();
@@ -461,20 +461,20 @@ namespace System::Drawing {
 	};
 
 	/// <summary>
-	/// BMPƒtƒ@ƒCƒ‹‚ÌƒrƒbƒgƒtƒB[ƒ‹ƒh‚ğ•\‚·\‘¢‘Ì
+	/// BMPãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ“ãƒƒãƒˆãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct BitmapBitField {
-		//Ô¬•ª‚ÌƒJƒ‰[ƒ}ƒXƒN’l
+		//èµ¤æˆåˆ†ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯å€¤
 		uint32_t bfRedMask;
-		//—Î¬•ª‚ÌƒJƒ‰[ƒ}ƒXƒN’l
+		//ç·‘æˆåˆ†ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯å€¤
 		uint32_t bfGreenMask;
-		//Â¬•ª‚ÌƒJƒ‰[ƒ}ƒXƒN’l
+		//é’æˆåˆ†ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯å€¤
 		uint32_t bfBlueMask;
 	public:
 		/// <summary>
-		/// ƒrƒbƒgƒtƒB[ƒ‹ƒh‚ğ“Ç‚İæ‚é
+		/// ãƒ“ãƒƒãƒˆãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚’èª­ã¿å–ã‚‹
 		/// </summary>
-		/// <param name="file">Œ»İˆÊ’u‚ªBitmapBitField‚Ìæ“ª‚ğw‚µ‚Ä‚¢‚éFileƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="file">ç¾åœ¨ä½ç½®ãŒBitmapBitFieldã®å…ˆé ­ã‚’æŒ‡ã—ã¦ã„ã‚‹Fileã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		bool Load(IO::FileStream& file) noexcept {
 			file.ReadLE(bfRedMask);
 			file.ReadLE(bfGreenMask);
@@ -482,9 +482,9 @@ namespace System::Drawing {
 			return static_cast<bool>(file);
 		}
 		/// <summary>
-		/// FileƒIƒuƒWƒFƒNƒg‚ÌŒ»İˆÊ’u‚ÉƒrƒbƒgƒtƒB[ƒ‹ƒh‚ğ‘‚«‚Ş
+		/// Fileã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç¾åœ¨ä½ç½®ã«ãƒ“ãƒƒãƒˆãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚’æ›¸ãè¾¼ã‚€
 		/// </summary>
-		/// <param name="file">‘‚«‚İæ‚ÌFileƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="file">æ›¸ãè¾¼ã¿å…ˆã®Fileã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		void Write(IO::FileStream& file) const noexcept {
 			file.WriteLE(bfRedMask);
 			file.WriteLE(bfGreenMask);
@@ -492,11 +492,11 @@ namespace System::Drawing {
 		}
 	public:
 		/// <summary>
-		/// ÔA—ÎAÂ‚ÌƒJƒ‰[ƒ}ƒXƒN‚ğw’è‚µ‚Ä‰Šú‰»‚·‚é
+		/// èµ¤ã€ç·‘ã€é’ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯ã‚’æŒ‡å®šã—ã¦åˆæœŸåŒ–ã™ã‚‹
 		/// </summary>
-		/// <param name="red">Ô¬•ª‚ÌƒJƒ‰[ƒ}ƒXƒN</param>
-		/// <param name="green">—Î¬•ª‚ÌƒJƒ‰[ƒ}ƒXƒN</param>
-		/// <param name="blue">Â¬•ª‚ÌƒJƒ‰[ƒ}ƒXƒN</param>
+		/// <param name="red">èµ¤æˆåˆ†ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯</param>
+		/// <param name="green">ç·‘æˆåˆ†ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯</param>
+		/// <param name="blue">é’æˆåˆ†ã®ã‚«ãƒ©ãƒ¼ãƒã‚¹ã‚¯</param>
 		void Init(uint32_t red, uint32_t green, uint32_t blue) noexcept {
 			bfRedMask = red;
 			bfGreenMask = green;
@@ -560,16 +560,16 @@ export namespace System::Drawing {
 	class BMP : public Object {
 		BitmapFileHeader header;
 		BitmapInfoHeader infoHeader;
-		//infoHeader.biSize‚ª40‚©‚ÂA
-		//infoHeader.info.biBitCount‚ª16‚Ü‚½‚Í32‚ÅA
-		//‚©‚ÂinfoHeader.info.biCompression‚ª3‚Ì‚Æ‚«‚Ì‚İ‘¶İ‚·‚é
+		//infoHeader.biSizeãŒ40ã‹ã¤ã€
+		//infoHeader.info.biBitCountãŒ16ã¾ãŸã¯32ã§ã€
+		//ã‹ã¤infoHeader.info.biCompressionãŒ3ã®ã¨ãã®ã¿å­˜åœ¨ã™ã‚‹
 		BitmapBitField* bitField = nullptr;
-		//infoHeader.(core.bcBitCount/info.biBitCount)‚ª1, 4, 8‚Ü‚½‚ÍA
-		//infoHeader.biClrUsed‚ª1ˆÈã‚Ì‚Æ‚«‚Ì‚İ‘¶İ‚·‚é
+		//infoHeader.(core.bcBitCount/info.biBitCount)ãŒ1, 4, 8ã¾ãŸã¯ã€
+		//infoHeader.biClrUsedãŒ1ä»¥ä¸Šã®ã¨ãã®ã¿å­˜åœ¨ã™ã‚‹
 		union {
-			//infoHeader.biSize‚ª12(COREƒ^ƒCƒv)‚Ì‚Æ‚«g—p‚·‚é
+			//infoHeader.biSizeãŒ12(COREã‚¿ã‚¤ãƒ—)ã®ã¨ãä½¿ç”¨ã™ã‚‹
 			RGBTRIPLE* triple = nullptr;
-			//triple‚Å‚È‚¢ê‡A‚±‚¿‚ç‚ğg—p‚·‚é
+			//tripleã§ãªã„å ´åˆã€ã“ã¡ã‚‰ã‚’ä½¿ç”¨ã™ã‚‹
 			RGBQUAD* quad;
 		public:
 			Pixel GetPixel(bool useTriple, uint32_t paletteIndex) const noexcept {
@@ -601,9 +601,9 @@ export namespace System::Drawing {
 		}
 	public:
 		/// <summary>
-		/// ‚±‚Ìƒtƒ@ƒCƒ‹‚ªBMPƒtƒ@ƒCƒ‹‚©’²‚×‚é
+		/// ã“ã®ãƒ•ã‚¡ã‚¤ãƒ«ãŒBMPãƒ•ã‚¡ã‚¤ãƒ«ã‹èª¿ã¹ã‚‹
 		/// </summary>
-		/// <param name="file">ƒoƒCƒiƒŠ“ü—Í‚ÅŠJ‚©‚ê‚½ƒtƒ@ƒCƒ‹ƒIƒuƒWƒFƒNƒg</param>
+		/// <param name="file">ãƒã‚¤ãƒŠãƒªå…¥åŠ›ã§é–‹ã‹ã‚ŒãŸãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 		static bool IsBMP(System::IO::FileStream& file) noexcept {
 			System::IO::StreamPos pos = file.TellPos();
 			file.Seek(0, System::IO::SeekDir::Begin);
@@ -654,9 +654,9 @@ export namespace System::Drawing {
 				if (!file) return false;
 				header.Write(file);
 				infoHeader.Write(file);
-				//ƒrƒbƒgƒtƒB[ƒ‹ƒh‘‚«‚İ
+				//ãƒ“ãƒƒãƒˆãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰æ›¸ãè¾¼ã¿
 				if (infoHeader.ExistsBitField() && bitField) bitField->Write(file);
-				//ƒJƒ‰[ƒpƒŒƒbƒg‘‚«‚İ
+				//ã‚«ãƒ©ãƒ¼ãƒ‘ãƒ¬ãƒƒãƒˆæ›¸ãè¾¼ã¿
 				uint32_t paletteCount = infoHeader.GetPaletteCount();
 				if (paletteCount && palette.triple) {
 					if (infoHeader.IsCoreHeader()) RGBTRIPLE::Write(file, palette.triple, paletteCount);
@@ -791,7 +791,7 @@ export namespace System::Drawing {
 		}
 	public:
 		/// <summary>
-		/// ImageŒ^ƒIƒuƒWƒFƒNƒg‚ğ¶¬‚·‚é
+		/// Imageå‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã™ã‚‹
 		/// </summary>
 		Image ToImage() const noexcept {
 			Vector<Pixel> pixels;
@@ -826,24 +826,24 @@ export namespace System::Drawing {
 			return ret;
 		}
 		/// <summary>
-		/// ImageƒIƒuƒWƒFƒNƒg‚©‚çBMPŒ^ƒIƒuƒWƒFƒNƒg‚ğ¶¬‚·‚é
+		/// Imageã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‹ã‚‰BMPå‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã™ã‚‹
 		/// </summary>
-		/// <param name="image">ƒ\[ƒX‚Æ‚È‚éImageŒ^•Ï”‚Ö‚ÌconstQÆ</param>
+		/// <param name="image">ã‚½ãƒ¼ã‚¹ã¨ãªã‚‹Imageå‹å¤‰æ•°ã¸ã®constå‚ç…§</param>
 		static BMP FromImage(const Image& image) noexcept {
 			BMP ret;
 			const Pixel* pixels = image.Data();
 			const uint32_t width = image.Width();
 			const uint32_t height = image.Height();
 			ret.infoHeader.Init(40, width, height, 24);
-			//ƒtƒ@ƒCƒ‹ƒwƒbƒ_14Byte‚Æî•ñƒwƒbƒ_‚ÌƒoƒCƒg’·‚Ì‡Œv
+			//ãƒ•ã‚¡ã‚¤ãƒ«ãƒ˜ãƒƒãƒ€14Byteã¨æƒ…å ±ãƒ˜ãƒƒãƒ€ã®ãƒã‚¤ãƒˆé•·ã®åˆè¨ˆ
 			uint32_t headerSize = 14 + ret.infoHeader.biSize;
-			//‰æ‘œƒf[ƒ^‚ÌƒoƒCƒg’·
+			//ç”»åƒãƒ‡ãƒ¼ã‚¿ã®ãƒã‚¤ãƒˆé•·
 			size_t dataSize = ret.infoHeader.GetImageDataSize();
 			ret.header.Init(static_cast<uint32_t>(headerSize + dataSize), headerSize);
 			ret.data = new uint8_t[dataSize];
-			//1s‚²‚Æ‚ÌƒpƒfƒBƒ“ƒOƒTƒCƒY(ƒoƒCƒg)
+			//1è¡Œã”ã¨ã®ãƒ‘ãƒ‡ã‚£ãƒ³ã‚°ã‚µã‚¤ã‚º(ãƒã‚¤ãƒˆ)
 			const uint32_t paddingSize = ret.infoHeader.GetLineSize() - (width * 3);
-			size_t i = 0;	//Œ»İ‚Ìƒf[ƒ^ˆÊ’u
+			size_t i = 0;	//ç¾åœ¨ã®ãƒ‡ãƒ¼ã‚¿ä½ç½®
 			for (uint32_t y = height; y-- > 0;) {
 				const Pixel* p = pixels + (y * static_cast<size_t>(width));
 				for (uint32_t x = 0; x < width; ++x, i += 3) {
@@ -852,12 +852,12 @@ export namespace System::Drawing {
 					ret.data[i + 2] = p->r;
 					++p;
 				}
-				//ƒpƒfƒBƒ“ƒOƒTƒCƒY‚¾‚¯ƒf[ƒ^ˆÊ’u‚ği‚ß‚é
+				//ãƒ‘ãƒ‡ã‚£ãƒ³ã‚°ã‚µã‚¤ã‚ºã ã‘ãƒ‡ãƒ¼ã‚¿ä½ç½®ã‚’é€²ã‚ã‚‹
 				for (uint32_t n = 0; n < paddingSize; ++n, ++i);
 			}
 			return ret;
 		}
-	public://ObjectƒNƒ‰ƒXƒI[ƒo[ƒ‰ƒCƒh
+	public://Objectã‚¯ãƒ©ã‚¹ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰
 		bool Equals(const Object& obj) const noexcept override { return GetTypeID() == obj.GetTypeID() ? *this == static_cast<const BMP&>(obj) : false; }
 		Type GetType() const noexcept override { return Type(u"System::Drawing::BMP"); }
 		String ToString() const noexcept override { return String(u"Bitmap Image"); }

@@ -1,6 +1,5 @@
-module;
-#include <memory>
-export module SmartPtr;
+﻿export module SmartPtr;
+import <memory>;
 
 export namespace System
 {
@@ -22,7 +21,7 @@ export namespace System
 		return std::make_unique<T>(static_cast<V &&>(val));
 	}
 	template <class T>
-	UniquePtr<T> Unique(size_t n) { return std::make_unique<T>(n); }
+	UniquePtr<T> UniqueArray(size_t n) { return std::make_unique<T>(n); }
 
 	template <class T>
 	using SharedPtr = std::shared_ptr<T>;
@@ -31,18 +30,12 @@ export namespace System
 	{
 		return std::make_shared<T>();
 	}
-	template <class T, class V>
-	SharedPtr<T> Shared(const V &val) noexcept
-	{
-		return std::make_shared<T>(val);
-	}
-	template <class T, class V>
-	SharedPtr<T> Shared(V &&val) noexcept
-	{
-		return std::make_shared<T>(static_cast<V &&>(val));
+	template<class T, class ...Args>
+	SharedPtr<T> Shared(Args&& ...args) noexcept {
+		return std::make_shared<T>(static_cast<Args&&>(args)...);
 	}
 	template <class T>
-	SharedPtr<T> Shared(size_t n) noexcept
+	SharedPtr<T> SharedArray(size_t n) noexcept
 	{
 		return std::make_shared<T>(n);
 	}

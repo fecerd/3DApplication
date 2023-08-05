@@ -1,4 +1,4 @@
-export module Scene;
+ï»¿export module Scene;
 import System;
 import EventArgs;
 import Common3D;
@@ -9,17 +9,17 @@ using namespace System::Application::Common3D;
 //Scene_Impl
 export namespace Engine {
 	enum class SceneState : uint8_t {
-		Unloaded = 0,	//‰Šú’l
-		Loaded,	//“Ç‚İ‚İÏ‚İ
-		Added,	//ActiveScene‚É’Ç‰Á‚³‚ê‚½’¼Œã(Å‰‚ÌƒtƒŒ[ƒ€‚ÅActivate‚É©“®‘JˆÚ)
-		Activate,	//OnActivate()ŠÖ”‚ªŒÄ‚Ño‚³‚ê‚éó‘ÔBEndActivate()ŠÖ”‚ÅActive‚É‘JˆÚ
-		Active,	//’Êí‚ÌActiveScene‚Ìó‘Ô
-		Deactivate,	//OnDeactivate()ŠÖ”‚ªŒÄ‚Ño‚³‚ê‚éó‘ÔBEndDeactivate()ŠÖ”‚ÅRemoved‚É‘JˆÚ
-		Removed,	//ActiveScene‚©‚çíœ‚³‚ê‚½’¼Œã(Ÿ‚ÌƒtƒŒ[ƒ€‚ÅLoaded‚É©“®‘JˆÚ)
-		UnLoading	//Scene‚ÌƒfƒXƒgƒ‰ƒNƒ^ŒÄ‚Ño‚µó‘Ô
+		Unloaded = 0,	//åˆæœŸå€¤
+		Loaded,	//èª­ã¿è¾¼ã¿æ¸ˆã¿
+		Added,	//ActiveSceneã«è¿½åŠ ã•ã‚ŒãŸç›´å¾Œ(æœ€åˆã®ãƒ•ãƒ¬ãƒ¼ãƒ ã§Activateã«è‡ªå‹•é·ç§»)
+		Activate,	//OnActivate()é–¢æ•°ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹çŠ¶æ…‹ã€‚EndActivate()é–¢æ•°ã§Activeã«é·ç§»
+		Active,	//é€šå¸¸ã®ActiveSceneã®çŠ¶æ…‹
+		Deactivate,	//OnDeactivate()é–¢æ•°ãŒå‘¼ã³å‡ºã•ã‚Œã‚‹çŠ¶æ…‹ã€‚EndDeactivate()é–¢æ•°ã§Removedã«é·ç§»
+		Removed,	//ActiveSceneã‹ã‚‰å‰Šé™¤ã•ã‚ŒãŸç›´å¾Œ(æ¬¡ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã§Loadedã«è‡ªå‹•é·ç§»)
+		UnLoading	//Sceneã®ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿å‘¼ã³å‡ºã—çŠ¶æ…‹
 	};
 
-	//Scene <-> GameObject‚ÌzŠÂQÆ‚ğØ‚é‚½‚ßtemplate‚Å’è‹`
+	//Scene <-> GameObjectã®å¾ªç’°å‚ç…§ã‚’åˆ‡ã‚‹ãŸã‚templateã§å®šç¾©
 	template<class GameObject>
 	class Scene_Impl {
 		const String m_name;
@@ -103,7 +103,7 @@ export namespace Engine {
 		const String& GetName() const noexcept { return m_name; }
 		uint64_t GetFrameCount() const noexcept { return m_frameCount; }
 		nanoseconds GetElapsedTimeNs() const noexcept { return m_elapsedTimeNs; }
-	public: /* ƒEƒBƒ“ƒhƒE‚Ö‚Ì•`‰æ‚Ég—p‚·‚éƒpƒ‰ƒ[ƒ^ */
+	public: /* ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¸ã®æç”»æ™‚ã«ä½¿ç”¨ã™ã‚‹ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ */
 		void SetDepth(float depth) noexcept { m_depth = System::Math::Clamp(depth, 0.f, 1.f); }
 		float GetDepth() const noexcept { return m_depth; }
 		void SetAlpha(float alpha) noexcept { m_alpha = System::Math::Clamp(alpha, 0.f, 1.f); }

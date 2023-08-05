@@ -1,4 +1,4 @@
-export module Form;
+﻿export module Form;
 import Control;
 import Vector;
 import WinAPI;

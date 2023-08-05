@@ -1,11 +1,11 @@
-export module Property;
+ï»¿export module Property;
 export import Function;
 import Traits;
 
 //DefaultGS
 namespace System {
 	/// <summary>
-	/// PropertyƒNƒ‰ƒX‚ªg—p‚·‚éƒfƒtƒHƒ‹ƒg‚ÌƒQƒbƒ^/ƒZƒbƒ^
+	/// Propertyã‚¯ãƒ©ã‚¹ãŒä½¿ç”¨ã™ã‚‹ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚²ãƒƒã‚¿/ã‚»ãƒƒã‚¿
 	/// </summary>
 	template<class T>
 	struct DefaultGS {
@@ -39,23 +39,23 @@ export namespace System {
 		T* operator->() noexcept { return &m_value; }
 		const T* operator->() const noexcept { return &m_value; }
 		/// <summary>
-		/// ”ñconstƒQƒbƒ^(QÆ”Å)
+		/// éconstã‚²ãƒƒã‚¿(å‚ç…§ç‰ˆ)
 		/// </summary>
 		operator T& () noexcept requires(HasGetterRef || !HasGetter) {
 			if constexpr (HasGetterRef) return GS::Get(m_value, m_object);
 			else return m_value;
 		}
 		/// <summary>
-		/// constƒQƒbƒ^(ƒ|ƒCƒ“ƒ^or’l”Å)
+		/// constã‚²ãƒƒã‚¿(ãƒã‚¤ãƒ³ã‚¿orå€¤ç‰ˆ)
 		/// </summary>
-		operator T() const noexcept requires(Traits::Pointer<T> || !HasGetterRef) {
+		operator T() const noexcept requires(Traits::Concepts::CPointer<T> || !HasGetterRef) {
 			if constexpr (HasGetter) return GS::Get(m_value, m_object);
 			else return m_value;
 		}
 		/// <summary>
-		/// constƒQƒbƒ^(QÆ”Å)
+		/// constã‚²ãƒƒã‚¿(å‚ç…§ç‰ˆ)
 		/// </summary>
-		operator T const& () const noexcept requires(!Traits::Pointer<T> && (HasGetterRef || !HasGetter)) {
+		operator T const& () const noexcept requires(!Traits::Concepts::CPointer<T> && (HasGetterRef || !HasGetter)) {
 			if constexpr (HasGetterRef) return GS::Get(m_value, m_object);
 			else return m_value;
 		}
@@ -107,23 +107,23 @@ export namespace System {
 		T* operator->() noexcept { return &m_value; }
 		const T* operator->() const noexcept { return &m_value; }
 		/// <summary>
-		/// ”ñconstƒQƒbƒ^(QÆ”Å)
+		/// éconstã‚²ãƒƒã‚¿(å‚ç…§ç‰ˆ)
 		/// </summary>
 		operator T& () noexcept requires(HasGetterRef || !HasGetter) {
 			if constexpr (HasGetterRef) return GS::Get(m_value);
 			else return m_value;
 		}
 		/// <summary>
-		/// constƒQƒbƒ^(ƒ|ƒCƒ“ƒ^or’l”Å)
+		/// constã‚²ãƒƒã‚¿(ãƒã‚¤ãƒ³ã‚¿orå€¤ç‰ˆ)
 		/// </summary>
-		operator T() const noexcept requires(Traits::Pointer<T> || !HasGetterRef) {
+		operator T() const noexcept requires(Traits::Concepts::CPointer<T> || !HasGetterRef) {
 			if constexpr (HasGetter) return GS::Get(m_value);
 			else return m_value;
 		}
 		/// <summary>
-		/// constƒQƒbƒ^(QÆ”Å)
+		/// constã‚²ãƒƒã‚¿(å‚ç…§ç‰ˆ)
 		/// </summary>
-		operator T const& () const noexcept requires(!Traits::Pointer<T> && (HasGetterRef || !HasGetter)) {
+		operator T const& () const noexcept requires(!Traits::Concepts::CPointer<T> && (HasGetterRef || !HasGetter)) {
 			if constexpr (HasGetterRef) return GS::Get(m_value);
 			else return m_value;
 		}

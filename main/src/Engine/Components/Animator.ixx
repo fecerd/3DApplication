@@ -1,4 +1,4 @@
-export module Components:Animator;
+ï»¿export module Components:Animator;
 import :Component;
 import :Transform;
 import :Animator_Internal;
@@ -17,30 +17,30 @@ List<ManagedObject<State>>& GetStates() noexcept {
 }
 
 /// <summary>
-/// ƒAƒjƒ[ƒVƒ‡ƒ“‚ğŠÇ—‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒgƒNƒ‰ƒX
+/// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’ç®¡ç†ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚¯ãƒ©ã‚¹
 /// </summary>
 export class Engine::Animator : public Engine::Component {
-	ManagedObject<State> m_currentState;	//Œ»İ‚Ìó‘Ô
-	size_t m_currentFrameNo = 0;	//Œ»İ‚ÌƒtƒŒ[ƒ€”Ô†
-	Vector<Transform> m_currentBones;	//Œ»İ‚Ìƒ{[ƒ“‚Ìp¨(ƒ{[ƒ“s—ñ)
-	bool m_end = false;	//Œ»İ‚Ìó‘Ô‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ªI—¹‚µ‚Ä‚¢‚éê‡Atrue(ƒAƒjƒ[ƒVƒ‡ƒ“ŒvZ‚ğƒXƒLƒbƒv‚·‚é)
-	size_t m_updateCountPerFrame = 1;	//Ÿ‚ÌƒtƒŒ[ƒ€”Ô†‚ÉˆÚ‚é‚½‚ß‚É•K—v‚ÈUpdateŠÖ”‚ÌŒÄ‚Ño‚µ‰ñ”(0‚É‚Í‚È‚ç‚È‚¢)
-	size_t m_updateCount = 1;	//UpdateŠÖ”‚ÌŒÄ‚Ño‚µ‚²‚Æ‚ÉƒfƒNƒŠƒƒ“ƒg‚³‚êA0‚É‚È‚Á‚½‚Æ‚«Ÿ‚ÌƒtƒŒ[ƒ€”Ô†‚ÉˆÚ‚é
-	AnimationController* m_controller = nullptr;	//ó‘Ô‘JˆÚ‚ğŠÇ—‚·‚éƒRƒ“ƒgƒ[ƒ‰
+	ManagedObject<State> m_currentState;	//ç¾åœ¨ã®çŠ¶æ…‹
+	size_t m_currentFrameNo = 0;	//ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·
+	Vector<Transform> m_currentBones;	//ç¾åœ¨ã®ãƒœãƒ¼ãƒ³ã®å§¿å‹¢(ãƒœãƒ¼ãƒ³è¡Œåˆ—)
+	bool m_end = false;	//ç¾åœ¨ã®çŠ¶æ…‹ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãŒçµ‚äº†ã—ã¦ã„ã‚‹å ´åˆã€true(ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³è¨ˆç®—ã‚’ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹)
+	size_t m_updateCountPerFrame = 1;	//æ¬¡ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã«ç§»ã‚‹ãŸã‚ã«å¿…è¦ãªUpdateé–¢æ•°ã®å‘¼ã³å‡ºã—å›æ•°(0ã«ã¯ãªã‚‰ãªã„)
+	size_t m_updateCount = 1;	//Updateé–¢æ•°ã®å‘¼ã³å‡ºã—ã”ã¨ã«ãƒ‡ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã•ã‚Œã€0ã«ãªã£ãŸã¨ãæ¬¡ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã«ç§»ã‚‹
+	AnimationController* m_controller = nullptr;	//çŠ¶æ…‹é·ç§»ã‚’ç®¡ç†ã™ã‚‹ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©
 	Resource m_animationResource;
 	Heap m_animationHeap;
 public:
 	Animator() noexcept;
 	Animator(GameObject* object) noexcept;
 	~Animator() noexcept;
-public: /* ƒ‚[ƒVƒ‡ƒ““o˜^ŠÖ˜A */
+public: /* ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ç™»éŒ²é–¢é€£ */
 	/// <summary>
-	/// ó‘Ô‚ğ“o˜^‚·‚é
+	/// çŠ¶æ…‹ã‚’ç™»éŒ²ã™ã‚‹
 	/// </summary>
-	/// <param name="filePath">ƒAƒjƒ[ƒVƒ‡ƒ“ƒtƒ@ƒCƒ‹‚Ìâ‘ÎƒpƒX</param>
-	/// <param name="name">ó‘Ô–¼</param>
-	/// <param name="repeat">ƒAƒjƒ[ƒVƒ‡ƒ“‚ğƒŠƒs[ƒgÄ¶‚·‚é‚©”Û‚©</param>
-	/// <returns>“o˜^‚É¬Œ÷‚µ‚½ê‡AtrueB‚·‚Å‚É“¯‚¶–¼‘O‚Ìó‘Ô‚ª‘¶İ‚·‚é‚Æ‚«A“o˜^‚É¸”s‚·‚é</returns>
+	/// <param name="filePath">ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãƒ•ã‚¡ã‚¤ãƒ«ã®çµ¶å¯¾ãƒ‘ã‚¹</param>
+	/// <param name="name">çŠ¶æ…‹å</param>
+	/// <param name="repeat">ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’ãƒªãƒ”ãƒ¼ãƒˆå†ç”Ÿã™ã‚‹ã‹å¦ã‹</param>
+	/// <returns>ç™»éŒ²ã«æˆåŠŸã—ãŸå ´åˆã€trueã€‚ã™ã§ã«åŒã˜åå‰ã®çŠ¶æ…‹ãŒå­˜åœ¨ã™ã‚‹ã¨ãã€ç™»éŒ²ã«å¤±æ•—ã™ã‚‹</returns>
 	bool SetMotion(const String& filePath, const String& name, bool repeat = true) noexcept {
 		if (ManagedObject<State>::GetObject(name)) return false;
 		State* tmp = new State(name);
@@ -58,11 +58,11 @@ public: /* ƒ‚[ƒVƒ‡ƒ““o˜^ŠÖ˜A */
 		return true;
 	}
 	/// <summary>
-	/// w’è‚µ‚½ó‘Ô‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ğƒŠƒs[ƒgÄ¶‚·‚é‚©”Û‚©‚ğİ’è‚·‚é
+	/// æŒ‡å®šã—ãŸçŠ¶æ…‹ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’ãƒªãƒ”ãƒ¼ãƒˆå†ç”Ÿã™ã‚‹ã‹å¦ã‹ã‚’è¨­å®šã™ã‚‹
 	/// </summary>
-	/// <param name="name">ó‘Ô–¼</param>
-	/// <param name="repeat">ƒAƒjƒ[ƒVƒ‡ƒ“‚ğƒŠƒs[ƒgÄ¶‚·‚é‚©”Û‚©</param>
-	/// <returns>İ’è‚É¬Œ÷‚µ‚½ê‡Atrue</returns>
+	/// <param name="name">çŠ¶æ…‹å</param>
+	/// <param name="repeat">ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’ãƒªãƒ”ãƒ¼ãƒˆå†ç”Ÿã™ã‚‹ã‹å¦ã‹</param>
+	/// <returns>è¨­å®šã«æˆåŠŸã—ãŸå ´åˆã€true</returns>
 	bool SetRepeat(const String& name, bool repeat) noexcept {
 		ManagedObject<State> state = ManagedObject<State>::GetObject(name);
 		if (!state) return false;
@@ -71,8 +71,8 @@ public: /* ƒ‚[ƒVƒ‡ƒ““o˜^ŠÖ˜A */
 	}
 public:
 	/// <summary>
-	/// Ÿ‚ÌƒtƒŒ[ƒ€”Ô†‚ÉˆÚ‚é‚½‚ß‚É•K—v‚ÈUpdateŠÖ”‚ÌŒÄ‚Ño‚µ‰ñ”‚ğİ’è‚·‚éB
-	/// 0‚Íw’è‚Å‚«‚È‚¢(1‚ğw’è‚µ‚½ê‡‚Æ“¯‚¶‚É‚È‚é)
+	/// æ¬¡ã®ãƒ•ãƒ¬ãƒ¼ãƒ ç•ªå·ã«ç§»ã‚‹ãŸã‚ã«å¿…è¦ãªUpdateé–¢æ•°ã®å‘¼ã³å‡ºã—å›æ•°ã‚’è¨­å®šã™ã‚‹ã€‚
+	/// 0ã¯æŒ‡å®šã§ããªã„(1ã‚’æŒ‡å®šã—ãŸå ´åˆã¨åŒã˜ã«ãªã‚‹)
 	/// </summary>
 	void SetUpdateCountPerFrame(size_t count) noexcept {
 		m_updateCountPerFrame = count ? count : 1;
@@ -80,44 +80,44 @@ public:
 	}
 public:
 	/// <summary>
-	/// AnimationController‚ğæ“¾‚·‚é
+	/// AnimationControllerã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	AnimationController& GetAnimationController() noexcept { return *m_controller; }
 	/// <summary>
-	/// Œ»İ‚Ìó‘Ô‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ªI—¹‚µ‚Ä‚¢‚é‚©”Û‚©‚ğæ“¾‚·‚é
+	/// ç¾åœ¨ã®çŠ¶æ…‹ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãŒçµ‚äº†ã—ã¦ã„ã‚‹ã‹å¦ã‹ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	bool IsEnd() const noexcept { return m_end; }
 private:
 	/// <summary>
-	/// Ä‹A“I‚ÉŒÄ‚Ño‚µ‚Äƒ{[ƒ“s—ñ‚ğXV‚·‚é
+	/// å†å¸°çš„ã«å‘¼ã³å‡ºã—ã¦ãƒœãƒ¼ãƒ³è¡Œåˆ—ã‚’æ›´æ–°ã™ã‚‹
 	/// </summary>
-	/// <param name="mat">ƒ{[ƒ“s—ñ‚Ì”z—ñ</param>
-	/// <param name="root">eƒ{[ƒ“</param>
-	/// <param name="bones">ƒ‚ƒfƒ‹‚Å’è‹`‚³‚ê‚Ä‚¢‚éƒ{[ƒ“î•ñ‚Ì”z—ñ</param>
-	/// <param name="boneCount">ƒ‚ƒfƒ‹‚Å’è‹`‚³‚ê‚Ä‚¢‚éƒ{[ƒ“‚ÌŒÂ”</param>
+	/// <param name="mat">ãƒœãƒ¼ãƒ³è¡Œåˆ—ã®é…åˆ—</param>
+	/// <param name="root">è¦ªãƒœãƒ¼ãƒ³</param>
+	/// <param name="bones">ãƒ¢ãƒ‡ãƒ«ã§å®šç¾©ã•ã‚Œã¦ã„ã‚‹ãƒœãƒ¼ãƒ³æƒ…å ±ã®é…åˆ—</param>
+	/// <param name="boneCount">ãƒ¢ãƒ‡ãƒ«ã§å®šç¾©ã•ã‚Œã¦ã„ã‚‹ãƒœãƒ¼ãƒ³ã®å€‹æ•°</param>
 	void GetBoneMatrix_Internal(Matrix* mat, Bone& root, Bone* bones, size_t boneCount) noexcept {
 		for (size_t i = 0; i < boneCount; ++i) {
 			Bone& b = bones[i];
 			if (b.parent != root.id || b.id >= boneCount) continue;
-			//‚±‚Ìƒ{[ƒ“‚Ìs—ñ‚Éeƒ{[ƒ“‚Ìs—ñ‚ğæZ‚·‚é
+			//ã“ã®ãƒœãƒ¼ãƒ³ã®è¡Œåˆ—ã«è¦ªãƒœãƒ¼ãƒ³ã®è¡Œåˆ—ã‚’ä¹—ç®—ã™ã‚‹
 			mat[b.id] = mat[root.id] * m_currentBones[b.id].LocalOrigin(b.position);
 			GetBoneMatrix_Internal(mat, b, bones, boneCount);
 		}
 	}
 public:
 	/// <summary>
-	/// Œ»İ‚Ìó‘Ô‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ğXV‚·‚éBƒtƒŒ[ƒ€‚ªi‚ñ‚¾‚Æ‚«Aƒ{[ƒ“‚Ìp¨‚ªÄŒvZ‚³‚ê‚é
+	/// ç¾åœ¨ã®çŠ¶æ…‹ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’æ›´æ–°ã™ã‚‹ã€‚ãƒ•ãƒ¬ãƒ¼ãƒ ãŒé€²ã‚“ã ã¨ãã€ãƒœãƒ¼ãƒ³ã®å§¿å‹¢ãŒå†è¨ˆç®—ã•ã‚Œã‚‹
 	/// </summary>
 	void Update() noexcept;
 	/// <summary>
-	/// ƒ{[ƒ“s—ñ‚Ì”z—ñ‚ğæ“¾‚·‚éB
-	/// g—p‚³‚ê‚È‚¢ƒ{[ƒ“‚Í’PˆÊs—ñ‚ÅƒNƒŠƒA‚³‚ê‚é
+	/// ãƒœãƒ¼ãƒ³è¡Œåˆ—ã®é…åˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
+	/// ä½¿ç”¨ã•ã‚Œãªã„ãƒœãƒ¼ãƒ³ã¯å˜ä½è¡Œåˆ—ã§ã‚¯ãƒªã‚¢ã•ã‚Œã‚‹
 	/// </summary>
-	/// <param name="out">ƒ{[ƒ“s—ñ‚Ìo—Íæ</param>
-	/// <returns>ƒ{[ƒ“”z—ñ‚ğæ“¾‚µ‚½ê‡AtrueBfalse‚ğ•Ô‚·‚Æ‚«Aˆø”‚Í‚·‚×‚Ä’PˆÊs—ñ‚ÉƒNƒŠƒA‚³‚ê‚é</returns>
+	/// <param name="out">ãƒœãƒ¼ãƒ³è¡Œåˆ—ã®å‡ºåŠ›å…ˆ</param>
+	/// <returns>ãƒœãƒ¼ãƒ³é…åˆ—ã‚’å–å¾—ã—ãŸå ´åˆã€trueã€‚falseã‚’è¿”ã™ã¨ãã€å¼•æ•°ã¯ã™ã¹ã¦å˜ä½è¡Œåˆ—ã«ã‚¯ãƒªã‚¢ã•ã‚Œã‚‹</returns>
 	bool GetBoneMatrix(Matrix(&out)[Common3D::BoneMatrixCount]) noexcept;
 	/// <summary>
-	/// ’PˆÊs—ñ‚ÅƒNƒŠƒA‚³‚ê‚½ƒ{[ƒ“s—ñ‚ğæ“¾‚·‚é
+	/// å˜ä½è¡Œåˆ—ã§ã‚¯ãƒªã‚¢ã•ã‚ŒãŸãƒœãƒ¼ãƒ³è¡Œåˆ—ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	static void GetIdentityBoneMatrix(Matrix(&out)[Common3D::BoneMatrixCount]) noexcept {
 		Matrix identity{};
@@ -125,25 +125,25 @@ public:
 	}
 private:
 	/// <summary>
-	/// 1ƒŠƒ“ƒNIK‚ğŒvZ‚·‚é
+	/// 1ãƒªãƒ³ã‚¯IKã‚’è¨ˆç®—ã™ã‚‹
 	/// </summary>
-	/// <param name="ik">IKƒ{[ƒ“î•ñ</param>
-	/// <param name="bones">ƒ‚ƒfƒ‹‚Å’è‹`‚³‚ê‚½ƒ{[ƒ“î•ñ‚Ì”z—ñ</param>
+	/// <param name="ik">IKãƒœãƒ¼ãƒ³æƒ…å ±</param>
+	/// <param name="bones">ãƒ¢ãƒ‡ãƒ«ã§å®šç¾©ã•ã‚ŒãŸãƒœãƒ¼ãƒ³æƒ…å ±ã®é…åˆ—</param>
 	void SolveLookAt(const IK& ik, Vector<Bone>& bones) noexcept;
 	/// <summary>
-	/// 2ƒŠƒ“ƒNIK‚ğ—]Œ·’è—‚ğ—˜—p‚µ‚ÄŒvZ‚·‚é
+	/// 2ãƒªãƒ³ã‚¯IKã‚’ä½™å¼¦å®šç†ã‚’åˆ©ç”¨ã—ã¦è¨ˆç®—ã™ã‚‹
 	/// </summary>
-	/// <param name="ik">IKƒ{[ƒ“î•ñ</param>
-	/// <param name="bones">ƒ‚ƒfƒ‹‚Å’è‹`‚³‚ê‚½ƒ{[ƒ“î•ñ‚Ì”z—ñ</param>
+	/// <param name="ik">IKãƒœãƒ¼ãƒ³æƒ…å ±</param>
+	/// <param name="bones">ãƒ¢ãƒ‡ãƒ«ã§å®šç¾©ã•ã‚ŒãŸãƒœãƒ¼ãƒ³æƒ…å ±ã®é…åˆ—</param>
 	void SolveCosine(const IK& ik, Vector<Bone>& bones) noexcept;
 	/// <summary>
-	/// 3ƒŠƒ“ƒNˆÈã‚ÌIK‚ğCCDIK‚ğ—p‚¢‚ÄŒvZ‚·‚é
+	/// 3ãƒªãƒ³ã‚¯ä»¥ä¸Šã®IKã‚’CCDIKã‚’ç”¨ã„ã¦è¨ˆç®—ã™ã‚‹
 	/// </summary>
-	/// <param name="ik">IKƒ{[ƒ“î•ñ</param>
-	/// <param name="bones">ƒ‚ƒfƒ‹‚Å’è‹`‚³‚ê‚½ƒ{[ƒ“î•ñ‚Ì”z—ñ</param>
+	/// <param name="ik">IKãƒœãƒ¼ãƒ³æƒ…å ±</param>
+	/// <param name="bones">ãƒ¢ãƒ‡ãƒ«ã§å®šç¾©ã•ã‚ŒãŸãƒœãƒ¼ãƒ³æƒ…å ±ã®é…åˆ—</param>
 	void SolveCCDIK(const IK& ik, Vector<Bone>& bones) noexcept;
 	/// <summary>
-	/// ‚·‚×‚Ä‚ÌIKƒ{[ƒ“‚ğŒvZ‚µAƒ{[ƒ“p¨‚ğXV‚·‚é
+	/// ã™ã¹ã¦ã®IKãƒœãƒ¼ãƒ³ã‚’è¨ˆç®—ã—ã€ãƒœãƒ¼ãƒ³å§¿å‹¢ã‚’æ›´æ–°ã™ã‚‹
 	/// </summary>
 	void SolveIK() noexcept;
 public:

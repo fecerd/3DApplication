@@ -1,4 +1,4 @@
-export module OpenType:Internal;
+ï»¿export module OpenType:Internal;
 #undef UNICODE
 export import CSTDINT;
 export import Traits;
@@ -13,16 +13,16 @@ export import IO;
 export import Image;
 using namespace System;
 
-//“à•”—pEnum
+//å†…éƒ¨ç”¨Enum
 export namespace System {
-	//•¶šƒGƒ“ƒR[ƒhİ’è
+	//æ–‡å­—ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰è¨­å®š
 	enum class EncodingType : uint8_t {
 		NONE,
 		UNICODE,
 		SHIFT_JIS
 	};
 
-	//DICTŒ`®‚Åg—p‚·‚é‰‰Zq
+	//DICTå½¢å¼ã§ä½¿ç”¨ã™ã‚‹æ¼”ç®—å­
 	enum class DICTOperator : uint16_t {
 		version = 0x00,
 		Notice,
@@ -80,12 +80,12 @@ export namespace System {
 		FDArray,
 		FDSelect,
 		FontName,
-		Undefined	//DICTKeyValue—p
+		Undefined	//DICTKeyValueç”¨
 	};
 
 	System::String GetDICTOperatorName(DICTOperator opr) noexcept {
 		switch (opr) {
-			//Value‚ªˆê‚Â
+			//ValueãŒä¸€ã¤
 		case DICTOperator::version: return EnumName<DICTOperator>::GetName<DICTOperator::version>();
 		case DICTOperator::Notice: return EnumName<DICTOperator>::GetName<DICTOperator::Notice>();
 		case DICTOperator::Fullname: return EnumName<DICTOperator>::GetName<DICTOperator::Fullname>();
@@ -141,7 +141,7 @@ export namespace System {
 		}
 	}
 
-	//GLYFƒe[ƒuƒ‹‰ğÍ—p’è”
+	//GLYFãƒ†ãƒ¼ãƒ–ãƒ«è§£æç”¨å®šæ•°
 	enum class SimpleGlyphFlags : uint8_t {
 		ON_CURVE_POINT = 0x01,
 		X_SHORT_VECTOR = 0x02,
@@ -178,7 +178,7 @@ export namespace System {
 		return ~static_cast<uint8_t>(arg);
 	}
 
-	//Type2 CharStringŒ`®‚Åg—p‚·‚é‰‰Zq
+	//Type2 CharStringå½¢å¼ã§ä½¿ç”¨ã™ã‚‹æ¼”ç®—å­
 	enum class Type2Operator {
 		Hstem = 0x01,
 		Vstem = 0x03,
@@ -235,30 +235,30 @@ export namespace System {
 //OffsetTable
 export namespace System {
 	/// <summary>
-	/// ƒIƒtƒZƒbƒgƒe[ƒuƒ‹‚ğ•\‚·\‘¢‘ÌB
-	/// OpenTypeƒtƒHƒ“ƒgƒtƒ@ƒCƒ‹‚Ìæ“ª‚É”z’u‚³‚êAƒtƒ@ƒCƒ‹ƒ^ƒCƒv‚âŸ‚É”z’u‚³‚ê‚é
-	/// ƒe[ƒuƒ‹ƒŒƒR[ƒh”z—ñ‚Ì—v‘f”‚È‚Ç‚ğ¦‚·B
+	/// ã‚ªãƒ•ã‚»ãƒƒãƒˆãƒ†ãƒ¼ãƒ–ãƒ«ã‚’è¡¨ã™æ§‹é€ ä½“ã€‚
+	/// OpenTypeãƒ•ã‚©ãƒ³ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã®å…ˆé ­ã«é…ç½®ã•ã‚Œã€ãƒ•ã‚¡ã‚¤ãƒ«ã‚¿ã‚¤ãƒ—ã‚„æ¬¡ã«é…ç½®ã•ã‚Œã‚‹
+	/// ãƒ†ãƒ¼ãƒ–ãƒ«ãƒ¬ã‚³ãƒ¼ãƒ‰é…åˆ—ã®è¦ç´ æ•°ãªã©ã‚’ç¤ºã™ã€‚
 	/// </summary>
 	struct OffsetTable {
-	private://ƒAƒEƒgƒ‰ƒCƒ“ƒf[ƒ^‚ÌŒ`®‚ğ•\‚·’è”Bsfnt_version‚Æ”äŠr‚·‚éB
-		static constexpr uint32_t TRUETYPE_VERSION = 0x00010000u;	//TrueTypeƒAƒEƒgƒ‰ƒCƒ“
-		static constexpr uint32_t CFF_VERSION = 0x4f54544fu;	//CFF(PostScriptƒAƒEƒgƒ‰ƒCƒ“)
+	private://ã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³ãƒ‡ãƒ¼ã‚¿ã®å½¢å¼ã‚’è¡¨ã™å®šæ•°ã€‚sfnt_versionã¨æ¯”è¼ƒã™ã‚‹ã€‚
+		static constexpr uint32_t TRUETYPE_VERSION = 0x00010000u;	//TrueTypeã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³
+		static constexpr uint32_t CFF_VERSION = 0x4f54544fu;	//CFF(PostScriptã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³)
 	public:
-		uint32_t sfnt_version = 0;	//ƒAƒEƒgƒ‰ƒCƒ“Œ`®
-		uint16_t numTables = 0;	//ƒe[ƒuƒ‹ƒŒƒR[ƒh”z—ñ‚Ì—v‘f”
+		uint32_t sfnt_version = 0;	//ã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³å½¢å¼
+		uint16_t numTables = 0;	//ãƒ†ãƒ¼ãƒ–ãƒ«ãƒ¬ã‚³ãƒ¼ãƒ‰é…åˆ—ã®è¦ç´ æ•°
 		uint16_t searchRange = 0;
 		uint16_t entrySelector = 0;
 		uint16_t rangeShift = 0;
 	public:
 		/// <summary>
-		/// ƒtƒ@ƒCƒ‹‚©‚çƒIƒtƒZƒbƒgƒe[ƒuƒ‹‚ğ“Ç‚İæ‚èA‚±‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğXV‚·‚éB
+		/// ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ã‚ªãƒ•ã‚»ãƒƒãƒˆãƒ†ãƒ¼ãƒ–ãƒ«ã‚’èª­ã¿å–ã‚Šã€ã“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’æ›´æ–°ã™ã‚‹ã€‚
 		/// </summary>
 		/// <param name="file">
-		/// OpenTypeƒtƒHƒ“ƒgƒtƒ@ƒCƒ‹‚ğ“Ç‚İæ‚è‰Â”\‚ÌƒoƒCƒiƒŠƒf[ƒ^‚Æ‚µ‚ÄŠJ‚¢‚½ƒtƒ@ƒCƒ‹ƒXƒgƒŠ[ƒ€B
+		/// OpenTypeãƒ•ã‚©ãƒ³ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿å–ã‚Šå¯èƒ½ã®ãƒã‚¤ãƒŠãƒªãƒ‡ãƒ¼ã‚¿ã¨ã—ã¦é–‹ã„ãŸãƒ•ã‚¡ã‚¤ãƒ«ã‚¹ãƒˆãƒªãƒ¼ãƒ ã€‚
 		/// </param>
 		/// <returns>
-		/// “Ç‚İæ‚èŒã‚ÌFileStream‚Ìó‘Ô’lB
-		/// æ“ª4ƒoƒCƒg‚ªOpenTypeƒtƒHƒ“ƒgƒtƒ@ƒCƒ‹‚Ì‚à‚Ì‚Æˆê’v‚µ‚È‚¢ê‡AfalseB
+		/// èª­ã¿å–ã‚Šå¾Œã®FileStreamã®çŠ¶æ…‹å€¤ã€‚
+		/// å…ˆé ­4ãƒã‚¤ãƒˆãŒOpenTypeãƒ•ã‚©ãƒ³ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚‚ã®ã¨ä¸€è‡´ã—ãªã„å ´åˆã€falseã€‚
 		/// </returns>
 		bool Load(System::IO::FileStream& file) noexcept {
 			if (!file) return false;
@@ -278,30 +278,30 @@ export namespace System {
 //TableRecord
 export namespace System {
 	/// <summary>
-	/// ƒe[ƒuƒ‹ƒŒƒR[ƒh‚ğ•\‚·\‘¢‘ÌB
-	/// ƒIƒtƒZƒbƒgƒe[ƒuƒ‹‚É‘±‚«”z—ñ‚Æ‚µ‚Ä”z’u‚³‚êA
-	/// Šeƒe[ƒuƒ‹‚Ö‚ÌƒIƒtƒZƒbƒg‚Æ‚»‚Ìƒe[ƒuƒ‹‚ÌƒoƒCƒg’·‚ğ¦‚·B
+	/// ãƒ†ãƒ¼ãƒ–ãƒ«ãƒ¬ã‚³ãƒ¼ãƒ‰ã‚’è¡¨ã™æ§‹é€ ä½“ã€‚
+	/// ã‚ªãƒ•ã‚»ãƒƒãƒˆãƒ†ãƒ¼ãƒ–ãƒ«ã«ç¶šãé…åˆ—ã¨ã—ã¦é…ç½®ã•ã‚Œã€
+	/// å„ãƒ†ãƒ¼ãƒ–ãƒ«ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã¨ãã®ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒã‚¤ãƒˆé•·ã‚’ç¤ºã™ã€‚
 	/// </summary>
 	struct TableRecord {
-		//ƒe[ƒuƒ‹‚Ì¯•Êq
+		//ãƒ†ãƒ¼ãƒ–ãƒ«ã®è­˜åˆ¥å­
 		char tag[4] = {};
-		//ƒe[ƒuƒ‹‚Ì4ƒoƒCƒgƒ`ƒFƒbƒNƒTƒ€B
-		//HEAD::checkSumAdjustment‚æ‚è‚àæ‚ÉŒvZ‚·‚éB
-		//(HEADƒe[ƒuƒ‹ŒvZ‚É‚ÍHEAD::checkSumAdjustment‚Í0‚Æ‚µ‚Äˆµ‚¤)
+		//ãƒ†ãƒ¼ãƒ–ãƒ«ã®4ãƒã‚¤ãƒˆãƒã‚§ãƒƒã‚¯ã‚µãƒ ã€‚
+		//HEAD::checkSumAdjustmentã‚ˆã‚Šã‚‚å…ˆã«è¨ˆç®—ã™ã‚‹ã€‚
+		//(HEADãƒ†ãƒ¼ãƒ–ãƒ«è¨ˆç®—æ™‚ã«ã¯HEAD::checkSumAdjustmentã¯0ã¨ã—ã¦æ‰±ã†)
 		uint32_t checkSum = 0;
-		//ƒtƒ@ƒCƒ‹‚Ìæ“ª‚©‚çƒe[ƒuƒ‹‚Ö‚ÌƒIƒtƒZƒbƒg(ƒoƒCƒg)
+		//ãƒ•ã‚¡ã‚¤ãƒ«ã®å…ˆé ­ã‹ã‚‰ãƒ†ãƒ¼ãƒ–ãƒ«ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ(ãƒã‚¤ãƒˆ)
 		uint32_t offset = 0;
-		//ƒe[ƒuƒ‹‚ÌƒoƒCƒg’·
+		//ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒã‚¤ãƒˆé•·
 		uint32_t length = 0;
 	public:
 		/// <summary>
-		/// ƒtƒ@ƒCƒ‹‚©‚çƒe[ƒuƒ‹ƒŒƒR[ƒh‚ğ“Ç‚İæ‚èA‚±‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğXV‚·‚éB
+		/// ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ãƒ†ãƒ¼ãƒ–ãƒ«ãƒ¬ã‚³ãƒ¼ãƒ‰ã‚’èª­ã¿å–ã‚Šã€ã“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’æ›´æ–°ã™ã‚‹ã€‚
 		/// </summary>
 		/// <param name="file">
-		/// OpenTypeƒtƒHƒ“ƒgƒtƒ@ƒCƒ‹‚ğ“Ç‚İæ‚è‰Â”\‚ÌƒoƒCƒiƒŠƒf[ƒ^‚Æ‚µ‚ÄŠJ‚¢‚½ƒtƒ@ƒCƒ‹ƒXƒgƒŠ[ƒ€B
-		/// Œ»İ‚ÌƒV[ƒNˆÊ’u‚©‚ç“Ç‚İæ‚éB
+		/// OpenTypeãƒ•ã‚©ãƒ³ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿å–ã‚Šå¯èƒ½ã®ãƒã‚¤ãƒŠãƒªãƒ‡ãƒ¼ã‚¿ã¨ã—ã¦é–‹ã„ãŸãƒ•ã‚¡ã‚¤ãƒ«ã‚¹ãƒˆãƒªãƒ¼ãƒ ã€‚
+		/// ç¾åœ¨ã®ã‚·ãƒ¼ã‚¯ä½ç½®ã‹ã‚‰èª­ã¿å–ã‚‹ã€‚
 		/// </param>
-		/// <returns>“Ç‚İæ‚èŒã‚ÌFileStream‚Ìó‘Ô’l</returns>
+		/// <returns>èª­ã¿å–ã‚Šå¾Œã®FileStreamã®çŠ¶æ…‹å€¤</returns>
 		bool Load(System::IO::FileStream& file) noexcept {
 			if (!file) return false;
 			file.ReadBE(tag);
@@ -317,10 +317,10 @@ export namespace System {
 //SubTables in CMAP
 namespace System {
 	/// <summary>
-	/// CMAPƒNƒ‰ƒX‚Åg—p‚³‚ê‚éƒTƒuƒe[ƒuƒ‹‚ÌŠî’êƒNƒ‰ƒX
+	/// CMAPã‚¯ãƒ©ã‚¹ã§ä½¿ç”¨ã•ã‚Œã‚‹ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®åŸºåº•ã‚¯ãƒ©ã‚¹
 	/// </summary>
 	struct SubTable {
-		//ƒTƒuƒe[ƒuƒ‹‚ÌƒtƒH[ƒ}ƒbƒg”Ô†
+		//ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆç•ªå·
 		uint16_t format;
 	public:
 		SubTable() noexcept : SubTable(0xffff) {}
@@ -328,26 +328,26 @@ namespace System {
 		virtual ~SubTable() noexcept = default;
 	public:
 		/// <summary>
-		/// ƒR[ƒhƒ|ƒCƒ“ƒg‚É‘Î‰‚·‚éƒOƒŠƒtID‚ğæ“¾‚·‚é
+		/// ã‚³ãƒ¼ãƒ‰ãƒã‚¤ãƒ³ãƒˆã«å¯¾å¿œã™ã‚‹ã‚°ãƒªãƒ•IDã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="codePoint">ƒR[ƒhƒ|ƒCƒ“ƒg</param>
-		/// <returns>ƒOƒŠƒtIDB‘¶İ‚µ‚È‚¢ƒR[ƒhƒ|ƒCƒ“ƒg‚Ìê‡A0‚ğ•Ô‚·B</returns>
+		/// <param name="codePoint">ã‚³ãƒ¼ãƒ‰ãƒã‚¤ãƒ³ãƒˆ</param>
+		/// <returns>ã‚°ãƒªãƒ•IDã€‚å­˜åœ¨ã—ãªã„ã‚³ãƒ¼ãƒ‰ãƒã‚¤ãƒ³ãƒˆã®å ´åˆã€0ã‚’è¿”ã™ã€‚</returns>
 		virtual uint16_t GetGID(uint32_t codePoint) const noexcept = 0;
 		/// <summary>
-		/// ƒTƒuƒe[ƒuƒ‹‚ÌƒoƒCƒg’·‚ğæ“¾‚·‚é
+		/// ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒã‚¤ãƒˆé•·ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		virtual uint32_t Length() const noexcept = 0;
 	};
 
 	/// <summary>
-	/// SubTableFormat0, 2, 4, 6‚ÌŒp³Œ³
+	/// SubTableFormat0, 2, 4, 6ã®ç¶™æ‰¿å…ƒ
 	/// </summary>
 	struct SubTableBase16 : public SubTable {
-		//ƒTƒuƒe[ƒuƒ‹‚ÌƒoƒCƒg’·
+		//ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒã‚¤ãƒˆé•·
 		uint16_t length;
-		//Œ¾ŒêŒÅ—L‚ÌƒGƒ“ƒR[ƒfƒBƒ“ƒO‚ğw’è‚·‚éB
-		//‚±‚ÌSubTable‚Ö‚ÌƒIƒtƒZƒbƒg‚ğ‚ÂEncodingRecord‚ÌplatformIDƒƒ“ƒo‚ª1ˆÈŠO‚Ìê‡A0ŒÅ’èB
-		//1(Macintosh)‚Ìê‡Aw’è‚µ‚½‚¢Œ¾Œê‚ÌMacintoshŒ¾ŒêID‚É1‚ğ‰ÁZ‚µ‚½’l‚ğw’è‚·‚éB
+		//è¨€èªå›ºæœ‰ã®ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã‚’æŒ‡å®šã™ã‚‹ã€‚
+		//ã“ã®SubTableã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’æŒã¤EncodingRecordã®platformIDãƒ¡ãƒ³ãƒãŒ1ä»¥å¤–ã®å ´åˆã€0å›ºå®šã€‚
+		//1(Macintosh)ã®å ´åˆã€æŒ‡å®šã—ãŸã„è¨€èªã®Macintoshè¨€èªIDã«1ã‚’åŠ ç®—ã—ãŸå€¤ã‚’æŒ‡å®šã™ã‚‹ã€‚
 		uint16_t language;
 	public:
 		SubTableBase16(System::IO::FileStream& file, uint16_t format) noexcept : SubTable(format) {
@@ -360,15 +360,15 @@ namespace System {
 	};
 
 	/// <summary>
-	/// SubTableFormat8, 10, 12, 13, 14‚ÌŒp³Œ³
+	/// SubTableFormat8, 10, 12, 13, 14ã®ç¶™æ‰¿å…ƒ
 	/// </summary>
 	struct SubTableBase32 : public SubTable {
-		//ƒTƒuƒe[ƒuƒ‹‚ÌƒoƒCƒg’·
+		//ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒã‚¤ãƒˆé•·
 		uint32_t length;
-		//Œ¾ŒêŒÅ—L‚ÌƒGƒ“ƒR[ƒfƒBƒ“ƒO‚ğw’è‚·‚éB
-		//‚±‚ÌSubTable‚Ö‚ÌƒIƒtƒZƒbƒg‚ğ‚ÂEncodingRecord‚ÌplatformIDƒƒ“ƒo‚ª1ˆÈŠO‚Ìê‡A0ŒÅ’èB
-		//1(Macintosh)‚Ìê‡Aw’è‚µ‚½‚¢Œ¾Œê‚ÌMacintoshŒ¾ŒêID‚É1‚ğ‰ÁZ‚µ‚½’l‚ğw’è‚·‚éB
-		//Format14‚É‚Í‚±‚Ìƒƒ“ƒo‚ª‘¶İ‚µ‚È‚¢B
+		//è¨€èªå›ºæœ‰ã®ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã‚’æŒ‡å®šã™ã‚‹ã€‚
+		//ã“ã®SubTableã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’æŒã¤EncodingRecordã®platformIDãƒ¡ãƒ³ãƒãŒ1ä»¥å¤–ã®å ´åˆã€0å›ºå®šã€‚
+		//1(Macintosh)ã®å ´åˆã€æŒ‡å®šã—ãŸã„è¨€èªã®Macintoshè¨€èªIDã«1ã‚’åŠ ç®—ã—ãŸå€¤ã‚’æŒ‡å®šã™ã‚‹ã€‚
+		//Format14ã«ã¯ã“ã®ãƒ¡ãƒ³ãƒãŒå­˜åœ¨ã—ãªã„ã€‚
 		uint32_t language;
 	public:
 		SubTableBase32(System::IO::FileStream& file, uint16_t format) noexcept : SubTable(format) {
@@ -385,11 +385,11 @@ namespace System {
 	};
 
 	/// <summary>
-	/// 1ƒoƒCƒg•¶š‚ÆƒOƒŠƒt‚ğŠÖ˜A•t‚¯‚éƒtƒH[ƒ}ƒbƒgB
+	/// 1ãƒã‚¤ãƒˆæ–‡å­—ã¨ã‚°ãƒªãƒ•ã‚’é–¢é€£ä»˜ã‘ã‚‹ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã€‚
 	/// </summary>
 	struct SubTableFormat0 : public SubTableBase16 {
-		//ƒOƒŠƒtƒCƒ“ƒfƒbƒNƒX‚Ì”z—ñB
-		//•¶šƒR[ƒh‚ğ”z—ñ‚Ì“Y‚¦š‚Æ‚µ‚½‚Æ‚«A’l‚ÍƒOƒŠƒtƒCƒ“ƒfƒbƒNƒX‚ğ•\‚·B
+		//ã‚°ãƒªãƒ•ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®é…åˆ—ã€‚
+		//æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚’é…åˆ—ã®æ·»ãˆå­—ã¨ã—ãŸã¨ãã€å€¤ã¯ã‚°ãƒªãƒ•ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’è¡¨ã™ã€‚
 		uint8_t glyphIdArray[256];
 	public:
 		SubTableFormat0(System::IO::FileStream& file) noexcept : SubTableBase16(file, 0) {
@@ -402,21 +402,21 @@ namespace System {
 	};
 
 	/// <summary>
-	/// 1ƒoƒCƒg•¶š‚Æ2ƒoƒCƒg•¶š‚ª¬‡‚³‚ê‚½•¶šƒR[ƒh(“ú–{ŒêA’†‘ŒêAŠØ‘Œê)‚ÆƒOƒŠƒt‚ğŠÖ˜A•t‚¯‚éƒtƒH[ƒ}ƒbƒgB
+	/// 1ãƒã‚¤ãƒˆæ–‡å­—ã¨2ãƒã‚¤ãƒˆæ–‡å­—ãŒæ··åˆã•ã‚ŒãŸæ–‡å­—ã‚³ãƒ¼ãƒ‰(æ—¥æœ¬èªã€ä¸­å›½èªã€éŸ“å›½èª)ã¨ã‚°ãƒªãƒ•ã‚’é–¢é€£ä»˜ã‘ã‚‹ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã€‚
 	/// </summary>
 	struct SubTableFormat2 : public SubTableBase16 {
 		/// <summary>
-		/// •¶šƒR[ƒh‚Ì‰ºˆÊƒoƒCƒg‚©‚çGlyphIndexArray‚Ö‚Ì‘Î‰‚ğ•\‚·\‘¢‘Ì
+		/// æ–‡å­—ã‚³ãƒ¼ãƒ‰ã®ä¸‹ä½ãƒã‚¤ãƒˆã‹ã‚‰GlyphIndexArrayã¸ã®å¯¾å¿œã‚’è¡¨ã™æ§‹é€ ä½“
 		/// </summary>
 		struct SubHeader {
-			//‰ºˆÊƒoƒCƒg‚ÌÅ‰‚Ì’l(Å¬’l)
+			//ä¸‹ä½ãƒã‚¤ãƒˆã®æœ€åˆã®å€¤(æœ€å°å€¤)
 			uint16_t firstCode;
-			//‰ºˆÊƒoƒCƒg‚Ì”ÍˆÍ([firstCode, firstCode + entryCode])
+			//ä¸‹ä½ãƒã‚¤ãƒˆã®ç¯„å›²([firstCode, firstCode + entryCode])
 			uint16_t entryCount;
-			//glyphIndexArray[]‚Ì‘Î‰‚·‚é’l‚É‰ÁZ‚·‚é·•ª’lB
-			//–@‚Í65536‚È‚Ì‚ÅAƒOƒŠƒtƒCƒ“ƒfƒbƒNƒX‚Í(uint16_t)(glyphIndexArray[n] + idDelta)B
+			//glyphIndexArray[]ã®å¯¾å¿œã™ã‚‹å€¤ã«åŠ ç®—ã™ã‚‹å·®åˆ†å€¤ã€‚
+			//æ³•ã¯65536ãªã®ã§ã€ã‚°ãƒªãƒ•ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¯(uint16_t)(glyphIndexArray[n] + idDelta)ã€‚
 			int16_t idDelta;
-			//‚±‚ÌSubHeader‚ÌŸ‚ÌƒoƒCƒg‚©‚çA‚±‚ÌSubHeader‚É‘Î‰‚·‚églyphIndexArray[]‚Ü‚Å‚ÌƒoƒCƒg”
+			//ã“ã®SubHeaderã®æ¬¡ã®ãƒã‚¤ãƒˆã‹ã‚‰ã€ã“ã®SubHeaderã«å¯¾å¿œã™ã‚‹glyphIndexArray[]ã¾ã§ã®ãƒã‚¤ãƒˆæ•°
 			uint16_t idRangeOffset;
 		public:
 			SubHeader() noexcept = default;
@@ -428,19 +428,19 @@ namespace System {
 			}
 		};
 	public:
-		//•¶šƒR[ƒh‚ÌãˆÊƒoƒCƒg‚ğƒCƒ“ƒfƒbƒNƒX‚Æ‚µA‘Î‰‚·‚ésubHeaders[]‚ÌƒCƒ“ƒfƒbƒNƒX‚Ì8”{‚ğ’l‚Æ‚·‚é”z—ñ
+		//æ–‡å­—ã‚³ãƒ¼ãƒ‰ã®ä¸Šä½ãƒã‚¤ãƒˆã‚’ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨ã—ã€å¯¾å¿œã™ã‚‹subHeaders[]ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®8å€ã‚’å€¤ã¨ã™ã‚‹é…åˆ—
 		uint16_t subHeaderKeys[256];
-		//—v‘f”‚Í(subHeaderKeys[]‚Ì0‚Å‚È‚¢—v‘f” + 1)
+		//è¦ç´ æ•°ã¯(subHeaderKeys[]ã®0ã§ãªã„è¦ç´ æ•° + 1)
 		Vector<SubHeader> subHeaders;
-		// ƒOƒŠƒtƒCƒ“ƒfƒbƒNƒX‚Ì”z—ñB
-		// subHeaders[n]‚É‚ÍƒCƒ“ƒfƒbƒNƒX”Ô†
-		// (subHeaders[n].idRangeOffset - (subHeaders.Count() - n - 1) * sizeof(SubHeader)) / sizeof(glyphIndexArray[0])‚ª‘Î‰‚·‚éB
+		// ã‚°ãƒªãƒ•ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®é…åˆ—ã€‚
+		// subHeaders[n]ã«ã¯ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç•ªå·
+		// (subHeaders[n].idRangeOffset - (subHeaders.Count() - n - 1) * sizeof(SubHeader)) / sizeof(glyphIndexArray[0])ãŒå¯¾å¿œã™ã‚‹ã€‚
 		uint16_t* glyphIndexArray = nullptr;
 	public:
 		SubTableFormat2(System::IO::FileStream& file) noexcept : SubTableBase16(file, 2) {
 			file.ReadBE(subHeaderKeys);
 			uint16_t subHeaderCount = 0;
-			//subHeaderKeys‚Ì’†‚Åˆê”Ô‘å‚«‚¢’l‚ğ8‚ÅŠ„‚Á‚½’l‚ªSubHeaders‚ÌÅŒã‚ÌƒCƒ“ƒfƒbƒNƒX
+			//subHeaderKeysã®ä¸­ã§ä¸€ç•ªå¤§ãã„å€¤ã‚’8ã§å‰²ã£ãŸå€¤ãŒSubHeadersã®æœ€å¾Œã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 			for (uint16_t i = 0; i < 256; ++i) {
 				if (subHeaderCount < subHeaderKeys[i]) subHeaderCount = subHeaderKeys[i];
 			}
@@ -448,7 +448,7 @@ namespace System {
 			++subHeaderCount;
 			subHeaders.Reserve(subHeaderCount);
 			for (uint16_t i = 0; i < subHeaderCount; ++i) subHeaders.Add(SubHeader(file));
-			//glyphIndexArray[]‚ÌƒoƒCƒg’·‚Í(ƒTƒuƒe[ƒuƒ‹‚ÌƒoƒCƒg’·)-(‚±‚±‚Ü‚Å“Ç‚İ‚ñ‚¾ƒoƒCƒg”)
+			//glyphIndexArray[]ã®ãƒã‚¤ãƒˆé•·ã¯(ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒã‚¤ãƒˆé•·)-(ã“ã“ã¾ã§èª­ã¿è¾¼ã‚“ã ãƒã‚¤ãƒˆæ•°)
 			uint16_t glyphIndexCount = (this->length - (6 + sizeof(subHeaderKeys) + sizeof(SubHeader) * subHeaderCount)) / sizeof(uint16_t);
 			glyphIndexArray = new uint16_t[glyphIndexCount];
 			file.ReadBE(glyphIndexArray, glyphIndexCount);
@@ -471,35 +471,35 @@ namespace System {
 					uint16_t baseGID = glyphIndexArray[glyphIndexArrayIndex];
 					return static_cast<uint16_t>(baseGID ? baseGID + subHeader.idDelta + (low - subHeader.firstCode) : 0);
 				}
-				else return 0;	//’è‹`ã‚ ‚è‚¦‚È‚¢
+				else return 0;	//å®šç¾©ä¸Šã‚ã‚Šãˆãªã„
 			}
 		}
 	};
 
 	/// <summary>
-	/// Unicode‚ÌU+0000‚©‚çU+FFFF(Šî–{‘½Œ¾Œê–Ê•¶š)‚Ì‚İ‚ğƒOƒŠƒt‚ÉŠÖ˜A•t‚¯‚éƒtƒH[ƒ}ƒbƒg
+	/// Unicodeã®U+0000ã‹ã‚‰U+FFFF(åŸºæœ¬å¤šè¨€èªé¢æ–‡å­—)ã®ã¿ã‚’ã‚°ãƒªãƒ•ã«é–¢é€£ä»˜ã‘ã‚‹ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
 	/// </summary>
 	struct SubTableFormat4 : public SubTableBase16 {
-		//ƒZƒOƒƒ“ƒg‚ÌŒÂ”‚ğ2”{‚µ‚½’lB
-		//endCode[], startCode[], idDelta[], idRangeOffset[]‚Ì—v‘f”‚Í(segCountX2 / 2)B
+		//ã‚»ã‚°ãƒ¡ãƒ³ãƒˆã®å€‹æ•°ã‚’2å€ã—ãŸå€¤ã€‚
+		//endCode[], startCode[], idDelta[], idRangeOffset[]ã®è¦ç´ æ•°ã¯(segCountX2 / 2)ã€‚
 		uint16_t segCountX2;
-		//2 * (2^floor(log2(segCount)))‚ª“ü‚é
+		//2 * (2^floor(log2(segCount)))ãŒå…¥ã‚‹
 		uint16_t searchRange;
-		//log2(searchRange / 2)‚ª“ü‚é
+		//log2(searchRange / 2)ãŒå…¥ã‚‹
 		uint16_t entrySelector;
-		//segCountX2 - searchRange‚ª“ü‚é
+		//segCountX2 - searchRangeãŒå…¥ã‚‹
 		uint16_t rangeShift;
-		//‘Î‰‚·‚éƒZƒOƒƒ“ƒg‚ÌÅŒã‚Ì•¶šƒR[ƒh‚ğ¦‚·”z—ñBÅŒã‚Ì—v‘f‚Í0xffffŒÅ’èB
+		//å¯¾å¿œã™ã‚‹ã‚»ã‚°ãƒ¡ãƒ³ãƒˆã®æœ€å¾Œã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚’ç¤ºã™é…åˆ—ã€‚æœ€å¾Œã®è¦ç´ ã¯0xffffå›ºå®šã€‚
 		uint16_t* endCode = nullptr;
-		//0ŒÅ’è
+		//0å›ºå®š
 		uint16_t reservedPad;
-		//‘Î‰‚·‚éƒZƒOƒƒ“ƒg‚ÌÅ‰‚Ì•¶šƒR[ƒh‚ğ¦‚·”z—ñ
+		//å¯¾å¿œã™ã‚‹ã‚»ã‚°ãƒ¡ãƒ³ãƒˆã®æœ€åˆã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚’ç¤ºã™é…åˆ—
 		uint16_t* startCode = nullptr;
-		//‘Î‰‚·‚éƒZƒOƒƒ“ƒg‚ÉŠÜ‚Ü‚ê‚é‚·‚×‚Ä‚Ì•¶šƒR[ƒh‚É‰ÁZ‚³‚ê‚é·•ª’l‚Ì”z—ñ
+		//å¯¾å¿œã™ã‚‹ã‚»ã‚°ãƒ¡ãƒ³ãƒˆã«å«ã¾ã‚Œã‚‹ã™ã¹ã¦ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã«åŠ ç®—ã•ã‚Œã‚‹å·®åˆ†å€¤ã®é…åˆ—
 		int16_t* idDelta = nullptr;
-		//‘Î‰‚·‚églyphIDArray‚ÌˆÊ’u‚Ü‚Å‚ÌƒIƒtƒZƒbƒg‚Ì”z—ñ
+		//å¯¾å¿œã™ã‚‹glyphIDArrayã®ä½ç½®ã¾ã§ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã®é…åˆ—
 		uint16_t* idRangeOffset = nullptr;
-		//—v‘f”‚Í(length - (sizeof(uint16_t) * (8 + segCount * 4))) / sizeof(uint16_t)
+		//è¦ç´ æ•°ã¯(length - (sizeof(uint16_t) * (8 + segCount * 4))) / sizeof(uint16_t)
 		uint16_t* glyphIdArray = nullptr;
 	public:
 		SubTableFormat4(System::IO::FileStream& file) noexcept : SubTableBase16(file, 4) {
@@ -546,7 +546,7 @@ namespace System {
 							return glyphIdArray[index];
 						}
 					}
-					else return 0;	//ƒZƒOƒƒ“ƒg”ÍˆÍŠO
+					else return 0;	//ã‚»ã‚°ãƒ¡ãƒ³ãƒˆç¯„å›²å¤–
 				}
 			}
 			return 0;
@@ -554,14 +554,14 @@ namespace System {
 	};
 
 	/// <summary>
-	/// Format4‚É‚¨‚¢‚ÄƒtƒHƒ“ƒg“à‚Ì•¶šƒR[ƒh‚ª˜A‘±‚µ‚½’Pˆê‚Ì”ÍˆÍ‚É‘¶İ‚·‚éê‡‚Ég—p‚³‚ê‚éƒtƒH[ƒ}ƒbƒgB
-	/// 16bitUnicode‚ğ•\‚·ƒTƒuƒe[ƒuƒ‹‚ÍFormat4‚ÆFormat6‚Ìˆê•û‚Ì‚İƒtƒ@ƒCƒ‹‚ÉŠÜ‚Ü‚ê‚éB
-	/// (—¼•û‚ ‚éê‡AFormat4‚ğ—Dæ‚·‚é)
+	/// Format4ã«ãŠã„ã¦ãƒ•ã‚©ãƒ³ãƒˆå†…ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ãŒé€£ç¶šã—ãŸå˜ä¸€ã®ç¯„å›²ã«å­˜åœ¨ã™ã‚‹å ´åˆã«ä½¿ç”¨ã•ã‚Œã‚‹ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã€‚
+	/// 16bitUnicodeã‚’è¡¨ã™ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã¯Format4ã¨Format6ã®ä¸€æ–¹ã®ã¿ãƒ•ã‚¡ã‚¤ãƒ«ã«å«ã¾ã‚Œã‚‹ã€‚
+	/// (ä¸¡æ–¹ã‚ã‚‹å ´åˆã€Format4ã‚’å„ªå…ˆã™ã‚‹)
 	/// </summary>
 	struct SubTableFormat6 : public SubTableBase16 {
-		//˜A‘±‚·‚é•¶šƒR[ƒh”ÍˆÍ‚ÌÅ‰‚Ì’l
+		//é€£ç¶šã™ã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ç¯„å›²ã®æœ€åˆã®å€¤
 		uint16_t firstCode;
-		//˜A‘±‚·‚é•¶šƒR[ƒh”ÍˆÍ‚ÉŠÜ‚Ü‚ê‚é•¶šƒR[ƒh‚Ì”
+		//é€£ç¶šã™ã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ç¯„å›²ã«å«ã¾ã‚Œã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ã®æ•°
 		uint16_t entryCount;
 		//[entryCount]
 		uint16_t* glyphIdArray = nullptr;
@@ -585,17 +585,17 @@ namespace System {
 	};
 
 	/// <summary>
-	/// Format8, 12‚Åg—p‚³‚ê‚é•¶šƒR[ƒh‚ÌƒOƒ‹[ƒv‚ğ•\‚·\‘¢‘Ì
+	/// Format8, 12ã§ä½¿ç”¨ã•ã‚Œã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ã®ã‚°ãƒ«ãƒ¼ãƒ—ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct SequentialMapGroup {
-		//‚±‚ÌƒOƒ‹[ƒv‚ÌÅ‰‚Ì•¶šƒR[ƒhB’¼‘O‚ÌƒOƒ‹[ƒv‚ÌendCharCode‚æ‚è‚à‘å‚«‚¢B
+		//ã“ã®ã‚°ãƒ«ãƒ¼ãƒ—ã®æœ€åˆã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã€‚ç›´å‰ã®ã‚°ãƒ«ãƒ¼ãƒ—ã®endCharCodeã‚ˆã‚Šã‚‚å¤§ãã„ã€‚
 		uint32_t startCharCode;
-		//‚±‚ÌƒOƒ‹[ƒv‚ÌÅŒã‚Ì•¶šƒR[ƒh
+		//ã“ã®ã‚°ãƒ«ãƒ¼ãƒ—ã®æœ€å¾Œã®æ–‡å­—ã‚³ãƒ¼ãƒ‰
 		uint32_t endCharCode;
 		union {
-			//startCharCode‚É‘Î‰‚·‚éƒOƒŠƒtIDBFormat8, 12‚Åg—p
+			//startCharCodeã«å¯¾å¿œã™ã‚‹ã‚°ãƒªãƒ•IDã€‚Format8, 12ã§ä½¿ç”¨
 			uint32_t startGlyphID;
-			//‚±‚ÌƒOƒ‹[ƒv‚·‚×‚Ä‚Ì•¶šƒR[ƒh‚É‘Î‰‚·‚éƒOƒŠƒtIDBFormat13‚Åg—p
+			//ã“ã®ã‚°ãƒ«ãƒ¼ãƒ—ã™ã¹ã¦ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã«å¯¾å¿œã™ã‚‹ã‚°ãƒªãƒ•IDã€‚Format13ã§ä½¿ç”¨
 			uint32_t glyphID;
 		};
 	public:
@@ -607,12 +607,12 @@ namespace System {
 		}
 	};
 	/// <summary>
-	/// Format13‚Åg—p‚³‚ê‚é•¶šƒR[ƒh‚ÌƒOƒ‹[ƒv‚ğ•\‚·\‘¢‘Ì
+	/// Format13ã§ä½¿ç”¨ã•ã‚Œã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ã®ã‚°ãƒ«ãƒ¼ãƒ—ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	using ConstantMapGroup = SequentialMapGroup;
 
 	/// <summary>
-	/// 16bitUnicode(0x0000-0xffff)‚Æ32bitUnicode(0x10000-0x10ffff)‚ª¬‚´‚Á‚½ƒtƒH[ƒ}ƒbƒg
+	/// 16bitUnicode(0x0000-0xffff)ã¨32bitUnicode(0x10000-0x10ffff)ãŒæ··ã–ã£ãŸãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
 	/// </summary>
 	struct SubTableFormat8 : public SubTableBase32 {
 		uint8_t is32[8192];
@@ -645,12 +645,12 @@ namespace System {
 	};
 
 	/// <summary>
-	/// •¶šƒR[ƒh(Unicode 0x0000-0x10ffff)‚ª˜A‘±‚µ‚½’Pˆê‚Ì”ÍˆÍ‚É‘¶İ‚·‚éê‡‚Ég—p‚³‚ê‚éƒtƒH[ƒ}ƒbƒg
+	/// æ–‡å­—ã‚³ãƒ¼ãƒ‰(Unicode 0x0000-0x10ffff)ãŒé€£ç¶šã—ãŸå˜ä¸€ã®ç¯„å›²ã«å­˜åœ¨ã™ã‚‹å ´åˆã«ä½¿ç”¨ã•ã‚Œã‚‹ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ
 	/// </summary>
 	struct SubTableFormat10 : public SubTableBase32 {
-		//˜A‘±‚·‚é•¶šƒR[ƒh”ÍˆÍ‚ÌÅ‰‚Ì’l
+		//é€£ç¶šã™ã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ç¯„å›²ã®æœ€åˆã®å€¤
 		uint32_t startCharCode;
-		//˜A‘±‚·‚é•¶šƒR[ƒh”ÍˆÍ‚ÉŠÜ‚Ü‚ê‚é•¶šƒR[ƒh‚Ì”
+		//é€£ç¶šã™ã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ç¯„å›²ã«å«ã¾ã‚Œã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ã®æ•°
 		uint32_t numChars;
 		//[numChars]
 		uint16_t* glyphs = nullptr;
@@ -674,8 +674,8 @@ namespace System {
 	};
 
 	/// <summary>
-	/// Unicode 0x0000-0x10ffff‚Ì•¶šƒR[ƒh‚ğƒOƒ‹[ƒv’PˆÊ‚ÅƒOƒŠƒtID‚ÆŠÖ˜A•t‚¯‚éƒtƒH[ƒ}ƒbƒgB
-	/// Format8‚ÆˆÙ‚È‚èA‚·‚×‚Ä‚Ì•¶šƒR[ƒh‚ğ32bit‚Æ‚µ‚Äˆµ‚¤
+	/// Unicode 0x0000-0x10ffffã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚’ã‚°ãƒ«ãƒ¼ãƒ—å˜ä½ã§ã‚°ãƒªãƒ•IDã¨é–¢é€£ä»˜ã‘ã‚‹ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã€‚
+	/// Format8ã¨ç•°ãªã‚Šã€ã™ã¹ã¦ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚’32bitã¨ã—ã¦æ‰±ã†
 	/// </summary>
 	struct SubTableFormat12 : public SubTableBase32 {
 		uint32_t numGroups;
@@ -702,8 +702,8 @@ namespace System {
 	};
 
 	/// <summary>
-	/// Format12‚Æ“¯‚¶\¬‚ÌƒtƒH[ƒ}ƒbƒgB
-	/// ƒOƒ‹[ƒv“à‚Ì•¶šƒR[ƒh‚·‚×‚Ä‚É“¯‚¶ƒOƒŠƒtID‚ğ‘Î‰‚³‚¹‚é“_‚Ì‚İ‚ªˆÙ‚È‚é
+	/// Format12ã¨åŒã˜æ§‹æˆã®ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã€‚
+	/// ã‚°ãƒ«ãƒ¼ãƒ—å†…ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã™ã¹ã¦ã«åŒã˜ã‚°ãƒªãƒ•IDã‚’å¯¾å¿œã•ã›ã‚‹ç‚¹ã®ã¿ãŒç•°ãªã‚‹
 	/// </summary>
 	struct SubTableFormat13 : public SubTableBase32 {
 		uint32_t numGroups;
@@ -731,18 +731,18 @@ namespace System {
 	};
 
 	/// <summary>
-	/// ‘Î‰‚·‚éˆÙ‘ÌšƒZƒŒƒNƒ^(VariationSelector::varSelector)‚ªİ’è‚³‚ê‚Ä‚¢‚é
-	/// •¶šƒR[ƒh‚ğ•\‚·\‘¢‘Ì
+	/// å¯¾å¿œã™ã‚‹ç•°ä½“å­—ã‚»ãƒ¬ã‚¯ã‚¿(VariationSelector::varSelector)ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹
+	/// æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct DefaultUVS {
 		/// <summary>
-		/// •¶šƒR[ƒh”ÍˆÍ‚ğ•\‚·\‘¢‘Ì
+		/// æ–‡å­—ã‚³ãƒ¼ãƒ‰ç¯„å›²ã‚’è¡¨ã™æ§‹é€ ä½“
 		/// </summary>
 		struct UnicodeRange {
-			//‚±‚Ì”ÍˆÍ‚ÌÅ‰‚Ì•¶šƒR[ƒh
+			//ã“ã®ç¯„å›²ã®æœ€åˆã®æ–‡å­—ã‚³ãƒ¼ãƒ‰
 			uint24_c startUnicodeValue;
-			//startUnicodeValue‚É‘±‚­‚±‚Ì”ÍˆÍ‚Ì•¶šƒR[ƒh”B
-			//startUnicodeValue + additionalCount‚ª‚±‚Ì”ÍˆÍ‚ÌÅŒã‚Ì•¶šƒR[ƒh‚Æ‚È‚é
+			//startUnicodeValueã«ç¶šãã“ã®ç¯„å›²ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰æ•°ã€‚
+			//startUnicodeValue + additionalCountãŒã“ã®ç¯„å›²ã®æœ€å¾Œã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã¨ãªã‚‹
 			uint8_t additionalCount;
 		public:
 			bool Load(System::IO::FileStream& file) noexcept {
@@ -753,7 +753,7 @@ namespace System {
 		};
 	public:
 		uint32_t numUnicodeValueRanges;
-		//‘Î‰‚·‚éˆÙ‘ÌšƒZƒŒƒNƒ^‚ªİ’è‚³‚ê‚Ä‚¢‚é•¶šƒR[ƒh”ÍˆÍ‚Ì”z—ñ
+		//å¯¾å¿œã™ã‚‹ç•°ä½“å­—ã‚»ãƒ¬ã‚¯ã‚¿ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹æ–‡å­—ã‚³ãƒ¼ãƒ‰ç¯„å›²ã®é…åˆ—
 		//[numUnicodeValueRanges]
 		UnicodeRange* ranges = nullptr;
 	public:
@@ -786,17 +786,17 @@ namespace System {
 	};
 
 	/// <summary>
-	/// ‘Î‰‚·‚éˆÙ‘ÌšƒZƒŒƒNƒ^(VariationSelector::varSelector)‚ªİ’è‚³‚ê‚Ä‚¢‚é
-	/// •¶šƒR[ƒh‚ÆƒOƒŠƒtID‚Ì‘g‚İ‡‚í‚¹‚ğ•\‚·\‘¢‘Ì
+	/// å¯¾å¿œã™ã‚‹ç•°ä½“å­—ã‚»ãƒ¬ã‚¯ã‚¿(VariationSelector::varSelector)ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹
+	/// æ–‡å­—ã‚³ãƒ¼ãƒ‰ã¨ã‚°ãƒªãƒ•IDã®çµ„ã¿åˆã‚ã›ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct NonDefaultUVS {
 		/// <summary>
-		/// •¶šƒR[ƒh‚É‘Î‰‚·‚éƒOƒŠƒtID‚ğ•\‚·\‘¢‘Ì
+		/// æ–‡å­—ã‚³ãƒ¼ãƒ‰ã«å¯¾å¿œã™ã‚‹ã‚°ãƒªãƒ•IDã‚’è¡¨ã™æ§‹é€ ä½“
 		/// </summary>
 		struct UVSMapping {
-			//•¶šƒR[ƒh
+			//æ–‡å­—ã‚³ãƒ¼ãƒ‰
 			uint24_c unicodeValue;
-			//unicodeValue + ˆÙ‘ÌšƒZƒŒƒNƒ^‚É‘Î‰‚·‚éƒOƒŠƒtID
+			//unicodeValue + ç•°ä½“å­—ã‚»ãƒ¬ã‚¯ã‚¿ã«å¯¾å¿œã™ã‚‹ã‚°ãƒªãƒ•ID
 			uint16_t glyphID;
 		public:
 			bool Load(System::IO::FileStream& file) noexcept {
@@ -807,7 +807,7 @@ namespace System {
 		};
 	public:
 		uint32_t numUVSMappings;
-		//•¶šƒR[ƒh‚ÆƒOƒŠƒtID‚Ì‘g‚İ‡‚í‚¹‚Ì”z—ñ
+		//æ–‡å­—ã‚³ãƒ¼ãƒ‰ã¨ã‚°ãƒªãƒ•IDã®çµ„ã¿åˆã‚ã›ã®é…åˆ—
 		//[numUVSMappings]
 		UVSMapping* uvsMappings = nullptr;
 	public:
@@ -840,17 +840,17 @@ namespace System {
 	};
 
 	/// <summary>
-	/// Format14‚Åg—p‚³‚ê‚éˆÙ‘ÌšƒZƒŒƒNƒ^‚Æ‚»‚Ìƒ}ƒbƒsƒ“ƒO‚Ég—p‚³‚ê‚é
-	/// UVSƒe[ƒuƒ‹‚Ö‚ÌƒIƒtƒZƒbƒg‚ğ•\‚·\‘¢‘Ì
+	/// Format14ã§ä½¿ç”¨ã•ã‚Œã‚‹ç•°ä½“å­—ã‚»ãƒ¬ã‚¯ã‚¿ã¨ãã®ãƒãƒƒãƒ”ãƒ³ã‚°ã«ä½¿ç”¨ã•ã‚Œã‚‹
+	/// UVSãƒ†ãƒ¼ãƒ–ãƒ«ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct VariationSelector {
-		//ˆÙ‘ÌšƒZƒŒƒNƒ^
+		//ç•°ä½“å­—ã‚»ãƒ¬ã‚¯ã‚¿
 		uint24_c varSelector;
-		//ƒTƒuƒe[ƒuƒ‹‚Ìæ“ª‚©‚çdefaultUVS‚Ö‚ÌƒIƒtƒZƒbƒgB
-		//SubTableFormat14::defaultUVS“Ç‚İ‚İŒã‚ÍƒCƒ“ƒfƒbƒNƒX‚ğŠi”[‚·‚é
+		//ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®å…ˆé ­ã‹ã‚‰defaultUVSã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã€‚
+		//SubTableFormat14::defaultUVSèª­ã¿è¾¼ã¿å¾Œã¯ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æ ¼ç´ã™ã‚‹
 		uint32_t defaultUVSOffset;
-		//ƒTƒuƒe[ƒuƒ‹‚Ìæ“ª‚©‚çnonDefaultUVS‚Ö‚ÌƒIƒtƒZƒbƒg
-		//SubTableFormat14::nonDefaultUVS“Ç‚İ‚İŒã‚ÍƒCƒ“ƒfƒbƒNƒX‚ğŠi”[‚·‚é
+		//ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®å…ˆé ­ã‹ã‚‰nonDefaultUVSã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+		//SubTableFormat14::nonDefaultUVSèª­ã¿è¾¼ã¿å¾Œã¯ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æ ¼ç´ã™ã‚‹
 		uint32_t nonDefaultUVSOffset;
 	public:
 		bool Load(System::IO::FileStream& file) noexcept {
@@ -862,20 +862,20 @@ namespace System {
 	};
 
 	/// <summary>
-	/// UnicodeƒoƒŠƒG[ƒVƒ‡ƒ“ƒV[ƒNƒGƒ“ƒX(ˆÙ‘ÌšƒZƒŒƒNƒ^)‚É‘Î‰‚µ‚½ƒtƒH[ƒ}ƒbƒgB
-	/// EncodingRecord‚ªplatformID: 0‚©‚ÂencodingID: 5‚Ìê‡‚Ì‚İg—p‚·‚é
+	/// Unicodeãƒãƒªã‚¨ãƒ¼ã‚·ãƒ§ãƒ³ã‚·ãƒ¼ã‚¯ã‚¨ãƒ³ã‚¹(ç•°ä½“å­—ã‚»ãƒ¬ã‚¯ã‚¿)ã«å¯¾å¿œã—ãŸãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã€‚
+	/// EncodingRecordãŒplatformID: 0ã‹ã¤encodingID: 5ã®å ´åˆã®ã¿ä½¿ç”¨ã™ã‚‹
 	/// </summary>
 	struct SubTableFormat14 : public SubTableBase32 {
 		uint32_t numVarSelectorRecords;
 		//[numVarSelectorRecords]
 		VariationSelector* varSelector = nullptr;
-		//varSelector[n].defaultUVSOffset‚ğƒCƒ“ƒfƒbƒNƒX‚Æ‚·‚é“®“I”z—ñ
+		//varSelector[n].defaultUVSOffsetã‚’ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨ã™ã‚‹å‹•çš„é…åˆ—
 		Vector<DefaultUVS> defaultUVS;
-		//varSelector[n].nonDefaultUVSOffset‚ğƒCƒ“ƒfƒbƒNƒX‚Æ‚·‚é“®“I”z—ñ
+		//varSelector[n].nonDefaultUVSOffsetã‚’ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨ã™ã‚‹å‹•çš„é…åˆ—
 		Vector<NonDefaultUVS> nonDefaultUVS;
 	public:
 		SubTableFormat14(System::IO::FileStream& file) noexcept : SubTableBase32(file, 14) {
-			//SubTableBase32‚Å“Ç‚İ‚Ü‚ê‚éƒoƒCƒg”–ß‚µ‚ÄAƒTƒuƒe[ƒuƒ‹‚Ìæ“ªˆÊ’u‚ğæ“¾‚·‚é
+			//SubTableBase32ã§èª­ã¿è¾¼ã¾ã‚Œã‚‹ãƒã‚¤ãƒˆæ•°æˆ»ã—ã¦ã€ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®å…ˆé ­ä½ç½®ã‚’å–å¾—ã™ã‚‹
 			file.Seek(-6, System::IO::SeekDir::Current);
 			System::IO::StreamPos subTableBegin = file.TellPos();
 			file.Seek(6, System::IO::SeekDir::Current);
@@ -884,7 +884,7 @@ namespace System {
 			for (uint32_t i = 0; i < numVarSelectorRecords; ++i) varSelector[i].Load(file);
 			defaultUVS.Reserve(numVarSelectorRecords);
 			nonDefaultUVS.Reserve(numVarSelectorRecords);
-			//‚·‚Å‚É“Ç‚İ‚ñ‚¾ƒIƒtƒZƒbƒg’l‚ğ‹L˜^‚·‚é
+			//ã™ã§ã«èª­ã¿è¾¼ã‚“ã ã‚ªãƒ•ã‚»ãƒƒãƒˆå€¤ã‚’è¨˜éŒ²ã™ã‚‹
 			Vector<uint32_t> defaultUVSOffsets;
 			Vector<uint32_t> nonDefaultUVSOffsets;
 			defaultUVSOffsets.Reserve(numVarSelectorRecords);
@@ -926,45 +926,45 @@ namespace System {
 //CMAP
 export namespace System {
 	/// <summary>
-	/// cmapƒe[ƒuƒ‹‚ğ•\‚·\‘¢‘ÌB
-	/// •¶šƒR[ƒh‚©‚çƒOƒŠƒtƒCƒ“ƒfƒbƒNƒX‚Ö‚Ìƒ}ƒbƒsƒ“ƒO‚ğ’è‹`‚µ‚Ä‚¢‚é
+	/// cmapãƒ†ãƒ¼ãƒ–ãƒ«ã‚’è¡¨ã™æ§‹é€ ä½“ã€‚
+	/// æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‹ã‚‰ã‚°ãƒªãƒ•ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¸ã®ãƒãƒƒãƒ”ãƒ³ã‚°ã‚’å®šç¾©ã—ã¦ã„ã‚‹
 	/// </summary>
 	struct CMAP {
 		/// <summary>
-		/// ƒTƒuƒe[ƒuƒ‹‚ÌƒGƒ“ƒR[ƒfƒBƒ“ƒOî•ñ‚ğ•\‚·\‘¢‘Ì
+		/// ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°æƒ…å ±ã‚’è¡¨ã™æ§‹é€ ä½“
 		/// </summary>
 		struct EncodingRecord {
-			//ƒvƒ‰ƒbƒgƒtƒH[ƒ€¯•Êq
+			//ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ è­˜åˆ¥å­
 			//0 : Unicode
-			//1 : Macintosh(”ñ„§E‰ºˆÊŒİŠ·ˆÛ—p)
+			//1 : Macintosh(éæ¨å¥¨ãƒ»ä¸‹ä½äº’æ›ç¶­æŒç”¨)
 			//2 : do not use
 			//3 : Microsoft
 			uint16_t platformID = 0;
-			//ƒvƒ‰ƒbƒgƒtƒH[ƒ€ŒÅ—LƒGƒ“ƒR[ƒh¯•Êq
-			//EplatformID‚ª0(Unicode)‚Ìê‡
-			//0 : ƒfƒtƒHƒ‹ƒg‚ÌƒZƒ}ƒ“ƒeƒBƒNƒX
-			//1 : version 1.1‚ÌƒZƒ}ƒ“ƒeƒBƒNƒX
-			//2 : ISO 10646 1993‚ÌƒZƒ}ƒ“ƒeƒBƒNƒX
-			//3 : Unicode 2.0ˆÈ~‚ÌƒZƒ}ƒ“ƒeƒBƒNƒX(BMP‚Ì‚İ)
-			//4 : Unicode 2.0ˆÈ~‚ÌƒZƒ}ƒ“ƒeƒBƒNƒX
+			//ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ å›ºæœ‰ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰è­˜åˆ¥å­
+			//ãƒ»platformIDãŒ0(Unicode)ã®å ´åˆ
+			//0 : ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚»ãƒãƒ³ãƒ†ã‚£ã‚¯ã‚¹
+			//1 : version 1.1ã®ã‚»ãƒãƒ³ãƒ†ã‚£ã‚¯ã‚¹
+			//2 : ISO 10646 1993ã®ã‚»ãƒãƒ³ãƒ†ã‚£ã‚¯ã‚¹
+			//3 : Unicode 2.0ä»¥é™ã®ã‚»ãƒãƒ³ãƒ†ã‚£ã‚¯ã‚¹(BMPã®ã¿)
+			//4 : Unicode 2.0ä»¥é™ã®ã‚»ãƒãƒ³ãƒ†ã‚£ã‚¯ã‚¹
 			//5 : Unicode Variation Sequence
-			//6 : Unicode‚ğŠ®‘S–Ô—…(OpenType‚Ì13.0cmaps‚ğg—p)
-			//EplatformID‚ª3(Microsoft)‚Ìê‡
-			//0 : ƒVƒ“ƒ{ƒ‹
-			//1 : Unicode BMP‚Ì‚İ
+			//6 : Unicodeã‚’å®Œå…¨ç¶²ç¾…(OpenTypeã®13.0cmapsã‚’ä½¿ç”¨)
+			//ãƒ»platformIDãŒ3(Microsoft)ã®å ´åˆ
+			//0 : ã‚·ãƒ³ãƒœãƒ«
+			//1 : Unicode BMPã®ã¿
 			//2 : Shift-JIS
 			//3 : PRC
 			//4 : BigFive
 			//5 : Johab
 			//10 : Unicode UCS-4
 			uint16_t encodingID = 0;
-			//CMAPƒe[ƒuƒ‹æ“ª‚©‚çƒTƒuƒe[ƒuƒ‹‚Ö‚ÌƒIƒtƒZƒbƒg(ƒoƒCƒg)
+			//CMAPãƒ†ãƒ¼ãƒ–ãƒ«å…ˆé ­ã‹ã‚‰ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ(ãƒã‚¤ãƒˆ)
 			uint32_t offset = 0;
 		};
 	public:
-		//ƒo[ƒWƒ‡ƒ“”(0ŒÅ’è)
+		//ãƒãƒ¼ã‚¸ãƒ§ãƒ³æ•°(0å›ºå®š)
 		uint16_t version = 0;
-		//encodingRecords[]‚Ì—v‘f”
+		//encodingRecords[]ã®è¦ç´ æ•°
 		uint16_t numTables = 0;
 		//[numTables]
 		EncodingRecord* encodingRecords = nullptr;
@@ -1037,31 +1037,31 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ƒtƒ@ƒCƒ‹‚©‚çCMAPƒe[ƒuƒ‹‚ğ“Ç‚İæ‚èA‚±‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğXV‚·‚é
+		/// ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰CMAPãƒ†ãƒ¼ãƒ–ãƒ«ã‚’èª­ã¿å–ã‚Šã€ã“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’æ›´æ–°ã™ã‚‹
 		/// </summary>
 		/// <param name="file">
-		/// OpenTypeƒtƒHƒ“ƒgƒtƒ@ƒCƒ‹‚ğ“Ç‚İæ‚è‰Â”\‚ÌƒoƒCƒiƒŠƒf[ƒ^‚Æ‚µ‚ÄŠJ‚¢‚½ƒtƒ@ƒCƒ‹ƒXƒgƒŠ[ƒ€
+		/// OpenTypeãƒ•ã‚©ãƒ³ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿å–ã‚Šå¯èƒ½ã®ãƒã‚¤ãƒŠãƒªãƒ‡ãƒ¼ã‚¿ã¨ã—ã¦é–‹ã„ãŸãƒ•ã‚¡ã‚¤ãƒ«ã‚¹ãƒˆãƒªãƒ¼ãƒ 
 		/// </param>
 		/// <param name="offset">
-		/// ƒtƒ@ƒCƒ‹æ“ª‚©‚çCMAPƒe[ƒuƒ‹‚Ö‚ÌƒIƒtƒZƒbƒg(ƒoƒCƒg)B
-		/// TableRecord::offset‚Ì’l‚ğw’è‚·‚éB
+		/// ãƒ•ã‚¡ã‚¤ãƒ«å…ˆé ­ã‹ã‚‰CMAPãƒ†ãƒ¼ãƒ–ãƒ«ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ(ãƒã‚¤ãƒˆ)ã€‚
+		/// TableRecord::offsetã®å€¤ã‚’æŒ‡å®šã™ã‚‹ã€‚
 		/// </param>
-		/// <returns>“Ç‚İæ‚èŒã‚ÌFileStream‚Ìó‘Ô’l</returns>
+		/// <returns>èª­ã¿å–ã‚Šå¾Œã®FileStreamã®çŠ¶æ…‹å€¤</returns>
 		bool Load(System::IO::FileStream& file, uint32_t offset) noexcept {
 			file.Seek(offset, System::IO::SeekDir::Begin);
 			System::IO::StreamPos cmapPos = file.TellPos();
 			file.ReadBE(version);
 			file.ReadBE(numTables);
-			//ƒGƒ“ƒR[ƒfƒBƒ“ƒOƒŒƒR[ƒhæ“¾
+			//ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ãƒ¬ã‚³ãƒ¼ãƒ‰å–å¾—
 			encodingRecords = new EncodingRecord[numTables];
 			for (uint16_t i = 0; i < numTables; ++i) {
 				file.ReadBE(encodingRecords[i].platformID);
 				file.ReadBE(encodingRecords[i].encodingID);
 				file.ReadBE(encodingRecords[i].offset);
 			}
-			//ˆê”Ô”ÍˆÍ‚Ì‘å‚«‚¢Unicode—pSubTable‚ÌƒCƒ“ƒfƒbƒNƒX‚ğ•Û‘¶‚·‚é
+			//ä¸€ç•ªç¯„å›²ã®å¤§ãã„Unicodeç”¨SubTableã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’ä¿å­˜ã™ã‚‹
 			m_unicodeSubtableIndex = GetUnicodeSubTableIndex();
-			//ƒTƒuƒe[ƒuƒ‹æ“¾
+			//ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«å–å¾—
 			subTables.Reserve(numTables);
 			for (uint16_t i = 0; i < numTables; ++i) {
 				file.Seek(cmapPos);
@@ -1104,33 +1104,33 @@ export namespace System {
 			return static_cast<bool>(file);
 		}
 		/// <summary>
-		/// ƒtƒ@ƒCƒ‹‚©‚çCMAPƒo[ƒWƒ‡ƒ“‚Æ‚·‚×‚Ä‚ÌƒGƒ“ƒR[ƒfƒBƒ“ƒOƒŒƒR[ƒhA
-		/// ‚¨‚æ‚Ñˆê”ÔL‚¢Unicode”ÍˆÍ‚É‘Î‰‚µ‚½ƒTƒuƒe[ƒuƒ‹‚ğ‘I‘ğ‚µ‚Ä“Ç‚İæ‚èA
-		/// ‚±‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğXV‚·‚é
+		/// ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰CMAPãƒãƒ¼ã‚¸ãƒ§ãƒ³ã¨ã™ã¹ã¦ã®ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ãƒ¬ã‚³ãƒ¼ãƒ‰ã€
+		/// ãŠã‚ˆã³ä¸€ç•ªåºƒã„Unicodeç¯„å›²ã«å¯¾å¿œã—ãŸã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã‚’é¸æŠã—ã¦èª­ã¿å–ã‚Šã€
+		/// ã“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’æ›´æ–°ã™ã‚‹
 		/// </summary>
 		/// <param name="file">
-		/// OpenTypeƒtƒHƒ“ƒgƒtƒ@ƒCƒ‹‚ğ“Ç‚İæ‚è‰Â”\‚ÌƒoƒCƒiƒŠƒf[ƒ^‚Æ‚µ‚ÄŠJ‚¢‚½ƒtƒ@ƒCƒ‹ƒXƒgƒŠ[ƒ€
+		/// OpenTypeãƒ•ã‚©ãƒ³ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿å–ã‚Šå¯èƒ½ã®ãƒã‚¤ãƒŠãƒªãƒ‡ãƒ¼ã‚¿ã¨ã—ã¦é–‹ã„ãŸãƒ•ã‚¡ã‚¤ãƒ«ã‚¹ãƒˆãƒªãƒ¼ãƒ 
 		/// </param>
 		/// <param name="offset">
-		/// ƒtƒ@ƒCƒ‹æ“ª‚©‚çCMAPƒe[ƒuƒ‹‚Ö‚ÌƒIƒtƒZƒbƒg(ƒoƒCƒg)B
-		/// TableRecord::offset‚Ì’l‚ğw’è‚·‚éB
+		/// ãƒ•ã‚¡ã‚¤ãƒ«å…ˆé ­ã‹ã‚‰CMAPãƒ†ãƒ¼ãƒ–ãƒ«ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ(ãƒã‚¤ãƒˆ)ã€‚
+		/// TableRecord::offsetã®å€¤ã‚’æŒ‡å®šã™ã‚‹ã€‚
 		/// </param>
-		/// <returns>“Ç‚İæ‚èŒã‚ÌFileStream‚Ìó‘Ô’l</returns>
+		/// <returns>èª­ã¿å–ã‚Šå¾Œã®FileStreamã®çŠ¶æ…‹å€¤</returns>
 		bool QuickLoad(System::IO::FileStream& file, uint32_t offset) noexcept {
 			file.Seek(offset, System::IO::SeekDir::Begin);
 			System::IO::StreamPos cmapPos = file.TellPos();
 			file.ReadBE(version);
 			file.ReadBE(numTables);
-			//ƒGƒ“ƒR[ƒfƒBƒ“ƒOƒŒƒR[ƒhæ“¾
+			//ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ãƒ¬ã‚³ãƒ¼ãƒ‰å–å¾—
 			encodingRecords = new EncodingRecord[numTables];
 			for (uint16_t i = 0; i < numTables; ++i) {
 				file.ReadBE(encodingRecords[i].platformID);
 				file.ReadBE(encodingRecords[i].encodingID);
 				file.ReadBE(encodingRecords[i].offset);
 			}
-			//ˆê”Ô”ÍˆÍ‚Ì‘å‚«‚¢Unicode—pSubTable‚ÌƒCƒ“ƒfƒbƒNƒX‚ğ•Û‘¶‚·‚é
+			//ä¸€ç•ªç¯„å›²ã®å¤§ãã„Unicodeç”¨SubTableã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’ä¿å­˜ã™ã‚‹
 			m_unicodeSubtableIndex = GetUnicodeSubTableIndex();
-			//(m_unicodeSubtableIndex)”Ô–Ú‚ÌƒTƒuƒe[ƒuƒ‹‚Ì‚İæ“¾
+			//(m_unicodeSubtableIndex)ç•ªç›®ã®ã‚µãƒ–ãƒ†ãƒ¼ãƒ–ãƒ«ã®ã¿å–å¾—
 			file.Seek(cmapPos);
 			file.Seek(encodingRecords[m_unicodeSubtableIndex].offset, System::IO::SeekDir::Current);
 			uint16_t format = 0xffff;
@@ -1182,81 +1182,81 @@ export namespace System {
 //HEAD
 export namespace System {
 	/// <summary>
-	/// headƒe[ƒuƒ‹‚ğ•\‚·\‘¢‘ÌB
-	/// ƒtƒHƒ“ƒg‚ÉŠÖ‚·‚éƒOƒ[ƒoƒ‹‚Èî•ñ‚ªŠi”[‚³‚ê‚Ä‚¢‚é
+	/// headãƒ†ãƒ¼ãƒ–ãƒ«ã‚’è¡¨ã™æ§‹é€ ä½“ã€‚
+	/// ãƒ•ã‚©ãƒ³ãƒˆã«é–¢ã™ã‚‹ã‚°ãƒ­ãƒ¼ãƒãƒ«ãªæƒ…å ±ãŒæ ¼ç´ã•ã‚Œã¦ã„ã‚‹
 	/// </summary>
 	struct HEAD {
-		//0x0001ŒÅ’è
-		uint16_t majorVersion = 0;	//0x0001ŒÅ’è
-		//0x0000ŒÅ’è
+		//0x0001å›ºå®š
+		uint16_t majorVersion = 0;	//0x0001å›ºå®š
+		//0x0000å›ºå®š
 		uint16_t minorVersion = 0;
-		//ƒtƒHƒ“ƒgƒ[ƒJ[‚ªw’èB16.16‚ÌŒÅ’è¬”“_”(Fixed)B
-		//ƒtƒHƒ“ƒg‚Ìƒo[ƒWƒ‡ƒ“‚Í‚±‚ÌƒvƒƒpƒeƒB‚Å‚Í‚È‚­Anameƒe[ƒuƒ‹‚ğQÆ‚·‚é
+		//ãƒ•ã‚©ãƒ³ãƒˆãƒ¡ãƒ¼ã‚«ãƒ¼ãŒæŒ‡å®šã€‚16.16ã®å›ºå®šå°æ•°ç‚¹æ•°(Fixed)ã€‚
+		//ãƒ•ã‚©ãƒ³ãƒˆã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã¯ã“ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã§ã¯ãªãã€nameãƒ†ãƒ¼ãƒ–ãƒ«ã‚’å‚ç…§ã™ã‚‹
 		int32_t fontRevision = 0;
-		//ƒtƒHƒ“ƒg‘S‘Ì‚Ì4ƒoƒCƒgƒ`ƒFƒbƒNƒTƒ€‚©‚ç0xb1b0afba‚ğˆø‚¢‚½’l
+		//ãƒ•ã‚©ãƒ³ãƒˆå…¨ä½“ã®4ãƒã‚¤ãƒˆãƒã‚§ãƒƒã‚¯ã‚µãƒ ã‹ã‚‰0xb1b0afbaã‚’å¼•ã„ãŸå€¤
 		uint32_t checkSumAdjustment = 0;
-		//0x5f0f3cf5ŒÅ’è
+		//0x5f0f3cf5å›ºå®š
 		uint32_t magicNumber = 0;
-		//Šeƒrƒbƒgƒtƒ‰ƒO‚Ì˜a
-		//0: ƒtƒHƒ“ƒg‚Ìƒx[ƒXƒ‰ƒCƒ“‚ªy=0
-		//1: ¶ƒTƒCƒhƒxƒAƒŠƒ“ƒO‚ªx=0(TrueTypeƒ‰ƒXƒ^ƒCƒU‚Ì‚İ)
-		//2: ƒ|ƒCƒ“ƒgƒTƒCƒY‚É‚æ‚Á‚ÄˆÓ–¡‚ªˆÙ‚È‚é
-		//3: “à•”ƒXƒP[ƒ‹‰‰Z‚Å®”ppem‚ğ‹­§‚·‚éBƒIƒt‚ÌA¬”ppem‚ªg—p‰Â”\B
+		//å„ãƒ“ãƒƒãƒˆãƒ•ãƒ©ã‚°ã®å’Œ
+		//0: ãƒ•ã‚©ãƒ³ãƒˆã®ãƒ™ãƒ¼ã‚¹ãƒ©ã‚¤ãƒ³ãŒy=0
+		//1: å·¦ã‚µã‚¤ãƒ‰ãƒ™ã‚¢ãƒªãƒ³ã‚°ãŒx=0(TrueTypeãƒ©ã‚¹ã‚¿ã‚¤ã‚¶ã®ã¿)
+		//2: ãƒã‚¤ãƒ³ãƒˆã‚µã‚¤ã‚ºã«ã‚ˆã£ã¦æ„å‘³ãŒç•°ãªã‚‹
+		//3: å†…éƒ¨ã‚¹ã‚±ãƒ¼ãƒ«æ¼”ç®—ã§æ•´æ•°ppemã‚’å¼·åˆ¶ã™ã‚‹ã€‚ã‚ªãƒ•ã®æ™‚ã€å°æ•°ppemãŒä½¿ç”¨å¯èƒ½ã€‚
 		//4: 
-		//5: g—p‚µ‚È‚¢(ˆê•”ƒvƒ‰ƒbƒgƒtƒH[ƒ€‚Å‚’¼ƒŒƒCƒAƒEƒg‚É‰e‹¿)
-		//6-10: g—p‚µ‚È‚¢
-		//11: ƒƒXƒŒƒXˆ³k‚³‚ê‚Ä‚¢‚éBDSIGƒe[ƒuƒ‹‚ª–³Œø‚É‚È‚é‰Â”\«‚ ‚è
-		//12: ƒƒgƒŠƒNƒXŒİŠ·
-		//13: ClearType‚ÉÅ“K‰»‚³‚ê‚Ä‚¢‚éBEBDT‚ğg—p‚·‚éƒtƒHƒ“ƒg‚ÍClearType‚Å‚Í‚È‚¢(‚Ì‚ÅƒIƒt)B
-		//14: ƒIƒt‚ÌAcmap‚©‚çæ“¾‚³‚ê‚éƒOƒŠƒtƒCƒ“ƒfƒbƒNƒX‚ªƒR[ƒhƒ|ƒCƒ“ƒg‚É‘Î‰‚µ‚½ƒOƒŠƒt‚ğ•\‚µ‚Ä‚¢‚é
-		//15: 0ŒÅ’è
+		//5: ä½¿ç”¨ã—ãªã„(ä¸€éƒ¨ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã§å‚ç›´ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã«å½±éŸ¿)
+		//6-10: ä½¿ç”¨ã—ãªã„
+		//11: ãƒ­ã‚¹ãƒ¬ã‚¹åœ§ç¸®ã•ã‚Œã¦ã„ã‚‹ã€‚DSIGãƒ†ãƒ¼ãƒ–ãƒ«ãŒç„¡åŠ¹ã«ãªã‚‹å¯èƒ½æ€§ã‚ã‚Š
+		//12: ãƒ¡ãƒˆãƒªã‚¯ã‚¹äº’æ›
+		//13: ClearTypeã«æœ€é©åŒ–ã•ã‚Œã¦ã„ã‚‹ã€‚EBDTã‚’ä½¿ç”¨ã™ã‚‹ãƒ•ã‚©ãƒ³ãƒˆã¯ClearTypeã§ã¯ãªã„(ã®ã§ã‚ªãƒ•)ã€‚
+		//14: ã‚ªãƒ•ã®æ™‚ã€cmapã‹ã‚‰å–å¾—ã•ã‚Œã‚‹ã‚°ãƒªãƒ•ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒã‚³ãƒ¼ãƒ‰ãƒã‚¤ãƒ³ãƒˆã«å¯¾å¿œã—ãŸã‚°ãƒªãƒ•ã‚’è¡¨ã—ã¦ã„ã‚‹
+		//15: 0å›ºå®š
 		uint16_t flags = 0;
-		//[16, 16384]‚Ì‚¢‚¸‚ê‚©BTrueType‚Å‚Í2‚Ì—İæ„§
+		//[16, 16384]ã®ã„ãšã‚Œã‹ã€‚TrueTypeã§ã¯2ã®ç´¯ä¹—æ¨å¥¨
 		uint16_t unitsPerEm = 0;
-		//ì¬“ú(1904/1/1 00:00‚©‚ç‚Ì•b”)
+		//ä½œæˆæ—¥æ™‚(1904/1/1 00:00ã‹ã‚‰ã®ç§’æ•°)
 		int64_t created = 0;
-		//C³“ú(1904/1/1 00:00‚©‚ç‚Ì•b”)
+		//ä¿®æ­£æ—¥æ™‚(1904/1/1 00:00ã‹ã‚‰ã®ç§’æ•°)
 		int64_t modified = 0;
-		//‚·‚×‚Ä‚ÌƒOƒŠƒt‹«ŠEƒ{ƒbƒNƒX‚ÌÅ¬xÀ•W
+		//ã™ã¹ã¦ã®ã‚°ãƒªãƒ•å¢ƒç•Œãƒœãƒƒã‚¯ã‚¹ã®æœ€å°xåº§æ¨™
 		int16_t xMin = 0;
-		//‚·‚×‚Ä‚ÌƒOƒŠƒt‹«ŠEƒ{ƒbƒNƒX‚ÌÅ¬yÀ•W
+		//ã™ã¹ã¦ã®ã‚°ãƒªãƒ•å¢ƒç•Œãƒœãƒƒã‚¯ã‚¹ã®æœ€å°yåº§æ¨™
 		int16_t yMin = 0;
-		//‚·‚×‚Ä‚ÌƒOƒŠƒt‹«ŠEƒ{ƒbƒNƒX‚ÌÅ‘åxÀ•W
+		//ã™ã¹ã¦ã®ã‚°ãƒªãƒ•å¢ƒç•Œãƒœãƒƒã‚¯ã‚¹ã®æœ€å¤§xåº§æ¨™
 		int16_t xMax = 0;
-		//‚·‚×‚Ä‚ÌƒOƒŠƒt‹«ŠEƒ{ƒbƒNƒX‚ÌÅ‘åyÀ•W
+		//ã™ã¹ã¦ã®ã‚°ãƒªãƒ•å¢ƒç•Œãƒœãƒƒã‚¯ã‚¹ã®æœ€å¤§yåº§æ¨™
 		int16_t yMax = 0;
-		//Šeƒrƒbƒgƒtƒ‰ƒO‚Ì˜aBOS_2::fsSelection‚Æˆê’v‚·‚éB
-		//0: ‘¾š(Bold)
-		//1: ƒCƒ^ƒŠƒbƒN‘Ì(Italic)
-		//2: ‰ºü(Underline)
-		//3: —ÖŠsü(Outline)
-		//4: ‰e•t‚«(Shadow)
-		//5: ‰¡•‚ª×‚¢(Condensed)
-		//6: ‰¡•‚ª‘¾‚¢(Extended)
-		//7-15: —\–ñ—Ìˆæ(0ŒÅ’è)
+		//å„ãƒ“ãƒƒãƒˆãƒ•ãƒ©ã‚°ã®å’Œã€‚OS_2::fsSelectionã¨ä¸€è‡´ã™ã‚‹ã€‚
+		//0: å¤ªå­—(Bold)
+		//1: ã‚¤ã‚¿ãƒªãƒƒã‚¯ä½“(Italic)
+		//2: ä¸‹ç·š(Underline)
+		//3: è¼ªéƒ­ç·š(Outline)
+		//4: å½±ä»˜ã(Shadow)
+		//5: æ¨ªå¹…ãŒç´°ã„(Condensed)
+		//6: æ¨ªå¹…ãŒå¤ªã„(Extended)
+		//7-15: äºˆç´„é ˜åŸŸ(0å›ºå®š)
 		uint16_t macStyle = 0;
-		//“Ç‚İæ‚è‰Â”\‚ÈÅ¬ƒsƒNƒZƒ‹
+		//èª­ã¿å–ã‚Šå¯èƒ½ãªæœ€å°ãƒ”ã‚¯ã‚»ãƒ«
 		uint16_t lowestRecPPEM = 0;
-		//•ûŒüƒqƒ“ƒgB”ñ„§‚ÈƒvƒƒpƒeƒB‚Å‚ ‚èA2‚ÉŒÅ’è‚³‚ê‚éB
+		//æ–¹å‘ãƒ’ãƒ³ãƒˆã€‚éæ¨å¥¨ãªãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã§ã‚ã‚Šã€2ã«å›ºå®šã•ã‚Œã‚‹ã€‚
 		int16_t fontDirectionHint = 0;
-		//loca.offsets[maxp.numGlyphs + 1]‚ÌŒ^‚ğw’è
-		//0 : uint16_t(ÀÛ‚ÌƒIƒtƒZƒbƒg’l‚ğ2‚ÅŠ„‚Á‚½‚à‚Ì‚ª•Û‘¶‚³‚ê‚Ä‚¢‚é)
-		//1 : uint32_t(ÀÛ‚ÌƒIƒtƒZƒbƒg’l‚ª•Û‘¶‚³‚ê‚Ä‚¢‚é)
+		//loca.offsets[maxp.numGlyphs + 1]ã®å‹ã‚’æŒ‡å®š
+		//0 : uint16_t(å®Ÿéš›ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆå€¤ã‚’2ã§å‰²ã£ãŸã‚‚ã®ãŒä¿å­˜ã•ã‚Œã¦ã„ã‚‹)
+		//1 : uint32_t(å®Ÿéš›ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆå€¤ãŒä¿å­˜ã•ã‚Œã¦ã„ã‚‹)
 		int16_t indexToLocFormat = 0;
-		//0ŒÅ’è
+		//0å›ºå®š
 		int16_t glyphDataFormat = 0;
 	public:
 		/// <summary>
-		/// ƒtƒ@ƒCƒ‹‚©‚çHEADƒe[ƒuƒ‹‚ğ“Ç‚İæ‚èA‚±‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğXV‚·‚é
+		/// ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰HEADãƒ†ãƒ¼ãƒ–ãƒ«ã‚’èª­ã¿å–ã‚Šã€ã“ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’æ›´æ–°ã™ã‚‹
 		/// </summary>
 		/// <param name="file">
-		/// OpenTypeƒtƒHƒ“ƒgƒtƒ@ƒCƒ‹‚ğ“Ç‚İæ‚è‰Â”\‚ÌƒoƒCƒiƒŠƒf[ƒ^‚Æ‚µ‚ÄŠJ‚¢‚½ƒtƒ@ƒCƒ‹ƒXƒgƒŠ[ƒ€
+		/// OpenTypeãƒ•ã‚©ãƒ³ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿å–ã‚Šå¯èƒ½ã®ãƒã‚¤ãƒŠãƒªãƒ‡ãƒ¼ã‚¿ã¨ã—ã¦é–‹ã„ãŸãƒ•ã‚¡ã‚¤ãƒ«ã‚¹ãƒˆãƒªãƒ¼ãƒ 
 		/// </param>
 		/// <param name="offset">
-		/// ƒtƒ@ƒCƒ‹æ“ª‚©‚çHEADƒe[ƒuƒ‹‚Ö‚ÌƒIƒtƒZƒbƒg(ƒoƒCƒg)B
-		/// TableRecord::offset‚Ì’l‚ğw’è‚·‚éB
+		/// ãƒ•ã‚¡ã‚¤ãƒ«å…ˆé ­ã‹ã‚‰HEADãƒ†ãƒ¼ãƒ–ãƒ«ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ(ãƒã‚¤ãƒˆ)ã€‚
+		/// TableRecord::offsetã®å€¤ã‚’æŒ‡å®šã™ã‚‹ã€‚
 		/// </param>
-		/// <returns>“Ç‚İæ‚èŒã‚ÌFileStream‚Ìó‘Ô’l</returns>
+		/// <returns>èª­ã¿å–ã‚Šå¾Œã®FileStreamã®çŠ¶æ…‹å€¤</returns>
 		bool Load(System::IO::FileStream& file, uint32_t offset) noexcept {
 			if (!file) return false;
 			file.Seek(static_cast<System::IO::StreamOff>(offset), System::IO::SeekDir::Begin);
@@ -1286,42 +1286,42 @@ export namespace System {
 //HHEA
 export namespace System {
 	/// <summary>
-	/// hheaƒe[ƒuƒ‹‚ğ•\‚·\‘¢‘ÌB
-	/// …•½•ûŒüƒŒƒCƒAƒEƒgî•ñ‚ğŠÜ‚ñ‚Å‚¢‚é
+	/// hheaãƒ†ãƒ¼ãƒ–ãƒ«ã‚’è¡¨ã™æ§‹é€ ä½“ã€‚
+	/// æ°´å¹³æ–¹å‘ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆæƒ…å ±ã‚’å«ã‚“ã§ã„ã‚‹
 	/// </summary>
 	struct HHEA {
-		//ƒe[ƒuƒ‹‚ÌƒƒWƒƒ[ƒo[ƒWƒ‡ƒ“B1ŒÅ’è
+		//ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒ¡ã‚¸ãƒ£ãƒ¼ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã€‚1å›ºå®š
 		uint16_t majorVersion = 0;
-		//ƒe[ƒuƒ‹‚Ìƒ}ƒCƒi[ƒo[ƒWƒ‡ƒ“B0ŒÅ’è
+		//ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒã‚¤ãƒŠãƒ¼ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã€‚0å›ºå®š
 		uint16_t minorVersion = 0;
-		//ƒx[ƒXƒ‰ƒCƒ“‚©‚çÅ‚à‚‚¢ƒAƒZƒ“ƒ_[ƒ‰ƒCƒ“‚Ü‚Å‚Ì‹——£
+		//ãƒ™ãƒ¼ã‚¹ãƒ©ã‚¤ãƒ³ã‹ã‚‰æœ€ã‚‚é«˜ã„ã‚¢ã‚»ãƒ³ãƒ€ãƒ¼ãƒ©ã‚¤ãƒ³ã¾ã§ã®è·é›¢
 		int16_t ascender = 0;
-		//ƒx[ƒXƒ‰ƒCƒ“‚©‚çÅ‚à’á‚¢ƒfƒBƒZƒ“ƒ_[ƒ‰ƒCƒ“‚Ü‚Å‚Ì‹——£
+		//ãƒ™ãƒ¼ã‚¹ãƒ©ã‚¤ãƒ³ã‹ã‚‰æœ€ã‚‚ä½ã„ãƒ‡ã‚£ã‚»ãƒ³ãƒ€ãƒ¼ãƒ©ã‚¤ãƒ³ã¾ã§ã®è·é›¢
 		int16_t descender = 0;
-		//sŠÔ‚Ì•
+		//è¡Œé–“ã®å¹…
 		int16_t lineGap = 0;
-		//hmtxƒe[ƒuƒ‹‚ÌÅ‘å‘Oi•
+		//hmtxãƒ†ãƒ¼ãƒ–ãƒ«ã®æœ€å¤§å‰é€²å¹…
 		uint16_t advanceWidthMax = 0;
-		//hmtxƒe[ƒuƒ‹‚ÌÅ¬¶ƒTƒCƒhƒxƒAƒŠƒ“ƒO’l(—ÖŠsü‚ğ‚ÂƒOƒŠƒt‚Ì‚İ)
+		//hmtxãƒ†ãƒ¼ãƒ–ãƒ«ã®æœ€å°å·¦ã‚µã‚¤ãƒ‰ãƒ™ã‚¢ãƒªãƒ³ã‚°å€¤(è¼ªéƒ­ç·šã‚’æŒã¤ã‚°ãƒªãƒ•ã®ã¿)
 		int16_t minLeftSideBearing = 0;
-		//hmtxƒe[ƒuƒ‹‚ÌÅ¬‰EƒTƒCƒhƒxƒAƒŠƒ“ƒO’l(—ÖŠsü‚ğ‚ÂƒOƒŠƒt‚Ì‚İ)
+		//hmtxãƒ†ãƒ¼ãƒ–ãƒ«ã®æœ€å°å³ã‚µã‚¤ãƒ‰ãƒ™ã‚¢ãƒªãƒ³ã‚°å€¤(è¼ªéƒ­ç·šã‚’æŒã¤ã‚°ãƒªãƒ•ã®ã¿)
 		int16_t minRightSideBearing = 0;
-		//¶ƒTƒCƒhƒxƒAƒŠƒ“ƒO‚Æ(xMax-XMin)‚Ì˜a‚ÌÅ‘å’l
+		//å·¦ã‚µã‚¤ãƒ‰ãƒ™ã‚¢ãƒªãƒ³ã‚°ã¨(xMax-XMin)ã®å’Œã®æœ€å¤§å€¤
 		int16_t xMaxExtent = 0;
-		//“ü—ÍƒJ[ƒ\ƒ‹‚ÌŒù”z‚Ì•ªq(‚’¼‚Ìê‡A1)
+		//å…¥åŠ›ã‚«ãƒ¼ã‚½ãƒ«ã®å‹¾é…ã®åˆ†å­(å‚ç›´ã®å ´åˆã€1)
 		int16_t caretSlopeRise = 0;
-		//“ü—ÍƒJ[ƒ\ƒ‹‚ÌŒù”z‚Ì•ª•ê(‚’¼‚Ìê‡A0)
+		//å…¥åŠ›ã‚«ãƒ¼ã‚½ãƒ«ã®å‹¾é…ã®åˆ†æ¯(å‚ç›´ã®å ´åˆã€0)
 		int16_t caretSlopeRun = 0;
-		//Î‘ÌƒtƒHƒ“ƒg‚Ìê‡A“ü—ÍƒJ[ƒ\ƒ‹‚ğˆÚ“®‚³‚¹‚éƒIƒtƒZƒbƒgB‚»‚Ì‘¼‚Ìê‡A0
+		//æ–œä½“ãƒ•ã‚©ãƒ³ãƒˆã®å ´åˆã€å…¥åŠ›ã‚«ãƒ¼ã‚½ãƒ«ã‚’ç§»å‹•ã•ã›ã‚‹ã‚ªãƒ•ã‚»ãƒƒãƒˆã€‚ãã®ä»–ã®å ´åˆã€0
 		int16_t caretOffset = 0;
-		//0ŒÅ’è
+		//0å›ºå®š
 		/*int16_t reserved[4] */
-		//0ŒÅ’è
+		//0å›ºå®š
 		int16_t metricDataFormat = 0;
-		//HMTX::hMetric‚Ì—v‘f”
+		//HMTX::hMetricã®è¦ç´ æ•°
 		uint16_t numberOfHMetrics = 0;
 	public:
-		//HHEAƒe[ƒuƒ‹‚Ö‚ÌƒIƒtƒZƒbƒg‚ğw’è‚µ‚Äƒtƒ@ƒCƒ‹‚ğ“Ç‚İæ‚èA\‘¢‘Ì‚ğ‰Šú‰»‚·‚é
+		//HHEAãƒ†ãƒ¼ãƒ–ãƒ«ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’æŒ‡å®šã—ã¦ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿å–ã‚Šã€æ§‹é€ ä½“ã‚’åˆæœŸåŒ–ã™ã‚‹
 		bool Load(System::IO::FileStream& file, uint32_t offset) noexcept {
 			file.Seek(offset, System::IO::SeekDir::Begin);
 			file.ReadBE(majorVersion);
@@ -1352,43 +1352,43 @@ export namespace System {
 //MAXP
 export namespace System {
 	/// <summary>
-	/// maxpƒe[ƒuƒ‹‚ğ•\‚·\‘¢‘ÌB
-	/// ƒtƒHƒ“ƒg‚Ì‚Â—lX‚Èî•ñ‚ÌÅ‘å’l‚ğŠÜ‚ñ‚Å‚¢‚é
+	/// maxpãƒ†ãƒ¼ãƒ–ãƒ«ã‚’è¡¨ã™æ§‹é€ ä½“ã€‚
+	/// ãƒ•ã‚©ãƒ³ãƒˆã®æŒã¤æ§˜ã€…ãªæƒ…å ±ã®æœ€å¤§å€¤ã‚’å«ã‚“ã§ã„ã‚‹
 	/// </summary>
 	struct MAXP {
-		//MAXPƒe[ƒuƒ‹‚Ìƒo[ƒWƒ‡ƒ“B16.16‚ÌŒÅ’è¬”“_”‚Å•\‚·B
-		//0x00010000(1.0)‚Ìê‡A‚·‚×‚Ä‚ÌƒvƒƒpƒeƒB‚ğ‚Â
-		//0x00005000(0.5)‚Ìê‡Aversion, numGlyphs‚Ì‚İ‚Â
+		//MAXPãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã€‚16.16ã®å›ºå®šå°æ•°ç‚¹æ•°ã§è¡¨ã™ã€‚
+		//0x00010000(1.0)ã®å ´åˆã€ã™ã¹ã¦ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’æŒã¤
+		//0x00005000(0.5)ã®å ´åˆã€version, numGlyphsã®ã¿æŒã¤
 		int32_t version;
-		//ƒtƒHƒ“ƒg‚ÉŠÜ‚Ü‚ê‚éƒOƒŠƒt‚Ì‘”
+		//ãƒ•ã‚©ãƒ³ãƒˆã«å«ã¾ã‚Œã‚‹ã‚°ãƒªãƒ•ã®ç·æ•°
 		uint16_t numGlyphs;
-		//”ñ•¡‡ƒOƒŠƒt‚ÌÅ‘å§Œä“_”
+		//éè¤‡åˆã‚°ãƒªãƒ•ã®æœ€å¤§åˆ¶å¾¡ç‚¹æ•°
 		uint16_t maxPoints;
-		//”ñ•¡‡ƒOƒŠƒt‚ÌÅ‘å—ÖŠs”
+		//éè¤‡åˆã‚°ãƒªãƒ•ã®æœ€å¤§è¼ªéƒ­æ•°
 		uint16_t maxContours;
-		//•¡‡ƒOƒŠƒt‚ÌÅ‘å§Œä“_”
+		//è¤‡åˆã‚°ãƒªãƒ•ã®æœ€å¤§åˆ¶å¾¡ç‚¹æ•°
 		uint16_t maxCompositePoints;
-		//•¡‡ƒOƒŠƒt‚ÌÅ‘å—ÖŠs”
+		//è¤‡åˆã‚°ãƒªãƒ•ã®æœ€å¤§è¼ªéƒ­æ•°
 		uint16_t maxCompositeContours;
-		//ƒ][ƒ“‚ÌÅ‘å”B1‚à‚µ‚­‚Í2‚ğw’è‚·‚éB
-		//2‚Ìê‡A’Êí‚Ìƒ][ƒ“(Z1)‚É‰Á‚¦‚ÄƒOƒŠƒtã‚É‘¶İ‚µ‚È‚¢“_
-		//‚ğŠi”[‚·‚éƒ][ƒ“(Z0)‚ğg—p‚·‚é
+		//ã‚¾ãƒ¼ãƒ³ã®æœ€å¤§æ•°ã€‚1ã‚‚ã—ãã¯2ã‚’æŒ‡å®šã™ã‚‹ã€‚
+		//2ã®å ´åˆã€é€šå¸¸ã®ã‚¾ãƒ¼ãƒ³(Z1)ã«åŠ ãˆã¦ã‚°ãƒªãƒ•ä¸Šã«å­˜åœ¨ã—ãªã„ç‚¹
+		//ã‚’æ ¼ç´ã™ã‚‹ã‚¾ãƒ¼ãƒ³(Z0)ã‚’ä½¿ç”¨ã™ã‚‹
 		uint16_t maxZones;
-		//Z0‚ÉŠÜ‚Ü‚ê‚é“_‚ÌÅ‘å”
+		//Z0ã«å«ã¾ã‚Œã‚‹ç‚¹ã®æœ€å¤§æ•°
 		uint16_t maxTwilightPoints;
-		//ƒXƒgƒŒ[ƒWƒGƒŠƒA‚ÌêŠ‚Ì”
+		//ã‚¹ãƒˆãƒ¬ãƒ¼ã‚¸ã‚¨ãƒªã‚¢ã®å ´æ‰€ã®æ•°
 		uint16_t maxStorage;
-		//Å‘åŠÖ””Ô†+1‚Ì”
+		//æœ€å¤§é–¢æ•°ç•ªå·+1ã®æ•°
 		uint16_t maxFunctionDefs;
-		//IDEFs‚Ì”
+		//IDEFsã®æ•°
 		uint16_t maxInstructionDefs;
-		//fpgm, prep‚ÌƒvƒƒOƒ‰ƒ€‚Æglyf‚Ì–½—ß‚ÌÅ‘åƒXƒ^ƒbƒN”
+		//fpgm, prepã®ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã¨glyfã®å‘½ä»¤ã®æœ€å¤§ã‚¹ã‚¿ãƒƒã‚¯æ•°
 		uint16_t maxStackElements;
-		//ƒOƒŠƒt–½—ß‚ÌÅ‘åƒoƒCƒg”
+		//ã‚°ãƒªãƒ•å‘½ä»¤ã®æœ€å¤§ãƒã‚¤ãƒˆæ•°
 		uint16_t maxSizeOfInstructions;
-		//•¡‡ƒOƒŠƒt‚ÌƒgƒbƒvƒŒƒxƒ‹‚ÅQÆ‚³‚ê‚éÅ‘åƒRƒ“ƒ|[ƒlƒ“ƒg”
+		//è¤‡åˆã‚°ãƒªãƒ•ã®ãƒˆãƒƒãƒ—ãƒ¬ãƒ™ãƒ«ã§å‚ç…§ã•ã‚Œã‚‹æœ€å¤§ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆæ•°
 		uint16_t maxComponentElements;
-		//ƒRƒ“ƒ|[ƒlƒ“ƒg‚ÌÅ‘åÄ‹A‰ñ”B”ñ•¡‡ƒOƒŠƒt‚Í1
+		//ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®æœ€å¤§å†å¸°å›æ•°ã€‚éè¤‡åˆã‚°ãƒªãƒ•ã¯1
 		uint16_t maxComponentDepth;
 	public:
 		bool Load(System::IO::FileStream& file, uint32_t offset) noexcept {
@@ -1417,13 +1417,13 @@ export namespace System {
 //struct in HMTX
 namespace System {
 	/// <summary>
-	/// ƒOƒŠƒt‚Ì‘Oi•‚Æ¶ƒTƒCƒhƒxƒAƒŠƒ“ƒO‚Ì’l‚ğ
-	/// •\‚·\‘¢‘Ì
+	/// ã‚°ãƒªãƒ•ã®å‰é€²å¹…ã¨å·¦ã‚µã‚¤ãƒ‰ãƒ™ã‚¢ãƒªãƒ³ã‚°ã®å€¤ã‚’
+	/// è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct LongHorMetric {
-		//‘Oi•
+		//å‰é€²å¹…
 		uint16_t advanceWidth;
-		//¶ƒTƒCƒhƒxƒAƒŠƒ“ƒO
+		//å·¦ã‚µã‚¤ãƒ‰ãƒ™ã‚¢ãƒªãƒ³ã‚°
 		int16_t lsb;
 	public:
 		bool Load(System::IO::FileStream& file) noexcept {
@@ -1437,21 +1437,21 @@ namespace System {
 //HMTX
 export namespace System {
 	/// <summary>
-	/// hmtxƒe[ƒuƒ‹‚ğ•\‚·\‘¢‘ÌB
-	/// ƒOƒŠƒt‚Ì‘Oi•‚Æ¶ƒTƒCƒhƒxƒAƒŠƒ“ƒO‚ğŠÜ‚ñ‚Å‚¢‚éB
-	/// ƒOƒŠƒtƒAƒEƒgƒ‰ƒCƒ“ƒf[ƒ^‚Æ‚Æ‚à‚Ég—p‚³‚ê‚é
+	/// hmtxãƒ†ãƒ¼ãƒ–ãƒ«ã‚’è¡¨ã™æ§‹é€ ä½“ã€‚
+	/// ã‚°ãƒªãƒ•ã®å‰é€²å¹…ã¨å·¦ã‚µã‚¤ãƒ‰ãƒ™ã‚¢ãƒªãƒ³ã‚°ã‚’å«ã‚“ã§ã„ã‚‹ã€‚
+	/// ã‚°ãƒªãƒ•ã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³ãƒ‡ãƒ¼ã‚¿ã¨ã¨ã‚‚ã«ä½¿ç”¨ã•ã‚Œã‚‹
 	/// </summary>
 	struct HMTX {
-		//ƒOƒŠƒtID‚ÅƒAƒNƒZƒX‰Â”\‚ÈƒOƒŠƒt‚Ì‘Oi•‚Æ¶ƒTƒCƒhƒxƒAƒŠƒ“ƒO‚ğ•\‚·”z—ñB
-		//—v‘f”‚Í[HHEA::numberOfHMetrics]
+		//ã‚°ãƒªãƒ•IDã§ã‚¢ã‚¯ã‚»ã‚¹å¯èƒ½ãªã‚°ãƒªãƒ•ã®å‰é€²å¹…ã¨å·¦ã‚µã‚¤ãƒ‰ãƒ™ã‚¢ãƒªãƒ³ã‚°ã‚’è¡¨ã™é…åˆ—ã€‚
+		//è¦ç´ æ•°ã¯[HHEA::numberOfHMetrics]
 		LongHorMetric* hMetrics = nullptr;
-		//HHEA::numberOfMetricsˆÈã‚ÌƒOƒŠƒtID‚ğ‚ÂƒOƒŠƒt‚Ì¶ƒTƒCƒhƒxƒAƒŠƒ“ƒO’l‚Ì”z—ñ
-		//—v‘f”‚Í[MAXP::numGlyphs - HHEA::numberOfHMetrics]
+		//HHEA::numberOfMetricsä»¥ä¸Šã®ã‚°ãƒªãƒ•IDã‚’æŒã¤ã‚°ãƒªãƒ•ã®å·¦ã‚µã‚¤ãƒ‰ãƒ™ã‚¢ãƒªãƒ³ã‚°å€¤ã®é…åˆ—
+		//è¦ç´ æ•°ã¯[MAXP::numGlyphs - HHEA::numberOfHMetrics]
 		int16_t* leftSideBearings = nullptr;
 	private:
-		//HHEA::numberOfHMetrics‚ğ•Û‘¶
+		//HHEA::numberOfHMetricsã‚’ä¿å­˜
 		uint16_t m_numberOfHMetrics;
-		//MAXP::numGlyphs - HHEA::numberOfHMetrics‚ğ•Û‘¶
+		//MAXP::numGlyphs - HHEA::numberOfHMetricsã‚’ä¿å­˜
 		uint16_t m_leftSideBearingCount;
 	public:
 		~HMTX() {
@@ -1475,13 +1475,13 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ƒOƒŠƒtID‚É‘Î‰‚µ‚½‘Oi•‚ğæ“¾‚·‚é
+		/// ã‚°ãƒªãƒ•IDã«å¯¾å¿œã—ãŸå‰é€²å¹…ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		constexpr uint16_t GetAdvanceWidth(uint16_t gid) const noexcept {
 			return gid < m_numberOfHMetrics ? hMetrics[gid].advanceWidth : 0;
 		}
 		/// <summary>
-		/// ƒOƒŠƒtID‚É‘Î‰‚µ‚½¶ƒTƒCƒhƒxƒAƒŠƒ“ƒO‚ğæ“¾‚·‚é
+		/// ã‚°ãƒªãƒ•IDã«å¯¾å¿œã—ãŸå·¦ã‚µã‚¤ãƒ‰ãƒ™ã‚¢ãƒªãƒ³ã‚°ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		constexpr int16_t GetLeftSideBearing(uint16_t gid) const noexcept {
 			if (gid < m_numberOfHMetrics) return hMetrics[gid].lsb;
@@ -1496,14 +1496,14 @@ export namespace System {
 //LOCA
 export namespace System {
 	struct LOCA {
-		//ƒOƒŠƒtID‚ÅƒAƒNƒZƒX‚Å‚«‚éƒOƒŠƒtî•ñ‚ğŠÜ‚Şƒe[ƒuƒ‹‚Ìæ“ª‚©‚ç‚ÌƒIƒtƒZƒbƒgB
-		//HEAD::IndexToLocFormat‚ª0‚Ìê‡Auint16_t‚Ì”z—ñ‚É‚È‚éB
-		//ÅŒã‚Ì—v‘f‚ÍÅŒã‚ÌƒOƒŠƒtî•ñ‚ÌŸ‚ÌƒoƒCƒg‚ğw‚µA
-		//ÅŒã‚ÌƒOƒŠƒtî•ñ‚ÌƒoƒCƒg’·‚ğ‹‚ß‚é‚½‚ß‚Ég—p‚Å‚«‚éB
-		//—v‘f”‚Í[maxp.numGlyphs + 1]
+		//ã‚°ãƒªãƒ•IDã§ã‚¢ã‚¯ã‚»ã‚¹ã§ãã‚‹ã‚°ãƒªãƒ•æƒ…å ±ã‚’å«ã‚€ãƒ†ãƒ¼ãƒ–ãƒ«ã®å…ˆé ­ã‹ã‚‰ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã€‚
+		//HEAD::IndexToLocFormatãŒ0ã®å ´åˆã€uint16_tã®é…åˆ—ã«ãªã‚‹ã€‚
+		//æœ€å¾Œã®è¦ç´ ã¯æœ€å¾Œã®ã‚°ãƒªãƒ•æƒ…å ±ã®æ¬¡ã®ãƒã‚¤ãƒˆã‚’æŒ‡ã—ã€
+		//æœ€å¾Œã®ã‚°ãƒªãƒ•æƒ…å ±ã®ãƒã‚¤ãƒˆé•·ã‚’æ±‚ã‚ã‚‹ãŸã‚ã«ä½¿ç”¨ã§ãã‚‹ã€‚
+		//è¦ç´ æ•°ã¯[maxp.numGlyphs + 1]
 		uint32_t* offsets = nullptr;
 	private:
-		//offsets‚Ì—v‘f”Bmaxp.numGlyphs + 1‚ğ•Û‘¶‚·‚é
+		//offsetsã®è¦ç´ æ•°ã€‚maxp.numGlyphs + 1ã‚’ä¿å­˜ã™ã‚‹
 		uint32_t m_offsetCount;
 	public:
 		~LOCA() {
@@ -1526,8 +1526,8 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ƒOƒŠƒtID‚É‘Î‰‚·‚éƒOƒŠƒtî•ñ‚ğŠÜ‚Şƒe[ƒuƒ‹‚Ìæ“ª‚©‚ç‚ÌƒIƒtƒZƒbƒg‚ğæ“¾‚·‚éB
-		/// ‘¶İ‚µ‚È‚¢ƒOƒŠƒtID‚Ìê‡A0xffffffffu‚ğ•Ô‚·
+		/// ã‚°ãƒªãƒ•IDã«å¯¾å¿œã™ã‚‹ã‚°ãƒªãƒ•æƒ…å ±ã‚’å«ã‚€ãƒ†ãƒ¼ãƒ–ãƒ«ã®å…ˆé ­ã‹ã‚‰ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’å–å¾—ã™ã‚‹ã€‚
+		/// å­˜åœ¨ã—ãªã„ã‚°ãƒªãƒ•IDã®å ´åˆã€0xffffffffuã‚’è¿”ã™
 		/// </summary>
 		constexpr uint32_t GetOffset(uint16_t gid) const noexcept {
 			return gid < m_offsetCount ? offsets[gid] : System::MAX_VALUE<uint32_t>;
@@ -1548,29 +1548,29 @@ namespace System {
 	struct Glyph;
 
 	struct SimpleGlyph {
-		//Še—ÖŠs‚ÌÅŒã‚Ì§Œä“_‚ÌƒCƒ“ƒfƒbƒNƒXB
-		//ÅŒã‚Ì—v‘f‚É1‚ğ‰Á‚¦‚½”‚ª‚±‚ÌƒOƒŠƒt‚ÉŠÜ‚Ü‚ê‚é§Œä“_‚Ì‘”‚Æ‚È‚éB
-		//—v‘f”‚Í[Glyph::numberOfContours]
+		//å„è¼ªéƒ­ã®æœ€å¾Œã®åˆ¶å¾¡ç‚¹ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã€‚
+		//æœ€å¾Œã®è¦ç´ ã«1ã‚’åŠ ãˆãŸæ•°ãŒã“ã®ã‚°ãƒªãƒ•ã«å«ã¾ã‚Œã‚‹åˆ¶å¾¡ç‚¹ã®ç·æ•°ã¨ãªã‚‹ã€‚
+		//è¦ç´ æ•°ã¯[Glyph::numberOfContours]
 		uint16_t* endPtsOfContours = nullptr;
-		//instructions‚ÌƒoƒCƒg’·
+		//instructionsã®ãƒã‚¤ãƒˆé•·
 		uint16_t instructionLength;
-		//–½—ß‚Ì”z—ñB
-		//—v‘f”‚Í[instructionLength]
+		//å‘½ä»¤ã®é…åˆ—ã€‚
+		//è¦ç´ æ•°ã¯[instructionLength]
 		uint8_t* instructions = nullptr;
-		//—ñ‹“Œ^SimpleGlyphFlags‚Ì˜a‚Ì”z—ñB
-		//ƒtƒ@ƒCƒ‹ã‚Å‚ÍASimpleGlyphFlags::REPEAT_FLAG‚É‚æ‚Á‚Ä
-		//˜A‘±‚·‚é“¯‚¶ƒtƒ‰ƒO‚ªÈ—ª‚³‚ê‚é‚½‚ßA“Ç‚İ‚Ş‚Ü‚Å’·‚³‚Í•s–¾B
-		//“Ç‚İ‚İ‚É“WŠJ‚·‚é‚½‚ßA—v‘f”‚Í[endPtsOfContours[Glyph::numberOFContours - 1]]
+		//åˆ—æŒ™å‹SimpleGlyphFlagsã®å’Œã®é…åˆ—ã€‚
+		//ãƒ•ã‚¡ã‚¤ãƒ«ä¸Šã§ã¯ã€SimpleGlyphFlags::REPEAT_FLAGã«ã‚ˆã£ã¦
+		//é€£ç¶šã™ã‚‹åŒã˜ãƒ•ãƒ©ã‚°ãŒçœç•¥ã•ã‚Œã‚‹ãŸã‚ã€èª­ã¿è¾¼ã‚€ã¾ã§é•·ã•ã¯ä¸æ˜ã€‚
+		//èª­ã¿è¾¼ã¿æ™‚ã«å±•é–‹ã™ã‚‹ãŸã‚ã€è¦ç´ æ•°ã¯[endPtsOfContours[Glyph::numberOFContours - 1]]
 		uint8_t* flags = nullptr;
-		//ƒtƒ@ƒCƒ‹ã‚Å‚ÍA‘O‚ÌÀ•W(n“_‚Ìê‡(0,0))‚©‚ç‚Ì‘Š‘ÎÀ•W‚ªuint8_t‚©int16_t‚Å•Û‘¶‚³‚ê‚Ä‚¨‚èA
-		//Œ^‚Æ”z—ñƒTƒCƒY‚Íflags‚©‚çŒvZ‚³‚ê‚é
-		//Ši”[•û–@F(xMin, yMin)‚ğ¶‰º‹÷‚ÌŒ´“_(0, 0)‚Æ‚·‚éâ‘ÎÀ•W‚É•ÏŠ·‚µ‚ÄŠi”[
+		//ãƒ•ã‚¡ã‚¤ãƒ«ä¸Šã§ã¯ã€å‰ã®åº§æ¨™(å§‹ç‚¹ã®å ´åˆ(0,0))ã‹ã‚‰ã®ç›¸å¯¾åº§æ¨™ãŒuint8_tã‹int16_tã§ä¿å­˜ã•ã‚Œã¦ãŠã‚Šã€
+		//å‹ã¨é…åˆ—ã‚µã‚¤ã‚ºã¯flagsã‹ã‚‰è¨ˆç®—ã•ã‚Œã‚‹
+		//æ ¼ç´æ–¹æ³•ï¼š(xMin, yMin)ã‚’å·¦ä¸‹éš…ã®åŸç‚¹(0, 0)ã¨ã™ã‚‹çµ¶å¯¾åº§æ¨™ã«å¤‰æ›ã—ã¦æ ¼ç´
 		//[endPtsOfCountours[Glyph::numberOfContours - 1]]
 		int16_t* xCoordinates = nullptr;
-		//xCoodinatesQÆ
+		//xCoodinateså‚ç…§
 		int16_t* yCoordinates = nullptr;
 	private:
-		//ŒÂ”‚ğ•Û‘¶
+		//å€‹æ•°ã‚’ä¿å­˜
 		uint16_t pointCount;
 		uint16_t xCount;
 		uint16_t yCount;
@@ -1594,31 +1594,31 @@ namespace System {
 	};
 
 	struct CompositeComponent {
-		//—ñ‹“Œ^CompositeGlyphFlags‚Ì˜a
+		//åˆ—æŒ™å‹CompositeGlyphFlagsã®å’Œ
 		uint16_t flags;
-		//QÆ‚·‚éƒOƒŠƒtID
+		//å‚ç…§ã™ã‚‹ã‚°ãƒªãƒ•ID
 		uint16_t glyphIndex;
-		//ƒOƒŠƒt‚É“K—p‚·‚éxÀ•W‚ÌƒIƒtƒZƒbƒg’l
+		//ã‚°ãƒªãƒ•ã«é©ç”¨ã™ã‚‹xåº§æ¨™ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆå€¤
 		union {
 			uint8_t u8;
 			int8_t s8;
 			uint16_t u16;
 			int16_t s16;
 		} argument1;
-		//ƒOƒŠƒt‚É“K—p‚·‚éyÀ•W‚ÌƒIƒtƒZƒbƒg’l
+		//ã‚°ãƒªãƒ•ã«é©ç”¨ã™ã‚‹yåº§æ¨™ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆå€¤
 		union {
 			uint8_t u8;
 			int8_t s8;
 			uint16_t u16;
 			int16_t s16;
 		} argument2;
-		//ƒOƒŠƒt‚É“K—p‚·‚éƒXƒP[ƒ‹’lB
-		//1‚Â‚Ìê‡A’Pƒ‚ÈƒXƒP[ƒ‹’l‚ğ•\‚·B
-		//2‚Â‚Ìê‡A‚»‚ê‚¼‚êX²AY²‚ÌƒXƒP[ƒ‹’l‚ğ•\‚·B
-		//4‚Â‚Ìê‡A2*2‚Ì•ÏŠ·s—ñ(?)‚É‚æ‚éƒXƒP[ƒŠƒ“ƒO‚ğ•\‚·B
+		//ã‚°ãƒªãƒ•ã«é©ç”¨ã™ã‚‹ã‚¹ã‚±ãƒ¼ãƒ«å€¤ã€‚
+		//1ã¤ã®å ´åˆã€å˜ç´”ãªã‚¹ã‚±ãƒ¼ãƒ«å€¤ã‚’è¡¨ã™ã€‚
+		//2ã¤ã®å ´åˆã€ãã‚Œãã‚ŒXè»¸ã€Yè»¸ã®ã‚¹ã‚±ãƒ¼ãƒ«å€¤ã‚’è¡¨ã™ã€‚
+		//4ã¤ã®å ´åˆã€2*2ã®å¤‰æ›è¡Œåˆ—(?)ã«ã‚ˆã‚‹ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°ã‚’è¡¨ã™ã€‚
 		f2dot14_c* transformation = nullptr;
 	private:
-		//transformation‚Ì—v‘f”‚ğ•Û‘¶‚·‚é
+		//transformationã®è¦ç´ æ•°ã‚’ä¿å­˜ã™ã‚‹
 		uint8_t m_transformationCount;
 	public:
 		CompositeComponent() noexcept = default;
@@ -1734,15 +1734,15 @@ namespace System {
 	};
 
 	struct CompositeGlyph {
-		//”z—ñƒTƒCƒY‚ÍCompositeGlyphFlags::MORE_COMPONENTS‚©‚çŒvZ‚·‚é
+		//é…åˆ—ã‚µã‚¤ã‚ºã¯CompositeGlyphFlags::MORE_COMPONENTSã‹ã‚‰è¨ˆç®—ã™ã‚‹
 		CompositeComponent* components = nullptr;
-		//instructions‚ÌƒoƒCƒg’·
+		//instructionsã®ãƒã‚¤ãƒˆé•·
 		uint16_t instructionLength;
-		//–½—ß‚Ì”z—ñB
-		//—v‘f”‚Í[instructionLength]
+		//å‘½ä»¤ã®é…åˆ—ã€‚
+		//è¦ç´ æ•°ã¯[instructionLength]
 		uint8_t* instructions = nullptr;
 	private:
-		//components‚Ì—v‘f”‚ğ•Û‘¶‚·‚é
+		//componentsã®è¦ç´ æ•°ã‚’ä¿å­˜ã™ã‚‹
 		uint16_t m_componentCount;
 	public:
 		~CompositeGlyph() {
@@ -1753,15 +1753,15 @@ namespace System {
 		}
 	public:
 		bool Load(System::IO::FileStream& file, const MAXP& maxp) noexcept {
-			//ƒRƒ“ƒ|[ƒlƒ“ƒg‚Ì—Ìˆæ‚ğŠm•Û(Å‘å”‚ÍMAXP::maxComponentElements)
+			//ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®é ˜åŸŸã‚’ç¢ºä¿(æœ€å¤§æ•°ã¯MAXP::maxComponentElements)
 			CompositeComponent* tmps = new CompositeComponent[maxp.maxComponentElements];
 			m_componentCount = 0;
-			//CompositeComponent::flags‚ÉMORE_COMPONENT‚ªŠÜ‚Ü‚ê‚éŠÔA“Ç‚İ‚İ‘±‚¯‚é
+			//CompositeComponent::flagsã«MORE_COMPONENTãŒå«ã¾ã‚Œã‚‹é–“ã€èª­ã¿è¾¼ã¿ç¶šã‘ã‚‹
 			for (; m_componentCount < maxp.maxComponentElements; ++m_componentCount) {
 				tmps[m_componentCount].Load(file);
 				if (!(tmps[m_componentCount].flags & CompositeGlyphFlags::MORE_COMPONENTS)) break;
 			}
-			++m_componentCount;	//ÅŒã‚ÌƒCƒ“ƒfƒbƒNƒX‚ğw‚µ‚Ä‚¢‚é‚Ì‚ÅƒCƒ“ƒNƒŠƒƒ“ƒg
+			++m_componentCount;	//æœ€å¾Œã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æŒ‡ã—ã¦ã„ã‚‹ã®ã§ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆ
 			components = new CompositeComponent[m_componentCount];
 			for (uint16_t i = 0; i < m_componentCount; ++i) components[i] = static_cast<CompositeComponent&&>(tmps[i]);
 			delete[] tmps;
@@ -1781,11 +1781,11 @@ namespace System {
 	};
 
 	struct Glyph {
-		//ƒOƒŠƒt‚Ì‚Â—ÖŠs”B
-		//•‰”(-1‚ª‘½‚¢)‚Ìê‡A•¡‡ƒOƒŠƒt‚ğ•\‚·
+		//ã‚°ãƒªãƒ•ã®æŒã¤è¼ªéƒ­æ•°ã€‚
+		//è² æ•°(-1ãŒå¤šã„)ã®å ´åˆã€è¤‡åˆã‚°ãƒªãƒ•ã‚’è¡¨ã™
 		int16_t numberOfContours;
-		//ƒOƒŠƒt‚ÌÀ•Wƒf[ƒ^‚ÌÅ¬’lEÅ‘å’l
-		//ƒOƒŠƒt‚Í¶‰º‹÷(xMin, yMin)A‰Eã‹÷(xMax, yMax)‚Ì’·•ûŒ`‚É“àÚ‚·‚é
+		//ã‚°ãƒªãƒ•ã®åº§æ¨™ãƒ‡ãƒ¼ã‚¿ã®æœ€å°å€¤ãƒ»æœ€å¤§å€¤
+		//ã‚°ãƒªãƒ•ã¯å·¦ä¸‹éš…(xMin, yMin)ã€å³ä¸Šéš…(xMax, yMax)ã®é•·æ–¹å½¢ã«å†…æ¥ã™ã‚‹
 		int16_t xMin;
 		int16_t yMin;
 		int16_t xMax;
@@ -1842,10 +1842,10 @@ namespace System {
 		file.ReadBE(instructionLength);
 		instructions = new uint8_t[instructionLength];
 		file.ReadBE(instructions, instructionLength);
-		//§Œä“_”
+		//åˆ¶å¾¡ç‚¹æ•°
 		const uint32_t pointCount = endPtsOfContours[glyph.numberOfContours - 1] + 1;
 		const uint16_t endPtsOfGlyph = endPtsOfContours[glyph.numberOfContours - 1];
-		//flags‚ğ“Ç‚İ‚İA§Œä“_”‚Æ“™‚µ‚¢—v‘f”‚ğ‚Â”z—ñ‚É“WŠJ‚·‚é
+		//flagsã‚’èª­ã¿è¾¼ã¿ã€åˆ¶å¾¡ç‚¹æ•°ã¨ç­‰ã—ã„è¦ç´ æ•°ã‚’æŒã¤é…åˆ—ã«å±•é–‹ã™ã‚‹
 		uint16_t point = 0;
 		flags = new uint8_t[pointCount];
 		while (point < pointCount) {
@@ -1859,9 +1859,9 @@ namespace System {
 			}
 			++point;
 		}
-		//xÀ•W‚ğ“Ç‚İ‚İA§Œä“_”‚Æ“™‚µ‚¢—v‘f”‚ğ‚Â”z—ñ‚É“WŠJ‚·‚é
+		//xåº§æ¨™ã‚’èª­ã¿è¾¼ã¿ã€åˆ¶å¾¡ç‚¹æ•°ã¨ç­‰ã—ã„è¦ç´ æ•°ã‚’æŒã¤é…åˆ—ã«å±•é–‹ã™ã‚‹
 		xCoordinates = new int16_t[pointCount];
-		int16_t currentX = -glyph.xMin;	//xÀ•W‚ÌÅ¬’l‚ğŠî€’l(Œ´“_)‚Æ‚·‚é
+		int16_t currentX = -glyph.xMin;	//xåº§æ¨™ã®æœ€å°å€¤ã‚’åŸºæº–å€¤(åŸç‚¹)ã¨ã™ã‚‹
 		for (point = 0; point < pointCount; ++point) {
 			if (flags[point] & SimpleGlyphFlags::X_SHORT_VECTOR) {
 				uint8_t x8;
@@ -1882,9 +1882,9 @@ namespace System {
 			}
 			xCoordinates[point] = currentX;
 		}
-		//yÀ•W‚ğ“Ç‚İ‚İA§Œä“_”‚Æ“™‚µ‚¢—v‘f”‚ğ‚Â”z—ñ‚É“WŠJ‚·‚é
+		//yåº§æ¨™ã‚’èª­ã¿è¾¼ã¿ã€åˆ¶å¾¡ç‚¹æ•°ã¨ç­‰ã—ã„è¦ç´ æ•°ã‚’æŒã¤é…åˆ—ã«å±•é–‹ã™ã‚‹
 		yCoordinates = new int16_t[pointCount];
-		int16_t currentY = -glyph.yMin;	//yÀ•W‚ÌÅ¬’l‚ğŠî€’l(Œ´“_)‚Æ‚·‚é
+		int16_t currentY = -glyph.yMin;	//yåº§æ¨™ã®æœ€å°å€¤ã‚’åŸºæº–å€¤(åŸç‚¹)ã¨ã™ã‚‹
 		for (point = 0; point < pointCount; ++point) {
 			if (flags[point] & SimpleGlyphFlags::Y_SHORT_VECTOR) {
 				uint8_t y8;
@@ -1919,9 +1919,9 @@ namespace System {
 		uint16_t xIndex = 0;
 		uint16_t yIndex = 0;
 		uint8_t* currentFlag = flags;
-		//—ÖŠs‚²‚Æ‚Éˆ—
+		//è¼ªéƒ­ã”ã¨ã«å‡¦ç†
 		for (uint16_t i = 0; i < glyph.numberOfContours; ++i) {
-			//—ÖŠs‚ğ\¬‚·‚é§Œä“_”
+			//è¼ªéƒ­ã‚’æ§‹æˆã™ã‚‹åˆ¶å¾¡ç‚¹æ•°
 			const uint16_t numPoints = i == 0 ? endPtsOfContours[i] + 1 : endPtsOfContours[i] - endPtsOfContours[i - 1];
 			ControlPoint* points = new ControlPoint[numPoints];
 			for (uint16_t j = 0; j < numPoints; ++j) {
@@ -1929,25 +1929,25 @@ namespace System {
 				points[j].x = static_cast<int16_t>(xCoordinates[xIndex++] * scale);
 				points[j].y = static_cast<int16_t>(yCoordinates[yIndex++] * scale);
 			}
-			//§Œä“_‚©‚ç2ŸBƒXƒvƒ‰ƒCƒ“‹Èü‚ğ¶¬
+			//åˆ¶å¾¡ç‚¹ã‹ã‚‰2æ¬¡Bã‚¹ãƒ—ãƒ©ã‚¤ãƒ³æ›²ç·šã‚’ç”Ÿæˆ
 			System::BSpline bspline;
 			bspline.SetFunction(points, numPoints, 2, System::Math::Max(xMax, yMax), true);
 			delete[] points;
-			//ƒRƒ‹[ƒ`ƒ“‚É‚æ‚Á‚Ä˜A‘±‚µ‚½‹Èüã‚Ì“_‚ğæ“¾‚µ‚Ä•`‰æ‚·‚éB
-			//ƒRƒ‹[ƒ`ƒ“‚ÍÅ‰‚Ì“_‚ÆÅŒã‚Ì“_‚Í“¯‚¶À•W‚ğ•Ô‚·B
-			//ƒsƒNƒZƒ‹‚ÌƒAƒ‹ƒtƒ@’l‚É‚æ‚Á‚ÄˆÈ‰º‚Ì‚æ‚¤‚Éó‘Ô‚ğŠÇ—‚·‚éB
-			//0x00: •“h‚è, 0xaa: ‹Èüã, 0xff: ”’“h‚è
-			bool first = true;	//—ÖŠs‚ÌÅ‰‚Ì“_‚Ìˆ—‚Ì‚İtrue
-			Point<int32_t> prev;	//’¼‘O‚Ì“_À•W
-			int8_t yFirstSign = 0;	//—ÖŠs“à‚Å‰‚ß‚ÄyÀ•W‚ª•Ï‰»‚µ‚½•ûŒü(1 or -1)
-			int8_t yPrevSign = 0;	//’¼‘O‚ÌyÀ•W‚ª•Ï‰»‚µ‚½•ûŒü(1 or -1)
+			//ã‚³ãƒ«ãƒ¼ãƒãƒ³ã«ã‚ˆã£ã¦é€£ç¶šã—ãŸæ›²ç·šä¸Šã®ç‚¹ã‚’å–å¾—ã—ã¦æç”»ã™ã‚‹ã€‚
+			//ã‚³ãƒ«ãƒ¼ãƒãƒ³ã¯æœ€åˆã®ç‚¹ã¨æœ€å¾Œã®ç‚¹ã¯åŒã˜åº§æ¨™ã‚’è¿”ã™ã€‚
+			//ãƒ”ã‚¯ã‚»ãƒ«ã®ã‚¢ãƒ«ãƒ•ã‚¡å€¤ã«ã‚ˆã£ã¦ä»¥ä¸‹ã®ã‚ˆã†ã«çŠ¶æ…‹ã‚’ç®¡ç†ã™ã‚‹ã€‚
+			//0x00: é»’å¡—ã‚Š, 0xaa: æ›²ç·šä¸Š, 0xff: ç™½å¡—ã‚Š
+			bool first = true;	//è¼ªéƒ­ã®æœ€åˆã®ç‚¹ã®å‡¦ç†æ™‚ã®ã¿true
+			Point<int32_t> prev;	//ç›´å‰ã®ç‚¹åº§æ¨™
+			int8_t yFirstSign = 0;	//è¼ªéƒ­å†…ã§åˆã‚ã¦yåº§æ¨™ãŒå¤‰åŒ–ã—ãŸæ–¹å‘(1 or -1)
+			int8_t yPrevSign = 0;	//ç›´å‰ã®yåº§æ¨™ãŒå¤‰åŒ–ã—ãŸæ–¹å‘(1 or -1)
 			for (Point<int32_t>& p : bspline.Splines(0, 0, xMax, yMax)) {
-				//ƒOƒŠƒtÀ•W‚Í¶‰ºŒ´“_AImageÀ•W‚Í¶ãŒ´“_‚È‚Ì‚Åã‰º”½“]
+				//ã‚°ãƒªãƒ•åº§æ¨™ã¯å·¦ä¸‹åŸç‚¹ã€Imageåº§æ¨™ã¯å·¦ä¸ŠåŸç‚¹ãªã®ã§ä¸Šä¸‹åè»¢
 				uint32_t y = yMax - p.y;
-				//À•W(0, y)‚ÌƒsƒNƒZƒ‹‚Ö‚Ìƒ|ƒCƒ“ƒ^
+				//åº§æ¨™(0, y)ã®ãƒ”ã‚¯ã‚»ãƒ«ã¸ã®ãƒã‚¤ãƒ³ã‚¿
 				System::Drawing::Pixel* line0 = pixels + (y * (xMax + 1));
 				ret.SetPixel(p.x, y, contoursPixel);
-				//Œ»İ‚Ì“_‚Ì…•½‰E•ûŒü‚ÌƒsƒNƒZƒ‹‚ÌƒAƒ‹ƒtƒ@’l‚ğ”½“]‚·‚é(0x00 <-> 0xff)
+				//ç¾åœ¨ã®ç‚¹ã®æ°´å¹³å³æ–¹å‘ã®ãƒ”ã‚¯ã‚»ãƒ«ã®ã‚¢ãƒ«ãƒ•ã‚¡å€¤ã‚’åè»¢ã™ã‚‹(0x00 <-> 0xff)
 				if (first) {
 					first = false;
 					PixelInverse(line0, p.x, xMax);
@@ -1956,7 +1956,7 @@ namespace System {
 					int8_t ySign = static_cast<int8_t>(System::Math::Sign(static_cast<int64_t>(y) - prev.y));
 					if (ySign) {
 						PixelInverse(line0, p.x, xMax);
-						//yÀ•W‚Ì•ÏˆÊ•ûŒü‚ª”½“]‚µ‚½‚Æ‚«A’¼‘O‚Ì“_‚Å‚ÌƒAƒ‹ƒtƒ@’l”½“]‚ğæ‚èÁ‚·
+						//yåº§æ¨™ã®å¤‰ä½æ–¹å‘ãŒåè»¢ã—ãŸã¨ãã€ç›´å‰ã®ç‚¹ã§ã®ã‚¢ãƒ«ãƒ•ã‚¡å€¤åè»¢ã‚’å–ã‚Šæ¶ˆã™
 						if (yPrevSign && ySign != yPrevSign) {
 							line0 += static_cast<int64_t>(yPrevSign) * (xMax + 1);
 							PixelInverse(line0, prev.x, xMax);
@@ -1968,14 +1968,14 @@ namespace System {
 				prev.x = p.x;
 				prev.y = y;
 			}
-			//—ÖŠs‚ÌÅŒã‚Ì“_(Å‰‚Ì“_)‚ªã’ê‚à‚µ‚­‚Í‰º’ê‚Ì‚¢‚¸‚ê‚Å‚à‚È‚¢ê‡A
-			//ÅŒã‚ÌƒAƒ‹ƒtƒ@’l”½“]‚ğæ‚èÁ‚·
+			//è¼ªéƒ­ã®æœ€å¾Œã®ç‚¹(æœ€åˆã®ç‚¹)ãŒä¸Šåº•ã‚‚ã—ãã¯ä¸‹åº•ã®ã„ãšã‚Œã§ã‚‚ãªã„å ´åˆã€
+			//æœ€å¾Œã®ã‚¢ãƒ«ãƒ•ã‚¡å€¤åè»¢ã‚’å–ã‚Šæ¶ˆã™
 			if (yFirstSign && yFirstSign == yPrevSign) {
 				System::Drawing::Pixel* line0 = pixels + (prev.y * (xMax + 1));
 				PixelInverse(line0, prev.x, xMax);
 			}
 		}
-		//ƒAƒ‹ƒtƒ@’l0x00‚ÌƒsƒNƒZƒ‹‚ğ•F(0x000000ff)‚É“h‚è‚Â‚Ô‚·
+		//ã‚¢ãƒ«ãƒ•ã‚¡å€¤0x00ã®ãƒ”ã‚¯ã‚»ãƒ«ã‚’é»’è‰²(0x000000ff)ã«å¡—ã‚Šã¤ã¶ã™
 		for (uint32_t y = 0; y <= yMax; ++y) {
 			System::Drawing::Pixel* line0 = pixels + (xMax + 1ull) * y;
 			for (uint32_t x = 0; x <= xMax; ++x) {
@@ -2003,11 +2003,11 @@ namespace System {
 //GLYF
 export namespace System {
 	struct GLYF {
-		//ƒOƒŠƒtID‚ÅƒAƒNƒZƒX‚Å‚«‚éƒOƒŠƒtî•ñ‚Ì”z—ñB
-		//—v‘f”‚Í[maxp.numGlyphs]
+		//ã‚°ãƒªãƒ•IDã§ã‚¢ã‚¯ã‚»ã‚¹ã§ãã‚‹ã‚°ãƒªãƒ•æƒ…å ±ã®é…åˆ—ã€‚
+		//è¦ç´ æ•°ã¯[maxp.numGlyphs]
 		Glyph* glyphs = nullptr;
 	private:
-		//MAXP::numGlyphs‚Ì’l‚ğ•Û‘¶‚·‚é
+		//MAXP::numGlyphsã®å€¤ã‚’ä¿å­˜ã™ã‚‹
 		uint16_t m_numGlyphs;
 	public:
 		~GLYF() {
@@ -2016,17 +2016,17 @@ export namespace System {
 			m_numGlyphs = 0;
 		}
 	public:
-		//GLYFƒe[ƒuƒ‹‚Ö‚ÌƒIƒtƒZƒbƒg‚ğw’è‚µ‚Äƒtƒ@ƒCƒ‹‚ğ“Ç‚İæ‚èA\‘¢‘Ì‚ğ‰Šú‰»‚·‚é
-		//numGlyphsFMAXP::numGlyphs‚ğw’è‚·‚é
-		//locaOffsetsFLOCA::offsets‚ğw’è‚·‚é(”z—ñ‚Ì‘å‚«‚³‚ÍMAXP::numGlyphs + 1)
-		//maxComponentElementsFMAXP::maxComponentElements‚ğw’è‚·‚é
-		//hmtxFHMTX‚Ö‚ÌQÆ‚ğw’è‚·‚é(AdvanceWidthæ“¾—p)
+		//GLYFãƒ†ãƒ¼ãƒ–ãƒ«ã¸ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’æŒ‡å®šã—ã¦ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿å–ã‚Šã€æ§‹é€ ä½“ã‚’åˆæœŸåŒ–ã™ã‚‹
+		//numGlyphsï¼šMAXP::numGlyphsã‚’æŒ‡å®šã™ã‚‹
+		//locaOffsetsï¼šLOCA::offsetsã‚’æŒ‡å®šã™ã‚‹(é…åˆ—ã®å¤§ãã•ã¯MAXP::numGlyphs + 1)
+		//maxComponentElementsï¼šMAXP::maxComponentElementsã‚’æŒ‡å®šã™ã‚‹
+		//hmtxï¼šHMTXã¸ã®å‚ç…§ã‚’æŒ‡å®šã™ã‚‹(AdvanceWidthå–å¾—ç”¨)
 		bool Load(System::IO::FileStream& file, uint32_t offset, const MAXP& maxp, const HMTX& hmtx, const LOCA& loca) noexcept {
 			m_numGlyphs = maxp.numGlyphs;
 			file.Seek(offset, System::IO::SeekDir::Begin);
 			glyphs = new Glyph[m_numGlyphs];
 			for (uint16_t i = 0; i < m_numGlyphs; ++i) {
-				//loca.offsets‚ª˜A‘±‚µ‚Ä“¯‚¶’l‚ğ‚Æ‚é‚Æ‚«AƒOƒŠƒt‚ª’è‹`‚³‚ê‚Ä‚¢‚È‚¢
+				//loca.offsetsãŒé€£ç¶šã—ã¦åŒã˜å€¤ã‚’ã¨ã‚‹ã¨ãã€ã‚°ãƒªãƒ•ãŒå®šç¾©ã•ã‚Œã¦ã„ãªã„
 				if (loca.offsets[i] == loca.offsets[i + 1]) glyphs[i].SetEmptyGlyph(hmtx, i);
 				else glyphs[i].Load(file, offset, loca.offsets[i], maxp);
 			}
@@ -2049,13 +2049,13 @@ export namespace System {
 //struct in CFF1
 export namespace System {
 	/// <summary>
-	/// CFF1IndexData::GetDICTValue()ŠÖ”‚ª•Ô‚·\‘¢‘Ì
-	/// key‚É‘Î‰‚·‚éTŒ^‚Ì’l‚ğ•Û‚·‚é”z—ñ‚Æ—v‘f”‚ğŠÜ‚Ş
+	/// CFF1IndexData::GetDICTValue()é–¢æ•°ãŒè¿”ã™æ§‹é€ ä½“
+	/// keyã«å¯¾å¿œã™ã‚‹Tå‹ã®å€¤ã‚’ä¿æŒã™ã‚‹é…åˆ—ã¨è¦ç´ æ•°ã‚’å«ã‚€
 	/// </summary>
-	/// <typeparam name="T">GetDICTValue()ŠÖ”‚Éw’è‚µ‚½Œ^</typeparam>
+	/// <typeparam name="T">GetDICTValue()é–¢æ•°ã«æŒ‡å®šã—ãŸå‹</typeparam>
 	template<typename T>
 	struct DICTValue {
-		//—v‘f”‚Í[count]
+		//è¦ç´ æ•°ã¯[count]
 		T* data = nullptr;
 		size_t count = 0;
 	public:
@@ -2084,9 +2084,9 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// DICTValueŒ^‚ÉDICTOperator‚Ìí—Ş‚ğ’Ç‰Á‚µ‚½\‘¢‘Ì
+	/// DICTValueå‹ã«DICTOperatorã®ç¨®é¡ã‚’è¿½åŠ ã—ãŸæ§‹é€ ä½“
 	/// </summary>
-	/// <typeparam name="T">“à•ï‚·‚éƒf[ƒ^”z—ñ‚ÌŒ^</typeparam>
+	/// <typeparam name="T">å†…åŒ…ã™ã‚‹ãƒ‡ãƒ¼ã‚¿é…åˆ—ã®å‹</typeparam>
 	template<typename T>
 	struct DICTKeyValue : public DICTValue<T> {
 		DICTOperator opr = DICTOperator::Undefined;
@@ -2103,13 +2103,13 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// CFF1Index::GetData()ŠÖ”‚ª•Ô‚·\‘¢‘Ì
-	/// w’è‚µ‚½—v‘f‚Ìæ“ª‚ğw‚·ƒ|ƒCƒ“ƒ^‚ÆƒoƒCƒg”‚ğŠÜ‚Ş
+	/// CFF1Index::GetData()é–¢æ•°ãŒè¿”ã™æ§‹é€ ä½“
+	/// æŒ‡å®šã—ãŸè¦ç´ ã®å…ˆé ­ã‚’æŒ‡ã™ãƒã‚¤ãƒ³ã‚¿ã¨ãƒã‚¤ãƒˆæ•°ã‚’å«ã‚€
 	/// </summary>
 	struct CFF1IndexData {
-		//CFF1Index\‘¢‘Ì“à‚Ì‚ ‚é—v‘f‚Ìæ“ª‚ğw‚·ƒ|ƒCƒ“ƒ^
+		//CFF1Indexæ§‹é€ ä½“å†…ã®ã‚ã‚‹è¦ç´ ã®å…ˆé ­ã‚’æŒ‡ã™ãƒã‚¤ãƒ³ã‚¿
 		const uint8_t* data = nullptr;
-		//data‚ªw‚·—v‘f‚ÌƒoƒCƒg’·
+		//dataãŒæŒ‡ã™è¦ç´ ã®ãƒã‚¤ãƒˆé•·
 		const uint32_t size = 0;
 	public:
 		CFF1IndexData() noexcept = delete;
@@ -2119,17 +2119,17 @@ export namespace System {
 		CFF1IndexData& operator=(const CFF1IndexData&) noexcept = delete;
 	private:
 		/// <summary>
-		/// DICTŒ`®”z—ñ‚Ìw’è‚µ‚½ƒIƒtƒZƒbƒgˆÊ’u‚©‚çNumberŒ^‚ğ“Ç‚İæ‚èAw’è‚µ‚½QÆ•Ï”‚É‘ã“ü‚·‚é
+		/// DICTå½¢å¼é…åˆ—ã®æŒ‡å®šã—ãŸã‚ªãƒ•ã‚»ãƒƒãƒˆä½ç½®ã‹ã‚‰Numberå‹ã‚’èª­ã¿å–ã‚Šã€æŒ‡å®šã—ãŸå‚ç…§å¤‰æ•°ã«ä»£å…¥ã™ã‚‹
 		/// </summary>
-		/// <typeparam name="T">QÆ•Ï”‚ÌŒ^</typeparam>
-		/// <param name="variant">“Ç‚İæ‚Á‚½NumberŒ^‚ğ‘ã“ü‚·‚éQÆ•Ï”</param>
-		/// <param name="data">DICTŒ`®”z—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^</param>
-		/// <param name="start">DICTŒ`®”z—ñ‚ÌƒIƒtƒZƒbƒg’l</param>
+		/// <typeparam name="T">å‚ç…§å¤‰æ•°ã®å‹</typeparam>
+		/// <param name="variant">èª­ã¿å–ã£ãŸNumberå‹ã‚’ä»£å…¥ã™ã‚‹å‚ç…§å¤‰æ•°</param>
+		/// <param name="data">DICTå½¢å¼é…åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿</param>
+		/// <param name="start">DICTå½¢å¼é…åˆ—ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆå€¤</param>
 		/// <param name="opr"></param>
 		/// <returns>
-		/// Ÿ‚ÌƒIƒtƒZƒbƒg’lB
-		/// data[opr]‚Ì‰‰Zq‚ÉŠÖ‚í‚é‚·‚×‚Ä‚Ìƒf[ƒ^‚ğ“Ç‚İæ‚Á‚½‚Æ‚«Aw’è‚µ‚½opr‚Æˆê’v‚·‚éB
-		/// NumberŒ^‚ğ“Ç‚İæ‚ê‚È‚©‚Á‚½ê‡A0xffffffffu‚ğ•Ô‚·
+		/// æ¬¡ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆå€¤ã€‚
+		/// data[opr]ã®æ¼”ç®—å­ã«é–¢ã‚ã‚‹ã™ã¹ã¦ã®ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿å–ã£ãŸã¨ãã€æŒ‡å®šã—ãŸoprã¨ä¸€è‡´ã™ã‚‹ã€‚
+		/// Numberå‹ã‚’èª­ã¿å–ã‚Œãªã‹ã£ãŸå ´åˆã€0xffffffffuã‚’è¿”ã™
 		/// </returns>
 		template<typename T>
 		static uint32_t LoadNumber(T& variant, const uint8_t* data, uint32_t start, uint32_t opr) noexcept {
@@ -2217,7 +2217,7 @@ export namespace System {
 					DICTKeyValue<T> ret;
 					ret.opr = currentKey;
 					switch (currentKey) {
-						//Value‚ªˆê‚Â
+						//ValueãŒä¸€ã¤
 					case DICTOperator::version:
 					case DICTOperator::Notice:
 					case DICTOperator::Fullname:
@@ -2264,7 +2264,7 @@ export namespace System {
 						LoadNumber(ret.data[0], data, s, i);
 						break;
 					}
-					//Value‚ª2‚Â
+					//ValueãŒ2ã¤
 					case DICTOperator::Private:
 					{
 						ret.count = 2;
@@ -2273,7 +2273,7 @@ export namespace System {
 						LoadNumber(ret.data[1], data, next, i);
 						break;
 					}
-					//Value‚ª3‚Â
+					//ValueãŒ3ã¤
 					case DICTOperator::ROS:
 					{
 						ret.count = 3;
@@ -2283,7 +2283,7 @@ export namespace System {
 						LoadNumber(ret.data[2], data, next, i);
 						break;
 					}
-					//Value‚ª”z—ñ
+					//ValueãŒé…åˆ—
 					case DICTOperator::FontMatrix:
 					case DICTOperator::FontBBox:
 					case DICTOperator::XUID:
@@ -2329,13 +2329,13 @@ export namespace System {
 			return IEnumerable<DICTKeyValue<T>>(new IEnumerator<DICTKeyValue<T>>(GetDICTKeyValueEnumerator<T>(), nullptr));
 		}
 		/// <summary>
-		/// DICTƒf[ƒ^‚©‚çw’è‚µ‚½DICTOperator‚É‘Î‰‚·‚é’l‚ğŒŸõ‚µ‚Äæ“¾‚·‚é
+		/// DICTãƒ‡ãƒ¼ã‚¿ã‹ã‚‰æŒ‡å®šã—ãŸDICTOperatorã«å¯¾å¿œã™ã‚‹å€¤ã‚’æ¤œç´¢ã—ã¦å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="key">DICTOperator</param>
 		/// <returns>
-		/// ’l‚Ì”z—ñ‚ğ‚ÂDICTValue\‘¢‘ÌB
-		/// ’l‚ª‘¶İ‚µ‚È‚¢ê‡A—v‘f”0‚ÌDICTValue\‘¢‘Ì‚ğ•Ô‚·
+		/// å€¤ã®é…åˆ—ã‚’æŒã¤DICTValueæ§‹é€ ä½“ã€‚
+		/// å€¤ãŒå­˜åœ¨ã—ãªã„å ´åˆã€è¦ç´ æ•°0ã®DICTValueæ§‹é€ ä½“ã‚’è¿”ã™
 		/// </returns>
 		template<typename T>
 		DICTValue<T> GetDICTValue(DICTOperator key) const noexcept {
@@ -2357,7 +2357,7 @@ export namespace System {
 					}
 					else {
 						switch (currentKey) {
-						//Value‚ªˆê‚Â
+						//ValueãŒä¸€ã¤
 						case DICTOperator::version:
 						case DICTOperator::Notice:
 						case DICTOperator::Fullname:
@@ -2404,7 +2404,7 @@ export namespace System {
 							LoadNumber(ret.data[0], data, s, i);
 							return ret;
 						}
-						//Value‚ª2‚Â
+						//ValueãŒ2ã¤
 						case DICTOperator::Private:
 						{
 							ret.count = 2;
@@ -2413,7 +2413,7 @@ export namespace System {
 							LoadNumber(ret.data[1], data, next, i);
 							return ret;
 						}
-						//Value‚ª3‚Â
+						//ValueãŒ3ã¤
 						case DICTOperator::ROS:
 						{
 							ret.count = 3;
@@ -2423,7 +2423,7 @@ export namespace System {
 							LoadNumber(ret.data[2], data, next, i);
 							return ret;
 						}
-						//Value‚ª”z—ñ
+						//ValueãŒé…åˆ—
 						case DICTOperator::FontMatrix:
 						case DICTOperator::FontBBox:
 						case DICTOperator::XUID:
@@ -2457,15 +2457,15 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// IndexŒ`®‚ğ•\‚·\‘¢‘Ì
+	/// Indexå½¢å¼ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct CFF1Index {
-		//—LŒø‚ÈƒIƒtƒZƒbƒg”z—ñ‚Ì—v‘f”
+		//æœ‰åŠ¹ãªã‚ªãƒ•ã‚»ãƒƒãƒˆé…åˆ—ã®è¦ç´ æ•°
 		uint16_t count = 0;
-		//ƒIƒtƒZƒbƒg”z—ñ‚Ìˆê—v‘f‚ÌƒoƒCƒg’·
+		//ã‚ªãƒ•ã‚»ãƒƒãƒˆé…åˆ—ã®ä¸€è¦ç´ ã®ãƒã‚¤ãƒˆé•·
 		uint8_t offSize = 0;
-		//ƒIƒtƒZƒbƒg”z—ñB—v‘f”‚Í[count + 1]B
-		//ÅŒã‚Ì—v‘f‚©‚ç1ˆø‚¢‚½”‚ªƒoƒCƒg”z—ñ‚ÌƒoƒCƒg’·
+		//ã‚ªãƒ•ã‚»ãƒƒãƒˆé…åˆ—ã€‚è¦ç´ æ•°ã¯[count + 1]ã€‚
+		//æœ€å¾Œã®è¦ç´ ã‹ã‚‰1å¼•ã„ãŸæ•°ãŒãƒã‚¤ãƒˆé…åˆ—ã®ãƒã‚¤ãƒˆé•·
 		union {
 			//offSize == 1
 			uint8_t* offset8 = nullptr;
@@ -2476,11 +2476,11 @@ export namespace System {
 			//offSize == 4
 			uint32_t* offset32;
 		};
-		//ƒIƒtƒZƒbƒg”z—ñ‚Ì’l‚ğg—p‚µ‚ÄƒAƒNƒZƒX‚·‚éƒf[ƒ^”z—ñB
-		//ƒoƒCƒg’·‚Í[offsetX[count] - 1]B
-		//n = [0, count - 1]”Ô–Ú‚Ì—v‘f‚É‚ÍA
+		//ã‚ªãƒ•ã‚»ãƒƒãƒˆé…åˆ—ã®å€¤ã‚’ä½¿ç”¨ã—ã¦ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ãƒ‡ãƒ¼ã‚¿é…åˆ—ã€‚
+		//ãƒã‚¤ãƒˆé•·ã¯[offsetX[count] - 1]ã€‚
+		//n = [0, count - 1]ç•ªç›®ã®è¦ç´ ã«ã¯ã€
 		//for (i = offsetX[n] - 1; i < offsetX[n + 1] - 1; ++i) data[i];
-		//‚ÅƒAƒNƒZƒX‚·‚é
+		//ã§ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹
 		uint8_t* data = nullptr;
 	public:
 		~CFF1Index() {
@@ -2525,10 +2525,10 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// i”Ô–Ú‚Ì—v‘f‚ğ•\‚·CFF1IndexData‚ğæ“¾‚·‚é
+		/// iç•ªç›®ã®è¦ç´ ã‚’è¡¨ã™CFF1IndexDataã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="i">—v‘f‚ÌƒCƒ“ƒfƒbƒNƒXB”ÍˆÍ‚Í[0, count - 1]</param>
-		/// <returns>CFF1Index‚ªDICTŒ`®(TopDICT, FDArray)‚Ìê‡ACFF1IndexData‚ÍDICTƒf[ƒ^‚Ì”z—ñ‚ğ•\‚·</returns>
+		/// <param name="i">è¦ç´ ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã€‚ç¯„å›²ã¯[0, count - 1]</param>
+		/// <returns>CFF1IndexãŒDICTå½¢å¼(TopDICT, FDArray)ã®å ´åˆã€CFF1IndexDataã¯DICTãƒ‡ãƒ¼ã‚¿ã®é…åˆ—ã‚’è¡¨ã™</returns>
 		CFF1IndexData GetData(uint16_t i) const noexcept {
 			if (i >= count) return CFF1IndexData(nullptr, 0);
 			if (offSize == 1) return CFF1IndexData(&data[offset8[i] - 1], offset8[i + 1] - offset8[i]);
@@ -2540,7 +2540,7 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// ƒTƒuƒ‹[ƒ`ƒ“‚ÌIndexŒ`®‚ğ•\‚·\‘¢‘Ì
+	/// ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³ã®Indexå½¢å¼ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct CFF1SubrsIndex : public CFF1Index {
 		uint8_t m_charstringType = 2;
@@ -2551,10 +2551,10 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// ƒTƒuƒ‹[ƒ`ƒ“”Ô†‚É‘Î‰‚·‚éƒTƒuƒ‹[ƒ`ƒ“ƒf[ƒ^‚ğæ“¾‚·‚é
+		/// ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³ç•ªå·ã«å¯¾å¿œã™ã‚‹ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="subr">Type2Charstring“à‚ÉoŒ»‚·‚éƒTƒuƒ‹[ƒ`ƒ“”Ô†‚ğw’è‚·‚é</param>
-		/// <param name="charstringType">TopDICT‚©‚çæ“¾‚Å‚«‚éCharstringType‚ğw’è‚·‚é</param>
+		/// <param name="subr">Type2Charstringå†…ã«å‡ºç¾ã™ã‚‹ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³ç•ªå·ã‚’æŒ‡å®šã™ã‚‹</param>
+		/// <param name="charstringType">TopDICTã‹ã‚‰å–å¾—ã§ãã‚‹CharstringTypeã‚’æŒ‡å®šã™ã‚‹</param>
 		CFF1IndexData GetSubr(int16_t subr) const noexcept {
 			uint16_t biasedIndex = static_cast<uint16_t>(subr + (m_charstringType == 1 ? 0 : count < 1240 ? 107 : count < 33900 ? 1131 : 32768));
 			return CFF1Index::GetData(biasedIndex);
@@ -2562,8 +2562,8 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// StringIndexŒ`®‚ğ•\‚·\‘¢‘ÌB
-	/// SID(StringID):391ˆÈ~‚É‘Î‰‚·‚é•¶š—ñ‚ªŠi”[‚³‚ê‚Ä‚¢‚é
+	/// StringIndexå½¢å¼ã‚’è¡¨ã™æ§‹é€ ä½“ã€‚
+	/// SID(StringID):391ä»¥é™ã«å¯¾å¿œã™ã‚‹æ–‡å­—åˆ—ãŒæ ¼ç´ã•ã‚Œã¦ã„ã‚‹
 	/// </summary>
 	struct StringIndex : public CFF1Index {
 		~StringIndex() = default;
@@ -2573,10 +2573,10 @@ export namespace System {
 		using CFF1Index::Load;
 	public:
 		/// <summary>
-		/// SID‚É‘Î‰‚µ‚½•¶š—ñ‚ğæ“¾‚·‚éB
+		/// SIDã«å¯¾å¿œã—ãŸæ–‡å­—åˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
 		/// </summary>
 		/// <param name="SID">String ID</param>
-		/// <returns>SID‚É391‚æ‚è¬‚³‚¢’l‚â‘¶İ‚µ‚È‚¢’l‚ğw’è‚µ‚½ê‡A‹ó•¶š—ñ‚ğ•Ô‚·</returns>
+		/// <returns>SIDã«391ã‚ˆã‚Šå°ã•ã„å€¤ã‚„å­˜åœ¨ã—ãªã„å€¤ã‚’æŒ‡å®šã—ãŸå ´åˆã€ç©ºæ–‡å­—åˆ—ã‚’è¿”ã™</returns>
 		String GetString(uint16_t SID) const noexcept {
 			int16_t i = static_cast<int32_t>(SID) - 391;
 			CFF1IndexData stringData = GetData(i);
@@ -2585,12 +2585,12 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// PrivateDICTŒ`®‚ğ•\‚·\‘¢‘Ì
+	/// PrivateDICTå½¢å¼ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct PrivateDICT {
-		//ƒf[ƒ^‚ğ•\‚·ƒoƒCƒiƒŠ”z—ñBƒoƒCƒg’·‚Í[size]
+		//ãƒ‡ãƒ¼ã‚¿ã‚’è¡¨ã™ãƒã‚¤ãƒŠãƒªé…åˆ—ã€‚ãƒã‚¤ãƒˆé•·ã¯[size]
 		uint8_t* data = nullptr;
-		//data‚ÌƒoƒCƒg’·
+		//dataã®ãƒã‚¤ãƒˆé•·
 		uint32_t size = 0;
 		//Local Subrs CFF1Index
 		CFF1SubrsIndex subrs;
@@ -2611,13 +2611,13 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// PrivateDICT‚ğ•\‚·ƒf[ƒ^‚ğæ“¾‚·‚é
+		/// PrivateDICTã‚’è¡¨ã™ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		CFF1IndexData GetData() const noexcept { return CFF1IndexData(data, size); }
 	};
 
 	/// <summary>
-	/// FDSelectŒ`®‚ğ•\‚·\‘¢‘Ì
+	/// FDSelectå½¢å¼ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct FDSelect {
 		struct Format3 {
@@ -2670,10 +2670,10 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// GID‚É‘Î‰‚·‚éFontDICT‚ÌƒCƒ“ƒfƒbƒNƒX‚ğæ“¾‚·‚é
+		/// GIDã«å¯¾å¿œã™ã‚‹FontDICTã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <param name="gid">GID</param>
-		/// <returns>FDSelect‚ª³í‚É“Ç‚İ‚Ü‚ê‚Ä‚¢‚È‚¢‚Æ‚«A0‚ğ•Ô‚·</returns>
+		/// <returns>FDSelectãŒæ­£å¸¸ã«èª­ã¿è¾¼ã¾ã‚Œã¦ã„ãªã„ã¨ãã€0ã‚’è¿”ã™</returns>
 		uint8_t GetFDIndex(uint16_t gid) const noexcept {
 			if (format == 0) return fds[gid];
 			else if (format == 3) {
@@ -2686,7 +2686,7 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// CFF1ƒe[ƒuƒ‹‚Ìƒwƒbƒ_[‚ğ•\‚·\‘¢‘Ì
+	/// CFF1ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒ˜ãƒƒãƒ€ãƒ¼ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct CFF1Header {
 		uint8_t majorVersion;
@@ -2705,7 +2705,7 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// CFF1Encoding, CFF1Charset‚Åg—p‚³‚ê‚é\‘¢‘Ì
+	/// CFF1Encoding, CFF1Charsetã§ä½¿ç”¨ã•ã‚Œã‚‹æ§‹é€ ä½“
 	/// </summary>
 	struct CFF1Range1 {
 		uint8_t first;
@@ -2713,7 +2713,7 @@ export namespace System {
 	};
 
 	/// <summary>
-	/// CFF1Charset‚Åg—p‚³‚ê‚é\‘¢‘Ì
+	/// CFF1Charsetã§ä½¿ç”¨ã•ã‚Œã‚‹æ§‹é€ ä½“
 	/// </summary>
 	struct CFF1Range2 {
 		uint16_t first = 0;
@@ -2768,14 +2768,14 @@ export namespace System {
 			//[charstring.count - 1]
 			uint16_t* glyph = nullptr;
 			//format == 1
-			//[i] : (range1[i].nLeft + 1)‚Ì‡Œv‚ªcharString.count‚Æˆê’v‚µ‚½‚Æ‚«‚Ìi
+			//[i] : (range1[i].nLeft + 1)ã®åˆè¨ˆãŒcharString.countã¨ä¸€è‡´ã—ãŸã¨ãã®i
 			CFF1Range1* range1;
 			//format == 2
-			//[i] : range1QÆ
+			//[i] : range1å‚ç…§
 			CFF1Range2* range2;
 		};
 	private:
-		//glyph, range1, range2‚Ì—v‘f”‚ğ•Û‚·‚é
+		//glyph, range1, range2ã®è¦ç´ æ•°ã‚’ä¿æŒã™ã‚‹
 		size_t m_size = 0;
 	public:
 		~CFF1Charset() {
@@ -2873,37 +2873,37 @@ export namespace System {
 //Type2CharstringParser
 export namespace System {
 	/// <summary>
-	/// Type2 Charstringƒf[ƒ^‚ğ‰ğÍ‚µƒOƒŠƒtƒf[ƒ^‚ğæ“¾‚·‚éƒNƒ‰ƒX
+	/// Type2 Charstringãƒ‡ãƒ¼ã‚¿ã‚’è§£æã—ã‚°ãƒªãƒ•ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹ã‚¯ãƒ©ã‚¹
 	/// </summary>
 	class Type2CharstringParser {
-		const uint8_t* data = nullptr;	//Type2CharstringŒ`®‚Ìƒf[ƒ^
-		uint32_t size = 0;	//data‚ÌƒoƒCƒg’·
-		const CFF1SubrsIndex& local;	//LocalSubrsIndex‚Ö‚ÌQÆ
-		const CFF1SubrsIndex& global;	//GlobalSubrsIndex‚Ö‚ÌQÆ
+		const uint8_t* data = nullptr;	//Type2Charstringå½¢å¼ã®ãƒ‡ãƒ¼ã‚¿
+		uint32_t size = 0;	//dataã®ãƒã‚¤ãƒˆé•·
+		const CFF1SubrsIndex& local;	//LocalSubrsIndexã¸ã®å‚ç…§
+		const CFF1SubrsIndex& global;	//GlobalSubrsIndexã¸ã®å‚ç…§
 	private:
-		int16_t args[48] = {};	//‰ğÍ‚Ég—p‚·‚éƒXƒ^ƒbƒN—Ìˆæ
-		uint8_t argCount = 0;	//Œ»İ‚Ì—LŒø‚Èargs‚Ì—v‘f”
+		int16_t args[48] = {};	//è§£ææ™‚ã«ä½¿ç”¨ã™ã‚‹ã‚¹ã‚¿ãƒƒã‚¯é ˜åŸŸ
+		uint8_t argCount = 0;	//ç¾åœ¨ã®æœ‰åŠ¹ãªargsã®è¦ç´ æ•°
 	private:
-		//normalWidth‚ÆÀÛ‚ÌƒOƒŠƒt•‚Ì·•ª’lB
-		//PrivateDICT‚©‚çæ“¾‚Å‚«‚éDefaultWidth‚Æhmtxƒe[ƒuƒ‹‚ÌAdvanceWidth‚ª“™‚µ‚¢ê‡A
-		//‰ğÍ‘O‚É0‚ğİ’è‚·‚é•K—v‚ª‚ ‚éB
-		//İ’è‚³‚ê‚Ä‚¢‚È‚¢ê‡AType2Charstring‚ÌÅ‰‚Ì’l‚ğ‚±‚Ì’l‚Æ‚µ‚Ä”F¯‚·‚é
+		//normalWidthã¨å®Ÿéš›ã®ã‚°ãƒªãƒ•å¹…ã®å·®åˆ†å€¤ã€‚
+		//PrivateDICTã‹ã‚‰å–å¾—ã§ãã‚‹DefaultWidthã¨hmtxãƒ†ãƒ¼ãƒ–ãƒ«ã®AdvanceWidthãŒç­‰ã—ã„å ´åˆã€
+		//è§£æå‰ã«0ã‚’è¨­å®šã™ã‚‹å¿…è¦ãŒã‚ã‚‹ã€‚
+		//è¨­å®šã•ã‚Œã¦ã„ãªã„å ´åˆã€Type2Charstringã®æœ€åˆã®å€¤ã‚’ã“ã®å€¤ã¨ã—ã¦èªè­˜ã™ã‚‹
 		Traits::InitializedVariant<int16_t> widthDelta;
-		uint16_t normalWidth = 0;	//PrivateDICT‚©‚çæ“¾‚·‚éNormalWidth(ƒOƒŠƒt‚ÌŠî€•)
+		uint16_t normalWidth = 0;	//PrivateDICTã‹ã‚‰å–å¾—ã™ã‚‹NormalWidth(ã‚°ãƒªãƒ•ã®åŸºæº–å¹…)
 	private:
-		int16_t* hStem = nullptr;	//…•½ƒXƒeƒ€ƒqƒ“ƒg‚Ì”z—ñ
-		uint8_t hStemCountX2 = 0;	//hStem‚Ì—v‘f”
-		int16_t* vStem = nullptr;	//‚’¼ƒXƒeƒ€ƒqƒ“ƒg‚Ì”z—ñ
-		uint8_t vStemCountX2 = 0;	//vStem‚Ì—v‘f”
-		uint8_t currentHintMask[12] = {};	//‰ğÍ’†‚Ég—p‚·‚éŒ»İ‚Ìƒqƒ“ƒgƒ}ƒXƒN
-		uint8_t currentCntrMask[12] = {};	//‰ğÍ’†‚Ég—p‚·‚éŒ»İ‚ÌƒRƒ“ƒgƒ[ƒ‹ƒ}ƒXƒN
+		int16_t* hStem = nullptr;	//æ°´å¹³ã‚¹ãƒ†ãƒ ãƒ’ãƒ³ãƒˆã®é…åˆ—
+		uint8_t hStemCountX2 = 0;	//hStemã®è¦ç´ æ•°
+		int16_t* vStem = nullptr;	//å‚ç›´ã‚¹ãƒ†ãƒ ãƒ’ãƒ³ãƒˆã®é…åˆ—
+		uint8_t vStemCountX2 = 0;	//vStemã®è¦ç´ æ•°
+		uint8_t currentHintMask[12] = {};	//è§£æä¸­ã«ä½¿ç”¨ã™ã‚‹ç¾åœ¨ã®ãƒ’ãƒ³ãƒˆãƒã‚¹ã‚¯
+		uint8_t currentCntrMask[12] = {};	//è§£æä¸­ã«ä½¿ç”¨ã™ã‚‹ç¾åœ¨ã®ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ãƒã‚¹ã‚¯
 	private:
-		int16_t xMin = System::MAX_VALUE<int16_t>;	//‰ğÍ‚µ‚½ƒOƒŠƒt‚ÌÅ¬xÀ•W
-		int16_t yMin = System::MAX_VALUE<int16_t>;	//‰ğÍ‚µ‚½ƒOƒŠƒt‚ÌÅ¬yÀ•W
-		int16_t xMax = System::MIN_VALUE<int16_t>;	//‰ğÍ‚µ‚½ƒOƒŠƒt‚ÌÅ‘åxÀ•W
-		int16_t yMax = System::MIN_VALUE<int16_t>;	//‰ğÍ‚µ‚½ƒOƒŠƒt‚ÌÅ‘åyÀ•W
-		Vector<BSpline*> bsplines;	//‰ğÍ‚µ‚½ƒOƒŠƒt‚Ì—ÖŠs‚²‚Æ‚ÌBƒXƒvƒ‰ƒCƒ“‹Èüî•ñ
-		Vector<ControlPoint> points;	//‰ğÍ’†‚Ég—p‚·‚éŒ»İ‚Ì—ÖŠs‚Ì§Œä“_‚ğ•Û‚·‚é”z—ñ
+		int16_t xMin = System::MAX_VALUE<int16_t>;	//è§£æã—ãŸã‚°ãƒªãƒ•ã®æœ€å°xåº§æ¨™
+		int16_t yMin = System::MAX_VALUE<int16_t>;	//è§£æã—ãŸã‚°ãƒªãƒ•ã®æœ€å°yåº§æ¨™
+		int16_t xMax = System::MIN_VALUE<int16_t>;	//è§£æã—ãŸã‚°ãƒªãƒ•ã®æœ€å¤§xåº§æ¨™
+		int16_t yMax = System::MIN_VALUE<int16_t>;	//è§£æã—ãŸã‚°ãƒªãƒ•ã®æœ€å¤§yåº§æ¨™
+		Vector<BSpline*> bsplines;	//è§£æã—ãŸã‚°ãƒªãƒ•ã®è¼ªéƒ­ã”ã¨ã®Bã‚¹ãƒ—ãƒ©ã‚¤ãƒ³æ›²ç·šæƒ…å ±
+		Vector<ControlPoint> points;	//è§£æä¸­ã«ä½¿ç”¨ã™ã‚‹ç¾åœ¨ã®è¼ªéƒ­ã®åˆ¶å¾¡ç‚¹ã‚’ä¿æŒã™ã‚‹é…åˆ—
 	public:
 		Type2CharstringParser() noexcept = delete;
 		Type2CharstringParser(const uint8_t* data, uint32_t size, const CFF1SubrsIndex& local, const CFF1SubrsIndex& global) noexcept
@@ -2916,10 +2916,10 @@ export namespace System {
 			for (BSpline* x : bsplines) delete x;
 		}
 	private:
-		//CharstringŒ`®‚ÌƒoƒCƒiƒŠƒf[ƒ^data[start]‚©‚ç”’l‚ğˆê‚Â“Ç‚İæ‚èAfixed32_cŒ^ˆø”number‚É‘ã“ü‚·‚é
-		//opr‚Ídata[opr]‚ªTypw2Charstring‰‰Zq‚Ì1ƒoƒCƒg–Ú‚ğw‚·‚æ‚¤‚Éİ’è‚µAstart >= opr‚Ìê‡Anumber‚Í0‚©‚Â–ß‚è’l‚Ístart
-		//–ß‚è’lFŸ‚Ìƒf[ƒ^‚Ìn“_‚ğw‚·ƒCƒ“ƒfƒbƒNƒX’l
-		//(–ß‚è’l‚ªopr‚Æˆê’v‚·‚éê‡Adata[opr]‚Ì‰‰Zq‚ÉŠÖ‚í‚éƒf[ƒ^‚ğ‚·‚×‚Ä“Ç‚İæ‚Á‚½‚±‚Æ‚ğ¦‚·)
+		//Charstringå½¢å¼ã®ãƒã‚¤ãƒŠãƒªãƒ‡ãƒ¼ã‚¿data[start]ã‹ã‚‰æ•°å€¤ã‚’ä¸€ã¤èª­ã¿å–ã‚Šã€fixed32_cå‹å¼•æ•°numberã«ä»£å…¥ã™ã‚‹
+		//oprã¯data[opr]ãŒTypw2Charstringæ¼”ç®—å­ã®1ãƒã‚¤ãƒˆç›®ã‚’æŒ‡ã™ã‚ˆã†ã«è¨­å®šã—ã€start >= oprã®å ´åˆã€numberã¯0ã‹ã¤æˆ»ã‚Šå€¤ã¯start
+		//æˆ»ã‚Šå€¤ï¼šæ¬¡ã®ãƒ‡ãƒ¼ã‚¿ã®å§‹ç‚¹ã‚’æŒ‡ã™ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹å€¤
+		//(æˆ»ã‚Šå€¤ãŒoprã¨ä¸€è‡´ã™ã‚‹å ´åˆã€data[opr]ã®æ¼”ç®—å­ã«é–¢ã‚ã‚‹ãƒ‡ãƒ¼ã‚¿ã‚’ã™ã¹ã¦èª­ã¿å–ã£ãŸã“ã¨ã‚’ç¤ºã™)
 		static uint32_t GetType2Value(fixed32_c& number, const uint8_t* data, uint32_t start, uint32_t opr) noexcept {
 			if (start >= opr) {
 				number = static_cast<int16_t>(0);
@@ -3333,14 +3333,14 @@ export namespace System {
 		CFF1Charset charset;
 		FDSelect fdSelect;
 		CFF1Index fdArray;
-		//PrivateDICT‚Ì”z—ñB
-		//—v‘f”‚ÍtopDict‚ÉPrivate‚ª‘¶İ‚·‚éê‡‚Í[1]A‚»‚êˆÈŠO‚Ìê‡‚Í[fdArray.count]
+		//PrivateDICTã®é…åˆ—ã€‚
+		//è¦ç´ æ•°ã¯topDictã«PrivateãŒå­˜åœ¨ã™ã‚‹å ´åˆã¯[1]ã€ãã‚Œä»¥å¤–ã®å ´åˆã¯[fdArray.count]
 		PrivateDICT* privateDict = nullptr;
 	private:
-		//charString‚ÉŠÜ‚Ü‚ê‚éƒOƒŠƒt”‚ğ•Û‚·‚éB
-		//charString.count‚ª0‚Ìê‡AMAXP::numGlyphs‚ğ•Û‚·‚é
+		//charStringã«å«ã¾ã‚Œã‚‹ã‚°ãƒªãƒ•æ•°ã‚’ä¿æŒã™ã‚‹ã€‚
+		//charString.countãŒ0ã®å ´åˆã€MAXP::numGlyphsã‚’ä¿æŒã™ã‚‹
 		uint16_t m_numGlyphs = 0;
-		//privateDict‚Ì—v‘f”‚ğ•Û‚·‚é
+		//privateDictã®è¦ç´ æ•°ã‚’ä¿æŒã™ã‚‹
 		uint16_t m_privateDictCount = 0;
 	private:
 		mutable System::HashMap<uint16_t, Type2CharstringParser*> m_parsers = 3;
@@ -3449,18 +3449,18 @@ export namespace System {
 			const int16_t xMin = parser.GetXMin();
 			const int16_t yMin = parser.GetYMin();
 			for (BSpline* bspline : bsplines) {
-				bool first = true;	//—ÖŠs‚ÌÅ‰‚Ì“_‚Ìˆ—‚Ì‚İtrue
-				Point<int32_t> prev;	//’¼‘O‚Ì“_À•W
-				int8_t yFirstSign = 0;	//—ÖŠs“à‚Å‰‚ß‚ÄyÀ•W‚ª•Ï‰»‚µ‚½•ûŒü(1 or -1)
-				int8_t yPrevSign = 0;	//’¼‘O‚ÌyÀ•W‚ª•Ï‰»‚µ‚½•ûŒü(1 or -1)
+				bool first = true;	//è¼ªéƒ­ã®æœ€åˆã®ç‚¹ã®å‡¦ç†æ™‚ã®ã¿true
+				Point<int32_t> prev;	//ç›´å‰ã®ç‚¹åº§æ¨™
+				int8_t yFirstSign = 0;	//è¼ªéƒ­å†…ã§åˆã‚ã¦yåº§æ¨™ãŒå¤‰åŒ–ã—ãŸæ–¹å‘(1 or -1)
+				int8_t yPrevSign = 0;	//ç›´å‰ã®yåº§æ¨™ãŒå¤‰åŒ–ã—ãŸæ–¹å‘(1 or -1)
 				for (Point<int32_t> p : bspline->Splines(xMin, yMin, parser.GetXMax(), parser.GetYMax())) {
 					uint32_t x = static_cast<uint32_t>((p.x - xMin) * scale);
-					//ƒOƒŠƒtÀ•W‚Í¶‰ºŒ´“_AImageÀ•W‚Í¶ãŒ´“_‚È‚Ì‚Åã‰º”½“]
+					//ã‚°ãƒªãƒ•åº§æ¨™ã¯å·¦ä¸‹åŸç‚¹ã€Imageåº§æ¨™ã¯å·¦ä¸ŠåŸç‚¹ãªã®ã§ä¸Šä¸‹åè»¢
 					uint32_t y = imageYMax - static_cast<uint32_t>((p.y - yMin) * scale);
-					//À•W(0, y)‚ÌƒsƒNƒZƒ‹‚Ö‚Ìƒ|ƒCƒ“ƒ^
+					//åº§æ¨™(0, y)ã®ãƒ”ã‚¯ã‚»ãƒ«ã¸ã®ãƒã‚¤ãƒ³ã‚¿
 					System::Drawing::Pixel* line0 = pixels + (y * (imageXMax + 1));
 					image.SetPixel(x, y, contoursPixel);
-					//Œ»İ‚Ì“_‚Ì…•½‰E•ûŒü‚ÌƒsƒNƒZƒ‹‚ÌƒAƒ‹ƒtƒ@’l‚ğ”½“]‚·‚é(0x00 <-> 0xff)
+					//ç¾åœ¨ã®ç‚¹ã®æ°´å¹³å³æ–¹å‘ã®ãƒ”ã‚¯ã‚»ãƒ«ã®ã‚¢ãƒ«ãƒ•ã‚¡å€¤ã‚’åè»¢ã™ã‚‹(0x00 <-> 0xff)
 					if (first) {
 						first = false;
 						System::PixelInverse(line0, x, imageXMax);
@@ -3469,7 +3469,7 @@ export namespace System {
 						int8_t ySign = static_cast<int8_t>(System::Math::Sign(static_cast<int64_t>(y) - prev.y));
 						if (ySign) {
 							System::PixelInverse(line0, x, imageXMax);
-							//yÀ•W‚Ì•ÏˆÊ•ûŒü‚ª”½“]‚µ‚½‚Æ‚«A’¼‘O‚Ì“_‚Å‚ÌƒAƒ‹ƒtƒ@’l”½“]‚ğæ‚èÁ‚·
+							//yåº§æ¨™ã®å¤‰ä½æ–¹å‘ãŒåè»¢ã—ãŸã¨ãã€ç›´å‰ã®ç‚¹ã§ã®ã‚¢ãƒ«ãƒ•ã‚¡å€¤åè»¢ã‚’å–ã‚Šæ¶ˆã™
 							if (yPrevSign && ySign != yPrevSign) {
 								line0 += static_cast<int64_t>(yPrevSign) * (imageXMax + 1);
 								System::PixelInverse(line0, prev.x, imageXMax);
@@ -3481,14 +3481,14 @@ export namespace System {
 					prev.x = x;
 					prev.y = y;
 				}
-				//—ÖŠs‚ÌÅŒã‚Ì“_(Å‰‚Ì“_)‚ªã’ê‚à‚µ‚­‚Í‰º’ê‚Ì‚¢‚¸‚ê‚Å‚à‚È‚¢ê‡A
-				//ÅŒã‚ÌƒAƒ‹ƒtƒ@’l”½“]‚ğæ‚èÁ‚·
+				//è¼ªéƒ­ã®æœ€å¾Œã®ç‚¹(æœ€åˆã®ç‚¹)ãŒä¸Šåº•ã‚‚ã—ãã¯ä¸‹åº•ã®ã„ãšã‚Œã§ã‚‚ãªã„å ´åˆã€
+				//æœ€å¾Œã®ã‚¢ãƒ«ãƒ•ã‚¡å€¤åè»¢ã‚’å–ã‚Šæ¶ˆã™
 				if (yFirstSign && yFirstSign == yPrevSign) {
 					System::Drawing::Pixel* line0 = pixels + (prev.y * (imageXMax + 1));
 					System::PixelInverse(line0, prev.x, imageXMax);
 				}
 			}
-			//ƒAƒ‹ƒtƒ@’l0x00‚ÌƒsƒNƒZƒ‹‚ğ•F(0x000000ff)‚É“h‚è‚Â‚Ô‚·
+			//ã‚¢ãƒ«ãƒ•ã‚¡å€¤0x00ã®ãƒ”ã‚¯ã‚»ãƒ«ã‚’é»’è‰²(0x000000ff)ã«å¡—ã‚Šã¤ã¶ã™
 			for (uint32_t y = 0; y <= imageYMax; ++y) {
 				System::Drawing::Pixel* line0 = pixels + (imageXMax + 1ull) * y;
 				for (uint32_t x = 0; x <= imageXMax; ++x) {
@@ -3529,11 +3529,11 @@ export namespace System {
 			return parser ? parser->GetAdvanceWidth() : 0;
 		}
 		/// <summary>
-		/// w’è‚µ‚½ƒOƒŠƒt‰æ‘œ‚ğæ“¾‚·‚é
+		/// æŒ‡å®šã—ãŸã‚°ãƒªãƒ•ç”»åƒã‚’å–å¾—ã™ã‚‹
 		/// </summary>
-		/// <param name="gid">ƒOƒŠƒtID</param>
-		/// <param name="scale">•`‰æƒXƒP[ƒ‹</param>
-		/// <param name="advancedWidth">hmtxƒe[ƒuƒ‹‚©‚çæ“¾‚·‚éƒOƒŠƒtID‚É‘Î‰‚·‚é‘Oi•</param>
+		/// <param name="gid">ã‚°ãƒªãƒ•ID</param>
+		/// <param name="scale">æç”»ã‚¹ã‚±ãƒ¼ãƒ«</param>
+		/// <param name="advancedWidth">hmtxãƒ†ãƒ¼ãƒ–ãƒ«ã‹ã‚‰å–å¾—ã™ã‚‹ã‚°ãƒªãƒ•IDã«å¯¾å¿œã™ã‚‹å‰é€²å¹…</param>
 		System::Drawing::Image GetGlyphImageByGID(uint16_t gid, float scale, uint16_t advanceWidth, const System::Drawing::Pixel& contoursPixel) const noexcept {
 			if (gid < m_numGlyphs) {
 				Type2CharstringParser* parser = GetParser(gid, advanceWidth);

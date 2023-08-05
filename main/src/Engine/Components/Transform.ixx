@@ -1,4 +1,4 @@
-export module Components:Transform;
+ï»¿export module Components:Transform;
 import :Component;
 import System;
 using namespace System;
@@ -36,10 +36,10 @@ public:
 	}
 public:
 	/// <summary>
-	/// ƒ[ƒ‹ƒh‹óŠÔã‚Å‚ÌˆÊ’u‚ğæ“¾‚·‚é
+	/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®ä½ç½®ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	Vector3 Position() const noexcept {
-		//©g‚ÌƒXƒP[ƒŠƒ“ƒO‚Æ‰ñ“]‚Íƒ[ƒ‹ƒh‹óŠÔã‚Å‚ÌˆÊ’u‚É‰e‹¿‚µ‚È‚¢
+		//è‡ªèº«ã®ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°ã¨å›è»¢ã¯ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®ä½ç½®ã«å½±éŸ¿ã—ãªã„
 		Vector3 ret = LocalPosition;
 		Transform* parent = m_parent;
 		while (parent) {
@@ -50,35 +50,35 @@ public:
 		//return m_parent ? m_parent->World() * LocalPosition : LocalPosition;
 	}
 	/// <summary>
-	/// ƒ[ƒ‹ƒh‹óŠÔã‚Å‚ÌˆÊ’u‚ğİ’è‚·‚é
+	/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®ä½ç½®ã‚’è¨­å®šã™ã‚‹
 	/// </summary>
 	void Position(const Vector3& position) noexcept {
-		//eÀ•WŒn‚Å‚ÌˆÊ’u‚É•ÏŠ·‚µ‚Äİ’è‚·‚é
+		//è¦ªåº§æ¨™ç³»ã§ã®ä½ç½®ã«å¤‰æ›ã—ã¦è¨­å®šã™ã‚‹
 		if (!m_parent) LocalPosition = position;
 		else LocalPosition = m_parent->WorldInverse() * position;
 	}
 	/// <summary>
-	/// ƒ[ƒ‹ƒh‹óŠÔã‚Å‚Ìp¨‚ğæ“¾‚·‚éB
+	/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®å§¿å‹¢ã‚’å–å¾—ã™ã‚‹ã€‚
 	/// </summary>
 	Quaternion Rotation() const noexcept {
-		//e‚ÌƒXƒP[ƒŠƒ“ƒO‚â•½sˆÚ“®‚Íp¨‚É‰e‹¿‚µ‚È‚¢
+		//è¦ªã®ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°ã‚„å¹³è¡Œç§»å‹•ã¯å§¿å‹¢ã«å½±éŸ¿ã—ãªã„
 		return m_parent ? m_parent->Rotation() * LocalRotation : LocalRotation;
 	}
 	/// <summary>
-	/// ƒ[ƒ‹ƒh‹óŠÔã‚Å‚Ì‰ñ“]‚ğİ’è‚·‚é
+	/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®å›è»¢ã‚’è¨­å®šã™ã‚‹
 	/// </summary>
 	void Rotation(const Quaternion& rotation) noexcept {
-		//eÀ•WŒn‚Å‚Ì‰ñ“]‚É•ÏŠ·‚µ‚Äİ’è‚·‚é
+		//è¦ªåº§æ¨™ç³»ã§ã®å›è»¢ã«å¤‰æ›ã—ã¦è¨­å®šã™ã‚‹
 		if (!m_parent) LocalRotation = rotation;
 		else LocalRotation = m_parent->Rotation().Inverse() * rotation;
 	}
 	/// <summary>
-	/// ƒ[ƒ‹ƒh‹óŠÔã‚Å‚ÌƒXƒP[ƒ‹
+	/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®ã‚¹ã‚±ãƒ¼ãƒ«
 	/// </summary>
 	Vector3 Scale() const noexcept {
 		if (!m_parent) return LocalScale;
-		//—ñ—Dæ‚Ìƒ[ƒ‹ƒh•ÏŠ·s—ñ‚É‚¨‚¢‚ÄŠe—ñ‚ğ—ñƒxƒNƒgƒ‹‚ÆŒ©‚½‚Æ‚«A
-		//‚»‚Ì’·‚³‚Í‚»‚ê‚¼‚êX, Y, Z²‚ÌƒXƒP[ƒ‹’l‚Å‚ ‚é
+		//åˆ—å„ªå…ˆã®ãƒ¯ãƒ¼ãƒ«ãƒ‰å¤‰æ›è¡Œåˆ—ã«ãŠã„ã¦å„åˆ—ã‚’åˆ—ãƒ™ã‚¯ãƒˆãƒ«ã¨è¦‹ãŸã¨ãã€
+		//ãã®é•·ã•ã¯ãã‚Œãã‚ŒX, Y, Zè»¸ã®ã‚¹ã‚±ãƒ¼ãƒ«å€¤ã§ã‚ã‚‹
 		Matrix world = World();
 		return Vector3(
 			Vector3(world[0], world[1], world[2]).Magnitude(),
@@ -87,28 +87,28 @@ public:
 		);
 	}
 	/// <summary>
-	/// ƒ[ƒ‹ƒh‹óŠÔã‚Å‚ÌƒXƒP[ƒ‹‚ğİ’è‚·‚é
+	/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®ã‚¹ã‚±ãƒ¼ãƒ«ã‚’è¨­å®šã™ã‚‹
 	/// </summary>
 	void Scale(const Vector3& scale) noexcept {
-		//eÀ•WŒn‚Å‚Ì‰ñ“]‚É•ÏŠ·‚µ‚Äİ’è‚·‚é
+		//è¦ªåº§æ¨™ç³»ã§ã®å›è»¢ã«å¤‰æ›ã—ã¦è¨­å®šã™ã‚‹
 		if (!m_parent) LocalScale = scale;
 		else {
-			// mat * (‚±‚ÌTransform‚ÌƒXƒP[ƒŠƒ“ƒOs—ñ) = (ƒ[ƒ‹ƒhs—ñ)
+			// mat * (ã“ã®Transformã®ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°è¡Œåˆ—) = (ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—)
 			// |	m00	m01	m02	m03	||	Sx		0		0		0 |
 			//	|	m10	m11	m12	m13	||	0		Sy		0		0 |
 			// |	m20	m21	m22	m23	||	0		0		Sz		0 |
 			// |		0		0		0		1	||	0		0		0		1 |
-			// ƒ[ƒ‹ƒhs—ñ‚ÌƒXƒP[ƒ‹‚Í
+			// ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã®ã‚¹ã‚±ãƒ¼ãƒ«ã¯
 			// Vector3(
 			//		(Vector3(m00, m10, m20) * Sx).Magnitude(),
 			//		(Vector3(m01, m11, m21) * Sy).Magnitude(),
 			//		(Vector3(m02, m12, m22) * Sz).Magnitude(),
 			//	);
-			// ‚±‚Ì‚Æ‚«A
+			// ã“ã®ã¨ãã€
 			// WorldSx
 			// == (Vector3(m00, m10, m20) * Sx).Magnitude()
 			// == Vector3(m00, m10, m20).Magnitude() * Sx
-			// ‚Å‚ ‚é‚±‚Æ‚ğ—˜—p‚·‚é
+			// ã§ã‚ã‚‹ã“ã¨ã‚’åˆ©ç”¨ã™ã‚‹
 			Matrix mat = m_parent->World() * LocalRotation.ToRotationMatrix();
 			float xMag = Vector3(mat[0], mat[1], mat[2]).Magnitude();
 			float yMag = Vector3(mat[4], mat[5], mat[6]).Magnitude();
@@ -120,27 +120,27 @@ public:
 	}
 public:
 	/// <summary>
-	/// ‚±‚ÌTransform‚Ìƒ[ƒJƒ‹Z²‚ªƒ[ƒ‹ƒh‹óŠÔã‚ÅŒü‚¢‚Ä‚¢‚é•ûŒü‚ğæ“¾‚·‚é
+	/// ã“ã®Transformã®ãƒ­ãƒ¼ã‚«ãƒ«Zè»¸ãŒãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§å‘ã„ã¦ã„ã‚‹æ–¹å‘ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	Vector3 Forward() const noexcept {
 		return Rotation() * Vector3::Forward();
 	}
 	/// <summary>
-	/// ‚±‚ÌTransform‚Ìƒ[ƒJƒ‹X²‚ªƒ[ƒ‹ƒh‹óŠÔã‚ÅŒü‚¢‚Ä‚¢‚é•ûŒü‚ğæ“¾‚·‚é
+	/// ã“ã®Transformã®ãƒ­ãƒ¼ã‚«ãƒ«Xè»¸ãŒãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§å‘ã„ã¦ã„ã‚‹æ–¹å‘ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	Vector3 Right() const noexcept {
 		return Rotation() * Vector3::Right();
 	}
 	/// <summary>
-	/// ‚±‚ÌTransform‚Ìƒ[ƒJƒ‹Y²‚ªƒ[ƒ‹ƒh‹óŠÔã‚ÅŒü‚¢‚Ä‚¢‚é•ûŒü‚ğæ“¾‚·‚é
+	/// ã“ã®Transformã®ãƒ­ãƒ¼ã‚«ãƒ«Yè»¸ãŒãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§å‘ã„ã¦ã„ã‚‹æ–¹å‘ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	Vector3 Up() const noexcept {
 		return Rotation() * Vector3::Up();
 	}
 public:
 	/// <summary>
-	/// e‹óŠÔ‚Ö‚Ì•ÏŠ·s—ñ‚ğæ“¾‚·‚éB
-	/// e‚ª‚¢‚È‚¢ê‡Aƒ[ƒ‹ƒhÀ•WŒn‚Ö‚Ì•ÏŠ·s—ñ‚Æ“™‚µ‚¢
+	/// è¦ªç©ºé–“ã¸ã®å¤‰æ›è¡Œåˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
+	/// è¦ªãŒã„ãªã„å ´åˆã€ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ç³»ã¸ã®å¤‰æ›è¡Œåˆ—ã¨ç­‰ã—ã„
 	/// </summary>
 	Matrix Local() const noexcept {
 		Matrix rot = LocalRotation.ToRotationMatrix();
@@ -152,9 +152,9 @@ public:
 		};
 	}
 	/// <summary>
-	/// e‹óŠÔ‚Ö‚Ì•ÏŠ·‚ğ‘Å‚¿Á‚·•ÏŠ·s—ñ‚ğæ“¾‚·‚éB
-	/// e‹óŠÔ‚ÌÀ•W(‚±‚ÌTransform‚àe‹óŠÔ‚É‘¶İ‚·‚é)‚É‚©‚¯‚é‚±‚Æ‚ÅA
-	/// ‚±‚ÌTransform‚ÌÀ•WŒn‚É•ÏŠ·‚Å‚«‚é
+	/// è¦ªç©ºé–“ã¸ã®å¤‰æ›ã‚’æ‰“ã¡æ¶ˆã™å¤‰æ›è¡Œåˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
+	/// è¦ªç©ºé–“ã®åº§æ¨™(ã“ã®Transformã‚‚è¦ªç©ºé–“ã«å­˜åœ¨ã™ã‚‹)ã«ã‹ã‘ã‚‹ã“ã¨ã§ã€
+	/// ã“ã®Transformã®åº§æ¨™ç³»ã«å¤‰æ›ã§ãã‚‹
 	/// </summary>
 	Matrix LocalInverse() const noexcept {
 		Matrix inv = LocalRotation.Inverse().ToRotationMatrix();
@@ -169,10 +169,10 @@ public:
 		};
 	}
 	/// <summary>
-	/// w’è‚µ‚½ƒxƒNƒgƒ‹•ª‚¾‚¯•½sˆÚ“®‚µ‚Ä‚©‚çe‹óŠÔ‚Ö‚Ì•ÏŠ·‚ğs‚¢A
-	/// ‚³‚ç‚ÉÅ‰‚Ì•½sˆÚ“®‚Ì‹t‚Ö•½sˆÚ“®‚·‚é‘€ì‚ğ•\‚·s—ñ‚ğæ“¾‚·‚é
+	/// æŒ‡å®šã—ãŸãƒ™ã‚¯ãƒˆãƒ«åˆ†ã ã‘å¹³è¡Œç§»å‹•ã—ã¦ã‹ã‚‰è¦ªç©ºé–“ã¸ã®å¤‰æ›ã‚’è¡Œã„ã€
+	/// ã•ã‚‰ã«æœ€åˆã®å¹³è¡Œç§»å‹•ã®é€†ã¸å¹³è¡Œç§»å‹•ã™ã‚‹æ“ä½œã‚’è¡¨ã™è¡Œåˆ—ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
-	/// <param name="origin">e‹óŠÔ‚Ö‚Ì•ÏŠ·‚ğs‚¤‚Æ‚«‚ÌŒ´“_</param>
+	/// <param name="origin">è¦ªç©ºé–“ã¸ã®å¤‰æ›ã‚’è¡Œã†ã¨ãã®åŸç‚¹</param>
 	Matrix LocalOrigin(const Vector3& origin) const noexcept {
 		Matrix ret = Local();
 		ret[12] += -origin.x * (ret[0] - 1) - origin.y * ret[4] - origin.z * ret[8];
@@ -181,25 +181,25 @@ public:
 		return ret;
 	}
 	/// <summary>
-	/// ƒ[ƒ‹ƒh‹óŠÔ‚Ö‚Ì•ÏŠ·s—ñ‚ğæ“¾‚·‚é
+	/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ã¸ã®å¤‰æ›è¡Œåˆ—ã‚’å–å¾—ã™ã‚‹
 	/// </summary>
 	Matrix World() const noexcept {
 		return m_parent ? m_parent->World() * Local() : Local();
 	}
 	/// <summary>
-	/// ƒ[ƒ‹ƒh‹óŠÔ‚Ö‚Ì•ÏŠ·‚ğ‘Å‚¿Á‚·•ÏŠ·s—ñ‚ğæ“¾‚·‚éB
-	/// ƒ[ƒ‹ƒh‹óŠÔ‚ÌÀ•W‚É‚©‚¯‚é‚±‚Æ‚ÅA‚±‚ÌTransform‚ÌÀ•WŒn‚É•ÏŠ·‚Å‚«‚éB
-	/// ‚±‚ÌTransform‚Æ‚ÌˆÊ’uŠÖŒW‚ğŒvZ‚·‚éê‡A‚±‚ÌTransform‚Ìe‚ÌWorldInverse()‚ğg—p‚µ‚ÄA
-	/// ‚±‚ÌTransform‚Ìe‚ÌÀ•WŒn‚É•ÏŠ·‚·‚é(‚±‚ÌTransform‚ÌŒZ’í‚É‚·‚é)•K—v‚ª‚ ‚é
+	/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ã¸ã®å¤‰æ›ã‚’æ‰“ã¡æ¶ˆã™å¤‰æ›è¡Œåˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
+	/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ã®åº§æ¨™ã«ã‹ã‘ã‚‹ã“ã¨ã§ã€ã“ã®Transformã®åº§æ¨™ç³»ã«å¤‰æ›ã§ãã‚‹ã€‚
+	/// ã“ã®Transformã¨ã®ä½ç½®é–¢ä¿‚ã‚’è¨ˆç®—ã™ã‚‹å ´åˆã€ã“ã®Transformã®è¦ªã®WorldInverse()ã‚’ä½¿ç”¨ã—ã¦ã€
+	/// ã“ã®Transformã®è¦ªã®åº§æ¨™ç³»ã«å¤‰æ›ã™ã‚‹(ã“ã®Transformã®å…„å¼Ÿã«ã™ã‚‹)å¿…è¦ãŒã‚ã‚‹
 	/// </summary>
 	Matrix WorldInverse() const noexcept {
 		return m_parent ? LocalInverse() * m_parent->WorldInverse() : LocalInverse();
 	}
 public:
 	/// <summary>
-	/// e‹óŠÔÀ•WŒn‚Ì“_‚ğ‚±‚ÌTransform‹óŠÔÀ•WŒn‚Ì“_‚É•ÏŠ·‚·‚é
+	/// è¦ªç©ºé–“åº§æ¨™ç³»ã®ç‚¹ã‚’ã“ã®Transformç©ºé–“åº§æ¨™ç³»ã®ç‚¹ã«å¤‰æ›ã™ã‚‹
 	/// </summary>
-	/// <param name="parentSpacePos">e‹óŠÔÀ•WŒn‚Ì“_</param>
+	/// <param name="parentSpacePos">è¦ªç©ºé–“åº§æ¨™ç³»ã®ç‚¹</param>
 	Vector3 ToLocalSpace(const Vector3& parentSpacePos) const noexcept {
 		return Vector3::Scale((LocalRotation.Inverse() * (parentSpacePos - LocalPosition)), LocalScale.Reciprocal());
 	}
@@ -327,11 +327,11 @@ public:
 //			};
 //		}
 //		/*static Matrix LocalInverseForScreenSize(const Vector3& position, const Quaternion& rotation, const Vector3& scale, uint32_t parentWidth, uint32_t parentHeight) noexcept {
-//			Terminate(Exception(__FUNCSIG__, u"–¢À‘•‚Å‚·B", __FILE__, __LINE__));
+//			Terminate(Exception(__FUNCSIG__, u"æœªå®Ÿè£…ã§ã™ã€‚", __FILE__, __LINE__));
 //			return Matrix();
 //		}
 //		static Matrix LocalInverseForPixelSize(const Vector3& position, const Quaternion& rotation, uint32_t width, uint32_t height, uint32_t parentWidth, uint32_t parentHeight) noexcept {
-//			Terminate(Exception(__FUNCSIG__, u"–¢À‘•‚Å‚·B", __FILE__, __LINE__));
+//			Terminate(Exception(__FUNCSIG__, u"æœªå®Ÿè£…ã§ã™ã€‚", __FILE__, __LINE__));
 //			return Matrix();
 //		}*/
 //		static Matrix LocalOrigin(const Vector3& position, const Quaternion& rotation, const Vector3& scale, const Vector3& origin) noexcept {
@@ -343,7 +343,7 @@ public:
 //		}
 //	public:
 //		/// <summary>
-//		/// ‚±‚ÌTransform‚Ée‚Æ‚È‚éTransform‚ğİ’è‚·‚é
+//		/// ã“ã®Transformã«è¦ªã¨ãªã‚‹Transformã‚’è¨­å®šã™ã‚‹
 //		/// </summary>
 //		void SetParent(Transform* parent) noexcept {
 //			if (parent == m_parent) return;
@@ -417,19 +417,19 @@ public:
 //		}
 //	public:
 //		/// <summary>
-//		/// ƒ[ƒ‹ƒh‹óŠÔã‚Å‚ÌˆÊ’u‚ğæ“¾‚·‚é
+//		/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®ä½ç½®ã‚’å–å¾—ã™ã‚‹
 //		/// </summary>
 //		Vector3 Position() const noexcept {
 //			return m_parent ? m_parent->Rotation() * LocalPosition + m_parent->Position() : LocalPosition;
 //		}
 //		/// <summary>
-//		/// ƒ[ƒ‹ƒh‹óŠÔã‚Å‚Ì‰ñ“]‚ğæ“¾‚·‚é
+//		/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®å›è»¢ã‚’å–å¾—ã™ã‚‹
 //		/// </summary>
 //		Quaternion Rotation() const noexcept {
 //			return m_parent ? m_parent->Rotation() * LocalRotation : LocalRotation;
 //		}
 //		/// <summary>
-//		/// ƒ[ƒ‹ƒh‹óŠÔã‚Å‚ÌƒXƒP[ƒ‹‚ğæ“¾‚·‚é
+//		/// ãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®ã‚¹ã‚±ãƒ¼ãƒ«ã‚’å–å¾—ã™ã‚‹
 //		/// </summary>
 //		Vector3 Scale() const noexcept {
 //			if (m_parent) {
@@ -451,17 +451,17 @@ public:
 //			else return LocalScale;
 //		}
 //		/// <summary>
-//		/// ‚±‚ÌTransform‚ª•\‚·p¨‚ğs—ñ(—ñ—Dæ)‚Åæ“¾‚·‚éB
-//		/// ‚±‚ÌŠÖ”‚ª•Ô‚·s—ñM‚Í®[(x, y, z, 1) * M]‚É‚æ‚Á‚ÄƒxƒNƒgƒ‹•ÏŠ·‚Ég—p‚Å‚«‚éB
-//		/// ‚Ü‚½As—ñM‚Í“]’u‚·‚é‚±‚Æ‚Ås—Dæ‚Ìp¨s—ñ‚Æ‚È‚èA®[M * (x, y, z, 1)]‚Å
-//		/// “¯—l‚É•ÏŠ·‚Å‚«‚éB
-//		/// ‚±‚ÌƒxƒNƒgƒ‹•ÏŠ·‚É‚æ‚èe‚Ì‹óŠÔÀ•WŒn‚É•ÏŠ·‚³‚ê‚é‚½‚ßA
-//		/// ®[(x, y, z, 1) * M * parentM * grandParentM * ...]‚É‚æ‚èƒ[ƒ‹ƒh‹óŠÔã‚Å‚Ì
-//		/// ƒxƒNƒgƒ‹‚ªæ“¾‚Å‚«‚é
+//		/// ã“ã®TransformãŒè¡¨ã™å§¿å‹¢ã‚’è¡Œåˆ—(åˆ—å„ªå…ˆ)ã§å–å¾—ã™ã‚‹ã€‚
+//		/// ã“ã®é–¢æ•°ãŒè¿”ã™è¡Œåˆ—Mã¯å¼[(x, y, z, 1) * M]ã«ã‚ˆã£ã¦ãƒ™ã‚¯ãƒˆãƒ«å¤‰æ›ã«ä½¿ç”¨ã§ãã‚‹ã€‚
+//		/// ã¾ãŸã€è¡Œåˆ—Mã¯è»¢ç½®ã™ã‚‹ã“ã¨ã§è¡Œå„ªå…ˆã®å§¿å‹¢è¡Œåˆ—ã¨ãªã‚Šã€å¼[M * (x, y, z, 1)]ã§
+//		/// åŒæ§˜ã«å¤‰æ›ã§ãã‚‹ã€‚
+//		/// ã“ã®ãƒ™ã‚¯ãƒˆãƒ«å¤‰æ›ã«ã‚ˆã‚Šè¦ªã®ç©ºé–“åº§æ¨™ç³»ã«å¤‰æ›ã•ã‚Œã‚‹ãŸã‚ã€
+//		/// å¼[(x, y, z, 1) * M * parentM * grandParentM * ...]ã«ã‚ˆã‚Šãƒ¯ãƒ¼ãƒ«ãƒ‰ç©ºé–“ä¸Šã§ã®
+//		/// ãƒ™ã‚¯ãƒˆãƒ«ãŒå–å¾—ã§ãã‚‹
 //		/// </summary>
-//		/// <param name="mode">Transform‚ª‚Â’l‚Ì‰ğß‚ğw’è‚·‚é</param>
-//		/// <param name="parentWidth">e‹óŠÔ‚Ì•BƒXƒNƒŠ[ƒ“ã‚Å‚È‚¢ê‡A•s—v</param>
-//		/// <param name="parentHeight">e‹óŠÔ‚Ì‚‚³BƒXƒNƒŠ[ƒ“ã‚Å‚È‚¢ê‡A•s—v</param>
+//		/// <param name="mode">TransformãŒæŒã¤å€¤ã®è§£é‡ˆã‚’æŒ‡å®šã™ã‚‹</param>
+//		/// <param name="parentWidth">è¦ªç©ºé–“ã®å¹…ã€‚ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ä¸Šã§ãªã„å ´åˆã€ä¸è¦</param>
+//		/// <param name="parentHeight">è¦ªç©ºé–“ã®é«˜ã•ã€‚ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ä¸Šã§ãªã„å ´åˆã€ä¸è¦</param>
 //		Matrix Local(CanvasScalingMode mode = CanvasScalingMode::World, uint32_t parentWidth = 1, uint32_t parentHeight = 1) const noexcept {
 //			return Local(LocalPosition, LocalRotation, LocalScale);
 //			//if (mode == CanvasScalingMode::World) return Local(LocalPosition, LocalRotation, LocalScale);
@@ -475,9 +475,9 @@ public:
 //			//else return LocalInverseForPixelSize(LocalPosition, LocalRotation, Width, Height, parentWidth, parentHeight);
 //		}
 //		/// <summary>
-//		/// Œ´“_‚Ö•½sˆÚ“®->Local()->Œ³‚ÌˆÊ’u‚É•½sˆÚ“®‚ğs‚¤s—ñ‚ğæ“¾‚·‚é
+//		/// åŸç‚¹ã¸å¹³è¡Œç§»å‹•->Local()->å…ƒã®ä½ç½®ã«å¹³è¡Œç§»å‹•ã‚’è¡Œã†è¡Œåˆ—ã‚’å–å¾—ã™ã‚‹
 //		/// </summary>
-//		/// <param name="origin">Œ³‚ÌˆÊ’u</param>
+//		/// <param name="origin">å…ƒã®ä½ç½®</param>
 //		Matrix LocalOrigin(const Vector3& origin) noexcept {
 //			return LocalOrigin(LocalPosition, LocalRotation, LocalScale, origin);
 //		}

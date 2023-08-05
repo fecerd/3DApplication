@@ -1,4 +1,4 @@
-export module MyWindow1;
+﻿export module MyWindow1;
 import DefaultWindow;
 using namespace System;
 using namespace System::Application;

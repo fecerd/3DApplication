@@ -1,9 +1,9 @@
-export module Type2Charstring;
+ï»¿export module Type2Charstring;
 import CSTDINT;
 
 //HintData
 export namespace System {
-	//CharstringŒ`®‚Ì“Ç‚İæ‚è‚Ég—p‚·‚éƒf[ƒ^\‘¢‘Ì
+	//Charstringå½¢å¼ã®èª­ã¿å–ã‚Šã«ä½¿ç”¨ã™ã‚‹ãƒ‡ãƒ¼ã‚¿æ§‹é€ ä½“
 	struct HintData {
 		int16_t currentX = 0;
 		int16_t currentY = 0;
@@ -26,20 +26,20 @@ export namespace System {
 			vStem = nullptr;
 		}
 	public:
-		//“o˜^‚³‚ê‚Ä‚¢‚éƒXƒeƒ€”‚©‚çƒqƒ“ƒgƒ}ƒXƒN‚ÌƒoƒCƒg”‚ğŒvZ‚µ‚Ä•Ô‚·
+		//ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ã‚¹ãƒ†ãƒ æ•°ã‹ã‚‰ãƒ’ãƒ³ãƒˆãƒã‚¹ã‚¯ã®ãƒã‚¤ãƒˆæ•°ã‚’è¨ˆç®—ã—ã¦è¿”ã™
 		uint8_t GetMaskSize() const noexcept {
 			uint8_t stemCount = (hStemCountX2 / 2) + (vStemCountX2 / 2);
 			return stemCount % 8 == 0 ? stemCount / 8 : (stemCount / 8) + 1;
 		}
 	public:
-		//arg[argCount]‚ğHstem‚Æ‚µ‚ÄHintData‚É“o˜^‚µAargCount‚ğ0‚É‚·‚é
+		//arg[argCount]ã‚’Hstemã¨ã—ã¦HintDataã«ç™»éŒ²ã—ã€argCountã‚’0ã«ã™ã‚‹
 		void SetHstem(int16_t* const arg, uint8_t& argCount) noexcept {
 			hStemCountX2 = argCount;
 			argCount = 0;
 			hStem = new int16_t[hStemCountX2];
 			for (uint8_t j = 0; j < hStemCountX2; ++j) hStem[j] = arg[j];
 		}
-		//arg[argCount]‚ğVstem‚Æ‚µ‚ÄHintData‚É“o˜^‚µAargCount‚ğ0‚É‚·‚é
+		//arg[argCount]ã‚’Vstemã¨ã—ã¦HintDataã«ç™»éŒ²ã—ã€argCountã‚’0ã«ã™ã‚‹
 		void SetVstem(int16_t* const arg, uint8_t& argCount) noexcept {
 			vStemCountX2 = argCount;
 			argCount = 0;

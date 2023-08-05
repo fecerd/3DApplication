@@ -1,4 +1,4 @@
-export module IApplicationManager;
+﻿export module IApplicationManager;
 import System;
 import IWindow;
 export import ApplicationEnum;

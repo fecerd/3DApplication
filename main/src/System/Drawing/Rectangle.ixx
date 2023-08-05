@@ -1,4 +1,4 @@
-export module Rectangle;
+﻿export module Rectangle;
 import CSTDINT;
 
 export namespace System::Drawing {

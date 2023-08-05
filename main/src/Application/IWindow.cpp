@@ -1,4 +1,4 @@
-module IWindow;
+Ôªømodule IWindow;
 import Application;
 import IApplicationManager;
 import InputSystem;
@@ -31,7 +31,7 @@ namespace System::Application {
 #if defined(_WIN32) || defined(_WIN64)
 namespace System::Application {
 }
-#else	//WindowsÇ≈Ç‡SDLÇ≈Ç‡Ç»Ç¢èÍçá
+#else	//Windows„Åß„ÇÇSDL„Åß„ÇÇ„Å™„ÅÑÂ†¥Âêà
 
 #endif
 #else	//SDL

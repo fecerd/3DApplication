@@ -1,4 +1,4 @@
-export module Log;
+﻿export module Log;
 import Objects;
 
 export namespace System::Application {

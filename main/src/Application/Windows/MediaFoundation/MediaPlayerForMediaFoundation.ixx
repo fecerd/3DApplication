@@ -1,9 +1,9 @@
-module;
+ï»¿module;
 #pragma comment(lib, "Mfreadwrite.lib")
 #pragma comment(lib, "mfplat.lib")
 #pragma comment(lib, "Mf.lib")
 #pragma comment(lib, "mfuuid.lib")
-//IUnknownÀ‘•—p
+//IUnknownå®Ÿè£…ç”¨
 #pragma comment(lib, "Shlwapi.lib")
 #pragma comment(lib, "Strmiids.lib")
 #pragma warning(default : 4005)
@@ -24,7 +24,7 @@ using namespace System::Drawing;
 //IUnknown Utilities
 namespace System::Application::Windows::Internal {
 	///<summary>
-	/// COMƒIƒuƒWƒFƒNƒg‚Ìƒƒ‚ƒŠ‚ğ‰ğ•ú‚µAnullptr‚ğ‘ã“ü‚·‚é
+	/// COMã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒ¡ãƒ¢ãƒªã‚’è§£æ”¾ã—ã€nullptrã‚’ä»£å…¥ã™ã‚‹
 	/// </summary>
 	template <class T>
 	void SafeRelease(T*& object) noexcept {
@@ -34,11 +34,11 @@ namespace System::Application::Windows::Internal {
 		}
 	}
 	///<summary>
-	/// •¡”‚ÌCOMƒIƒuƒWƒFƒNƒg‚Ìƒƒ‚ƒŠ‚ğ‰ğ•ú‚µA‚·‚×‚Ä‚Ì•Ï”‚Énullptr‚ğ‘ã“ü‚·‚é
+	/// è¤‡æ•°ã®COMã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒ¡ãƒ¢ãƒªã‚’è§£æ”¾ã—ã€ã™ã¹ã¦ã®å¤‰æ•°ã«nullptrã‚’ä»£å…¥ã™ã‚‹
 	/// </summary>
-	/// <param name="hr">‚±‚ÌŠÖ”‚ª•Ô‚·’l</param>
-	/// <param name="object">‰ğ•ú‚·‚éCOMƒIƒuƒWƒFƒNƒg</param>
-	/// <param name="args">Ä‹A“I‚É‰ğ•ú‚³‚ê‚éCOMƒIƒuƒWƒFƒNƒg</param>
+	/// <param name="hr">ã“ã®é–¢æ•°ãŒè¿”ã™å€¤</param>
+	/// <param name="object">è§£æ”¾ã™ã‚‹COMã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
+	/// <param name="args">å†å¸°çš„ã«è§£æ”¾ã•ã‚Œã‚‹COMã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 	template<class T, class ...Args>
 	HRESULT SafeRelease(HRESULT hr, T*& object, Args*& ...args) noexcept {
 		SafeRelease(object);
@@ -53,7 +53,7 @@ namespace System::Application::Windows::Internal {
 		~MediaFoundation() noexcept = delete;
 	public:
 		/// <summary>
-		/// ƒƒfƒBƒAƒCƒxƒ“ƒg‚©‚çƒIƒuƒWƒFƒNƒg‚ğæ“¾‚·‚é
+		/// ãƒ¡ãƒ‡ã‚£ã‚¢ã‚¤ãƒ™ãƒ³ãƒˆã‹ã‚‰ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		template<class Q>
 		static HRESULT GetEventObject(IMFMediaEvent* mediaEvent, Q*& object) noexcept {
@@ -68,11 +68,11 @@ namespace System::Application::Windows::Internal {
 			return hr;
 		}
 		/// <summary>
-		/// ƒƒfƒBƒAƒVƒ“ƒN(Ä¶—pƒŒƒ“ƒ_ƒ‰)‚ğì¬‚·‚é
+		/// ãƒ¡ãƒ‡ã‚£ã‚¢ã‚·ãƒ³ã‚¯(å†ç”Ÿç”¨ãƒ¬ãƒ³ãƒ€ãƒ©)ã‚’ä½œæˆã™ã‚‹
 		/// </summary>
-		/// <param name="streamDesc">ƒXƒgƒŠ[ƒ€î•ñ</param>
-		/// <param name="hWnd">o—ÍæƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹</param>
-		/// <param name="out">ì¬‚µ‚½ƒƒfƒBƒAƒVƒ“ƒN‚ğó‚¯æ‚éQÆ•Ï”</param>
+		/// <param name="streamDesc">ã‚¹ãƒˆãƒªãƒ¼ãƒ æƒ…å ±</param>
+		/// <param name="hWnd">å‡ºåŠ›å…ˆã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«</param>
+		/// <param name="out">ä½œæˆã—ãŸãƒ¡ãƒ‡ã‚£ã‚¢ã‚·ãƒ³ã‚¯ã‚’å—ã‘å–ã‚‹å‚ç…§å¤‰æ•°</param>
 		static HRESULT CreateMediaSinkActivate(IMFStreamDescriptor& streamDesc, HWND hWnd, IMFActivate*& out) noexcept {
 			IMFMediaTypeHandler* handler = nullptr;
 			HRESULT hr = streamDesc.GetMediaTypeHandler(&handler);
@@ -90,13 +90,13 @@ namespace System::Application::Windows::Internal {
 			return hr;
 		}
 		/// <summary>
-		/// “ü—Íƒm[ƒh‚ğƒgƒ|ƒƒW‚É’Ç‰Á‚·‚é
+		/// å…¥åŠ›ãƒãƒ¼ãƒ‰ã‚’ãƒˆãƒãƒ­ã‚¸ã«è¿½åŠ ã™ã‚‹
 		/// </summary>
 		/// <param name="topology">IMFTopology</param>
-		/// <param name="mediaSource">ƒƒfƒBƒAƒ\[ƒX</param>
-		/// <param name="sourcePD">ƒƒfƒBƒAƒ\[ƒX‚ÌƒvƒŒƒ[ƒ“ƒe[ƒVƒ‡ƒ“î•ñ</param>
-		/// <param name="streamDesc">ƒXƒgƒŠ[ƒ€î•ñ</param>
-		/// <param name="out">ƒgƒ|ƒƒW‚É’Ç‰Á‚³‚ê‚½“ü—Íƒm[ƒh‚ğó‚¯æ‚éQÆ•Ï”B(•ÏŠ·ƒm[ƒh‚Ì•âŠ®‚Ég—p‚·‚é)</param>
+		/// <param name="mediaSource">ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹</param>
+		/// <param name="sourcePD">ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹ã®ãƒ—ãƒ¬ã‚¼ãƒ³ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³æƒ…å ±</param>
+		/// <param name="streamDesc">ã‚¹ãƒˆãƒªãƒ¼ãƒ æƒ…å ±</param>
+		/// <param name="out">ãƒˆãƒãƒ­ã‚¸ã«è¿½åŠ ã•ã‚ŒãŸå…¥åŠ›ãƒãƒ¼ãƒ‰ã‚’å—ã‘å–ã‚‹å‚ç…§å¤‰æ•°ã€‚(å¤‰æ›ãƒãƒ¼ãƒ‰ã®è£œå®Œã«ä½¿ç”¨ã™ã‚‹)</param>
 		static HRESULT AddSourceNode(IMFTopology& topology, IMFMediaSource& mediaSource, IMFPresentationDescriptor& sourcePD, IMFStreamDescriptor& streamDesc, IMFTopologyNode*& out) noexcept {
 			IMFTopologyNode* node = nullptr;
 			HRESULT hr = MFCreateTopologyNode(MF_TOPOLOGY_SOURCESTREAM_NODE, &node);
@@ -110,12 +110,12 @@ namespace System::Application::Windows::Internal {
 			return hr;
 		}
 		/// <summary>
-		/// o—Íƒm[ƒh‚ğƒgƒ|ƒƒW‚É’Ç‰Á‚·‚é
+		/// å‡ºåŠ›ãƒãƒ¼ãƒ‰ã‚’ãƒˆãƒãƒ­ã‚¸ã«è¿½åŠ ã™ã‚‹
 		/// </summary>
 		/// <param name="topology">IMFTopology</param>
-		/// <param name="activate">ƒŒƒ“ƒ_ƒ‰</param>
-		/// <param name="streamSinkID">g—p‚·‚éƒXƒgƒŠ[ƒ€ID</param>
-		/// <param name="out">ƒgƒ|ƒƒW‚É’Ç‰Á‚³‚ê‚½o—Íƒm[ƒh‚ğó‚¯æ‚éQÆ•Ï”B(•ÏŠ·ƒm[ƒh‚Ì•âŠ®‚Ég—p‚·‚é)</param>
+		/// <param name="activate">ãƒ¬ãƒ³ãƒ€ãƒ©</param>
+		/// <param name="streamSinkID">ä½¿ç”¨ã™ã‚‹ã‚¹ãƒˆãƒªãƒ¼ãƒ ID</param>
+		/// <param name="out">ãƒˆãƒãƒ­ã‚¸ã«è¿½åŠ ã•ã‚ŒãŸå‡ºåŠ›ãƒãƒ¼ãƒ‰ã‚’å—ã‘å–ã‚‹å‚ç…§å¤‰æ•°ã€‚(å¤‰æ›ãƒãƒ¼ãƒ‰ã®è£œå®Œã«ä½¿ç”¨ã™ã‚‹)</param>
 		static HRESULT AddOutputNode(IMFTopology& topology, IMFActivate& activate, DWORD streamSinkID, IMFTopologyNode*& out) noexcept {
 			IMFTopologyNode* node = nullptr;
 			HRESULT hr = MFCreateTopologyNode(MF_TOPOLOGY_OUTPUT_NODE, &node);
@@ -129,14 +129,14 @@ namespace System::Application::Windows::Internal {
 			return hr;
 		}
 		/// <summary>
-		/// IMFTopology‚É“ü—Íƒm[ƒh(ƒƒfƒBƒAƒ\[ƒX‚Ìw’è‚µ‚½ƒXƒgƒŠ[ƒ€)Eo—Íƒm[ƒh(EVR‚Ü‚½‚ÍSAR)‚ğ’Ç‰Á‚µA•”•ªƒgƒ|ƒƒW‚ğ\’z‚·‚éB
-		/// ‚»‚ÌŒãA•ÏŠ·ƒm[ƒh‚ª©“®‚Å•âŠ®‚³‚êAÄ¶—p‚ÌŠ®‘Sƒgƒ|ƒƒW‚ğ•Ô‚·
+		/// IMFTopologyã«å…¥åŠ›ãƒãƒ¼ãƒ‰(ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹ã®æŒ‡å®šã—ãŸã‚¹ãƒˆãƒªãƒ¼ãƒ )ãƒ»å‡ºåŠ›ãƒãƒ¼ãƒ‰(EVRã¾ãŸã¯SAR)ã‚’è¿½åŠ ã—ã€éƒ¨åˆ†ãƒˆãƒãƒ­ã‚¸ã‚’æ§‹ç¯‰ã™ã‚‹ã€‚
+		/// ãã®å¾Œã€å¤‰æ›ãƒãƒ¼ãƒ‰ãŒè‡ªå‹•ã§è£œå®Œã•ã‚Œã€å†ç”Ÿç”¨ã®å®Œå…¨ãƒˆãƒãƒ­ã‚¸ã‚’è¿”ã™
 		/// </summary>
 		/// <param name="topology">IMFTopology</param>
-		/// <param name="mediaSource">ƒƒfƒBƒAƒ\[ƒX</param>
-		/// <param name="sourcePD">ƒƒfƒBƒAƒ\[ƒX‚ÌƒvƒŒƒ[ƒ“ƒe[ƒVƒ‡ƒ“î•ñ</param>
-		/// <param name="streamIndex">ƒƒfƒBƒA‚ÉŠÜ‚Ü‚ê‚é‘ÎÛ‚ÌƒXƒgƒŠ[ƒ€”Ô†</param>
-		/// <param name="hWnd">o—Íæ‚ÌƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹</param>
+		/// <param name="mediaSource">ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹</param>
+		/// <param name="sourcePD">ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹ã®ãƒ—ãƒ¬ã‚¼ãƒ³ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³æƒ…å ±</param>
+		/// <param name="streamIndex">ãƒ¡ãƒ‡ã‚£ã‚¢ã«å«ã¾ã‚Œã‚‹å¯¾è±¡ã®ã‚¹ãƒˆãƒªãƒ¼ãƒ ç•ªå·</param>
+		/// <param name="hWnd">å‡ºåŠ›å…ˆã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«</param>
 		static HRESULT AddBranchToPartialTopology(
 			IMFTopology& topology, IMFMediaSource& mediaSource,
 			IMFPresentationDescriptor& sourcePD, DWORD streamIndex, HWND hWnd
@@ -157,12 +157,12 @@ namespace System::Application::Windows::Internal {
 			return SafeRelease(hr, outputNode, sourceNode, sinkActivate, streamDesc);
 		}
 		/// <summary>
-		/// ƒƒfƒBƒAƒ\[ƒX‚©‚çÄ¶—pƒgƒ|ƒƒW‚ğì¬‚·‚é
+		/// ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹ã‹ã‚‰å†ç”Ÿç”¨ãƒˆãƒãƒ­ã‚¸ã‚’ä½œæˆã™ã‚‹
 		/// </summary>
-		/// <param name="mediaSource">ƒƒfƒBƒAƒ\[ƒX</param>
-		/// <param name="sourcePD">ƒƒfƒBƒAƒ\[ƒX‚ÌƒvƒŒƒ[ƒ“ƒe[ƒVƒ‡ƒ“î•ñ</param>
-		/// <param name="hWnd">o—Íæ‚ÌƒEƒBƒ“ƒhƒEƒnƒ“ƒhƒ‹Bo—Íƒm[ƒhì¬‚Ég—p</param>
-		/// <param name="out">ì¬‚µ‚½IMFTopology‚ğó‚¯æ‚éQÆ•Ï”</param>
+		/// <param name="mediaSource">ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹</param>
+		/// <param name="sourcePD">ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹ã®ãƒ—ãƒ¬ã‚¼ãƒ³ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³æƒ…å ±</param>
+		/// <param name="hWnd">å‡ºåŠ›å…ˆã®ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒãƒ³ãƒ‰ãƒ«ã€‚å‡ºåŠ›ãƒãƒ¼ãƒ‰ä½œæˆã«ä½¿ç”¨</param>
+		/// <param name="out">ä½œæˆã—ãŸIMFTopologyã‚’å—ã‘å–ã‚‹å‚ç…§å¤‰æ•°</param>
 		static HRESULT CreatePlaybackTopology(
 			IMFMediaSource& mediaSource, IMFPresentationDescriptor& sourcePD, HWND hWnd, IMFTopology*& out
 		) noexcept {
@@ -185,7 +185,7 @@ namespace System::Application::Windows::Internal {
 			if (hr < 0) return SafeRelease(hr, sourceResolver);
 			MF_OBJECT_TYPE objectType = MF_OBJECT_INVALID;
 			IUnknown* source = nullptr;
-			//”ñ“¯Šú‚Ìê‡ABeginCreateObjectFromURL‚ğg—p‚·‚é
+			//éåŒæœŸã®å ´åˆã€BeginCreateObjectFromURLã‚’ä½¿ç”¨ã™ã‚‹
 			hr = sourceResolver->CreateObjectFromURL(
 				filePath.w_str(),
 				MF_RESOLUTION_MEDIASOURCE,
@@ -201,7 +201,7 @@ namespace System::Application::Windows::Internal {
 }
 //Internal Structures
 namespace System::Application::Windows::Internal {
-	//IMFMediaEvent‚ğ•Û‚·‚éƒLƒ…[
+	//IMFMediaEventã‚’ä¿æŒã™ã‚‹ã‚­ãƒ¥ãƒ¼
 	class MediaEventQueue {
 		class MediaEventFragment {
 			friend class MediaEventQueue;
@@ -218,7 +218,7 @@ namespace System::Application::Windows::Internal {
 				next = nullptr;
 			}
 		} *begin = nullptr;
-		Mutex mtx = Mutex();	//”ñ“¯Šú—pƒ~ƒ…[ƒeƒbƒNƒX
+		Mutex mtx = Mutex();	//éåŒæœŸç”¨ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹
 	public:
 		MediaEventQueue() noexcept = default;
 		MediaEventQueue(const MediaEventQueue&) noexcept = delete;
@@ -258,7 +258,7 @@ namespace System::Application::Windows::Internal {
 			}
 		}
 	};
-	//ƒƒfƒBƒAƒ\[ƒXî•ñ
+	//ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹æƒ…å ±
 	struct MFMediaSource {
 		IMFMediaSource* source = nullptr;
 		int64_t duration = 0;
@@ -312,7 +312,7 @@ namespace System::Application::Windows::Internal {
 			return *this;
 		}
 	};
-	//ƒƒfƒBƒAƒvƒŒƒCƒ„[‚Ìó‘Ô
+	//ãƒ¡ãƒ‡ã‚£ã‚¢ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®çŠ¶æ…‹
 	enum class MFPlayerState : uint8_t {
 		Uninitialized,
 		Ready,
@@ -352,14 +352,14 @@ export namespace System::Application::Windows {
 				System::Application::Log(
 					System::Exception(
 						__FUNCSIG__,
-						u"MediaFoundation‚Í“à•”‚Å—áŠO(bad_hresult)‚ğ“Š‚°‚é‚±‚Æ‚ª‚ ‚è‚Ü‚·‚ªA‚±‚ê‚ÍƒŠƒo[ƒXƒGƒ“ƒWƒjƒAƒŠƒ“ƒO‚ğ¢“ï‚É‚·‚é‚½‚ß‚ÉEVR‚ª“Š‚°‚é‚à‚Ì‚Å‚ ‚èA³í‚Å‚·B\n",
+						u"MediaFoundationã¯å†…éƒ¨ã§ä¾‹å¤–(bad_hresult)ã‚’æŠ•ã’ã‚‹ã“ã¨ãŒã‚ã‚Šã¾ã™ãŒã€ã“ã‚Œã¯ãƒªãƒãƒ¼ã‚¹ã‚¨ãƒ³ã‚¸ãƒ‹ã‚¢ãƒªãƒ³ã‚°ã‚’å›°é›£ã«ã™ã‚‹ãŸã‚ã«EVRãŒæŠ•ã’ã‚‹ã‚‚ã®ã§ã‚ã‚Šã€æ­£å¸¸ã§ã™ã€‚\n",
 						__FILE__,
 						__LINE__
 					).what()
 				);
 				first = false;
 			}
-			//MediaFoundation‚Ì‰Šú‰»
+			//MediaFoundationã®åˆæœŸåŒ–
 			CoInitializeEx(nullptr, COINIT::COINIT_MULTITHREADED);
 			MFStartup(MF_VERSION);
 			HRESULT hr = MFCreateMediaSession(nullptr, &m_session);
@@ -372,29 +372,29 @@ export namespace System::Application::Windows {
 			SafeRelease(m_videoDisplayControl);
 			m_state.store(MFPlayerState::Closing, memory_order::release);
 			if (m_session) {
-				//‘Ò‹@ƒCƒxƒ“ƒg‚ğì¬
+				//å¾…æ©Ÿã‚¤ãƒ™ãƒ³ãƒˆã‚’ä½œæˆ
 				m_closeEvent.store(CreateEvent(nullptr, FALSE, FALSE, nullptr), memory_order::release);
-				//MESessionClosedƒCƒxƒ“ƒg‚ğ‘—‚é
+				//MESessionClosedã‚¤ãƒ™ãƒ³ãƒˆã‚’é€ã‚‹
 				if (m_session->Close() >= 0) {
-					//InvokeŠÖ”“à‚©‚ç‘Ò‹@ƒCƒxƒ“ƒg‚ªİ’è‚³‚ê‚é‚Ü‚Å‘Ò‚Â
+					//Invokeé–¢æ•°å†…ã‹ã‚‰å¾…æ©Ÿã‚¤ãƒ™ãƒ³ãƒˆãŒè¨­å®šã•ã‚Œã‚‹ã¾ã§å¾…ã¤
 					WaitForSingleObject(m_closeEvent.load(memory_order::acquire), INFINITE);
 					while (m_state.load(memory_order::acquire) != MFPlayerState::Closed);
 				}
-				//‘Ò‹@ƒCƒxƒ“ƒg‚ğ‰ğ•ú
+				//å¾…æ©Ÿã‚¤ãƒ™ãƒ³ãƒˆã‚’è§£æ”¾
 				CloseHandle(m_closeEvent.load(memory_order::acquire));
 				m_closeEvent.store(nullptr, memory_order::release);
-				//ƒƒfƒBƒAƒZƒbƒVƒ‡ƒ“‚ğI—¹
+				//ãƒ¡ãƒ‡ã‚£ã‚¢ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’çµ‚äº†
 				m_session->Shutdown();
 				SafeRelease(m_session);
 			}
 			m_currentSourceName = String();
 			m_currentSourceType = MediaPlayerSourceType::Local;
 			m_state.store(MFPlayerState::Uninitialized, memory_order::release);
-			//MediaFoundation‚ÌI—¹
+			//MediaFoundationã®çµ‚äº†
 			MFShutdown();
 			CoUninitialize();
 		}
-	private:/* IUnknownŠÖ˜A */
+	private:/* IUnknowné–¢é€£ */
 		HRESULT __stdcall QueryInterface(const IID& iid, void** object) override {
 			if (!object) return E_POINTER;
 			static const QITAB qit[] = {
@@ -410,49 +410,49 @@ export namespace System::Application::Windows {
 			long cRef = InterlockedDecrement(&m_refCount);
 			return cRef;
 		}
-	private:/* IMFAsyncCallbackŠÖ˜A */
+	private:/* IMFAsyncCallbacké–¢é€£ */
 		HRESULT __stdcall GetParameters(DWORD*, DWORD*) override {
 			return E_NOTIMPL;
 		}
 		//Atomic<IMFAsyncResult*> m_asyncResult = nullptr;
 		HRESULT __stdcall Invoke(IMFAsyncResult* asyncResult) override {
 			IMFMediaEvent* mediaEvent = nullptr;
-			//ˆ—’†‚ÍƒCƒxƒ“ƒgæ“¾‚ğ’â~
+			//å‡¦ç†ä¸­ã¯ã‚¤ãƒ™ãƒ³ãƒˆå–å¾—ã‚’åœæ­¢
 			HRESULT hr = m_session->EndGetEvent(asyncResult, &mediaEvent);
 			if (hr < 0) return SafeRelease(hr, mediaEvent);
 			MediaEventType eventType;
 			hr = mediaEvent->GetType(&eventType);
 			if (hr < 0) return SafeRelease(hr, mediaEvent);
 			if (eventType != MESessionClosed) {
-				//I—¹ˆ—ˆÈŠO‚ÍƒCƒxƒ“ƒgƒLƒ…[‚É’Ç‰Á‚·‚é
+				//çµ‚äº†å‡¦ç†ä»¥å¤–ã¯ã‚¤ãƒ™ãƒ³ãƒˆã‚­ãƒ¥ãƒ¼ã«è¿½åŠ ã™ã‚‹
 				m_mediaEventQueue.Push(mediaEvent);
 				SafeRelease(mediaEvent);
-				//ƒCƒxƒ“ƒgæ“¾‚ğÄŠJ
+				//ã‚¤ãƒ™ãƒ³ãƒˆå–å¾—ã‚’å†é–‹
 				hr = m_session->BeginGetEvent(this, nullptr);
 			}
 			else {
-				//CAsyncResult::Release()‚ª—áŠO‚ğo‚µ‚Ämfplat.dll‚ğˆÙíI—¹‚³‚¹‚é‚±‚Æ‚ª‚ ‚é(ƒfƒoƒbƒO10‰ñ‚Éˆê“x’ö“x)B
-				//asyncResult‚ÌQÆ‚ğ‘‚â‚µ‚Ä‚¨‚¯‚ÎA(ƒƒ‚ƒŠƒŠ[ƒN‚Í‚·‚é‚ª)‚±‚ÌŒ»Û‚ª‹N‚«‚È‚­‚È‚éB
-				//DLL‚Ì“à•”ƒXƒŒƒbƒh‚ÌI—¹‚æ‚è‘O‚ÉasyncResultƒIƒuƒWƒFƒNƒg‚ª”jŠü‚³‚ê‚é‚Æ‹N‚±‚éH
+				//CAsyncResult::Release()ãŒä¾‹å¤–ã‚’å‡ºã—ã¦mfplat.dllã‚’ç•°å¸¸çµ‚äº†ã•ã›ã‚‹ã“ã¨ãŒã‚ã‚‹(ãƒ‡ãƒãƒƒã‚°10å›ã«ä¸€åº¦ç¨‹åº¦)ã€‚
+				//asyncResultã®å‚ç…§ã‚’å¢—ã‚„ã—ã¦ãŠã‘ã°ã€(ãƒ¡ãƒ¢ãƒªãƒªãƒ¼ã‚¯ã¯ã™ã‚‹ãŒ)ã“ã®ç¾è±¡ãŒèµ·ããªããªã‚‹ã€‚
+				//DLLã®å†…éƒ¨ã‚¹ãƒ¬ãƒƒãƒ‰ã®çµ‚äº†ã‚ˆã‚Šå‰ã«asyncResultã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒç ´æ£„ã•ã‚Œã‚‹ã¨èµ·ã“ã‚‹ï¼Ÿ
 				asyncResult->AddRef();
 				Update();
 				SafeRelease(mediaEvent);
 				m_state.store(MFPlayerState::Closed, memory_order::release);
-				//ƒfƒXƒgƒ‰ƒNƒ^‚Å‘Ò‹@’†‚Ìm_closeEvent‚ğ‘—‚é
+				//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§å¾…æ©Ÿä¸­ã®m_closeEventã‚’é€ã‚‹
 				SetEvent(m_closeEvent.load(memory_order::acquire));
 			}
 			return hr;
 		}
-	private:/* UpdateŠÖ”‚©‚çŒÄ‚Ño‚³‚ê‚éƒCƒxƒ“ƒg */
+	private:/* Updateé–¢æ•°ã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ */
 		/// <summary>
-		/// ƒgƒ|ƒƒW‚Ìó‘Ô‚ª•Ï‰»‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒCƒxƒ“ƒg
+		/// ãƒˆãƒãƒ­ã‚¸ã®çŠ¶æ…‹ãŒå¤‰åŒ–ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
 		/// </summary>
-		/// <param name="mediaEvent">ƒCƒxƒ“ƒgî•ñ</param>
+		/// <param name="mediaEvent">ã‚¤ãƒ™ãƒ³ãƒˆæƒ…å ±</param>
 		HRESULT OnTopologyStatus(IMFMediaEvent* mediaEvent) noexcept {
 			UINT32 status;
 			HRESULT hr = mediaEvent->GetUINT32(MF_EVENT_TOPOLOGY_STATUS, &status);
 			if (hr < 0) return hr;
-			//ƒgƒ|ƒƒW‚Ìó‘Ô‚ªReady‚É‚È‚Á‚½‚Æ‚«Ag—p‚·‚éVideoControl‚ğæ“¾‚µ‚È‚¨‚µ‚ÄÄ¶‚ğŠJn‚·‚é
+			//ãƒˆãƒãƒ­ã‚¸ã®çŠ¶æ…‹ãŒReadyã«ãªã£ãŸã¨ãã€ä½¿ç”¨ã™ã‚‹VideoControlã‚’å–å¾—ã—ãªãŠã—ã¦å†ç”Ÿã‚’é–‹å§‹ã™ã‚‹
 			if (status == MF_TOPOSTATUS_READY) {
 				SafeRelease(m_videoDisplayControl);
 				MFGetService(m_session, MR_VIDEO_RENDER_SERVICE, IID_PPV_ARGS(&m_videoDisplayControl));
@@ -460,39 +460,39 @@ export namespace System::Application::Windows {
 			return hr;
 		}
 		/// <summary>
-		/// ƒvƒŒƒ[ƒ“ƒe[ƒVƒ‡ƒ“(Ä¶)‚ªI—¹‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒCƒxƒ“ƒg
+		/// ãƒ—ãƒ¬ã‚¼ãƒ³ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³(å†ç”Ÿ)ãŒçµ‚äº†ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
 		/// </summary>
-		/// <param name="mediaEvent">ƒCƒxƒ“ƒgî•ñ</param>
+		/// <param name="mediaEvent">ã‚¤ãƒ™ãƒ³ãƒˆæƒ…å ±</param>
 		HRESULT OnPresentationEnded(IMFMediaEvent* mediaEvent) noexcept {
 			if (m_loop) return StartPlayBack(MediaPlayerSeekPos::Begin, nanoseconds(0));
 			m_state.store(MFPlayerState::Stopped, memory_order::release);
 			return S_OK;
 		}
 		/// <summary>
-		/// V‚½‚ÈƒvƒŒƒ[ƒ“ƒe[ƒVƒ‡ƒ“‚Ì€”õ‚ª®‚Á‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éƒCƒxƒ“ƒg
+		/// æ–°ãŸãªãƒ—ãƒ¬ã‚¼ãƒ³ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ã®æº–å‚™ãŒæ•´ã£ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ã‚¤ãƒ™ãƒ³ãƒˆ
 		/// </summary>
-		/// <param name="mediaEvent">ƒCƒxƒ“ƒgî•ñ</param>
+		/// <param name="mediaEvent">ã‚¤ãƒ™ãƒ³ãƒˆæƒ…å ±</param>
 		HRESULT OnNewPresentation(IMFMediaEvent* mediaEvent) noexcept {
 			return S_OK;
 		}
 		/// <summary>
-		/// ƒCƒxƒ“ƒgŠg’£—p
+		/// ã‚¤ãƒ™ãƒ³ãƒˆæ‹¡å¼µç”¨
 		/// </summary>
 		virtual HRESULT OnSessionEvent(IMFMediaEvent*, MediaEventType) noexcept { return S_OK; }
 	private:
 		/// <summary>
-		/// MediaFoundation‚Åg—p‚³‚ê‚é100ƒiƒm•b’PˆÊ‚Ì”’l‚É•ÏŠ·‚·‚é
+		/// MediaFoundationã§ä½¿ç”¨ã•ã‚Œã‚‹100ãƒŠãƒç§’å˜ä½ã®æ•°å€¤ã«å¤‰æ›ã™ã‚‹
 		/// </summary>
-		/// <param name="s">TŒ^‚Ì•b”</param>
+		/// <param name="s">Tå‹ã®ç§’æ•°</param>
 		template<System::Seconds S>
 		int64_t ToMFDuration(const S& s) noexcept {
 			nanoseconds nano = nanoseconds(s);
 			return static_cast<int64_t>(nano.count()) / 100;
 		}
 		/// <summary>
-		/// ƒƒfƒBƒAƒZƒbƒVƒ‡ƒ“‚ÌÄ¶‚ğŠJn‚·‚é
+		/// ãƒ¡ãƒ‡ã‚£ã‚¢ã‚»ãƒƒã‚·ãƒ§ãƒ³ã®å†ç”Ÿã‚’é–‹å§‹ã™ã‚‹
 		/// </summary>
-		/// <param name="ns">ŠJnˆÊ’u(ns)</param>
+		/// <param name="ns">é–‹å§‹ä½ç½®(ns)</param>
 		template<System::Seconds S>
 		HRESULT StartPlayBack(MediaPlayerSeekPos pos = MediaPlayerSeekPos::Current, S offset = S(0)) noexcept {
 			PROPVARIANT varStart;
@@ -526,10 +526,10 @@ export namespace System::Application::Windows {
 			return hr;
 		}
 		/// <summary>
-		/// w’è‚µ‚½ƒƒfƒBƒAƒ\[ƒX‚ğƒZƒbƒVƒ‡ƒ“‚Éİ’è‚·‚é
+		/// æŒ‡å®šã—ãŸãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹ã‚’ã‚»ãƒƒã‚·ãƒ§ãƒ³ã«è¨­å®šã™ã‚‹
 		/// </summary>
-		/// <param name="name">ƒƒfƒBƒAƒ\[ƒX–¼</param>
-		/// <param name="type">ƒƒfƒBƒAƒ\[ƒX–¼‚ÌŒŸõ”ÍˆÍ</param>
+		/// <param name="name">ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹å</param>
+		/// <param name="type">ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹åã®æ¤œç´¢ç¯„å›²</param>
 		bool SetSource(const String& name, MediaPlayerSourceType type) noexcept {
 			MFMediaSource* source = nullptr;
 			if (type == MediaPlayerSourceType::Local) source = m_sources.AtPtr(name);
@@ -567,19 +567,19 @@ export namespace System::Application::Windows {
 		}
 	public:
 		/// <summary>
-		/// WM_PAINT(ƒEƒBƒ“ƒhƒE‚ÌÄ•`‰æ–½—ß)‚ğóM‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚·B
-		/// 3DƒfƒoƒCƒX‚ğg—p‚·‚éê‡AGetCurrentFrameŠÖ”‚ÅƒeƒNƒXƒ`ƒƒ‚ğæ“¾‚Å‚«‚é‚½‚ß•s—v
+		/// WM_PAINT(ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®å†æç”»å‘½ä»¤)ã‚’å—ä¿¡ã—ãŸã¨ãã«å‘¼ã³å‡ºã™ã€‚
+		/// 3Dãƒ‡ãƒã‚¤ã‚¹ã‚’ä½¿ç”¨ã™ã‚‹å ´åˆã€GetCurrentFrameé–¢æ•°ã§ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å–å¾—ã§ãã‚‹ãŸã‚ä¸è¦
 		/// </summary>
 		HRESULT Repaint() noexcept {
 			return m_videoDisplayControl ? m_videoDisplayControl->RepaintVideo() : S_OK;
 		}
 		/// <summary>
-		/// WM_SIZED(ƒEƒBƒ“ƒhƒE‚ÌƒTƒCƒY•ÏX)‚ğóM‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚·B
-		/// •`‰æ—Ìˆæ‚ğƒEƒBƒ“ƒhƒE¶ã‚©‚ç‰E‰º(width, height)‚Éİ’è‚·‚éB
-		/// 3DƒfƒoƒCƒX‚ğg—p‚·‚éê‡AGetCurrentFrameŠÖ”‚ÅƒeƒNƒXƒ`ƒƒ‚ğæ“¾‚Å‚«‚é‚½‚ß•s—v
+		/// WM_SIZED(ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ã‚µã‚¤ã‚ºå¤‰æ›´)ã‚’å—ä¿¡ã—ãŸã¨ãã«å‘¼ã³å‡ºã™ã€‚
+		/// æç”»é ˜åŸŸã‚’ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦å·¦ä¸Šã‹ã‚‰å³ä¸‹(width, height)ã«è¨­å®šã™ã‚‹ã€‚
+		/// 3Dãƒ‡ãƒã‚¤ã‚¹ã‚’ä½¿ç”¨ã™ã‚‹å ´åˆã€GetCurrentFrameé–¢æ•°ã§ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å–å¾—ã§ãã‚‹ãŸã‚ä¸è¦
 		/// </summary>
-		/// <param name="width">•(px)</param>
-		/// <param name="height">‚‚³(px)</param>
+		/// <param name="width">å¹…(px)</param>
+		/// <param name="height">é«˜ã•(px)</param>
 		HRESULT ResizeVideo(WORD width, WORD height) noexcept {
 			if (m_videoDisplayControl) {
 				RECT rc = { 0, 0, width, height };
@@ -706,7 +706,7 @@ export namespace System::Application::Windows {
 					line[x].r = tmp[2];
 					line[x].g = tmp[1];
 					line[x].b = tmp[0];
-					//ƒAƒ‹ƒtƒ@’l‚É0‚ª“ü‚é‚½‚ß
+					//ã‚¢ãƒ«ãƒ•ã‚¡å€¤ã«0ãŒå…¥ã‚‹ãŸã‚
 					line[x].a = 255;// tmp[3];
 					tmp += 4;
 				}

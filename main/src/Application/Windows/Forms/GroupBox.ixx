@@ -1,4 +1,4 @@
-export module GroupBox;
+﻿export module GroupBox;
 import Control;
 using namespace WinAPI;
 

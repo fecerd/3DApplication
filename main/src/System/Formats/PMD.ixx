@@ -1,4 +1,4 @@
-module;
+ï»¿module;
 #include<crtdbg.h>
 #define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 export module PMD;
@@ -59,7 +59,7 @@ export namespace System::Formats {
 				);
 		}
 		String GetToonTexturePath() const noexcept {
-			//ƒgƒD[ƒ“ƒeƒNƒXƒ`ƒƒ–¼‚Ítoon(toonIdx + 1).bmp‚ÅAˆêŒ…‚Ìê‡Atoon01.bmp‚Ì‚æ‚¤‚Éƒ[ƒ–„‚ß‚·‚é
+			//ãƒˆã‚¥ãƒ¼ãƒ³ãƒ†ã‚¯ã‚¹ãƒãƒ£åã¯toon(toonIdx + 1).bmpã§ã€ä¸€æ¡ã®å ´åˆã€toon01.bmpã®ã‚ˆã†ã«ã‚¼ãƒ­åŸ‹ã‚ã™ã‚‹
 			uint8_t toonIndex = toonIdx + 1;
 			return String::Joint(u".\\toon", toonIndex < 10 ? u"0" : u"", toonIndex, u".bmp");
 		}
@@ -105,7 +105,7 @@ export namespace System::Formats {
 export namespace System::Formats {
 	class PMD {
 	public:
-		//(e‚ª‚¢‚È‚¢)ƒZƒ“ƒ^[ƒ{[ƒ“‚Ìeƒ{[ƒ“No‚Ég—p‚·‚é’l
+		//(è¦ªãŒã„ãªã„)ã‚»ãƒ³ã‚¿ãƒ¼ãƒœãƒ¼ãƒ³ã®è¦ªãƒœãƒ¼ãƒ³Noã«ä½¿ç”¨ã™ã‚‹å€¤
 		static constexpr uint16_t CenterBoneParentNo = System::MAX_VALUE<uint16_t>;
 	private:
 		PMDHeader header;
@@ -135,7 +135,7 @@ export namespace System::Formats {
 			auto LoadMaterial = [](System::IO::FileStream& f, PMDMaterial* dst) {
 				f.Read(dst, 46);
 				f.Read(&dst->indicesNum, 24);
-				//PMX -> PMD‚É•ÏŠ·‚·‚é‚ÆtexFilePath‚Ì––”ö‚ª\0‚Å–„‚ß‚ç‚ê‚Ä‚µ‚Ü‚¤‚½‚ßˆ—
+				//PMX -> PMDã«å¤‰æ›ã™ã‚‹ã¨texFilePathã®æœ«å°¾ãŒ\0ã§åŸ‹ã‚ã‚‰ã‚Œã¦ã—ã¾ã†ãŸã‚å‡¦ç†
 				if (dst->texFilePath[16] == u'.' && dst->texFilePath[19] == u'\0') {
 					if (dst->texFilePath[17] == u'p' && dst->texFilePath[18] == u'n') {
 						dst->texFilePath[19] = u'g';

@@ -1,3 +1,5 @@
+ï»¿module;
+#include <coroutine>
 export module BSpline;
 import CSTDINT;
 import Traits;
@@ -8,7 +10,7 @@ import IEnumerable;
 //ControlPoint
 export namespace System {
 	/// <summary>
-	/// ƒXƒvƒ‰ƒCƒ“‹Èü‚Ì§Œä“_‚ğ•\‚·\‘¢‘Ì
+	/// ã‚¹ãƒ—ãƒ©ã‚¤ãƒ³æ›²ç·šã®åˆ¶å¾¡ç‚¹ã‚’è¡¨ã™æ§‹é€ ä½“
 	/// </summary>
 	struct ControlPoint {
 		bool OnCurve = true;
@@ -23,15 +25,15 @@ export namespace System {
 //BSpline
 export namespace System {
 	/// <summary>
-	/// B-ƒXƒvƒ‰ƒCƒ“‹Èüã‚Ì“_‚ğŒvZ‚·‚éƒNƒ‰ƒX
+	/// B-ã‚¹ãƒ—ãƒ©ã‚¤ãƒ³æ›²ç·šä¸Šã®ç‚¹ã‚’è¨ˆç®—ã™ã‚‹ã‚¯ãƒ©ã‚¹
 	/// </summary>
 	class BSpline {
-		ControlPoint* m_points = nullptr;	//§Œä“_‚Ì”z—ñ
-		size_t m_pointCount = 0;	//m_points‚Ì—v‘f”
-		uint32_t* m_knot = nullptr;	//ƒmƒbƒgƒxƒNƒgƒ‹‚Ì”z—ñ
-		size_t m_knotCount = 0;	//ƒmƒbƒgƒxƒNƒgƒ‹‚Ì”
-		uint16_t m_n = 0;	//Ÿ”
-		uint32_t m_unit = 0;	//•âŠÔ‚Ì¸“xB‘å‚«‚¢‚Ù‚Çt‚Ì•‚ğæ‚é‚±‚Æ‚ª‚Å‚«‚é‚ªAˆ—‚Íd‚­‚È‚é
+		ControlPoint* m_points = nullptr;	//åˆ¶å¾¡ç‚¹ã®é…åˆ—
+		size_t m_pointCount = 0;	//m_pointsã®è¦ç´ æ•°
+		uint32_t* m_knot = nullptr;	//ãƒãƒƒãƒˆãƒ™ã‚¯ãƒˆãƒ«ã®é…åˆ—
+		size_t m_knotCount = 0;	//ãƒãƒƒãƒˆãƒ™ã‚¯ãƒˆãƒ«ã®æ•°
+		uint16_t m_n = 0;	//æ¬¡æ•°
+		uint32_t m_unit = 0;	//è£œé–“ã®ç²¾åº¦ã€‚å¤§ãã„ã»ã©tã®å¹…ã‚’å–ã‚‹ã“ã¨ãŒã§ãã‚‹ãŒã€å‡¦ç†ã¯é‡ããªã‚‹
 	public:
 		BSpline() noexcept = default;
 		BSpline(BSpline&& arg) noexcept
@@ -49,12 +51,12 @@ export namespace System {
 		}
 	private:
 		/// <summary>
-		/// B-ƒXƒvƒ‰ƒCƒ“Šî’êŠÖ”bj,n(t)BÄ‹A“I‚ÉŒÄ‚Ño‚³‚ê‚é
+		/// B-ã‚¹ãƒ—ãƒ©ã‚¤ãƒ³åŸºåº•é–¢æ•°bj,n(t)ã€‚å†å¸°çš„ã«å‘¼ã³å‡ºã•ã‚Œã‚‹
 		/// </summary>
-		/// <param name="j">‚±‚ÌŠÖ”ŠO‚©‚çŒÄ‚Ño‚·‚Æ‚«A‹Èüã‚Ì§Œä“_‚É‚¨‚¢‚Ä‰½ŒÂ–Ú‚©‚ğw’è‚·‚é</param>
-		/// <param name="k">‚±‚ÌŠÖ”ŠO‚©‚çŒÄ‚Ño‚·‚Æ‚«A‹Èü‚ÌŸ”‚ğw’è‚·‚é</param>
-		/// <param name="t">”ÍˆÍ‚Í[m_knot[m_n], m_knot[m_knotCount - m_n - 1]]</param>
-		/// <returns>w’è‚µ‚½ˆø”‚©‚çŒvZ‚µ‚½B-ƒXƒvƒ‰ƒCƒ“Šî’êŠÖ”‚ÌŒ‹‰Ê</returns>
+		/// <param name="j">ã“ã®é–¢æ•°å¤–ã‹ã‚‰å‘¼ã³å‡ºã™ã¨ãã€æ›²ç·šä¸Šã®åˆ¶å¾¡ç‚¹ã«ãŠã„ã¦ä½•å€‹ç›®ã‹ã‚’æŒ‡å®šã™ã‚‹</param>
+		/// <param name="k">ã“ã®é–¢æ•°å¤–ã‹ã‚‰å‘¼ã³å‡ºã™ã¨ãã€æ›²ç·šã®æ¬¡æ•°ã‚’æŒ‡å®šã™ã‚‹</param>
+		/// <param name="t">ç¯„å›²ã¯[m_knot[m_n], m_knot[m_knotCount - m_n - 1]]</param>
+		/// <returns>æŒ‡å®šã—ãŸå¼•æ•°ã‹ã‚‰è¨ˆç®—ã—ãŸB-ã‚¹ãƒ—ãƒ©ã‚¤ãƒ³åŸºåº•é–¢æ•°ã®çµæœ</returns>
 		float Basis(size_t j, uint16_t k, uint32_t t) const noexcept {
 			if (k == 0) return (m_knot[j] <= t && t < m_knot[j + 1]) ? 1.0f : 0.0f;
 			else if (m_knot[j + k] == m_knot[j] && m_knot[j + k + 1] == m_knot[j + 1]) return 0.0f;
@@ -65,17 +67,17 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// B-ƒXƒvƒ‰ƒCƒ“‹Èü‚Ì§Œä“_AŸ”A•âŠÔ¸“x‚ğİ’è‚·‚éB
-		/// ‚±‚ÌŠÖ”ˆÈŠO‚ÌpublicŠÖ”‚Í‚±‚ÌŠÖ”‚ğŒÄ‚Ño‚µ‚Ä‚¢‚È‚¢‚Æ¸”s‚·‚é
+		/// B-ã‚¹ãƒ—ãƒ©ã‚¤ãƒ³æ›²ç·šã®åˆ¶å¾¡ç‚¹ã€æ¬¡æ•°ã€è£œé–“ç²¾åº¦ã‚’è¨­å®šã™ã‚‹ã€‚
+		/// ã“ã®é–¢æ•°ä»¥å¤–ã®publicé–¢æ•°ã¯ã“ã®é–¢æ•°ã‚’å‘¼ã³å‡ºã—ã¦ã„ãªã„ã¨å¤±æ•—ã™ã‚‹
 		/// </summary>
-		/// <param name="points">§Œä“_‚Ì”z—ñ</param>
-		/// <param name="pointCount">‘æˆêˆø”‚Ì—v‘f”</param>
-		/// <param name="n">Ÿ”</param>
-		/// <param name="unit">•âŠÔ¸“xB‘å‚«‚¢‚Ù‚Çt‚Ì•‚ğæ‚é‚±‚Æ‚ª‚Å‚«‚é‚ªAˆ—‚Íd‚­‚È‚é</param>
+		/// <param name="points">åˆ¶å¾¡ç‚¹ã®é…åˆ—</param>
+		/// <param name="pointCount">ç¬¬ä¸€å¼•æ•°ã®è¦ç´ æ•°</param>
+		/// <param name="n">æ¬¡æ•°</param>
+		/// <param name="unit">è£œé–“ç²¾åº¦ã€‚å¤§ãã„ã»ã©tã®å¹…ã‚’å–ã‚‹ã“ã¨ãŒã§ãã‚‹ãŒã€å‡¦ç†ã¯é‡ããªã‚‹</param>
 		/// <param name="closed">
-		/// true‚Ì‚Æ‚«A•Â‹Èü‚É‚·‚éB
-		/// ‚±‚Ì‚Æ‚«A§Œä“_‚Ì”z—ñ‚ÍÅ‰‚Ì‹Èüã‚Ì§Œä“_‚ªæ“ª‚É‚È‚é‚æ‚¤‚É•ÏX‚³‚ê‚éB
-		/// •`‰æ‚Ìn“_‚Éˆá‚¢‚ª¶‚¶‚é‚ªA•`‰æ•ûŒü‚Í•Ï‚í‚ç‚¸A•`‰æŒ‹‰Ê‚É‚à‰e‹¿‚µ‚È‚¢
+		/// trueã®ã¨ãã€é–‰æ›²ç·šã«ã™ã‚‹ã€‚
+		/// ã“ã®ã¨ãã€åˆ¶å¾¡ç‚¹ã®é…åˆ—ã¯æœ€åˆã®æ›²ç·šä¸Šã®åˆ¶å¾¡ç‚¹ãŒå…ˆé ­ã«ãªã‚‹ã‚ˆã†ã«å¤‰æ›´ã•ã‚Œã‚‹ã€‚
+		/// æç”»ã®å§‹ç‚¹ã«é•ã„ãŒç”Ÿã˜ã‚‹ãŒã€æç”»æ–¹å‘ã¯å¤‰ã‚ã‚‰ãšã€æç”»çµæœã«ã‚‚å½±éŸ¿ã—ãªã„
 		/// </param>
 		void SetFunction(const ControlPoint* points, size_t pointCount, uint16_t n, uint32_t unit, bool closed = false) {
 			m_pointCount = closed ? pointCount + 1 : pointCount;
@@ -100,13 +102,13 @@ export namespace System {
 			m_knotCount = 0;
 		}
 		/// <summary>
-		/// ƒmƒbƒgƒxƒNƒgƒ‹‚ğİ’è‚·‚éBSetFunction()ˆÈŠO‚ÌŠÖ”‚Í‚±‚ÌŠÖ”‚ğŒÄ‚Ño‚µ‚Ä‚¢‚È‚¢‚Æ¸”s‚·‚é
+		/// ãƒãƒƒãƒˆãƒ™ã‚¯ãƒˆãƒ«ã‚’è¨­å®šã™ã‚‹ã€‚SetFunction()ä»¥å¤–ã®é–¢æ•°ã¯ã“ã®é–¢æ•°ã‚’å‘¼ã³å‡ºã—ã¦ã„ãªã„ã¨å¤±æ•—ã™ã‚‹
 		/// </summary>
 		/// <param name="index">
-		/// g—p‚·‚é§Œä“_‚Ìæ“ª‚ÌƒCƒ“ƒfƒbƒNƒX(ƒ[ƒƒCƒ“ƒfƒbƒNƒX)B
-		/// SetFunctionŠÖ”‚Åİ’è‚µ‚½§Œä“_‚Ì”z—ñ‚ÌƒCƒ“ƒfƒbƒNƒX‚Æˆê’v‚·‚é
+		/// ä½¿ç”¨ã™ã‚‹åˆ¶å¾¡ç‚¹ã®å…ˆé ­ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹(ã‚¼ãƒ­ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹)ã€‚
+		/// SetFunctioné–¢æ•°ã§è¨­å®šã—ãŸåˆ¶å¾¡ç‚¹ã®é…åˆ—ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨ä¸€è‡´ã™ã‚‹
 		/// </param>
-		/// <returns>g—p‚·‚é§Œä“_‚Ì”</returns>
+		/// <returns>ä½¿ç”¨ã™ã‚‹åˆ¶å¾¡ç‚¹ã®æ•°</returns>
 		size_t SetKnot(size_t index) {
 			if (!m_points || m_pointCount < 2 || index + 1 >= m_pointCount) return 0;
 			size_t controlCount = 1;
@@ -135,48 +137,48 @@ export namespace System {
 			return controlCount;
 		}
 		/// <summary>
-		/// B-ƒXƒvƒ‰ƒCƒ“ŠÖ”‚Ìt‚Ì”ÍˆÍ‚Ìæ“ª‚Ì’l‚ğæ“¾‚·‚é
+		/// B-ã‚¹ãƒ—ãƒ©ã‚¤ãƒ³é–¢æ•°ã®tã®ç¯„å›²ã®å…ˆé ­ã®å€¤ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		uint32_t Start() const noexcept { return m_knot && m_n < m_knotCount ? m_knot[m_n] : 0; }
 		/// <summary>
-		/// B-ƒXƒvƒ‰ƒCƒ“ŠÖ”‚Ìt‚Ì”ÍˆÍ‚ÌÅŒã‚Ì’l‚ğæ“¾‚·‚é
+		/// B-ã‚¹ãƒ—ãƒ©ã‚¤ãƒ³é–¢æ•°ã®tã®ç¯„å›²ã®æœ€å¾Œã®å€¤ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		uint32_t End() const noexcept { return m_knot && m_n + 1 <= m_knotCount ? m_knot[m_knotCount - m_n - 1] : 0; }
 		/// <summary>
-		/// B-ƒXƒvƒ‰ƒCƒ“ŠÖ”‚É‚æ‚Á‚Ä‹Èüã‚Ì“_‚ğæ“¾‚·‚é
+		/// B-ã‚¹ãƒ—ãƒ©ã‚¤ãƒ³é–¢æ•°ã«ã‚ˆã£ã¦æ›²ç·šä¸Šã®ç‚¹ã‚’å–å¾—ã™ã‚‹
 		/// </summary>
 		/// <example>
 		///		<code>
 		///			CodePoint cp[] = { ... };
 		///			uint16_t pointCount = sizeof(cp) / sizeof(cp[0]);
-		///			uint32_t unit = ...;	//•âŠÔ¸“x(bs.Start()‚Æbs.End()‚Ì·)
+		///			uint32_t unit = ...;	//è£œé–“ç²¾åº¦(bs.Start()ã¨bs.End()ã®å·®)
 		///			BSpline bs;
 		///			bs.SetFunction(cp, pointCount, n, unit);
-		///			uint32_t xMax = ..., yMax = ...;	//‹Èü‚ÌÅ‘å’l
-		///			//i‚Í‹Èü‚Ìn“_EI“_‚à‚µ‚­‚Í‹Èüã‚É‚ ‚é§Œä“_‚ÌƒCƒ“ƒfƒbƒNƒX‚ª“ü‚èA
-		///			//I“_(i == pointCount - 2)‚Ì‚Æ‚«ƒ‹[ƒv‚ğ”²‚¯‚é
+		///			uint32_t xMax = ..., yMax = ...;	//æ›²ç·šã®æœ€å¤§å€¤
+		///			//iã¯æ›²ç·šã®å§‹ç‚¹ãƒ»çµ‚ç‚¹ã‚‚ã—ãã¯æ›²ç·šä¸Šã«ã‚ã‚‹åˆ¶å¾¡ç‚¹ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒå…¥ã‚Šã€
+		///			//çµ‚ç‚¹(i == pointCount - 2)ã®ã¨ããƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã‚‹
 		///			for (size_t i = 0; i < pointCount - 1; ++i) {
-		///				uint16_t controlCount = bs.SetKnot(i);	//Ÿ‚Ì‹Èüã‚Ì§Œä“_‚Ü‚Å‚Ì§Œä“_”
+		///				uint16_t controlCount = bs.SetKnot(i);	//æ¬¡ã®æ›²ç·šä¸Šã®åˆ¶å¾¡ç‚¹ã¾ã§ã®åˆ¶å¾¡ç‚¹æ•°
 		///				for (size_t t = bs.Start(), end = bs.End(); t < end; ++t) {
 		///					uint32_t x, y;
 		///					Spline(i, t, x, y, xMax, yMax);
-		///					//(x, y)‚ğg—p‚·‚é
+		///					//(x, y)ã‚’ä½¿ç”¨ã™ã‚‹
 		///				}
-		///				//for•¶‚Æ‡‚í‚¹‚Ä(controlCount - 1)‚¾‚¯i‚ª‘‰Á‚µA
-		///				//Ÿ‚Ì‹Èüã‚É‚ ‚é§Œä“_‚©I“_‚ğw‚·‚æ‚¤‚É‚È‚é
+		///				//foræ–‡ã¨åˆã‚ã›ã¦(controlCount - 1)ã ã‘iãŒå¢—åŠ ã—ã€
+		///				//æ¬¡ã®æ›²ç·šä¸Šã«ã‚ã‚‹åˆ¶å¾¡ç‚¹ã‹çµ‚ç‚¹ã‚’æŒ‡ã™ã‚ˆã†ã«ãªã‚‹
 		///				i += controlCount - 2;
 		///			}
 		///		</code>
 		/// </example>
 		/// <param name="index">
-		/// g—p‚·‚é§Œä“_‚Ìæ“ª‚ÌƒCƒ“ƒfƒbƒNƒX(ƒ[ƒƒCƒ“ƒfƒbƒNƒX)B
-		/// SetFunctionŠÖ”‚Åİ’è‚µ‚½§Œä“_‚Ì”z—ñ‚ÌƒCƒ“ƒfƒbƒNƒX‚Æˆê’v‚·‚é
+		/// ä½¿ç”¨ã™ã‚‹åˆ¶å¾¡ç‚¹ã®å…ˆé ­ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹(ã‚¼ãƒ­ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹)ã€‚
+		/// SetFunctioné–¢æ•°ã§è¨­å®šã—ãŸåˆ¶å¾¡ç‚¹ã®é…åˆ—ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨ä¸€è‡´ã™ã‚‹
 		/// </param>
-		/// <param name="t">ˆø”B”ÍˆÍ‚Í[BSpline::Start(), BSpline::End()]</param>
-		/// <param name="x_ref">‹Èüã‚Ì“_‚ÌXÀ•W‚ª‘ã“ü‚³‚ê‚éQÆ•Ï”</param>
-		/// <param name="y_ref">‹Èüã‚Ì“_‚ÌYÀ•W‚ª‘ã“ü‚³‚ê‚éQÆ•Ï”</param>
-		/// <param name="xMax">x_ref‚ÌÅ‘å’lBŒvZŒ‹‰Ê‚Í[0, xMax]‚Éû‚ß‚ç‚ê‚é</param>
-		/// <param name="yMax">y_ref‚ÌÅ‘å’lBŒvZŒ‹‰Ê‚Í[0, yMax]‚Éû‚ß‚ç‚ê‚é</param>
+		/// <param name="t">å¼•æ•°ã€‚ç¯„å›²ã¯[BSpline::Start(), BSpline::End()]</param>
+		/// <param name="x_ref">æ›²ç·šä¸Šã®ç‚¹ã®Xåº§æ¨™ãŒä»£å…¥ã•ã‚Œã‚‹å‚ç…§å¤‰æ•°</param>
+		/// <param name="y_ref">æ›²ç·šä¸Šã®ç‚¹ã®Yåº§æ¨™ãŒä»£å…¥ã•ã‚Œã‚‹å‚ç…§å¤‰æ•°</param>
+		/// <param name="xMax">x_refã®æœ€å¤§å€¤ã€‚è¨ˆç®—çµæœã¯[0, xMax]ã«åã‚ã‚‰ã‚Œã‚‹</param>
+		/// <param name="yMax">y_refã®æœ€å¤§å€¤ã€‚è¨ˆç®—çµæœã¯[0, yMax]ã«åã‚ã‚‰ã‚Œã‚‹</param>
 		void Spline(size_t index, uint32_t t, int32_t& x_ref, int32_t& y_ref, int32_t xMin, int32_t yMin, int32_t xMax, int32_t yMax) noexcept {
 			if (!m_points || !m_knot) {
 				x_ref = 0;
@@ -195,16 +197,16 @@ export namespace System {
 		}
 	private:
 		/// <summary>
-		/// Splines()ŠÖ”—p‚ÌƒRƒ‹[ƒ`ƒ“ŠÖ”
+		/// Splines()é–¢æ•°ç”¨ã®ã‚³ãƒ«ãƒ¼ãƒãƒ³é–¢æ•°
 		/// </summary>
-		/// <param name="xMax">xÀ•W‚ÌÅ‘å’l</param>
-		/// <param name="yMax">yÀ•W‚ÌÅ‘å’l</param>
+		/// <param name="xMax">xåº§æ¨™ã®æœ€å¤§å€¤</param>
+		/// <param name="yMax">yåº§æ¨™ã®æœ€å¤§å€¤</param>
 		IEnumerator<Point<int32_t>> GetSplineEnumerator(int32_t xMin, int32_t yMin, int32_t xMax, int32_t yMax) noexcept {
-			//‘O‰ñ‚ÌŒ‹‰Ê‚ğ•Û‚µA“¯‚¶’l‚ğ˜A‘±‚Å•Ô‚³‚È‚¢‚æ‚¤‚É‚·‚é
+			//å‰å›ã®çµæœã‚’ä¿æŒã—ã€åŒã˜å€¤ã‚’é€£ç¶šã§è¿”ã•ãªã„ã‚ˆã†ã«ã™ã‚‹
 			Point<int32_t> prev = Point<int32_t>{ System::MAX_VALUE<int32_t>, System::MAX_VALUE<int32_t> };
 			for (size_t i = 0; i < m_pointCount - 1; ++i) {
-				//‹Èüã‚Ì§Œä“_‚©‚çŸ‚Ì‹Èüã‚Ì§Œä“_‚Ü‚Å‚Ì§Œä“_”
-				//Ÿ‚Ì‹Èüã‚Ì§Œä“_‚ª‘¶İ‚µ‚È‚¢ê‡AÅŒã‚Ì§Œä“_‚Ü‚Å‚Ì§Œä“_”
+				//æ›²ç·šä¸Šã®åˆ¶å¾¡ç‚¹ã‹ã‚‰æ¬¡ã®æ›²ç·šä¸Šã®åˆ¶å¾¡ç‚¹ã¾ã§ã®åˆ¶å¾¡ç‚¹æ•°
+				//æ¬¡ã®æ›²ç·šä¸Šã®åˆ¶å¾¡ç‚¹ãŒå­˜åœ¨ã—ãªã„å ´åˆã€æœ€å¾Œã®åˆ¶å¾¡ç‚¹ã¾ã§ã®åˆ¶å¾¡ç‚¹æ•°
 				size_t usedPointCount = SetKnot(i);
 				if (usedPointCount != 2) {
 					for (uint32_t t = Start(), end = End(); t < end; ++t) {
@@ -215,7 +217,7 @@ export namespace System {
 							prev = ret;
 						}
 					}
-					//ÅŒã‚Ì§Œä“_‚ª‹Èüã‚Ì“_‚Ìê‡A’¼‘O‚ÌŒvZ‚ÅÅŒã‚Ì§Œä“_‚ªæ“¾‚Å‚«‚Ä‚¢‚é‚©Šm”F‚·‚é
+					//æœ€å¾Œã®åˆ¶å¾¡ç‚¹ãŒæ›²ç·šä¸Šã®ç‚¹ã®å ´åˆã€ç›´å‰ã®è¨ˆç®—ã§æœ€å¾Œã®åˆ¶å¾¡ç‚¹ãŒå–å¾—ã§ãã¦ã„ã‚‹ã‹ç¢ºèªã™ã‚‹
 					ControlPoint& last = m_points[i + usedPointCount - 1];
 					if (last.OnCurve) {
 						Point<int32_t> ret{ static_cast<int32_t>(last.x), static_cast<int32_t>(last.y) };
@@ -266,10 +268,10 @@ export namespace System {
 		}
 	public:
 		/// <summary>
-		/// SetFunction()ŠÖ”‚Åİ’è‚µ‚½B-ƒXƒvƒ‰ƒCƒ“‹Èüã‚Ì“_‚ğ—ñ‹“‚·‚é
+		/// SetFunction()é–¢æ•°ã§è¨­å®šã—ãŸB-ã‚¹ãƒ—ãƒ©ã‚¤ãƒ³æ›²ç·šä¸Šã®ç‚¹ã‚’åˆ—æŒ™ã™ã‚‹
 		/// </summary>
-		/// <param name="xMax">xÀ•W‚ÌÅ‘å’l</param>
-		/// <param name="yMax">yÀ•W‚ÌÅ‘å’l</param>
+		/// <param name="xMax">xåº§æ¨™ã®æœ€å¤§å€¤</param>
+		/// <param name="yMax">yåº§æ¨™ã®æœ€å¤§å€¤</param>
 		IEnumerable<Point<int32_t>> Splines(int32_t xMin, int32_t yMin, int32_t xMax, int32_t yMax) noexcept {
 			return IEnumerable<Point<int32_t>>(
 				new IEnumerator<Point<int32_t>>(

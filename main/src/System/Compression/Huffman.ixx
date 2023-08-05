@@ -1,4 +1,4 @@
-export module Huffman;
+ï»¿export module Huffman;
 import Objects;
 import Vector;
 import BitStream;
@@ -64,9 +64,9 @@ export namespace System::Compression {
 	private:
 		static HuffmanTree* GetHuffmanTree(BitStream& bits, uint16_t count, HuffmanTree* tableTree) noexcept {
 			if (count > 286) count = 286;
-			uint8_t codeLength[286]{};	//codeLength[n] : ’ln‚Ì•„†’·
-			uint8_t codeLengthCount[16]{};	//•„†’·‚²‚Æ‚ÌŒÂ”
-			//ƒ‰ƒ“ƒŒƒ“ƒOƒX•„†‰»‚³‚ê‚½’l/•„†’·•\‚ğ‰ğÍ
+			uint8_t codeLength[286]{};	//codeLength[n] : å€¤nã®ç¬¦å·é•·
+			uint8_t codeLengthCount[16]{};	//ç¬¦å·é•·ã”ã¨ã®å€‹æ•°
+			//ãƒ©ãƒ³ãƒ¬ãƒ³ã‚°ã‚¹ç¬¦å·åŒ–ã•ã‚ŒãŸå€¤/ç¬¦å·é•·è¡¨ã‚’è§£æ
 			for (uint16_t i = 0; i < count; ++i) {
 				HuffmanTree* ptr = tableTree;
 				while (ptr->zero) {
@@ -94,8 +94,8 @@ export namespace System::Compression {
 					++codeLengthCount[len];
 				}
 			}
-			codeLengthCount[0] = 0;	//•„†’·0‚ÌŒÂ”‚Í–³‹‚·‚é
-			uint16_t nextCode[16]{};	//nextCode[n] : •„†’·n‚Ì•„†‚Ì’l
+			codeLengthCount[0] = 0;	//ç¬¦å·é•·0ã®å€‹æ•°ã¯ç„¡è¦–ã™ã‚‹
+			uint16_t nextCode[16]{};	//nextCode[n] : ç¬¦å·é•·nã®ç¬¦å·ã®å€¤
 			uint16_t code = 0;
 			for (uint8_t i = 1; i < 16; ++i) {
 				code = (code + codeLengthCount[i - 1]) << 1;
@@ -124,23 +124,23 @@ export namespace System::Compression {
 			return root;
 		}
 		static HuffmanTree* GetTableTree(BitStream& bits, uint8_t hclen) noexcept {
-			//•„†•\‚Ì•„†•\‚Ì•„†’·‚Ì•À‚Ñ‡
+			//ç¬¦å·è¡¨ã®ç¬¦å·è¡¨ã®ç¬¦å·é•·ã®ä¸¦ã³é †
 			const uint8_t codeLengthOrder[19] = {
 				16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15
 			};
-			uint8_t codeLengthCode[19]{};	//codeLengthCode[n] : ’ln‚Ì•„†’·
+			uint8_t codeLengthCode[19]{};	//codeLengthCode[n] : å€¤nã®ç¬¦å·é•·
 			for (uint8_t i = 0; i < hclen; ++i) codeLengthCode[codeLengthOrder[i]] = bits.Get<uint8_t>(3, true, true);
-			const uint8_t maxLength = 7;	//•„†’·‚ÌÅ‘å’l
-			uint16_t codeLengthCount[8]{};	//•„†’·‚²‚Æ‚ÌŒÂ”
-			uint16_t nextCode[8]{};	//nextCode[n] : •„†’·n‚Ì•„†‚Ì’l
+			const uint8_t maxLength = 7;	//ç¬¦å·é•·ã®æœ€å¤§å€¤
+			uint16_t codeLengthCount[8]{};	//ç¬¦å·é•·ã”ã¨ã®å€‹æ•°
+			uint16_t nextCode[8]{};	//nextCode[n] : ç¬¦å·é•·nã®ç¬¦å·ã®å€¤
 			for (uint8_t i = 0; i < 19; ++i) ++codeLengthCount[codeLengthCode[i]];
-			codeLengthCount[0] = 0;	//•„†’·0‚Í–³‹‚·‚é
+			codeLengthCount[0] = 0;	//ç¬¦å·é•·0ã¯ç„¡è¦–ã™ã‚‹
 			uint16_t code = 0;
 			for (uint8_t i = 1; i <= maxLength; ++i) {
 				code = (code + codeLengthCount[i - 1]) << 1;
 				nextCode[i] = code;
 			}
-			uint16_t codeCode[19]{};	//codeCode[n] : ’ln‚Ì•„†
+			uint16_t codeCode[19]{};	//codeCode[n] : å€¤nã®ç¬¦å·
 			for (uint8_t i = 0; i < 19; ++i) {
 				uint8_t len = codeLengthCode[i];
 				if (len > 0) codeCode[i] = nextCode[len]++;
@@ -186,7 +186,7 @@ export namespace System::Compression {
 				uint16_t code = bits.GetReverseBit<uint16_t>(7, true, true);
 				//7bit
 				if (code <= 0b10111) {
-					//256(ƒuƒƒbƒN‚ÌI’[)
+					//256(ãƒ–ãƒ­ãƒƒã‚¯ã®çµ‚ç«¯)
 					if (code == 0) {
 						if (isFinalBlock) return;
 						isFinalBlock = bits.Get(true);

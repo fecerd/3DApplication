@@ -1,4 +1,4 @@
-export module InputSystem;
+ï»¿export module InputSystem;
 import System;
 export import InputSystemUtility;
 import IInputManager;
@@ -85,8 +85,8 @@ export namespace System::Application {
 		}
 	public:
 		/// <summary>
-		/// InputSystem‚Ö‚Ì‹¤—LƒIƒuƒWƒFƒNƒg‚ğæ“¾‚·‚éB
-		/// InputSystem‚ğg—p‚·‚éƒIƒuƒWƒFƒNƒg‚Í‚±‚ÌƒIƒuƒWƒFƒNƒg‚ğƒƒ“ƒo‚É‚·‚é‚±‚Æ‚ÅInputSystem‚ª”jŠü‚³‚ê‚Ä‚¢‚È‚¢‚±‚Æ‚ğ•ÛØ‚Å‚«‚é
+		/// InputSystemã¸ã®å…±æœ‰ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—ã™ã‚‹ã€‚
+		/// InputSystemã‚’ä½¿ç”¨ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒ¡ãƒ³ãƒã«ã™ã‚‹ã“ã¨ã§InputSystemãŒç ´æ£„ã•ã‚Œã¦ã„ãªã„ã“ã¨ã‚’ä¿è¨¼ã§ãã‚‹
 		/// </summary>
 		static ManagedObject<InputSystem> GetReference() noexcept {
 			static ManagedObject<InputSystem> ret;
@@ -97,19 +97,19 @@ export namespace System::Application {
 		}
 	private:
 		/// <summary>
-		/// InputSystem‚ÉInputActions‚ğ“o˜^‚·‚éB
-		/// InputActions‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^ˆÈŠO‚©‚ç‚ÍŒÄ‚Ño‚³‚È‚¢
+		/// InputSystemã«InputActionsã‚’ç™»éŒ²ã™ã‚‹ã€‚
+		/// InputActionsã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ä»¥å¤–ã‹ã‚‰ã¯å‘¼ã³å‡ºã•ãªã„
 		/// </summary>
-		/// <param name="arg">InputActions‚Ìthisƒ|ƒCƒ“ƒ^</param>
+		/// <param name="arg">InputActionsã®thisãƒã‚¤ãƒ³ã‚¿</param>
 		bool Register(InputActions* arg) noexcept {
 			LockGuard lock{ m_actions_mtx };
 			return m_registeredInputActions.Add(arg) != Vector<InputActions>::ErrorValue;
 		}
 		/// <summary>
-		/// InputSystem‚É“o˜^‚³‚ê‚Ä‚¢‚éInputActions‚ğíœ‚·‚éB
-		/// InputActions‚ÌƒfƒXƒgƒ‰ƒNƒ^ˆÈŠO‚©‚ç‚ÍŒÄ‚Ño‚³‚È‚¢
+		/// InputSystemã«ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹InputActionsã‚’å‰Šé™¤ã™ã‚‹ã€‚
+		/// InputActionsã®ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ä»¥å¤–ã‹ã‚‰ã¯å‘¼ã³å‡ºã•ãªã„
 		/// </summary>
-		/// <param name="arg">InputActions‚Ìthisƒ|ƒCƒ“ƒ^</param>
+		/// <param name="arg">InputActionsã®thisãƒã‚¤ãƒ³ã‚¿</param>
 		void Unregister(InputActions* arg) noexcept {
 			LockGuard lock{ m_actions_mtx };
 			m_registeredInputActions.RemoveValue(arg);

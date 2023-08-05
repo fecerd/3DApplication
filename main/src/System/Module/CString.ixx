@@ -1,4 +1,4 @@
-export module CString;
+ï»¿export module CString;
 import Objects;
 import StringBlock;
 
@@ -20,29 +20,29 @@ export namespace System {
 		System::String ToString() const noexcept { return System::String(*this); }
 		uint32_t GetTypeID() const noexcept { return System::GetID<CString<N>>(); }
 	public:
-		//i”Ô–Ú([0, count() - 1])‚Ì•¶š’è”‚ğ•Ô‚·
-		//i‚ª”ÍˆÍŠO‚Ìê‡Aƒkƒ‹•¶š‚ğ•Ô‚·
+		//iç•ªç›®([0, count() - 1])ã®æ–‡å­—å®šæ•°ã‚’è¿”ã™
+		//iãŒç¯„å›²å¤–ã®å ´åˆã€ãƒŒãƒ«æ–‡å­—ã‚’è¿”ã™
 		constexpr auto operator[](const size_t i) const noexcept { return CStringBlock<char16_t, N>::Length() <= i ? Empty() : CString<2>(this->value[i]); }
-		//•¶š—ñ’è”“¯m‚ğŒ‹‡‚µAV‚½‚È•¶š—ñ’è”‚ğ•Ô‚·
+		//æ–‡å­—åˆ—å®šæ•°åŒå£«ã‚’çµåˆã—ã€æ–°ãŸãªæ–‡å­—åˆ—å®šæ•°ã‚’è¿”ã™
 		template<size_t n>
 		constexpr auto operator+(const CString<n>& rhs) const noexcept {
 			return CString<N + n - 1>(CStringBlock<char16_t, N>::operator+(rhs));
 		}
-		//•¶š—ñ’è”“¯m‚ªŠ®‘Sˆê’v‚·‚éê‡Atrue‚ğ•Ô‚·
+		//æ–‡å­—åˆ—å®šæ•°åŒå£«ãŒå®Œå…¨ä¸€è‡´ã™ã‚‹å ´åˆã€trueã‚’è¿”ã™
 		template<size_t n>
 		constexpr bool operator==(const CString<n>& rhs) const noexcept {
 			return CStringBlock<char16_t, N>::operator==(rhs);
 		}
-		//•¶š—ñ’è”“¯m‚ªŠ®‘Sˆê’v‚µ‚È‚¢ê‡Atrue‚ğ•Ô‚·
+		//æ–‡å­—åˆ—å®šæ•°åŒå£«ãŒå®Œå…¨ä¸€è‡´ã—ãªã„å ´åˆã€trueã‚’è¿”ã™
 		template<size_t n> constexpr bool operator!=(const CString<n>& rhs) const noexcept { return !(*this == rhs); }
 	public:
-		//System::String‚É•ÏŠ·‚·‚é
+		//System::Stringã«å¤‰æ›ã™ã‚‹
 		explicit operator System::String() const noexcept { return ToString(); }
 	public:
 		/// <summary>
-		/// “®“I•¶š—ñŒ^‚Æ”äŠr‚µA“™‚µ‚¢ê‡‚Étrue‚ğ•Ô‚·
+		/// å‹•çš„æ–‡å­—åˆ—å‹ã¨æ¯”è¼ƒã—ã€ç­‰ã—ã„å ´åˆã«trueã‚’è¿”ã™
 		/// </summary>
-		/// <param name="rhs">StringŒ^•Ï”</param>
+		/// <param name="rhs">Stringå‹å¤‰æ•°</param>
 		bool operator==(const System::String& rhs) const noexcept {
 			size_t len = CStringBlock<char16_t, N>::Length();
 			size_t rlen = rhs.Length();

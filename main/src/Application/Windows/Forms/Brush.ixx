@@ -1,4 +1,4 @@
-export module Brush;
+﻿export module Brush;
 import Drawing;
 import WinAPI;
 using namespace System::Drawing;
