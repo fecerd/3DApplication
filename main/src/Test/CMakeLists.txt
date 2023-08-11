@@ -1,5 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.8)
 
+## モジュールファイルをC++ファイルとしてコンパイルできるようにする。
 FSetModuleFileFlags(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(Test_0 OBJECT

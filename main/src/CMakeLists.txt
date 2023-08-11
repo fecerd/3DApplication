@@ -1,20 +1,20 @@
 ﻿cmake_minimum_required(VERSION 3.8)
-include(../functions.cmake)
 
-##
-file(GLOB_RECURSE ixx_files LIST_DIRECTORIES false *.ixx)
+## BMIファイル(.ifc)の出力先が作業ディレクトリでないため、モジュール名とBMIファイルパスを関連付けるオプションが必要。
+## mainやFSetModuleFileFlags()内で設定するとエラーが出る(要検証)
 if (MSBUILD)
-	foreach(ixx_file ${ixx_files})
-		cmake_path(NORMAL_PATH ixx_file)
-		cmake_path(RELATIVE_PATH ixx_file BASE_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE relative_path)
-		get_filename_component(ixx_dir ${relative_path} DIRECTORY)
-		get_filename_component(ixx_name ${relative_path} NAME_WE)
-		add_compile_options("SHELL:-reference ${ixx_name}=${CMAKE_BINARY_DIR}/${ixx_dir}/${ixx_name}.ifc")
+	file(GLOB_RECURSE ixx_files LIST_DIRECTORIES false ${CMAKE_SOURCE_DIR}/src/*.ixx)
+	file(GLOB_RECURSE cxx_files LIST_DIRECTORIES false ${CMAKE_SOURCE_DIR}/src/*.cxx)
+	set(module_files ${cxx_files} ${ixx_files})
+	foreach(module_file ${module_files})
+		cmake_path(RELATIVE_PATH module_file BASE_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE relative_path)
+		get_filename_component(module_dir ${relative_path} DIRECTORY)
+		get_filename_component(module_name ${relative_path} NAME_WE)
+		add_compile_options("SHELL:-reference ${module_name}=${CMAKE_BINARY_DIR}/${module_dir}/${module_name}.ifc")
 	endforeach()
 endif()
-##
 
-#モジュールファイルをC++ファイルとして読み取れるようにする。
+## モジュールファイルをC++ファイルとしてコンパイルできるようにする。
 FSetModuleFileFlags(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(src_0 OBJECT

@@ -74,13 +74,13 @@ endfunction()
 
 #指定したディレクトリ下のモジュールファイル(.ixx, .cxx)を探索し、
 #MSVCならコンパイルフラグ"-interface -TP"、GCCなら"-x c++"を付与する。
-#sourceDir: ファイルを探索するディレクトリ
+#searchDir: ファイルを探索するディレクトリ
 function(FSetModuleFileFlags searchDir)
-	FGetFilenamesEx(false ${searchDir} *.cxx cxx_files)
-	FGetFilenamesEx(false ${searchDir} *.ixx ixx_files)
+	file(GLOB ixx_files LIST_DIRECTORIES false ${searchDir}/*.ixx)
+	file(GLOB cxx_files LIST_DIRECTORIES false ${searchDir}/*.cxx)
 	set(module_files ${cxx_files} ${ixx_files})
 	## BMIファイルを削除するためのターゲット
-	if (NOT(TARGET clean_module))
+	if (GCC AND NOT(TARGET clean_module))
 		add_custom_target(clean_module)
 	endif()
 	## モジュールファイル(.ixx, .cxx)ごとにコンパイルオプションを追加
@@ -122,10 +122,15 @@ function(FPrecompileSTD)
 		if (MSBUILD)
 			set(_MSVC_HEADER_COMPILE_OPTIONS ${_MSVC_HEADER_COMPILE_OPTIONS} -D_M_FP_PRECISE)
 		endif()
+		set(_DEBUG_OPTION1 -D_DEBUG)
+		set(_DEBUG_OPTION2)
+		if (MSBUILD)
+			set(_DEBUG_OPTION2 -MDd)
+		endif()
 		#ヘッダごとにカスタムコマンドを設定し、出力されるBMIファイル(.ifc)の絶対パスをリスト化
 		foreach(stdname ${std_list})
 			add_custom_command(OUTPUT ${STD_OUTPUT_DIR}/${stdname}.ifc
-				COMMAND ${CMAKE_CXX_COMPILER} $<$<CONFIG:Debug>:-D_DEBUG> ${_MSVC_HEADER_COMPILE_OPTIONS} -ifcOutput "${STD_OUTPUT_DIR}\\" -headerName:quote ${stdname}
+				COMMAND ${CMAKE_CXX_COMPILER} $<$<CONFIG:Debug>:${_DEBUG_OPTION1}> $<$<CONFIG:Debug>:${_DEBUG_OPTION2}> ${_MSVC_HEADER_COMPILE_OPTIONS} -ifcOutput "${STD_OUTPUT_DIR}\\" -headerName:quote ${stdname}
 				WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 			)
 			list(APPEND _MSVC_STD_OUTPUT_PATH_LIST ${STD_OUTPUT_DIR}/${stdname}.ifc)
