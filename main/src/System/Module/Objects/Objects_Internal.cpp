@@ -1,6 +1,7 @@
 ﻿module Objects_Internal;
 import CSTDINT;
 import TypeID;
+import StringBlock;
 
 namespace System
 {

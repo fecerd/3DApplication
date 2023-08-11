@@ -1,11 +1,9 @@
-﻿module;
-#include <condition_variable>
-export module Thread;
+﻿export module Thread;
 import CSTDINT;
 import Function;
 export import <mutex>;
-//import <condition_variable>;
-import <thread>;
+import <condition_variable>;	//std::condition_variable
+import <thread>;	//std::thread
 
 export namespace System {
 	class Thread {

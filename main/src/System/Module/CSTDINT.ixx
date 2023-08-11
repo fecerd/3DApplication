@@ -1,13 +1,8 @@
-﻿module;
-#include <cstdint>
-#include <limits>
-#include <initializer_list>
-#include <compare>
-export module CSTDINT;
-//import <cstdint>;
-//import <limits>;
-//import <initializer_list>;
-//import <compare>;
+﻿export module CSTDINT;
+export import <cstdint>;
+import <limits>;
+export import <initializer_list>;
+import <compare>;
 
 inline constexpr size_t SIZEMAX = SIZE_MAX;
 

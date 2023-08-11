@@ -1,7 +1,5 @@
 ﻿module;
-#include<crtdbg.h>
 #include "FUNCSIG.hpp"
-#undef SIZE_MAX
 export module IEnumerable;
 import Exception;
 import Function;

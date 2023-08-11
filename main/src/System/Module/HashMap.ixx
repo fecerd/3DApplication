@@ -1,6 +1,4 @@
 ﻿module;
-//#include<crtdbg.h>
-//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #include "FUNCSIG.hpp"
 export module HashMap;
 import CSTDINT;

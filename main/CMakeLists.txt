@@ -15,7 +15,6 @@ add_compile_options($<$<CONFIG:Debug>:-D_DEBUG>)
 if (MSBUILD)
 	message(STATUS "MSBuild Mode")
 	add_compile_options(-EHsc -DUNICODE -D_UNICODE -nologo)
-
 elseif (MSVC)
 	message(STATUS "MSVC Mode")
 	add_compile_options(-EHsc -DUNICODE -D_UNICODE -nologo)
@@ -24,7 +23,7 @@ elseif (MSVC)
 	set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -MANIFEST:NO")
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -MANIFEST:NO")
 elseif(GCC)
-	message(STATUS "No MSVC Mode")
+	message(STATUS "GCC Mode")
 	add_compile_options(-fmodules-ts -Mno-modules -DUNICODE -D_UNICODE -mwindows)
 	## MSVCではコンパイルが通るコードがg++では多重定義でリンクエラーとなる。
 	## あまり得策ではないが、多重定義を無視するリンカオプションをつけて対応する。
@@ -58,6 +57,7 @@ FPrecompileSTD(
 	fstream
 	new
 	exception
+	functional
 )
 
 ## ソースファイルディレクトリを追加

@@ -1,10 +1,20 @@
-﻿import <iostream>;
+﻿//g++では、class Stringの宣言(in String.hpp)が実体化されておらず、基底クラスのStringBlock<char16_t>が
+//Undefined Referenceになる。
+//ここで再度読み込むことでコンパイルには成功するが...。
+//#include "System/Module/Objects/String.hpp"
+
+//g++ではModule内でatexit()(in stdlib.h)のコンフリクトが起きてコンパイルエラーとなる。(Thread -> thread -> .. -> cstdlib -> stdlib.h)
+//StringBlock, Thread, Col, iostreamの同時importはコンパイル可能であるため、
+//どこかで異なるヘッダをincludeしている可能性がある。
+//import Module;
+
 import CSTDINT;
-//import Time;
-//import Function;
-//import IEnumerable;
-//import Exception;
-using namespace System;
+import Objects_Internal;
+import StringBlock;
+import Thread;
+
+import Col;
+import <iostream>;
 
 int func_null();
 
@@ -12,26 +22,13 @@ int func_null();
 //	for (int i = 0; i < 5; ++i) co_yield i;
 //}
 
-import Col;
-import StringBlock;
-import Objects;
-
-// namespace System {
-// 	template<>
-// 	StringBlock<char16_t>::StringBlock() noexcept {}
-// 	template<>
-// 	StringBlock<char16_t>::StringBlock(char16_t const*, size_t) noexcept {}
-// 	template<>
-// 	StringBlock<char16_t>::~StringBlock() noexcept {}
-// }
-
 int main(int argc, char **argv)
 {
 	std::cout << "main start." << std::endl;
 
-	StringBlock<char16_t> str = u"Hello";
-	StringBlock<char16_t> str2;
-	String str3;
+	System::StringBlock<char16_t> str = u"Hello";
+	System::StringBlock<char16_t> str2;
+	System::String str3;
 
 	auto col = Test::CreateCol();
 	for (auto ite = col.begin(), e = col.end(); ite != e; ++ite) {

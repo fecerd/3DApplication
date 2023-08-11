@@ -3,6 +3,7 @@ import CSTDINT;
 import Traits;
 using namespace System::Traits;
 #undef NAN
+
 //Math_Internal
 namespace System::Math_Internal {
 	template<size_t N> inline constexpr size_t Exp2 = 2ull * Exp2<N - 1>;

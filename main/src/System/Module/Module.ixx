@@ -23,6 +23,7 @@ export import ManagedObject;
 export import Math;
 export import Matrix;
 export import Memory;
+export import Objects;
 export import Point;
 export import Property;
 export import Quaternion;

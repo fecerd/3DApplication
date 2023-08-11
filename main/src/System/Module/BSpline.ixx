@@ -1,11 +1,9 @@
-﻿module;
-#include <coroutine>
-export module BSpline;
+﻿export module BSpline;
 import CSTDINT;
 import Traits;
 import Math;
 export import Point;
-import IEnumerable;
+export import IEnumerable;
 
 //ControlPoint
 export namespace System {

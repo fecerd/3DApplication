@@ -1,12 +1,10 @@
-﻿module;
-//#include<crtdbg.h>
-#include <memory>
-export module StringBlock;
+﻿export module StringBlock;
 import CSTDINT;
 import Traits;
 import Math;
 import VectorBase;
 import CodePoint;
+import <memory>;//std::allocator
 using namespace System::Traits;
 
 //CStringBlock
@@ -371,9 +369,6 @@ export namespace System::Encoding {
 	StringBlock<char> ToMultiByteStringBlock(const CodePoint* codePoints, size_t count) noexcept;
 }
 
-//inline void* __cdecl operator new[](size_t _Size, int, const char*, int);// { return ::operator new[](_Size); }
-//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
-
 //StringBlock
 export namespace System {
 	template<Concepts::CCharType str_t>
@@ -440,14 +435,7 @@ export namespace System {
 			for (size_t i = 0; i < len; ++i) value[i] = arg.value[i];
 			value[size - 1] = '\0';
 		}
-		~StringBlock() noexcept {
-			std::allocator<str_t> al;
-			al.deallocate(value, size);
-
-			//delete[] value;
-			value = nullptr;
-			size = 0;
-		}
+		~StringBlock() noexcept { InternalReset(); }
 	public:
 		/// <summary>
 		/// 空文字列を取得する
@@ -461,12 +449,28 @@ export namespace System {
 		/// n文字の文字列に使用する場合、ヌル終端文字のために(n+1)を
 		/// 指定する必要がある
 		/// </param>
-		static StringBlock CreateStringBlock(size_t size) noexcept {
+		static StringBlock CreateStringBlock(size_t strSize) noexcept {
 			StringBlock<str_t> ret;
-			delete[] ret.value;
-			ret.value = new str_t[size]{};
-			ret.size = size;
+			ret.InternalReset(strSize);
 			return ret;
+		}
+	private:/* 内部使用関数 */
+		/// <summary>
+		/// 確保した領域を解放する。newSizeが0以外の時、新たな領域を確保する。
+		/// 配列new/deleteにICEが発生しているため、メモリ確保/解放をこの関数で管理し、
+		/// 一律で対処できるようにしたい。
+		/// </summary>
+		inline void InternalReset(size_t newSize = 0) noexcept {
+			std::allocator<str_t> al;
+			if (value) {
+				al.deallocate(value, size);
+				value = nullptr;
+				size = 0;
+			}
+			if (newSize) {
+				value = al.allocate(newSize);
+				size = newSize;
+			}
 		}
 	public:/* 文字配列取得 */
 		/// <summary>
@@ -625,16 +629,14 @@ export namespace System {
 		StringBlock<str_t> operator[](const size_t i) const noexcept { return Length() <= i ? Empty() : StringBlock(value[i]); }
 		StringBlock<str_t>& operator=(const StringBlock<str_t>& rhs) noexcept {
 			if (this == &rhs) return *this;
-			size = rhs.size;
-			delete[] value;
-			value = new str_t[size];
+			InternalReset(rhs.size);
 			for (size_t i = 0; i < size; ++i) value[i] = rhs.value[i];
 			return *this;
 		}
 		StringBlock<str_t>& operator=(StringBlock<str_t>&& rhs) noexcept {
 			if (this == &rhs) return *this;
+			InternalReset();
 			size = rhs.size;
-			delete[] value;
 			value = rhs.value;
 			rhs.size = 0;
 			rhs.value = nullptr;

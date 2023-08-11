@@ -1,15 +1,14 @@
-﻿module;
-#include <memory>
-#include <condition_variable>
-#include <mutex>
-#include <thread>
-#include <functional>
-export module TaskWorker;
+﻿export module TaskWorker;
 import CSTDINT;
 import Traits;
 //import Thread;
 //import Function;
 //import SmartPtr;
+import <memory>;	//std::shared_ptr
+import <condition_variable>;	//std::condition_variable
+import <mutex>;	//std::mutex, std::lock_guard
+import <thread>;	//std::thread
+import <functional>;	//std::function
 
 
 //TaskState

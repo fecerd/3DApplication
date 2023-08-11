@@ -1,7 +1,4 @@
-﻿module;
-//#include <crtdbg.h>
-//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
-export module ManagedObject;
+﻿export module ManagedObject;
 import CSTDINT;
 import Objects;
 import HashMap;

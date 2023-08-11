@@ -1,8 +1,8 @@
 ﻿export module Traits;
 export import CSTDINT;
-import <concepts>;
-import <iterator>;
-import <type_traits>;
+import <concepts>;	//std::same_as, std::convertible_to
+import <iterator>;	//std::xxx_iterator, std::xxx_iterator_tag
+import <type_traits>;	//std::is_class, std::is_union
 
 export namespace System {
 	//[type_traits]互換：型変換

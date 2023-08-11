@@ -1,16 +1,13 @@
-﻿module;
-#include <memory.h>
-module Memory;
+﻿module Memory;
 import CSTDINT;
-import <cstring>;
+import <cstring>;	//std::memcpy
 
 namespace System::Memory {
-	inline constexpr bool MemcpyMode = 1;
+	inline constexpr bool MemcpyMode = 0;
 	inline constexpr bool UseMemcpy = true;
 
 	void Copy(void* dst, const void* src, size_t byteCount, bool unused) noexcept {
-		if constexpr (MemcpyMode == 0) memcpy_s(dst, byteCount, src, byteCount);
-		else if constexpr (MemcpyMode == 1) std::memcpy(dst, src, byteCount);
+		if constexpr (MemcpyMode == 0) std::memcpy(dst, src, byteCount);
 		else {
 			const size_t count8 = byteCount >> 3;
 			const size_t count1 = byteCount - (count8 << 3);

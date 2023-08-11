@@ -1,5 +1,5 @@
 ﻿module Time;
-import <thread>;
+import <thread>;	//std::thread
 using namespace System;
 using namespace std::chrono;
 

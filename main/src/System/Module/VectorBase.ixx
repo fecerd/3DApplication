@@ -1,11 +1,10 @@
-﻿module;
-//#include <crtdbg.h>
-//#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
-export module VectorBase;
+﻿export module VectorBase;
 import CSTDINT;
 import Traits;
 import Iterators;
 import Sorts;
+import <memory>;//std::allocator
+
 using namespace System::Traits;
 
 export namespace System {
@@ -19,8 +18,9 @@ export namespace System {
 		size_t m_capacity = 0;
 	public:
 		constexpr VectorBase() noexcept {}
-		constexpr VectorBase(const VectorBase<T>& arg) noexcept : m_count(arg.m_count), m_capacity(arg.m_capacity) {
-			m_data = new T[m_capacity];
+		constexpr VectorBase(const VectorBase<T>& arg) noexcept {
+			InternalReset(arg.m_capacity);
+			m_count = arg.m_count;
 			for (size_t i = 0; i < m_count; ++i) m_data[i] = arg.m_data[i];
 		}
 		constexpr VectorBase(VectorBase<T>&& arg) noexcept : m_data(arg.m_data), m_count(arg.m_count), m_capacity(arg.m_capacity) {
@@ -28,33 +28,49 @@ export namespace System {
 			arg.m_count = 0;
 			arg.m_capacity = 0;
 		}
-		constexpr ~VectorBase() noexcept { Clear(); }
+		constexpr ~VectorBase() noexcept { InternalReset(); }
 	public:
 		/// <summary>
 		/// 初期化子リストから動的配列を構築する。
 		/// 各要素はT(const T&)によってコピーされる
 		/// </summary>
-		constexpr VectorBase(initializer_list<T> list) noexcept : m_count(list.size()), m_capacity(list.size()) {
-			m_data = new T[m_capacity];
+		constexpr VectorBase(initializer_list<T> list) noexcept {
+			InternalReset(list.size());
+			m_count = m_capacity;
 			size_t i = 0;
-			for (const T& x : list) m_data[i++] = x;
+			for (T const& x : list) m_data[i++] = x;
 		}
 		/// <summary>
 		/// 個数と値を指定して、同じ値が並ぶ動的配列を構築する。
 		/// 各要素はT(const T&)でコピーされる
 		/// </summary>
-		constexpr VectorBase(size_t count, const T& value) noexcept : m_count(count), m_capacity(count) {
-			m_data = new T[m_capacity];
+		constexpr VectorBase(size_t count, const T& value) noexcept {
+			InternalReset(count);
+			m_count = m_capacity;
 			for (size_t i = 0; i < m_count; ++i) m_data[i] = value;
 		}
 		template<Concepts::CInputIterator InputIter>
 		constexpr VectorBase(InputIter first, InputIter last) noexcept {
 			auto tmp = last - first;
 			if (tmp <= 0) return;
-			m_count = static_cast<size_t>(tmp);
-			m_capacity = m_count;
-			m_data = new T[m_capacity];
+			InternalReset(static_cast<size_t>(tmp));
+			m_count = m_capacity;
 			for (size_t i = 0; i < m_count; ++i) m_data[i] = *first++;
+		}
+	private:
+		constexpr void InternalReset(size_t newSize = 0) noexcept {
+			std::allocator<T> al;
+			if (m_data) {
+				al.deallocate(m_data, m_capacity);
+				m_data = nullptr;
+				m_capacity = 0;
+				m_count = 0;
+			}
+			if (newSize) {
+				m_data = al.allocate(newSize);
+				m_capacity = newSize;
+				m_count = 0;
+			}
 		}
 	public:
 		constexpr ContiguousIterator<T> begin() noexcept { return ContiguousIterator<T>(m_data); }
@@ -72,21 +88,23 @@ export namespace System {
 	protected:
 		constexpr bool Allocate(size_t n) noexcept {
 			if (n > SIZE_MAX - m_count) return false;
+			std::allocator<T> al;
 			if (!m_capacity) {
 				m_capacity = n;
 				m_count = 0;
-				m_data = new T[m_capacity];
+				m_data = al.allocate(m_capacity);
 				return true;
 			}
 			const size_t newSize = m_count + n;
+			const size_t prevCapacity = m_capacity;
 			if (newSize <= m_capacity) return true;
 			while (newSize > m_capacity) {
 				if (m_capacity & BITMASK_M<64, 64>) m_capacity = SIZE_MAX;
 				else m_capacity *= 2;
 			}
-			T* tmp = new T[m_capacity];
+			T* tmp = al.allocate(m_capacity);
 			for (size_t i = 0; i < m_count; ++i) tmp[i] = static_cast<T&&>(m_data[i]);
-			delete[] m_data;
+			al.deallocate(m_data, prevCapacity);
 			m_data = tmp;
 			return true;
 		}
@@ -249,14 +267,9 @@ export namespace System {
 	public:
 		constexpr void DeleteAll() noexcept requires(is_pointer_v<T>) {
 			for (T& x : *this) delete x;
-			Clear();
+			InternalReset();
 		}
-		constexpr void Clear() noexcept {
-			delete[] m_data;
-			m_data = nullptr;
-			m_count = 0;
-			m_capacity = 0;
-		}
+		constexpr void Clear() noexcept { InternalReset(); }
 		constexpr T* Release() noexcept {
 			T* ret = m_data;
 			m_data = nullptr;
@@ -273,16 +286,14 @@ export namespace System {
 	public:
 		constexpr VectorBase& operator=(const VectorBase& rhs) noexcept {
 			if (this == &rhs) return *this;
-			delete m_data;
-			m_capacity = rhs.m_capacity;
+			InternalReset(rhs.m_capacity);
 			m_count = rhs.m_count;
-			m_data = new T[m_capacity];
 			for (size_t i = 0; i < m_count; ++i) m_data[i] = rhs.m_data[i];
 			return *this;
 		}
 		constexpr VectorBase& operator=(VectorBase&& rhs) noexcept {
 			if (this == &rhs) return *this;
-			delete m_data;
+			InternalReset();
 			m_data = rhs.m_data;
 			m_capacity = rhs.m_capacity;
 			m_count = rhs.m_count;
@@ -292,12 +303,10 @@ export namespace System {
 			return *this;
 		}
 		constexpr VectorBase& operator=(initializer_list<T> list) noexcept {
-			delete m_data;
-			m_count = list.size();
-			m_capacity = m_count;
-			m_data = new T[m_capacity];
+			InternalReset(list.size());
+			m_count = m_capacity;
 			size_t i = 0;
-			for (const T& x : list) m_data[i++] = x;
+			for (T const& x : list) m_data[i++] = x;
 			return *this;
 		}
 	};
