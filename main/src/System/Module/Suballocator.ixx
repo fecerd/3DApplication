@@ -12,7 +12,7 @@ export namespace System {
 }
 
 namespace System {
-	class Subresource;
+	export class Subresource;
 	struct SubresourceRange {
 		Subresource* resource = nullptr;
 		size_t offset;

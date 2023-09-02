@@ -1,9 +1,9 @@
 ﻿export module Memory;
-import CSTDINT;
+export import CSTDINT;
 import Traits;
 import Math;
 import <fstream>;
-import <atomic>;
+import <atomic>;	//std::atomic<>, std::memory_order_xxx 
 using namespace System::Traits;
 
 //メモリコピー/スワップ

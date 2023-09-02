@@ -67,7 +67,12 @@ namespace System {
 			else if constexpr (is_same_v<str_t, wchar_t>) return static_cast<const StringBlock<char16_t>&>(*this).ToWideStringBlock();
 		}
 	public:
-		using StringBlock<char16_t>::operator==;
+		bool operator==(const StringBlock<char16_t>& rhs) const noexcept {
+			return StringBlock<char16_t>::operator==(rhs);
+		}
+		bool operator!=(const StringBlock<char16_t>& rhs) const noexcept {
+			return StringBlock<char16_t>::operator!=(rhs);
+		}
 		String& operator=(const String& rhs) noexcept {
 			StringBlock<char16_t>::operator=(static_cast<const StringBlock<char16_t>&>(rhs));
 			return *this;

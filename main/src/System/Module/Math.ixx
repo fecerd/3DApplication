@@ -16,10 +16,10 @@ namespace System::Math_Internal {
 	template<> inline constexpr long double EPSILON<long double> = 2.22044604925031e-16;
 #undef INFINITY
 }
+using namespace System::Math_Internal;
 
 //Math
 export namespace System {
-	using namespace Math_Internal;
 	class Math {
 		Math() = delete;
 		~Math() = delete;

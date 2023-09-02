@@ -1,129 +1,142 @@
 ﻿cmake_minimum_required(VERSION 3.8)
 
-## モジュールファイルをC++ファイルとしてコンパイルできるようにする。
-FSetModuleFileFlags(${CMAKE_CURRENT_SOURCE_DIR})
-
+## サブディレクトリ
 add_subdirectory(Objects)
+add_subdirectory(SmartPtrs)
 
-add_library(Module_0 OBJECT
-	CSTDINT.ixx
-	Coroutine.ixx
-	ExclusiveObject.ixx
-	SmartPtr.ixx
+FAddObjectLibrary(Module_0
+	SOURCES
+		CSTDINT.ixx
+		Coroutine.ixx
+		ExclusiveObject.ixx
+	DEPENDS
+		std
 )
-add_library(Module_1 OBJECT
-	Traits.ixx
-	XOR128.ixx
+FAddObjectLibrary(Module_1
+	SOURCES
+		Traits.ixx
+		XOR128.ixx
+	DEPENDS
+		Module_0
 )
-add_library(Module_2 OBJECT
-	BitStream.ixx
-	FlagSet.ixx
-	Iterators.ixx
-	Math.ixx
-	Sorts.ixx
-	TypeID.ixx
+FAddObjectLibrary(Module_2
+	SOURCES
+		BitStream.ixx
+		FlagSet.ixx
+		Iterators.ixx
+		Math.ixx
+		Sorts.ixx
+		TypeID.ixx
+	DEPENDS
+		Module_1
+		SmartPtrs
 )
-add_library(Module_3 OBJECT
-	Float.ixx
-	Memory.ixx
-	VectorBase.ixx
+FAddObjectLibrary(Module_3
+	SOURCES
+		Float.ixx
+		Memory.ixx
+		VectorBase.ixx
+	DEPENDS
+		Module_2
 )
-add_library(Module_4 OBJECT
-	Memory.cpp
-	StringBlock.ixx
-	Suballocator.ixx
+FAddObjectLibrary(Module_4
+	SOURCES
+		Memory.cpp
+		StringBlock.ixx
+		Suballocator.ixx
+	DEPENDS
+		Module_3
+		Encoding_1
 )
-add_library(Module_5 OBJECT
-	Exception.ixx
-	TypeName.ixx
+FAddObjectLibrary(Module_5
+	SOURCES
+		Exception.ixx
+		TypeName.ixx
+	DEPENDS
+		Module_4
 )
-add_library(Module_6 OBJECT
-	Exception.cpp
-	ForwardList.ixx
-	Function.ixx
+FAddObjectLibrary(Module_6
+	SOURCES
+		Exception.cpp
+		ForwardList.ixx
+		Function.ixx
+	DEPENDS
+		Module_5
 )
-add_library(Module_7 OBJECT
-	IEnumerable.ixx
-	Property.ixx
-	Thread.ixx
+FAddObjectLibrary(Module_7
+	SOURCES
+		IEnumerable.ixx
+		Property.ixx
+		Thread.ixx
+	DEPENDS
+		Module_6
 )
-add_library(Module_8 OBJECT
-	Counter.ixx
-	CString.ixx
-	List.ixx
-	Point.ixx
-	Size.ixx
-	TaskWorker.ixx
-	Vector.ixx
-	Vector2.ixx
-	Vector3.ixx
+FAddObjectLibrary(Module_8
+	SOURCES
+		Counter.ixx
+		CString.ixx
+		List.ixx
+		Point.ixx
+		Size.ixx
+		TaskWorker.ixx
+		Vector.ixx
+		Vector2.ixx
+		Vector3.ixx
+	DEPENDS
+		Module_7
+		Objects
 )
-add_library(Module_9 OBJECT
-	BSpline.ixx
-	DisposingObject.ixx
-	EventHandler.ixx
-	HashMap.ixx
-	Matrix.ixx
-	Range.ixx
+FAddObjectLibrary(Module_9
+	SOURCES
+		BSpline.ixx
+		DisposingObject.ixx
+		EventHandler.ixx
+		HashMap.ixx
+		Matrix.ixx
+		Range.ixx
+	DEPENDS
+		Module_8
 )
-add_library(Module_10 OBJECT
-	ManagedObject.ixx
-	Quaternion.ixx
-	Time.ixx
+FAddObjectLibrary(Module_10
+	SOURCES
+		ManagedObject.ixx
+		Quaternion.ixx
+		Time.ixx
+	DEPENDS
+		Module_9
 )
-add_library(Module_11 OBJECT
-	DualQuaternion.ixx
-	StringBlock.cpp
-	Time.cpp
+FAddObjectLibrary(Module_11
+	SOURCES
+		DualQuaternion.ixx
+		StringBlock.cpp
+		Time.cpp
+	DEPENDS
+		Module_10
+		Encoding
 )
-add_library(Module_12 OBJECT Module.ixx)
+FAddObjectLibrary(Module_12
+	SOURCES
+		Module.ixx
+	DEPENDS
+		Module_11
+)
 
-add_library(Module OBJECT)
-target_sources(Module PUBLIC
-	$<TARGET_OBJECTS:Module_0>
-	$<TARGET_OBJECTS:Module_1>
-	$<TARGET_OBJECTS:Module_2>
-	$<TARGET_OBJECTS:Module_3>
-	$<TARGET_OBJECTS:Module_4>
-	$<TARGET_OBJECTS:Module_5>
-	$<TARGET_OBJECTS:Module_6>
-	$<TARGET_OBJECTS:Module_7>
-	$<TARGET_OBJECTS:Module_8>
-	$<TARGET_OBJECTS:Module_9>
-	$<TARGET_OBJECTS:Module_10>
-	$<TARGET_OBJECTS:Module_11>
-	$<TARGET_OBJECTS:Module_12>
+FCombineObjectLibrary(Module
+	PUBLIC
+		Module_0
+		Module_1
+		Module_2
+		Module_3
+		Module_4
+		Module_5
+		Module_6
+		Module_7
+		Module_8
+		Module_9
+		Module_10
+		Module_11
+		Module_12
+	PUBLIC_LINK
+		Objects
+		SmartPtrs
 )
-
-add_custom_target(Module_0_t DEPENDS Module_0)
-add_custom_target(Module_1_t DEPENDS Module_1)
-add_custom_target(Module_2_t DEPENDS Module_2)
-add_custom_target(Module_3_t DEPENDS Module_3)
-add_custom_target(Module_4_t DEPENDS Module_4)
-add_custom_target(Module_5_t DEPENDS Module_5)
-add_custom_target(Module_6_t DEPENDS Module_6)
-add_custom_target(Module_7_t DEPENDS Module_7)
-add_custom_target(Module_8_t DEPENDS Module_8)
-add_custom_target(Module_9_t DEPENDS Module_9)
-add_custom_target(Module_10_t DEPENDS Module_10)
-add_custom_target(Module_11_t DEPENDS Module_11)
-add_custom_target(Module_12_t DEPENDS Module_12)
-add_dependencies(Module_1 Module_0_t)
-add_dependencies(Module_2 Module_1_t)
-add_dependencies(Module_3 Module_2_t)
-add_dependencies(Module_4 Module_3_t)
-add_dependencies(Module_5 Module_4_t)
-add_dependencies(Module_6 Module_5_t)
-add_dependencies(Module_7 Module_6_t)
-add_dependencies(Module_8 Module_7_t)
-add_dependencies(Module_9 Module_8_t)
-add_dependencies(Module_10 Module_9_t)
-add_dependencies(Module_11 Module_10_t)
-add_dependencies(Module_12 Module_11_t)
-add_dependencies(Module Module_12_t)
-add_custom_target(Module_t DEPENDS Module)
-
-add_dependencies(Module_0 std)
-add_dependencies(Module_4 Encoding_1_t)
-add_dependencies(Module_8 Objects_t)
-add_dependencies(Module_11 Encoding_t)

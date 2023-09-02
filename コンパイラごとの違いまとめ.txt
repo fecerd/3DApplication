@@ -1,0 +1,21 @@
+﻿> src/System/Module/List.ixx
+	> gcc
+		co_yield, co_returnなどがコンパイルエラーを出すため、ICollectionのoverride関数を仮置きにする。
+
+> src/System/Module/TaskWorker.ixx
+	> gcc
+		shared_ptr<TaskData<bool, bool>>::swap()内部にバグがあり、swap()が使用されるムーブ操作ができない。
+		完全特殊化すればコンパイルは通る。
+
+> src/System/Module/Time.cpp
+	> MSVC
+		<compare>ヘッダのstrong_ordering構造体が持つstatic定数が未解決の外部シンボルとしてリンカエラーを出す。
+		importではなく、includeで<compare>ヘッダを含めばよい。
+
+> clangと<coroutine>
+	コルーチン関数を持つクラスが実体化される(使用される)モジュールまで、<coroutine>モジュールがexportで繋がっていないとエラーが出る。
+	例えば、Timeモジュールでクラスが使われる場合、
+		<coroutine> -> Coroutine -> IEnumerable -> Vector -> EventHandler -> Time
+	のimportがすべてexport importである必要がある。
+
+

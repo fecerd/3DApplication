@@ -2,8 +2,8 @@
 #include "FUNCSIG.hpp"
 export module List;
 import CSTDINT;
-import SmartPtr;
 import Traits;
+import SmartPtrs;
 import Sorts;
 import Exception;
 export import IEnumerable;
@@ -24,8 +24,8 @@ namespace System::Internal {
 			arg.prev = nullptr;
 			arg.next = nullptr;
 		}
-		ListNode(T const& obj) noexcept : value(System::Unique<T>(obj)) {}
-		ListNode(T&& obj) noexcept : value(System::Unique<T>(System::move(obj))) {}
+		ListNode(T const& obj) noexcept : value(System::MakeUnique<T>(obj)) {}
+		ListNode(T&& obj) noexcept : value(System::MakeUnique<T>(System::move(obj))) {}
 		~ListNode() noexcept = default;
 	};
 }
@@ -340,27 +340,41 @@ export namespace System {
 			return *this;
 		}
 	public:/* ICollection override */
+#if defined(__GNUC__) && !defined(__clang__)
+		IEnumerator<T> GetEnumerator() noexcept override {
+			//for (T& x : *this) co_yield x;
+			return IEnumerator<T>(std::coroutine_handle<promise_type<T, IEnumerator<T>>>{});
+		}
+		IEnumerator<T const> GetEnumerator() const noexcept override {
+			//for (T& x : *this) co_yield x;
+			return IEnumerator<T const>(std::coroutine_handle<promise_type<T const, IEnumerator<T const>>>{});
+		}
+		IEnumerator<T> GetReverseEnumerator() noexcept override {
+			// if (m_first == m_last) co_return;
+			// for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
+			// 	T& x = *ite;
+			// 	co_yield x;
+			// }
+			// co_yield *m_first->value;
+			return IEnumerator<T>(std::coroutine_handle<promise_type<T, IEnumerator<T>>>{});
+		}
+		IEnumerator<T const> GetReverseEnumerator() const noexcept override {
+			// if (m_first == m_last) co_return;
+			// for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
+			// 	T& x = *ite;
+			// 	co_yield x;
+			// }
+			// co_yield *m_first->value;
+			return IEnumerator<T const>(std::coroutine_handle<promise_type<T const, IEnumerator<T const>>>{});
+		}
+#else
 		IEnumerator<T> GetEnumerator() noexcept override {
 			for (T& x : *this)
 				co_yield x;
-
-			// if constexpr (Traits::Concepts::CCopyConstructible<T>){
-			// 	for (T &x : *this) co_yield x;
-			// }
-			// else {
-			// 	return IEnumerator<T>(System::coroutine_handle<System::promise_type<T, IEnumerator<T>>>{});
-			// }
 		}
 		IEnumerator<T const> GetEnumerator() const noexcept override {
 			for (T& x : *this)
 				co_yield x;
-
-			// if constexpr (Traits::Concepts::CCopyConstructible<T>) {
-			// 	for (T &x : *this) co_yield x;
-			// }
-			// else{
-			// 	return IEnumerator<T const>(System::coroutine_handle<System::promise_type<T const, IEnumerator<T const>>>{});
-			// }
 		}
 		IEnumerator<T> GetReverseEnumerator() noexcept override {
 			if (m_first == m_last) co_return;
@@ -369,18 +383,6 @@ export namespace System {
 				co_yield x;
 			}
 			co_yield *m_first->value;
-
-			// if constexpr (Traits::Concepts::CCopyConstructible<T>) {
-			// 	if (m_first == m_last) co_return;
-			// 	for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
-			// 		T &x = *ite;
-			// 		co_yield x;
-			// 	}
-			// 	co_yield *m_first->value;
-			// }
-			// else {
-			// 	return IEnumerator<T>(System::coroutine_handle<System::promise_type<T, IEnumerator<T>>>{});
-			// }
 		}
 		IEnumerator<T const> GetReverseEnumerator() const noexcept override {
 			if (m_first == m_last) co_return;
@@ -389,19 +391,8 @@ export namespace System {
 				co_yield x;
 			}
 			co_yield *m_first->value;
-
-			// if constexpr (Traits::Concepts::CCopyConstructible<T>) {
-			// 	if (m_first == m_last) co_return;
-			// 	for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
-			// 		T &x = *ite;
-			// 		co_yield x;
-			// 	}
-			// 	co_yield *m_first->value;
-			// }
-			// else {
-			// 	return IEnumerator<T const>(System::coroutine_handle<System::promise_type<T const, IEnumerator<T const>>>{});
-			// }
 		}
+#endif
 	};
 }
 

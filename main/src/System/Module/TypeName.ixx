@@ -15,60 +15,63 @@ export namespace System {
 	};
 }
 
-namespace System {
-	namespace TypeName_Internal {
-		template<size_t size, size_t N>
-		constexpr CStringBlock<char16_t, size> TrimName(const char(&name)[size], const char(&funcname)[N]) noexcept {
-			return CStringBlock<char16_t, size>();
-			size_t e = size;
-			for (; e-- > 0;) if (name[e] == '>') break;
-			if (e == 0) return CStringBlock<char16_t, size>();
-			size_t s = 0;
-			for (; s < e; ++s) {
-				if (name[s] == funcname[0]) {
-					size_t n = s;
-					for (const char& c : funcname) {
-						if (name[n] == c) ++n;
-						else break;
-					}
-					if (name[n] == '<' && n == (s + N - 1)) {
-						s = n + 1;
+namespace System::TypeName_Internal {
+	template<size_t size, size_t N>
+	constexpr CStringBlock<char16_t, size> TrimName(const char (&name)[size], const char (&funcname)[N]) noexcept {
+		return CStringBlock<char16_t, size>();
+		size_t e = size;
+		for (; e-- > 0;)
+			if (name[e] == '>') break;
+		if (e == 0) return CStringBlock<char16_t, size>();
+		size_t s = 0;
+		for (; s < e; ++s) {
+			if (name[s] == funcname[0]) {
+				size_t n = s;
+				for (const char& c : funcname) {
+					if (name[n] == c)
+						++n;
+					else
 						break;
-					}
+				}
+				if (name[n] == '<' && n == (s + N - 1)) {
+					s = n + 1;
+					break;
 				}
 			}
-			if (s >= e) return CStringBlock<char16_t, size>();
-			--e;
-			CStringBlock<char16_t, size> ret;
-			for (size_t i = 0, count = e - s + 1; i < count; ++i) ret.strcpy(static_cast<char16_t>(name[s + i]), i);
-			ret.strcpy(u'\0', e - s + 1);
-			return ret;
 		}
-		template<class T>
-		constexpr auto GetTypeName() {
+		if (s >= e) return CStringBlock<char16_t, size>();
+		--e;
+		CStringBlock<char16_t, size> ret;
+		for (size_t i = 0, count = e - s + 1; i < count; ++i)
+			ret.strcpy(static_cast<char16_t>(name[s + i]), i);
+		ret.strcpy(u'\0', e - s + 1);
+		return ret;
+	}
+	template<class T>
+	constexpr auto GetTypeName() {
 #if defined(__clang__) || defined(__GNUC__)
-			return TrimName(__PRETTY_FUNCTION__, "GetTypeName");
+		return TrimName(__PRETTY_FUNCTION__, "GetTypeName");
 #elif defined(_MSC_VER)
-			return TrimName(__FUNCSIG__, "GetTypeName");
+		return TrimName(__FUNCSIG__, "GetTypeName");
 #else
-			return CStringBlock<char16_t, 1>();
+		return CStringBlock<char16_t, 1>();
 #endif
-		}
-		template<class E, E V>
-		constexpr auto GetEnumName() {
+	}
+	template<class E, E V>
+	constexpr auto GetEnumName() {
 #if defined(__clang__) || defined(__GNUC__)
-			return TrimName(__PRETTY_FUNCTION__, "GetEnumName");
+		return TrimName(__PRETTY_FUNCTION__, "GetEnumName");
 #elif defined(_MSC_VER)
-			return TrimName(__FUNCSIG__, "GetEnumName");
+		return TrimName(__FUNCSIG__, "GetEnumName");
 #else
-			return CStringBlock<char16_t, 1>();
+		return CStringBlock<char16_t, 1>();
 #endif
-		}
 	}
 }
+using namespace System::TypeName_Internal;
 
+//TypeName
 export namespace System {
-	using namespace TypeName_Internal;
 	template<class T>
 	class TypeName {
 		using nametype = decltype(GetTypeName<T>());
@@ -160,6 +163,7 @@ export namespace System {
 	};
 }
 
+//EnumName
 export namespace System {
 	template<class E>
 	class EnumName {

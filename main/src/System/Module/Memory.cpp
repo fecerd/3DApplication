@@ -1,5 +1,4 @@
 ﻿module Memory;
-import CSTDINT;
 import <cstring>;	//std::memcpy
 
 namespace System::Memory {

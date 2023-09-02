@@ -11,13 +11,15 @@ include(./functions.cmake)
 ###コンパイラ設定 Begin###
 set(CMAKE_CXX_STANDARD 23)
 set(STD_LIBRARY_DIR)
-add_compile_options($<$<CONFIG:Debug>:-D_DEBUG>)
+add_compile_options(-I"${CMAKE_MY_STD_PATH}")
 if (MSBUILD)
 	message(STATUS "MSBuild Mode")
+	add_compile_options($<IF:$<CONFIG:Debug>,/MDd,/MD>)
 	add_compile_options(-EHsc -DUNICODE -D_UNICODE -nologo)
 elseif (MSVC)
 	message(STATUS "MSVC Mode")
 	add_compile_options(-EHsc -DUNICODE -D_UNICODE -nologo)
+	add_compile_options($<IF:$<CONFIG:Debug>,/MDd,/MD>)
 	## MSVCではMANIFESTを無効にしないとコンパイルできない
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -MANIFEST:NO")
 	set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -MANIFEST:NO")
@@ -25,9 +27,21 @@ elseif (MSVC)
 elseif(GCC)
 	message(STATUS "GCC Mode")
 	add_compile_options(-fmodules-ts -Mno-modules -DUNICODE -D_UNICODE -mwindows)
+	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG)
+	set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
 	## MSVCではコンパイルが通るコードがg++では多重定義でリンクエラーとなる。
 	## あまり得策ではないが、多重定義を無視するリンカオプションをつけて対応する。
 	add_link_options(-Wl,--allow-multiple-definition)
+	## 内部で使用されているstd::auto_ptr<>が警告を出すため、抑制しておく。
+	add_compile_options(-Wno-attributes)
+elseif (CLANG)
+	message(STATUS "CLANG Mode")
+	add_compile_options(-DUNICODE -D_UNICODE)
+	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG)
+	set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+	## 不要な-MD、-MT、-MFオプションがpcm->objのコンパイル時に設定されてしまう。
+	## あまり得策ではないが警告を出力しないことで対応する。
+	add_compile_options(-Wno-unused-command-line-argument)
 endif()
 ###コンパイラ設定 End###
 
@@ -58,6 +72,9 @@ FPrecompileSTD(
 	new
 	exception
 	functional
+	cstdlib
+	typeinfo
+	cassert
 )
 
 ## ソースファイルディレクトリを追加

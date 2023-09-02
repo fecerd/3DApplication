@@ -8,6 +8,10 @@ import Traits;
 import Vector;
 import Function;
 
+#if defined(__clang__)
+import <source_location>;
+#endif
+
 //Hash関数オブジェクト型
 export namespace System {
 	template<class T> class Hash {};

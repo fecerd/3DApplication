@@ -111,7 +111,7 @@ export namespace System {
 	protected:
 		using str = StringBlock<char>;
 	public:
-		LogicException() noexcept = default;
+		LogicException() noexcept : std::logic_error("未定義の論理例外メッセージです。") {}
 		LogicException(const LogicException&) noexcept = default;
 		~LogicException() noexcept = default;
 	public:

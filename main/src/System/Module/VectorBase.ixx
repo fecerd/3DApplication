@@ -5,8 +5,6 @@ import Iterators;
 import Sorts;
 import <memory>;//std::allocator
 
-using namespace System::Traits;
-
 export namespace System {
 	template<class T>
 	class VectorBase {
@@ -49,7 +47,7 @@ export namespace System {
 			m_count = m_capacity;
 			for (size_t i = 0; i < m_count; ++i) m_data[i] = value;
 		}
-		template<Concepts::CInputIterator InputIter>
+		template<Traits::Concepts::CInputIterator InputIter>
 		constexpr VectorBase(InputIter first, InputIter last) noexcept {
 			auto tmp = last - first;
 			if (tmp <= 0) return;
@@ -99,7 +97,7 @@ export namespace System {
 			const size_t prevCapacity = m_capacity;
 			if (newSize <= m_capacity) return true;
 			while (newSize > m_capacity) {
-				if (m_capacity & BITMASK_M<64, 64>) m_capacity = SIZE_MAX;
+				if (m_capacity & Traits::BITMASK_M<64, 64>) m_capacity = SIZE_MAX;
 				else m_capacity *= 2;
 			}
 			T* tmp = al.allocate(m_capacity);
@@ -154,7 +152,7 @@ export namespace System {
 		constexpr size_t AddRange(T&& head, Args&& ...args) noexcept {
 			if (Allocate(sizeof...(Args) + 1)) {
 				m_data[m_count++] = static_cast<T&&>(head);
-				for (auto&& x : initializer_list<size_t>{ AddInternal(static_cast<Args&&>(args))... });
+				for (auto&& x : initializer_list<size_t>{ AddInternal(static_cast<Args&&>(args))... }) {}
 				return m_count - 1;
 			}
 			else return ErrorValue;
@@ -219,7 +217,7 @@ export namespace System {
 				for (size_t i = m_count; i-- > index;) m_data[i + count] = static_cast<T&&>(m_data[i]);
 				size_t current = index;
 				m_data[current++] = static_cast<T&&>(head);
-				for (auto&& x : { InsertInternal(current++, static_cast<Args&&>(args))... });
+				for (auto&& x : { InsertInternal(current++, static_cast<Args&&>(args))... }) {}
 				m_count += count;
 				return current - 1;
 			}
@@ -239,7 +237,7 @@ export namespace System {
 		}
 	public:
 		constexpr void Sort(bool ascendingOrder) noexcept { Sorts::QuickSort(begin(), end(), ascendingOrder); }
-		template<Concepts::CCompareFunction<remove_cvref_t<T>> CompareFunc>
+		template<Traits::Concepts::CCompareFunction<Traits::remove_cvref_t<T>> CompareFunc>
 		constexpr void Sort(bool ascendingOrder, CompareFunc compare) noexcept {
 			Sorts::QuickSort(begin(), end(), ascendingOrder, compare);
 		}
@@ -265,7 +263,7 @@ export namespace System {
 			return ConstContiguousIterator<T>(m_data + index);
 		}
 	public:
-		constexpr void DeleteAll() noexcept requires(is_pointer_v<T>) {
+		constexpr void DeleteAll() noexcept requires(Traits::is_pointer_v<T>) {
 			for (T& x : *this) delete x;
 			InternalReset();
 		}
@@ -310,6 +308,6 @@ export namespace System {
 			return *this;
 		}
 	};
-	template<Concepts::CInputIterator InputIter>
-	VectorBase(InputIter first, InputIter last)->VectorBase<remove_cvref_t<decltype(*first)>>;
+	template<Traits::Concepts::CInputIterator InputIter>
+	VectorBase(InputIter first, InputIter last) -> VectorBase<Traits::remove_cvref_t<decltype(*first)>>;
 }

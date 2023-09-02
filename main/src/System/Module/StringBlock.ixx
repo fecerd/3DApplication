@@ -1,17 +1,16 @@
 ﻿export module StringBlock;
-import CSTDINT;
-import Traits;
+export import CSTDINT;
+export import Traits;
 import Math;
-import VectorBase;
+export import VectorBase;
 import CodePoint;
-import <memory>;//std::allocator
-using namespace System::Traits;
+import <memory>;	//std::allocator
 
 //CStringBlock
 export namespace System {
-	template<Concepts::CCharType str_t> class StringBlock;
+	template<Traits::Concepts::CCharType str_t> class StringBlock;
 
-	template<Concepts::CCharType str_t, size_t N>
+	template<Traits::Concepts::CCharType str_t, size_t N>
 	class CStringBlock {
 		friend class StringBlock<str_t>;
 	protected:
@@ -37,11 +36,11 @@ export namespace System {
 		~CStringBlock() = default;
 	public:
 		static constexpr auto Empty() noexcept {
-			if constexpr (is_same_v<str_t, char>) return CStringBlock<str_t, 3>();
-			else if constexpr (is_same_v<str_t, char8_t>) return CStringBlock<str_t, 5>();
-			else if constexpr (is_same_v<str_t, char16_t>) return CStringBlock<str_t, 3>();
-			else if constexpr (is_same_v<str_t, char32_t>) return CStringBlock<str_t, 2>();
-			else if constexpr (is_same_v<str_t, wchar_t>) return CStringBlock<str_t, 3>();
+			if constexpr (Traits::is_same_v<str_t, char>) return CStringBlock<str_t, 3>();
+			else if constexpr (Traits::is_same_v<str_t, char8_t>) return CStringBlock<str_t, 5>();
+			else if constexpr (Traits::is_same_v<str_t, char16_t>) return CStringBlock<str_t, 3>();
+			else if constexpr (Traits::is_same_v<str_t, char32_t>) return CStringBlock<str_t, 2>();
+			else if constexpr (Traits::is_same_v<str_t, wchar_t>) return CStringBlock<str_t, 3>();
 		}
 	public:
 		constexpr CStringBlock<str_t, N> const& strcpy(const str_t *src, const size_t pos, const size_t n) noexcept {
@@ -114,7 +113,7 @@ export namespace System {
 		constexpr operator bool() const noexcept { return value[0] != '\0'; }
 	};
 
-	template<Concepts::CCharType str_t, Concepts::CIntegral T>
+	template<Traits::Concepts::CCharType str_t, Traits::Concepts::CIntegral T>
 	constexpr CStringBlock<str_t, 21> GetCStringBlock(T n) noexcept {
 		CStringBlock<str_t, 21> ret;
 		size_t digit = Math::CountDigit(n);
@@ -146,7 +145,7 @@ export namespace System {
 	/// 引数modeがAutoのとき、有効桁数がdの整数部の桁数よりも小さい、
 	/// もしくは有効桁数がすべて0で埋まる(0.0001に対して有効桁数4以下)場合、指数表記となる
 	/// </returns>
-	template<Concepts::CCharType str_t, size_t digit = 10>
+	template<Traits::Concepts::CCharType str_t, size_t digit = 10>
 	constexpr auto GetCStringBlock(double d, NormalizeMode mode = NormalizeMode::Auto) noexcept {
 		//許容する有効桁数の大きさ
 		//1075桁 = 1桁(整数部) + 1074桁(小数部)
@@ -371,7 +370,7 @@ export namespace System::Encoding {
 
 //StringBlock
 export namespace System {
-	template<Concepts::CCharType str_t>
+	template<Traits::Concepts::CCharType str_t>
 	class StringBlock {
 	protected:
 		str_t* value = nullptr;
@@ -678,35 +677,35 @@ export namespace System {
 		}
 	public:/* 文字型変換 */
 		StringBlock<char8_t> ToU8StringBlock() const noexcept {
-			if constexpr (is_same_v<char8_t, str_t>) return StringBlock<char8_t>(*this);
+			if constexpr (Traits::is_same_v<char8_t, str_t>) return StringBlock<char8_t>(*this);
 			else {
 				VectorBase<Encoding::CodePoint> tmp = ToCodePoints();
 				return StringBlock<char8_t>(Encoding::ToU8StringBlock(tmp.Items(), tmp.Count()));
 			}
 		}
 		StringBlock<char16_t> ToU16StringBlock() const noexcept {
-			if constexpr (is_same_v<char16_t, str_t>) return StringBlock<char16_t>(*this);
+			if constexpr (Traits::is_same_v<char16_t, str_t>) return StringBlock<char16_t>(*this);
 			else {
 				VectorBase<Encoding::CodePoint> tmp = ToCodePoints();
 				return StringBlock<char16_t>(Encoding::ToU16StringBlock(tmp.Items(), tmp.Count()));
 			}
 		}
 		StringBlock<char32_t> ToU32StringBlock() const noexcept {
-			if constexpr (is_same_v<char32_t, str_t>) return StringBlock<char32_t>(*this);
+			if constexpr (Traits::is_same_v<char32_t, str_t>) return StringBlock<char32_t>(*this);
 			else {
 				VectorBase<Encoding::CodePoint> tmp = ToCodePoints();
 				return StringBlock<char32_t>(Encoding::ToU32StringBlock(tmp.Items(), tmp.Count()));
 			}
 		}
 		StringBlock<wchar_t> ToWideStringBlock() const noexcept {
-			if constexpr (is_same_v<wchar_t, str_t>) return StringBlock<wchar_t>(*this);
+			if constexpr (Traits::is_same_v<wchar_t, str_t>) return StringBlock<wchar_t>(*this);
 			else {
 				VectorBase<Encoding::CodePoint> tmp = ToCodePoints();
 				return StringBlock<wchar_t>(Encoding::ToWideStringBlock(tmp.Items(), tmp.Count()));
 			}
 		}
 		StringBlock<char> ToMultiByteStringBlock() const noexcept {
-			if constexpr (is_same_v<char, str_t>) return StringBlock<char>(*this);
+			if constexpr (Traits::is_same_v<char, str_t>) return StringBlock<char>(*this);
 			else {
 				VectorBase<Encoding::CodePoint> tmp = ToCodePoints();
 				return StringBlock<char>(Encoding::ToMultiByteStringBlock(tmp.Items(), tmp.Count()));

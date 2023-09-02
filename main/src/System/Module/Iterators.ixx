@@ -1,7 +1,6 @@
 ﻿export module Iterators;
 import CSTDINT;
 import Traits;
-using namespace System::Traits;
 
 export namespace System {
 	struct IContainerNode {};
@@ -18,7 +17,7 @@ export namespace System {
 namespace System::Iterator_Internal {
 	template<class ptr_type>
 	void Increment(ptr_type& ptr) noexcept {
-		using node_type = remove_cvref_t<decltype(*ptr)>;
+		using node_type = Traits::remove_cvref_t<decltype(*ptr)>;
 		if constexpr (CContainerNode<node_type>) ptr = *ptr + 1;
 		else ++ptr;
 	}
@@ -26,7 +25,7 @@ namespace System::Iterator_Internal {
 	template<class ptr_type> void Decrement(ptr_type&, ptrdiff_t) noexcept;
 	template<class ptr_type>
 	void Increment(ptr_type& ptr, ptrdiff_t count) noexcept {
-		using node_type = remove_cvref_t<decltype(*ptr)>;
+		using node_type = Traits::remove_cvref_t<decltype(*ptr)>;
 		if (count >= 0) {
 			if constexpr (CContainerNode<node_type>) ptr = *ptr + count;
 			else ptr += count;
@@ -39,13 +38,14 @@ namespace System::Iterator_Internal {
 			else Decrement(ptr, -count);
 		}
 	}
-	template<class ptr_type> void Decrement(ptr_type& ptr) noexcept {
-		using node_type = remove_cvref_t<decltype(*ptr)>;
+	template<class ptr_type>
+	void Decrement(ptr_type& ptr) noexcept {
+		using node_type = Traits::remove_cvref_t<decltype(*ptr)>;
 		if constexpr (CContainerNode<node_type>) ptr = *ptr - 1;
 		else --ptr;
 	}
 	template<class ptr_type> void Decrement(ptr_type& ptr, ptrdiff_t count) noexcept {
-		using node_type = remove_cvref_t<decltype(*ptr)>;
+		using node_type = Traits::remove_cvref_t<decltype(*ptr)>;
 		if (count >= 0) {
 			if constexpr (CContainerNode<node_type>) ptr = *ptr - count;
 			else ptr -= count;
@@ -60,24 +60,24 @@ namespace System::Iterator_Internal {
 	}
 	template<class ptr_type>
 	auto& Get(ptr_type& ptr) noexcept {
-		using node_type = remove_cvref_t<decltype(*ptr)>;
+		using node_type = Traits::remove_cvref_t<decltype(*ptr)>;
 		if constexpr (CContainerNode<node_type>) return *ptr;
 		else return ptr;
 	}
 }
+using namespace System::Iterator_Internal;
 
 //Iterators
 export namespace System {
-	using namespace Iterator_Internal;
 	template<class Node>
 	struct InputIterator {
-	protected:
-		remove_cvref_t<Node>* ptr = nullptr;
 	public:
-		using iterator_concept = input_iterator_tag;
-		using node_type = remove_cvref_t<Node>;
-		using value_type = conditional_t<CContainerNode<node_type>, dereference_t<node_type>, node_type>;
+		using iterator_concept = Traits::input_iterator_tag;
+		using node_type = Traits::remove_cvref_t<Node>;
+		using value_type = Traits::conditional_t<CContainerNode<node_type>, Traits::dereference_t<node_type>, node_type>;
 		using iterator_type = InputIterator<Node>;
+	protected:
+		node_type* ptr = nullptr;
 	public:
 		constexpr InputIterator() noexcept = default;
 		constexpr InputIterator(const InputIterator&) noexcept = default;
@@ -97,13 +97,13 @@ export namespace System {
 
 	template<class Node>
 	struct OutputIterator {
-	protected:
-		remove_cvref_t<Node>* ptr = nullptr;
 	public:
-		using iterator_concept = output_iterator_tag;
-		using node_type = remove_cvref_t<Node>;
-		using value_type = conditional_t<CContainerNode<node_type>, dereference_t<node_type>, node_type>;
+		using iterator_concept = Traits::output_iterator_tag;
+		using node_type = Traits::remove_cvref_t<Node>;
+		using value_type = Traits::conditional_t<CContainerNode<node_type>, Traits::dereference_t<node_type>, node_type>;
 		using iterator_type = OutputIterator<Node>;
+	protected:
+		node_type* ptr = nullptr;
 	public:
 		constexpr OutputIterator() noexcept = default;
 		constexpr OutputIterator(const OutputIterator&) noexcept = default;
@@ -123,13 +123,13 @@ export namespace System {
 
 	template<class Node>
 	struct ForwardIterator {
-	protected:
-		remove_cvref_t<Node>* ptr = nullptr;
 	public:
-		using iterator_concept = forward_iterator_tag;
-		using node_type = remove_cvref_t<Node>;
-		using value_type = conditional_t<CContainerNode<node_type>, dereference_t<node_type>, node_type>;
+		using iterator_concept = Traits::forward_iterator_tag;
+		using node_type = Traits::remove_cvref_t<Node>;
+		using value_type = Traits::conditional_t<CContainerNode<node_type>, Traits::dereference_t<node_type>, node_type>;
 		using iterator_type = ForwardIterator<Node>;
+	protected:
+		node_type* ptr = nullptr;
 	public:
 		constexpr ForwardIterator() noexcept = default;
 		constexpr ForwardIterator(const ForwardIterator&) noexcept = default;
@@ -151,13 +151,13 @@ export namespace System {
 
 	template<class Node>
 	struct BidirectionalIterator {
-	protected:
-		remove_cvref_t<Node>* ptr = nullptr;
 	public:
-		using iterator_concept = bidirectional_iterator_tag;
-		using node_type = remove_cvref_t<Node>;
-		using value_type = conditional_t<CContainerNode<node_type>, dereference_t<node_type>, node_type>;
+		using iterator_concept = Traits::bidirectional_iterator_tag;
+		using node_type = Traits::remove_cvref_t<Node>;
+		using value_type = Traits::conditional_t<CContainerNode<node_type>, Traits::dereference_t<node_type>, node_type>;
 		using iterator_type = BidirectionalIterator<Node>;
+	protected:
+		node_type* ptr = nullptr;
 	public:
 		constexpr BidirectionalIterator() noexcept = default;
 		constexpr BidirectionalIterator(const BidirectionalIterator&) noexcept = default;
@@ -182,13 +182,13 @@ export namespace System {
 
 	template<class Node>
 	struct RandomAccessIterator {
-	protected:
-		remove_cvref_t<Node>* ptr = nullptr;
 	public:
-		using iterator_concept = random_access_iterator_tag;
-		using node_type = remove_cvref_t<Node>;
-		using value_type = conditional_t<CContainerNode<node_type>, dereference_t<node_type>, node_type>;
+		using iterator_concept = Traits::random_access_iterator_tag;
+		using node_type = Traits::remove_cvref_t<Node>;
+		using value_type = Traits::conditional_t<CContainerNode<node_type>, Traits::dereference_t<node_type>, node_type>;
 		using iterator_type = RandomAccessIterator<Node>;
+	protected:
+		node_type* ptr = nullptr;
 	public:
 		constexpr RandomAccessIterator() noexcept = default;
 		constexpr RandomAccessIterator(const RandomAccessIterator&) noexcept = default;
@@ -221,13 +221,13 @@ export namespace System {
 
 	template<class Node>
 	struct ContiguousIterator {
-	protected:
-		remove_cvref_t<Node>* ptr = nullptr;
 	public:
-		using iterator_concept = contiguous_iterator_tag;
-		using node_type = remove_cvref_t<Node>;
-		using value_type = conditional_t<CContainerNode<node_type>, dereference_t<node_type>, node_type>;
+		using iterator_concept = Traits::contiguous_iterator_tag;
+		using node_type = Traits::remove_cvref_t<Node>;
+		using value_type = Traits::conditional_t<CContainerNode<node_type>, Traits::dereference_t<node_type>, node_type>;
 		using iterator_type = ContiguousIterator<Node>;
+	protected:
+		node_type* ptr = nullptr;
 	public:
 		constexpr ContiguousIterator() noexcept = default;
 		constexpr ContiguousIterator(const ContiguousIterator&) noexcept = default;
@@ -239,7 +239,7 @@ export namespace System {
 		constexpr node_type* const& GetNode() const noexcept { return ptr; }
 	public:/* contiguous_iteratorに必須 */
 		constexpr value_type* operator->() const noexcept {
-			if constexpr (is_same_v<node_type, value_type>) return ptr;
+			if constexpr (Traits::is_same_v<node_type, value_type>) return ptr;
 			else return &(*(*ptr));
 		}
 	public: /* random_access_iteratorに必須 */

@@ -3,13 +3,11 @@
 export module DisposingObject;
 import CSTDINT;
 import Traits;
+import Function;
 import TaskWorker;
 import Exception;
 import List;
-import Function;
 import Thread;	//Mutex, LockGuard
-
-using namespace System;
 
 //DisposingObject
 export namespace System {
@@ -18,34 +16,38 @@ export namespace System {
 	/// 表すクラス
 	/// </summary>
 	class DisposingObject {
-		union {
-			void* m_ptr = nullptr;
+		union Data {
+			void* m_ptr;
 			uint8_t m_buf[sizeof(void*)];
-		};
+		public:
+			Data() noexcept : m_ptr(nullptr) {}
+			Data(void* ptr) noexcept : m_ptr(ptr) {}
+			~Data() noexcept = default;
+		} m_data;
 		Function<void(DisposingObject&)> m_destructor;
 		uint32_t m_remainCount = 1;
 	private:
 		template<class T>
 		static void DisposePlacement(DisposingObject& obj) {
-			reinterpret_cast<T*>(obj.m_buf)->~T();
-			obj.m_ptr = nullptr;
+			reinterpret_cast<T*>(obj.m_data.m_buf)->~T();
+			obj.m_data.m_ptr = nullptr;
 		}
 		template<class T>
 		static void DisposePointer(DisposingObject& obj) {
-			delete static_cast<T*>(obj.m_ptr);
-			obj.m_ptr = nullptr;
+			delete static_cast<T*>(obj.m_data.m_ptr);
+			obj.m_data.m_ptr = nullptr;
 		}
 	public:
 		template<class T>
 		DisposingObject(T const& object, uint32_t remainCount) noexcept
 			: m_remainCount(remainCount)
 		{
-			if constexpr (sizeof(T) < sizeof(m_buf)) {
-				new (m_buf) T(object);
+			if constexpr (sizeof(T) < sizeof(Data::m_buf)) {
+				new (m_data.m_buf) T(object);
 				m_destructor = DisposePlacement<T>;
 			}
 			else {
-				m_ptr = new T(object);
+				m_data.m_ptr = new T(object);
 				m_destructor = DisposePointer<T>;
 			}
 		}
@@ -53,12 +55,12 @@ export namespace System {
 		DisposingObject(T&& object, uint32_t remainCount) noexcept
 			: m_remainCount(remainCount)
 		{
-			if constexpr (sizeof(T) < sizeof(m_buf)) {
-				new (m_buf) T(System::move(object));
+			if constexpr (sizeof(T) < sizeof(Data::m_buf)) {
+				new (m_data.m_buf) T(System::move(object));
 				m_destructor = DisposePlacement<T>;
 			}
 			else {
-				m_ptr = new T(System::move(object));
+				m_data.m_ptr = new T(System::move(object));
 				m_destructor = DisposePointer<T>;
 			}
 		}
@@ -67,17 +69,17 @@ export namespace System {
 			: m_remainCount(remainCount)
 		{
 			Function<void(T&)> capturePreDispose = preDispose;
-			if constexpr (sizeof(T) < sizeof(m_buf)) {
-				new (m_buf) T(object);
+			if constexpr (sizeof(T) < sizeof(Data::m_buf)) {
+				new (m_data.m_buf) T(object);
 				m_destructor = [capturePreDispose](DisposingObject& obj) mutable {
-					capturePreDispose(*reinterpret_cast<T*>(obj.m_buf));
+					capturePreDispose(*reinterpret_cast<T*>(obj.m_data.m_buf));
 					DisposePlacement<T>(obj);
 				};
 			}
 			else {
-				m_ptr = new T(object);
+				m_data.m_ptr = new T(object);
 				m_destructor = [capturePreDispose](DisposingObject& obj) mutable {
-					capturePreDispose(*static_cast<T*>(obj.m_ptr));
+					capturePreDispose(*static_cast<T*>(obj.m_data.m_ptr));
 					DisposePointer<T>(obj);
 				};
 			}
@@ -87,26 +89,26 @@ export namespace System {
 			: m_remainCount(remainCount)
 		{
 			Function<void(T&)> capturePreDispose = preDispose;
-			if constexpr (sizeof(T) < sizeof(m_buf)) {
-				new (m_buf) T(System::move(object));
+			if constexpr (sizeof(T) < sizeof(Data::m_buf)) {
+				new (m_data.m_buf) T(System::move(object));
 				m_destructor = [capturePreDispose](DisposingObject& obj) mutable {
-					capturePreDispose(*reinterpret_cast<T*>(obj.m_buf));
+					capturePreDispose(*reinterpret_cast<T*>(obj.m_data.m_buf));
 					DisposePlacement<T>(obj);
 				};
 			}
 			else {
-				m_ptr = new T(System::move(object));
+				m_data.m_ptr = new T(System::move(object));
 				m_destructor = [capturePreDispose](DisposingObject& obj) mutable {
-					capturePreDispose(*static_cast<T*>(obj.m_ptr));
+					capturePreDispose(*static_cast<T*>(obj.m_data.m_ptr));
 					DisposePointer<T>(obj);
 				};
 			}
 		}
 		DisposingObject(const DisposingObject&) noexcept = delete;
 		DisposingObject(DisposingObject&& obj) noexcept
-			: m_ptr(obj.m_ptr), m_destructor(System::move(obj.m_destructor)), m_remainCount(obj.m_remainCount)
+			: m_data(obj.m_data.m_ptr), m_destructor(System::move(obj.m_destructor)), m_remainCount(obj.m_remainCount)
 		{
-			obj.m_ptr = nullptr;
+			obj.m_data.m_ptr = nullptr;
 			obj.m_remainCount = 0;
 		}
 		~DisposingObject() noexcept { Dispose(); }
@@ -128,8 +130,8 @@ export namespace System {
 		DisposingObject& operator=(const DisposingObject&) noexcept = delete;
 		DisposingObject& operator=(DisposingObject&& rhs) noexcept {
 			if (this == &rhs) return *this;
-			m_ptr = rhs.m_ptr;
-			rhs.m_ptr = nullptr;
+			m_data.m_ptr = rhs.m_data.m_ptr;
+			rhs.m_data.m_ptr = nullptr;
 			m_destructor = System::move(rhs.m_destructor);
 			m_remainCount = rhs.m_remainCount;
 			rhs.m_remainCount = 0;

@@ -2,9 +2,9 @@
 #include "FUNCSIG.hpp"
 export module IEnumerable;
 import Exception;
-import Function;
+export import Function;
 import Traits;
-import Coroutine;
+export import Coroutine;
 import Iterators;
 
 //promise_type
@@ -113,10 +113,11 @@ export namespace System {
 	/// <typeparam name="T">コルーチンが返す要素型</typeparam>
 	template<class T>
 	struct IEnumerator : public IEnumeratorBase<T> {
-		using promise_type = System::promise_type<T, IEnumerator<T>>;	//コルーチン関数の引数型に必須なエイリアス
-	protected:
+		//コルーチン関数の引数型に必須なエイリアス
+		using promise_type = System::promise_type<T, IEnumerator<T>>;
 		//ICollectionの要素型
 		using object_type = System::Traits::remove_cv_t<T>;
+	protected:
 		//このIEnumeratorを生成したICollection型
 		using collection_type = System::Traits::conditional_t<System::Traits::is_const_v<T>, const ICollection<object_type>, ICollection<object_type>>;
 		//GetEnumerator()関数が生成するコルーチンハンドル型
@@ -143,7 +144,7 @@ export namespace System {
 			tmp.m_done = true;
 		}
 		constexpr IEnumerator(Function<IEnumerator<T>(bool)>&& getEnumFunc, bool reverse = false) noexcept
-			: m_reverse(reverse), m_enumFunc(static_cast<Function<IEnumerator<T>(bool)>&&>(getEnumFunc))
+			: m_reverse(reverse), m_enumFunc(System::move(getEnumFunc))
 		{
 			IEnumerator<T>&& tmp = m_enumFunc(m_reverse);
 			m_handle = tmp.m_handle;
@@ -151,7 +152,7 @@ export namespace System {
 			tmp.m_done = true;
 		}
 		constexpr IEnumerator(IEnumerator<T>&& arg) noexcept
-			: m_handle(arg.m_handle), m_reverse(arg.m_reverse), m_enumFunc(static_cast<Function<IEnumerator<T>(bool)>&&>(arg.m_enumFunc))
+			: m_handle(arg.m_handle), m_reverse(arg.m_reverse), m_enumFunc(System::move(arg.m_enumFunc))
 		{
 			arg.m_handle = handle();
 			arg.m_done = true;
@@ -160,20 +161,34 @@ export namespace System {
 			if (m_handle) m_handle.destroy();
 			m_handle = handle();
 		}
+	private:
+		void Reset(bool reverse) noexcept {
+			if (m_enumFunc) {
+				if (m_handle) m_handle.destroy();
+				m_reverse = reverse;
+				IEnumerator<T>&& tmp = m_enumFunc(m_reverse);
+				m_handle = tmp.m_handle;
+				this->m_done = false;
+				tmp.m_handle = handle();
+				tmp.m_done = true;
+			}
+		}
 	public:
 		/// <summary>
 		/// 最初の要素を指すイテレータを取得する
 		/// </summary>
 		constexpr EnumerableIterator<T> begin() noexcept override {
 			//このコルーチンがすでに実行されている(終了を含む)とき、新たに生成する
-			if (m_handle) *this = IEnumerator<T>(m_enumFunc, m_reverse);
+			if (m_handle) Reset(m_reverse);
 			operator++();	//m_handle.promise().valueに最初の要素を入れる
 			return EnumerableIterator<T>(this);
 		}
 	public:
 		constexpr IEnumerator<T>& operator++() noexcept override {
-			m_handle.resume();
-			this->m_done = m_handle.done();
+			if (m_handle) {
+				m_handle.resume();
+				this->m_done = m_handle.done();
+			}
 			return *this;
 		}
 		constexpr T& operator*() noexcept override { return *m_handle.promise().value; }
@@ -182,20 +197,7 @@ export namespace System {
 			return new IEnumerator<T>(m_enumFunc, m_reverse);
 		}
 		constexpr void Reverse() noexcept override {
-			*this = IEnumerator<T>(m_enumFunc, !m_reverse);
-		}
-	private:
-		//begin(), Reverse()内でのみ使用するためprivate
-		constexpr IEnumerator<T>& operator=(IEnumerator<T>&& rhs) noexcept {
-			if (this == &rhs) return *this;
-			if (m_handle) m_handle.destroy();
-			this->m_done = rhs.m_done;
-			m_handle = rhs.m_handle;
-			m_enumFunc = static_cast<System::Function<IEnumerator<T>(bool)>&&>(rhs.m_enumFunc);
-			m_reverse = rhs.m_reverse;
-			rhs.m_done = true;
-			rhs.m_handle = handle();
-			return *this;
+			Reset(!m_reverse);
 		}
 	};
 	template<class T>
@@ -394,8 +396,15 @@ export namespace System {
 			return m_enumerator->operator*();
 		}
 		constexpr bool operator==(const EnumerableIterator<T>& rhs) const noexcept { return this->Done() == rhs.Done(); }
+		constexpr bool operator!=(const EnumerableIterator<T>& rhs) const noexcept { return this->Done() != rhs.Done(); }
 		constexpr EnumerableIterator<T>& operator=(const EnumerableIterator&) noexcept = default;
 	};
+}
+
+//IMemberSelect
+namespace System::Internal {
+	template<class T, class E>
+	class IMemberSelect {};
 }
 
 //IEnumerable
@@ -407,12 +416,19 @@ export namespace System {
 	/// </summary>
 	/// <typeparam name="T">要素型</typeparam>
 	template<class T>
-	class IEnumerable {
+	class IEnumerable : public Internal::IMemberSelect<T, IEnumerable<T>> {
 		IEnumeratorBase<T>* m_last = nullptr;	//メソッドチェーンの最後のEnumeratorへのポインタ
 	public:
 		IEnumerable(IEnumerable<T>&& arg) noexcept : m_last(arg.m_last) { arg.m_last = nullptr; }
 		IEnumerable(IEnumeratorBase<T>* enumerator) noexcept : m_last(enumerator) {}
 		~IEnumerable() noexcept { delete m_last; m_last = nullptr; }
+	public:/* 呼び出し側でIEnumeratorの作成を省略してIEnumerableを作成するコンストラクタ */
+		IEnumerable(const Function<IEnumerator<T>(bool)>& getEnumFunc, bool reverse) noexcept {
+			m_last = new IEnumerator<T>(getEnumFunc, reverse);
+		}
+		IEnumerable(Function<IEnumerator<T>(bool)>&& getEnumFunc, bool reverse) noexcept {
+			m_last = new IEnumerator<T>(System::move(getEnumFunc), reverse);
+		}
 	public:
 		/// <summary>
 		/// 最初の要素を指すイテレータを取得する
@@ -503,20 +519,6 @@ export namespace System {
 			return IEnumerable<T>(new WhereEnumerator<T>(m_last->Clone(), func));
 		}
 		/// <summary>
-		/// 指定したメンバ変数ポインタを使用して、メンバ変数への参照型を持つIEnumerableを取得する
-		/// </summary>
-		/// <typeparam name="Dst">メンバ変数型</typeparam>
-		/// <typeparam name="M">メンバ変数ポインタ型</typeparam>
-		/// <param name="member">メンバ変数ポインタ</param>
-		template<class Dst, class R>
-		IEnumerable<Dst> MemberSelect(R T::* member) && noexcept {
-			return To(new MemberSelectEnumerator<Dst, T>(m_last, member));
-		}
-		template<class Dst, class R>
-		IEnumerable<Dst> MemberSelect(R T::* member) & noexcept {
-			return IEnumerable<Dst>(new MemberSelectEnumerator<Dst, T>(m_last->Clone(), member));
-		}
-		/// <summary>
 		/// 要素の順序を反転したIEnumerableを取得する
 		/// </summary>
 		IEnumerable<T> Reverse() && noexcept {
@@ -531,16 +533,57 @@ export namespace System {
 	};
 }
 
-template<class R, class T>
-struct member_ptr{
-	using type = void*;
-};
-template <class R, System::Traits::Concepts::CClassOrUnion T>
-struct member_ptr<R, T>{
-	using type = R T::*;
-};
-template <class R, class T>
-using member_ptr_t = member_ptr<R, T>::type;
+//IMemberSelect特殊化
+namespace System::Internal {
+	template<Traits::Concepts::CHasMember T, class E>
+	class IMemberSelect<T, E> {
+	public:
+		/// <summary>
+		/// 指定したメンバ変数ポインタを使用して、メンバ変数への参照型を持つIEnumerableを取得する
+		/// </summary>
+		/// <typeparam name="Dst">メンバ変数型</typeparam>
+		/// <typeparam name="M">メンバ変数ポインタ型</typeparam>
+		/// <param name="member">メンバ変数ポインタ</param>
+		template<class Dst>
+		IEnumerable<Dst> MemberSelect(Dst T::*member) && noexcept {
+			E* e = static_cast<E*>(this);
+			return e->To(new MemberSelectEnumerator<Dst, T>(e->m_last, member));
+		}
+		template<class Dst>
+		IEnumerable<Dst> MemberSelect(Dst T::*member) & noexcept {
+			E* e = static_cast<E*>(this);
+			return IEnumerable<Dst>(new MemberSelectEnumerator<Dst, T>(e->m_last->Clone(), member));
+		}
+	};
+}
+
+//ICollectionMemberSelect
+namespace System::Internal {
+	template<class T, class C>
+	class ICollectionMemberSelect {};
+	template<Traits::Concepts::CHasMember T, class C>
+	class ICollectionMemberSelect<T, C> {
+	public:
+		/// <summary>
+		/// このコンテナが持つ要素の指定したメンバ変数を列挙するIEnumerableを取得する。
+		/// この関数によって取得したIEnumerableのイテレータは指定したメンバ変数への参照を表す
+		/// </summary>
+		/// <typeparam name="Dst">メンバ変数型</typeparam>
+		/// <param name="member">要素型が持つメンバ変数ポインタ</param>
+		template<class Dst>
+		IEnumerable<Dst> MemberSelect(Dst T::* member) noexcept {
+			return IEnumerable<Dst>(
+				new MemberSelectEnumerator<Dst, T>(static_cast<C*>(this)->GetPtr(), member)
+			);
+		}
+		template<class Dst>
+		IEnumerable<Dst const> MemberSelect(Dst T::* member) const noexcept {
+			return IEnumerable<Dst const>(
+				new SelectEnumerator<Dst const, T const>(static_cast<C const*>(this)->GetPtr(), member)
+			);
+		}
+	};
+}
 
 //ICollection
 export namespace System {
@@ -550,7 +593,8 @@ export namespace System {
 	/// </summary>
 	/// <typeparam name="T">要素型</typeparam>
 	template<class T>
-	class ICollection {
+	class ICollection : public Internal::ICollectionMemberSelect<T, ICollection<T>> {
+		friend class Internal::ICollectionMemberSelect<T, ICollection<T>>;
 	public:
 		constexpr ICollection() noexcept = default;
 	public:
@@ -604,23 +648,82 @@ export namespace System {
 		IEnumerable<T> Where(const System::Function<bool(T const&)>& func) noexcept { return IEnumerable<T>(new WhereEnumerator<T>(GetPtr(), func)); }
 		IEnumerable<T const> Where(const System::Function<bool(T const&)>& func) const noexcept { return IEnumerable<T const>(new WhereEnumerator<T const>(GetPtr(), func)); }
 		/// <summary>
-		/// このコンテナが持つ要素の指定したメンバ変数を列挙するIEnumerableを取得する。
-		/// この関数によって取得したIEnumerableのイテレータは指定したメンバ変数への参照を表す
-		/// </summary>
-		/// <typeparam name="Dst">メンバ変数型</typeparam>
-		/// <param name="member">要素型が持つメンバ変数ポインタ</param>
-		template <class Dst>
-		IEnumerable<Dst> MemberSelect(member_ptr_t<Dst, T> member) noexcept requires(System::Traits::Concepts::CClassOrUnion<T>) {
-			return IEnumerable<Dst>(new MemberSelectEnumerator<Dst, T>(GetPtr(), member));
-		}
-		template <class Dst>
-		IEnumerable<const Dst> MemberSelect(member_ptr_t<Dst, T> member) const noexcept requires(System::Traits::Concepts::CClassOrUnion<T>) {
-			return IEnumerable<const Dst>(new SelectEnumerator<const Dst, T const>(GetPtr(), member));
-		}
-		/// <summary>
 		/// このコンテナが持つ要素を逆順に列挙するIEnumerableを取得する
 		/// </summary>
 		IEnumerable<T> Reverse() noexcept { return IEnumerable<T>(GetPtr(true)); }
 		IEnumerable<T const> Reverse() const noexcept { return IEnumerable<T const>(GetPtr(true)); }
 	};
 }
+
+//CreateIEnumerable
+export namespace System {
+	/// <summary>
+	/// コルーチン関数とその引数からIEnumerableを作成する
+	/// </summary>
+	/// <param name="func">コルーチン関数へのポインタ</param>
+	/// <param name="args">
+	/// コルーチン関数に渡される引数。
+	/// コルーチン関数の引数が左辺値参照の場合、argsの値が左辺値か右辺値かで挙動が異なる。
+	/// argsに左辺値が渡されたとき、IEnumerableはその参照を保持し、呼び出し元に存在する変数の値にも影響する。
+	/// argsに右辺値が渡されたとき、IEnumerableはその値で内部変数を初期化し、呼び出し元には影響しない。
+	/// ただし、コルーチン関数は内部変数の左辺値参照を引数にとるため、呼び出しごとの変化は累積する。
+	/// </param>
+	template<class T, class... Args>
+	IEnumerable<T> CreateIEnumerable(IEnumerator<T>(*func)(Args...), auto&&... args) noexcept {
+		return IEnumerable<T>(
+			[func, &args...](bool) mutable -> IEnumerator<T> {
+				return func(static_cast<Args&&>(args)...);
+			},
+			false
+		);
+	}
+	/// <summary>
+	/// コルーチン関数とその引数から反転可能なIEnumerableを作成する
+	/// </summary>
+	/// <param name="func">反転可能なコルーチン関数へのポインタ</param>
+	/// <param name="reverse">コルーチンの進行方向の初期値。trueのとき、反転する</param>
+	/// <param name="args">
+	/// コルーチン関数に渡される引数。
+	/// コルーチン関数の引数が左辺値参照の場合、argsの値が左辺値か右辺値かで挙動が異なる。
+	/// argsに左辺値が渡されたとき、IEnumerableはその参照を保持し、呼び出し元に存在する変数の値にも影響する。
+	/// argsに右辺値が渡されたとき、IEnumerableはその値で内部変数を初期化し、呼び出し元には影響しない。
+	/// ただし、コルーチン関数は内部変数の左辺値参照を引数にとるため、呼び出しごとの変化は累積する。
+	/// </param>
+	template<class T, class... Args>
+	IEnumerable<T> CreateIEnumerableReversible(IEnumerator<T>(*func)(bool, Args...), bool reverse, auto&&... args) noexcept {
+		return IEnumerable<T>(
+			[func, &args...](bool r) mutable -> IEnumerator<T> {
+				return func(r, static_cast<Args&&>(args)...);
+			},
+			reverse
+		);
+	}
+}
+
+//使用例
+/*
+	IEnumerable<int> TestCoroutine(int x, double& y) noexcept {
+		//bool値reverseで反転できるコルーチン関数を定義する。
+		//ラムダ式を使ってもよいし、外部で定義してもよいが、引数を取るならラムダ式一択。
+		//戻り値はIEnumerator<T>で、引数をWriteするならmutableの指定が必要。
+		auto method = [&](bool reverse) mutable -> IEnumerator<int> {
+			if (reverse) {
+				for (int i = 5; i-- > 0;) {
+					std::cout << "x: " << x-- << std::endl;
+					std::cout << "y: " << y << std::endl;
+					y -= 1.0;
+					co_yield i;
+				}
+			} else {
+				for (int i = 0; i < 5; ++i) {
+					std::cout << "x: " << x++ << std::endl;
+					std::cout << "y: " << y << std::endl;
+					y += 1.0;
+					co_yield i;
+				}
+			}
+		};
+		//関数ポインタとreverseの初期値を渡してIEnumerableを作成する。
+		return IEnumerable<int>(method, false);
+	}
+*/

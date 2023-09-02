@@ -1,7 +1,7 @@
 ﻿export module EventHandler;
 import CSTDINT;
 import Traits;
-import Vector;
+export import Vector;
 import Function;
 
 //EventHandler

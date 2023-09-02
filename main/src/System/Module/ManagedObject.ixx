@@ -6,7 +6,7 @@ import Thread;
 
 //IManagedBase
 namespace System {
-	template<class T> class ManagedObject;
+	export template<class T> class ManagedObject;
 
 	/// <summary>
 	/// ManagedObjectの基底型。単純なスマートポインタ機能を提供する。

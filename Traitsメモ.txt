@@ -1,0 +1,13 @@
+﻿
+//SFINAE版 is_convertible
+template<class From, class To, bool b = is_void<From>::value || is_function<To>::value || is_array<To>::value>
+struct is_convertible : bool_constant<is_void<To>::value> {};
+template<class From, class To>
+struct is_convertible<From, To, false> {
+private:
+	template<typename T> static void implicit_convert(T);
+	template<class F, class T> static decltype(is_convertible::implicit_convert<T>(declval<F>()), uint32_t()) sfinae_func(int);
+	template<class, class> static uint8_t sfinae_func(...);
+public:
+	static constexpr bool value = sizeof(is_convertible::sfinae_func<From, To>(0)) == sizeof(uint32_t);
+};

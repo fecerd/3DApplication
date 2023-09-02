@@ -1,5 +1,5 @@
 ﻿module Time;
-import <thread>;	//std::thread
+import Thread;
 using namespace System;
 using namespace std::chrono;
 
@@ -28,13 +28,13 @@ void Timer::Update(bool callInvoke) noexcept {
 }
 
 void Timer::Sleep(milliseconds ms) noexcept {
-	std::this_thread::sleep_for(ms);
+	SleepFor(ms);
 }
 void Timer::Sleep(nanoseconds ns) noexcept {
-	std::this_thread::sleep_for(ns);
+	SleepFor(ns);
 }
 void Timer::Sleep(seconds s) noexcept {
-	std::this_thread::sleep_for(s);
+	SleepFor(s);
 }
 
 //void Timer::Update() noexcept {

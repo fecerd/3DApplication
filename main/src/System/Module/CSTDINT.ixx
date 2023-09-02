@@ -1,8 +1,8 @@
 ﻿export module CSTDINT;
 export import <cstdint>;
-import <limits>;
 export import <initializer_list>;
-import <compare>;
+export import <compare>;
+import <limits>;
 
 inline constexpr size_t SIZEMAX = SIZE_MAX;
 
@@ -278,15 +278,66 @@ export namespace System {
 	using weak_ordering = std::weak_ordering;
 }
 
+constexpr std::partial_ordering std::partial_ordering::less;
+constexpr std::partial_ordering std::partial_ordering::equivalent;
+constexpr std::partial_ordering std::partial_ordering::greater;
+constexpr std::partial_ordering std::partial_ordering::unordered;
+constexpr std::weak_ordering std::weak_ordering::less;
+constexpr std::weak_ordering std::weak_ordering::equivalent;
+constexpr std::weak_ordering std::weak_ordering::greater;
+constexpr std::strong_ordering std::strong_ordering::less;
+constexpr std::strong_ordering std::strong_ordering::equal;
+constexpr std::strong_ordering std::strong_ordering::equivalent;
+constexpr std::strong_ordering std::strong_ordering::greater;
+
+//remove_reference
 namespace System::Internal {
 	template<typename T> struct remove_reference { using type = T; };
 	template<typename T> struct remove_reference<T&> { using type = T; };
 	template<typename T> struct remove_reference<T&&> { using type = T; };
 }
 
+//move
 export namespace System {
 	template<class T>
 	constexpr typename Internal::remove_reference<T>::type&& move(T&& t) noexcept {
 		return static_cast<typename Internal::remove_reference<T>::type&&>(t);
 	}
+}
+
+//SGR(Select Graphics Rendition)コマンド
+export namespace System {
+	inline constexpr const char cout_red[] = "\x1b[31m";
+	inline constexpr const char cout_green[] = "\x1b[32m";
+	inline constexpr const char cout_yellow[] = "\x1b[33m";
+	inline constexpr const char cout_blue[] = "\x1b[34m";
+	inline constexpr const char cout_magenta[] = "\x1b[35m";
+	inline constexpr const char cout_cyan[] = "\x1b[36m";
+	inline constexpr const char cout_white[] = "\x1b[37m";
+	inline constexpr const char cout_reset[] = "\x1b[m";
+	inline constexpr const char cout_bold[] = "\x1b[1m";
+	inline constexpr const char cout_light[] = "\x1b[2m";
+	inline constexpr const char cout_italic[] = "\x1b[3m";
+	inline constexpr const char cout_underline[] = "\x1b[4m";
+	inline constexpr const char cout_flashing[] = "\x1b[5m";
+	inline constexpr const char cout_flashing_violently[] = "\x1b[6m";
+	inline constexpr const char cout_toggle_color[] = "\x1b[7m";
+	inline constexpr const char cout_hide[] = "\x1b[8m";
+
+	inline constexpr const wchar_t wcout_red[] = L"\x1b[31m";
+	inline constexpr const wchar_t wcout_green[] = L"\x1b[32m";
+	inline constexpr const wchar_t wcout_yellow[] = L"\x1b[33m";
+	inline constexpr const wchar_t wcout_blue[] = L"\x1b[34m";
+	inline constexpr const wchar_t wcout_magenta[] = L"\x1b[35m";
+	inline constexpr const wchar_t wcout_cyan[] = L"\x1b[36m";
+	inline constexpr const wchar_t wcout_white[] = L"\x1b[37m";
+	inline constexpr const wchar_t wcout_reset[] = L"\x1b[m";
+	inline constexpr const wchar_t wcout_bold[] = L"\x1b[1m";
+	inline constexpr const wchar_t wcout_light[] = L"\x1b[2m";
+	inline constexpr const wchar_t wcout_italic[] = L"\x1b[3m";
+	inline constexpr const wchar_t wcout_underline[] = L"\x1b[4m";
+	inline constexpr const wchar_t wcout_flashing[] = L"\x1b[5m";
+	inline constexpr const wchar_t wcout_flashing_violently[] = L"\x1b[6m";
+	inline constexpr const wchar_t wcout_toggle_color[] = L"\x1b[7m";
+	inline constexpr const wchar_t wcout_hide[] = L"\x1b[8m";
 }

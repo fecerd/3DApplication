@@ -1,15 +1,9 @@
 ﻿export module TaskWorker;
 import CSTDINT;
 import Traits;
-//import Thread;
-//import Function;
-//import SmartPtr;
-import <memory>;	//std::shared_ptr
-import <condition_variable>;	//std::condition_variable
-import <mutex>;	//std::mutex, std::lock_guard
-import <thread>;	//std::thread
-import <functional>;	//std::function
-
+import Thread;
+import Function;
+import SmartPtrs;
 
 //TaskState
 export namespace System {
@@ -26,24 +20,24 @@ export namespace System {
 //TaskData
 namespace System {
 	class TaskStateBase {
-		mutable std::mutex m_state_mtx;
-		mutable std::condition_variable m_state_cv;
-		std::shared_ptr<TaskState> m_state = std::make_shared<TaskState>(TaskState::Ready);
-		std::shared_ptr<bool> m_worker_running;
+		mutable Mutex m_state_mtx;
+		mutable ConditionVariable m_state_cv;
+		SharedPtr<TaskState> m_state = MakeShared<TaskState>(TaskState::Ready);
+		SharedPtr<bool> m_worker_running;
 		bool m_once;
 	public:
-		TaskStateBase() noexcept : m_worker_running(std::make_shared<bool>(true)), m_once(true) {}
-		TaskStateBase(const std::shared_ptr<bool>& worker_running, bool once) noexcept
+		TaskStateBase() noexcept : m_worker_running(MakeShared<bool>(true)), m_once(true) {}
+		TaskStateBase(const SharedPtr<bool>& worker_running, bool once) noexcept
 			: m_worker_running(worker_running), m_once(once) {}
 		TaskStateBase(const TaskStateBase&) noexcept = delete;
 		TaskStateBase(TaskStateBase&&) noexcept = delete;
 		~TaskStateBase() noexcept {
-			std::lock_guard lock{ m_state_mtx };
+			LockGuard lock{ m_state_mtx };
 			*m_state = TaskState::Empty;
 		}
 	public:/* タスク状態取得 */
 		TaskState GetState() const noexcept {
-			std::lock_guard lock{ m_state_mtx };
+			LockGuard lock{ m_state_mtx };
 			return *m_state;
 		}
 		bool IsReady() const noexcept {
@@ -53,16 +47,16 @@ namespace System {
 			return GetState() == TaskState::Finished;
 		}
 		bool Once() const noexcept {
-			std::lock_guard lock{ m_state_mtx };
+			LockGuard lock{ m_state_mtx };
 			return m_once;
 		}
 		void Once(bool once) noexcept {
-			std::lock_guard lock{ m_state_mtx };
+			LockGuard lock{ m_state_mtx };
 			m_once = once;
 		}
 	public:/* Worker側からの操作 */
 		void Notify() noexcept {
-			std::lock_guard lock{ m_state_mtx };
+			LockGuard lock{ m_state_mtx };
 			m_state_cv.notify_all();
 		}
 	public:/* Promise側の操作 */
@@ -70,7 +64,7 @@ namespace System {
 		/// Finished -> Readyの遷移(通知しない)
 		/// </summary>
 		void Ready() noexcept {
-			std::lock_guard state_lock{ m_state_mtx };
+			LockGuard state_lock{ m_state_mtx };
 			if (*m_state != TaskState::Finished) return;
 			*m_state = TaskState::Ready;
 		}
@@ -79,7 +73,7 @@ namespace System {
 		/// この関数を呼び出したスレッドは別スレッドからRun()が呼び出されるまでブロックされる
 		/// </summary>
 		void Suspend() noexcept {
-			std::unique_lock state_lock{ m_state_mtx };
+			UniqueLock state_lock{ m_state_mtx };
 			if (*m_state != TaskState::Running) return;
 			*m_state = TaskState::Suspended;
 			m_state_cv.notify_all();
@@ -90,7 +84,7 @@ namespace System {
 		/// タスクの最後に呼び出す
 		/// </summary>
 		void Finish() noexcept {
-			std::lock_guard lock{ m_state_mtx };
+			LockGuard lock{ m_state_mtx };
 			if (*m_state != TaskState::Running) return;
 			//Running -> Finishedの移行を通知
 			*m_state = TaskState::Finished;
@@ -102,7 +96,7 @@ namespace System {
 		/// Future: Suspend -> Runningの遷移(通知する)
 		/// </summary>
 		void Run() noexcept {
-			std::lock_guard state_lock{ m_state_mtx };
+			LockGuard state_lock{ m_state_mtx };
 			if (*m_state == TaskState::Ready) *m_state = TaskState::Running;
 			else if (*m_state == TaskState::Suspended) {
 				*m_state = TaskState::Running;
@@ -119,7 +113,7 @@ namespace System {
 			do {
 				{
 					//コンストラクタでロック取得
-					std::unique_lock state_lock{ m_state_mtx };
+					UniqueLock state_lock{ m_state_mtx };
 					m_state_cv.wait(
 						state_lock,
 						[this, state] {
@@ -150,8 +144,8 @@ namespace System {
 		using r_t = Traits::remove_cv_t<R>;
 		using const_r_t = r_t const;
 	protected:
-		mutable std::mutex m_value_mtx;
-		std::unique_ptr<r_t> m_value = nullptr;
+		mutable Mutex m_value_mtx;
+		UniquePtr<r_t> m_value = nullptr;
 		//前回のGetValue()以降にSetValue()された場合、true
 		mutable bool m_isChangedValue = false;
 	public:
@@ -162,27 +156,27 @@ namespace System {
 	public:/* 値操作 */
 		template<Traits::Concepts::CMoveConstructibleTo<r_t> T>
 		void SetValue(T&& value) noexcept {
-			std::lock_guard lock{ m_value_mtx };
+			LockGuard lock{ m_value_mtx };
 			if (m_value) *m_value = System::move(value);
-			else m_value = std::make_unique<r_t>(System::move(value));
+			else m_value = MakeUnique<r_t>(System::move(value));
 			m_isChangedValue = true;
 		}
 		bool HasValue() const noexcept {
-			std::lock_guard lock{ m_value_mtx };
+			LockGuard lock{ m_value_mtx };
 			return static_cast<bool>(m_value);
 		}
 		r_t& GetValue() noexcept {
-			std::lock_guard lock{ m_value_mtx };
+			LockGuard lock{ m_value_mtx };
 			m_isChangedValue = false;
 			return *m_value;
 		}
 		const_r_t& GetValue() const noexcept {
-			std::lock_guard lock{ m_value_mtx };
+			LockGuard lock{ m_value_mtx };
 			m_isChangedValue = false;
 			return *m_value;
 		}
 		bool IsValueChanged() const noexcept {
-			std::lock_guard lock{ m_value_mtx };
+			LockGuard lock{ m_value_mtx };
 			return m_isChangedValue;
 		}
 	public:
@@ -197,8 +191,8 @@ namespace System {
 		using s_t = Traits::conditional_t<IsNotVoid, Traits::remove_cv_t<S>, bool>;
 		using const_s_t = s_t const;
 	private:
-		mutable std::mutex m_suspend_mtx;
-		std::unique_ptr<s_t> m_suspendValue = nullptr;
+		mutable Mutex m_suspend_mtx;
+		UniquePtr<s_t> m_suspendValue = nullptr;
 		//前回のGetSuspendValue()以降にSetSuspendValue()された場合、true
 		mutable bool m_isChangedSuspendValue = false;
 	public:
@@ -209,27 +203,27 @@ namespace System {
 	public:
 		template <Traits::Concepts::CMoveConstructibleTo<s_t> T>
 		void SetSuspendValue(T&& value) noexcept requires(IsNotVoid) {
-			std::lock_guard lock{m_suspend_mtx};
+			LockGuard lock{m_suspend_mtx};
 			if (m_suspendValue) *m_suspendValue = System::move(value);
-			else m_suspendValue = std::make_unique<s_t>(System::move(value));
+			else m_suspendValue = MakeUnique<s_t>(System::move(value));
 			m_isChangedSuspendValue = true;
 		}
 		bool HasSuspendValue() const noexcept requires(IsNotVoid) {
-			std::lock_guard lock{m_suspend_mtx};
+			LockGuard lock{m_suspend_mtx};
 			return static_cast<bool>(m_suspendValue);
 		}
 		auto& GetSuspendValue() noexcept requires(IsNotVoid) {
-			std::lock_guard lock{m_suspend_mtx};
+			LockGuard lock{m_suspend_mtx};
 			m_isChangedSuspendValue = false;
 			return *m_suspendValue;
 		}
 		auto& GetSuspendValue() const noexcept requires(IsNotVoid) {
-			std::lock_guard lock{m_suspend_mtx};
+			LockGuard lock{m_suspend_mtx};
 			m_isChangedSuspendValue = false;
 			return *m_suspendValue;
 		}
 		bool IsSuspendValueChanged() const noexcept requires(IsNotVoid) {
-			std::lock_guard lock{m_suspend_mtx};
+			LockGuard lock{m_suspend_mtx};
 			return m_isChangedSuspendValue;
 		}
 	public:
@@ -240,18 +234,31 @@ namespace System {
 	template<class R, class S>
 	class TaskData : public TaskStateBase, public TaskValueBase<R>, public TaskSuspendBase<S> {
 	public:
-		using TaskValueBase<R>::r_t;
-		using TaskValueBase<R>::const_r_t;
-		using TaskSuspendBase<S>::s_t;
-		using TaskSuspendBase<S>::const_s_t;
+		using typename TaskValueBase<R>::r_t;
+		using typename TaskValueBase<R>::const_r_t;
+		using typename TaskSuspendBase<S>::s_t;
+		using typename TaskSuspendBase<S>::const_s_t;
 		static constexpr bool Suspendable = TaskSuspendBase<S>::IsNotVoid;
 	public:
 		TaskData() noexcept = default;
-		TaskData(const std::shared_ptr<bool>& worker_running, bool once) noexcept
+		TaskData(const SharedPtr<bool>& worker_running, bool once) noexcept
 			: TaskStateBase(worker_running, once), TaskValueBase<R>(), TaskSuspendBase<S>() {}
 		~TaskData() noexcept = default;
 	};
 }
+
+//g++ではshared_ptr<TaskData<bool, bool>>::swap()内部にバグがあり、ムーブ操作ができない。
+//完全特殊化すればコンパイルは通る。
+#if defined(__GNUC__) && !defined(__clang__)
+export namespace std {
+	template<>
+	constexpr void swap(System::TaskData<bool, bool>*& lhs, System::TaskData<bool, bool>*& rhs) noexcept {
+		System::TaskData<bool, bool>* tmp = lhs;
+		lhs = rhs;
+		rhs = tmp;
+	}
+}
+#endif
 
 //TaskFuture, TaskPromise
 export namespace System {
@@ -265,7 +272,7 @@ export namespace System {
 	public:
 		static constexpr bool Suspendable = TaskData<R, S>::Suspendable;
 	private:
-		std::shared_ptr<TaskData<R, S>> m_ptr;
+		SharedPtr<TaskData<R, S>> m_ptr;
 	public:
 		TaskFuture() noexcept : m_ptr(nullptr) {}
 		TaskFuture(const TaskFuture<R, S>&) noexcept = delete;
@@ -273,7 +280,7 @@ export namespace System {
 		~TaskFuture() noexcept = default;
 	private:
 		friend class TaskPromise<R, S>;
-		TaskFuture(const std::shared_ptr<TaskData<R, S>>& arg) noexcept : m_ptr(arg) {}
+		TaskFuture(const SharedPtr<TaskData<R, S>>& arg) noexcept : m_ptr(arg) {}
 	public:
 		void Wait(TaskState state) noexcept { m_ptr->Wait(state); }
 		void Run() noexcept { m_ptr->Run(); }
@@ -308,10 +315,10 @@ export namespace System {
 		static constexpr bool Suspendable = TaskData<R, S>::Suspendable;
 	private:
 		friend struct TaskNode;
-		std::shared_ptr<TaskData<R, S>> m_ptr;
+		SharedPtr<TaskData<R, S>> m_ptr;
 	public:
-		TaskPromise() noexcept : m_ptr(std::make_shared<TaskData<R, S>>()) {}
-		TaskPromise(const std::shared_ptr<bool>& worker_running, bool once) noexcept : m_ptr(std::make_shared<TaskData<R, S>>(worker_running, once)) {}
+		TaskPromise() noexcept : m_ptr(MakeShared<TaskData<R, S>>()) {}
+		TaskPromise(const SharedPtr<bool>& worker_running, bool once) noexcept : m_ptr(MakeShared<TaskData<R, S>>(worker_running, once)) {}
 		TaskPromise(const TaskPromise<R, S>& arg) noexcept : m_ptr(arg.m_ptr) {}
 		TaskPromise(TaskPromise<R, S>&& arg) noexcept : m_ptr(System::move(arg.m_ptr)) {}
 		~TaskPromise() noexcept = default;
@@ -342,15 +349,15 @@ export namespace System {
 //TaskNode
 namespace System {
 	struct TaskNode {
-		std::shared_ptr<TaskStateBase> m_state;
-		std::function<void(void)> m_task;
+		SharedPtr<TaskStateBase> m_state;
+		Function<void(void)> m_task;
 		TaskNode* m_prev = nullptr;
 		TaskNode* m_next = nullptr;
 		uint32_t m_level = MAX_VALUE<uint32_t>;
 	public:
 		TaskNode() noexcept = default;
 		template<class R, class S>
-		TaskNode(TaskPromise<R, S>&& p, const std::function<void(TaskPromise<R, S>&)>& task, uint32_t level) noexcept
+		TaskNode(TaskPromise<R, S>&& p, const Function<void(TaskPromise<R, S>&)>& task, uint32_t level) noexcept
 			: m_state(p.m_ptr), m_level(level)
 		{			
 			m_task = [task = task, p = System::move(p)]() mutable {
@@ -371,22 +378,22 @@ namespace System {
 export namespace System {
 	class TaskWorker {
 	private:
-		mutable std::mutex m_main_mtx;
-		std::condition_variable m_main_cv;
-		std::shared_ptr<bool> m_running = std::make_shared<bool>(true);
+		mutable Mutex m_main_mtx;
+		ConditionVariable m_main_cv;
+		SharedPtr<bool> m_running = MakeShared<bool>(true);
 		TaskNode* m_begin = nullptr;
 		TaskNode* m_end = nullptr;
 		uint32_t m_currentLevel = 0;
 	private:
-		std::unique_ptr<std::thread[]> m_threads;
+		UniquePtr<Thread[]> m_threads;
 		const uint32_t m_threadCount;
 	private:
 		void ThreadRunloop() noexcept {
 			while (true) {
 				TaskNode* node = nullptr;
-				std::function<void(void)>* task = nullptr;
+				Function<void(void)>* task = nullptr;
 				{
-					std::unique_lock main_lock{ m_main_mtx };
+					UniqueLock main_lock{ m_main_mtx };
 					//デストラクタからの終了、もしくはタスクの追加(0個でなくなる)を待機
 					m_main_cv.wait(
 						main_lock,
@@ -452,16 +459,16 @@ export namespace System {
 		TaskWorker(uint32_t threadCount) noexcept : m_threadCount(threadCount) {
 			m_begin = new TaskNode{};
 			m_end = m_begin;
-			m_threads = std::make_unique<std::thread[]>(m_threadCount);
+			m_threads = MakeUnique<Thread[]>(m_threadCount);
 			for (uint32_t i = 0; i < m_threadCount; ++i) {
-				m_threads[i] = std::thread([this] { this->ThreadRunloop(); });
+				m_threads[i] = Thread([this]() { this->ThreadRunloop(); });
 			}
 		}
 		TaskWorker(const TaskWorker&) noexcept = delete;
 		TaskWorker(TaskWorker&&) noexcept = delete;
 		~TaskWorker() noexcept {
 			{
-				std::lock_guard main_lock{ m_main_mtx };
+				LockGuard main_lock{ m_main_mtx };
 				*m_running = false;
 				//スレッド終了を通知
 				m_main_cv.notify_all();
@@ -485,7 +492,7 @@ export namespace System {
 	public:
 		template<class R, class S, class Functor>
 		TaskFuture<R, S> Push(Functor&& task, uint32_t level, bool once) noexcept {
-			std::lock_guard main_lock{ m_main_mtx };
+			LockGuard main_lock{ m_main_mtx };
 			TaskPromise<R, S> p(m_running, once);
 			TaskFuture<R, S> ret = p.GetFuture();
 			if (!*m_running) {
@@ -493,7 +500,7 @@ export namespace System {
 				return ret;
 			}
 			//タスクをノードリストに追加
-			TaskNode* tmp = new TaskNode(System::move(p), std::function<void(TaskPromise<R, S>&)>(System::move(task)), level);
+			TaskNode* tmp = new TaskNode(System::move(p), Function<void(TaskPromise<R, S>&)>(System::move(task)), level);
 			//先頭から検索して初めて追加するタスクよりレベルが高くなるタスク
 			TaskNode* next = m_begin;
 			while (next != m_end && next->m_level <= level) next = next->m_next;

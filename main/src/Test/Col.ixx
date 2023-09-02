@@ -4,9 +4,8 @@ import Traits;
 import Function;
 import <exception>;
 import <coroutine>;
-using namespace System;
 
-export namespace Test {
+export namespace System::Test {
 	template<class T>
 	struct ColIterator;
 
@@ -35,7 +34,7 @@ export namespace Test {
 		constexpr Col() noexcept = delete;
 		constexpr Col(handle h) noexcept
 		    : m_handle(h) {}
-		template<Traits::Concepts::CConstructibleTo<Function<Col<T>(bool)>> F>
+		template<Traits::Concepts::CMoveConstructibleTo<Function<Col<T>(bool)>> F>
 		constexpr Col(F&& getEnumFunc, bool reverse = false) noexcept
 		    : m_enumFunc(System::move(getEnumFunc))
 		    , m_reverse(reverse) {
