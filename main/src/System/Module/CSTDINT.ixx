@@ -3,6 +3,9 @@ export import <cstdint>;
 export import <initializer_list>;
 export import <compare>;
 import <limits>;
+#if !defined(__GNUC__) || defined(__clang__)
+import <memory>;	//std::addressof
+#endif
 
 inline constexpr size_t SIZEMAX = SIZE_MAX;
 
@@ -278,6 +281,9 @@ export namespace System {
 	using weak_ordering = std::weak_ordering;
 }
 
+//cl.exeでは***_ordering構造体内のstaticメンバ変数が未定義のシンボルとなるため、定義しておく。
+//g++ではあってもなくてもよく、clangでは定義が重複する。不要なため、隠しておく
+#if defined(_MSC_VER)
 constexpr std::partial_ordering std::partial_ordering::less;
 constexpr std::partial_ordering std::partial_ordering::equivalent;
 constexpr std::partial_ordering std::partial_ordering::greater;
@@ -289,6 +295,7 @@ constexpr std::strong_ordering std::strong_ordering::less;
 constexpr std::strong_ordering std::strong_ordering::equal;
 constexpr std::strong_ordering std::strong_ordering::equivalent;
 constexpr std::strong_ordering std::strong_ordering::greater;
+#endif
 
 //remove_reference
 namespace System::Internal {
@@ -340,4 +347,17 @@ export namespace System {
 	inline constexpr const wchar_t wcout_flashing_violently[] = L"\x1b[6m";
 	inline constexpr const wchar_t wcout_toggle_color[] = L"\x1b[7m";
 	inline constexpr const wchar_t wcout_hide[] = L"\x1b[8m";
+}
+
+//addressof
+export namespace System {
+	template<class T>
+	constexpr T* addressof(T& arg) noexcept {
+#if !defined(__GNUC__) || defined(__clang__)
+	return std::addressof(arg);
+#else
+	return __builtin_addressof(arg);
+#endif
+	}
+	template<class T> const T* addressof(const T&&) = delete;
 }

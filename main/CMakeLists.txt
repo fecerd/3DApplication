@@ -10,6 +10,7 @@ include(./functions.cmake)
 
 ###コンパイラ設定 Begin###
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(STD_LIBRARY_DIR)
 add_compile_options(-I"${CMAKE_MY_STD_PATH}")
 if (MSBUILD)
@@ -27,8 +28,7 @@ elseif (MSVC)
 elseif(GCC)
 	message(STATUS "GCC Mode")
 	add_compile_options(-fmodules-ts -Mno-modules -DUNICODE -D_UNICODE -mwindows)
-	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG)
-	set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+	add_compile_options($<$<CONFIG:Debug>:-D_DEBUG>)
 	## MSVCではコンパイルが通るコードがg++では多重定義でリンクエラーとなる。
 	## あまり得策ではないが、多重定義を無視するリンカオプションをつけて対応する。
 	add_link_options(-Wl,--allow-multiple-definition)
@@ -37,8 +37,7 @@ elseif(GCC)
 elseif (CLANG)
 	message(STATUS "CLANG Mode")
 	add_compile_options(-DUNICODE -D_UNICODE)
-	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG)
-	set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+	add_compile_options($<$<CONFIG:Debug>:-D_DEBUG>)
 	## 不要な-MD、-MT、-MFオプションがpcm->objのコンパイル時に設定されてしまう。
 	## あまり得策ではないが警告を出力しないことで対応する。
 	add_compile_options(-Wno-unused-command-line-argument)
@@ -72,7 +71,6 @@ FPrecompileSTD(
 	new
 	exception
 	functional
-	cstdlib
 	typeinfo
 	cassert
 )
@@ -86,3 +84,6 @@ add_executable(main)
 target_link_libraries(main PRIVATE src)
 ## 出力先の変更
 set_target_properties(main PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+## Boostライブラリをリンクする
+FLinkBoost(main)

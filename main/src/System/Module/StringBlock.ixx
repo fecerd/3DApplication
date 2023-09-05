@@ -1,10 +1,10 @@
 ﻿export module StringBlock;
 export import CSTDINT;
 export import Traits;
+import Allocator;
 import Math;
 export import VectorBase;
 import CodePoint;
-import <memory>;	//std::allocator
 
 //CStringBlock
 export namespace System {
@@ -378,37 +378,38 @@ export namespace System {
 	public:
 		static constexpr size_t npos = MAX_VALUE<size_t>;
 	public:
-		StringBlock() noexcept {
-			size = 1;
-			value = new str_t[size];
+		StringBlock() noexcept : size(1) {
+			Allocator<str_t> al;
+			value = al.allocate(size);
 			value[0] = '\0';
 		}
-		StringBlock(const StringBlock<str_t>& arg) noexcept {
-			size = arg.size;
-			value = new str_t[size];
+		StringBlock(const StringBlock<str_t>& arg) noexcept : size(arg.size) {
+			Allocator<str_t> al;
+			value = al.allocate(size);
 			for (size_t i = 0; i < size; ++i) value[i] = arg.value[i];
 		}
 		StringBlock(StringBlock<str_t>&& arg) noexcept : size(arg.size), value(arg.value) {
 			arg.size = 0;
 			arg.value = nullptr;
 		}
-		StringBlock(const str_t c) noexcept {
-			size = 2;
-			value = new str_t[size];
+		StringBlock(const str_t c) noexcept : size(2) {
+			Allocator<str_t> al;
+			value = al.allocate(size);
 			value[0] = c;
 			value[1] = '\0';
 		}
 		template<size_t N>
-		StringBlock(const str_t(&arg)[N]) noexcept {
-			size = N;
-			value = new str_t[size];
+		StringBlock(const str_t(&arg)[N]) noexcept : size(N) {
+			Allocator<str_t> al;
+			value = al.allocate(size);
 			for (size_t i = 0; i < size; ++i) value[i] = arg[i];
 			value[size - 1] = '\0';
 		}
 		StringBlock(const str_t* arg, size_t n = npos) noexcept {
+			Allocator<str_t> al;
 			if (!arg) {
 				size = 1;
-				value = new str_t[size];
+				value = al.allocate(size);
 				value[0] = '\0';
 			}
 			else {
@@ -420,17 +421,18 @@ export namespace System {
 					size = 1;
 				}
 				else size = len + 1;
-				value = new str_t[size];
+				value = al.allocate(size);
 				for (size_t i = 0; i < len; ++i) value[i] = arg[i];
 				value[size - 1] = '\0';
 			}
 		}
-		StringBlock(const nullptr_t arg) noexcept {}
+		// StringBlock(nullptr_t arg) noexcept {}
 		template<size_t N>
 		StringBlock(const CStringBlock<str_t, N>& arg) noexcept {
 			size_t len = arg.Length();
 			size = len + 1;
-			value = new str_t[size];
+			Allocator<str_t> al;
+			value = al.allocate(size);
 			for (size_t i = 0; i < len; ++i) value[i] = arg.value[i];
 			value[size - 1] = '\0';
 		}
@@ -460,7 +462,7 @@ export namespace System {
 		/// 一律で対処できるようにしたい。
 		/// </summary>
 		inline void InternalReset(size_t newSize = 0) noexcept {
-			std::allocator<str_t> al;
+			Allocator<str_t> al;
 			if (value) {
 				al.deallocate(value, size);
 				value = nullptr;

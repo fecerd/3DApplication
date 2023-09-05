@@ -11,14 +11,14 @@ FAddObjectLibrary(Encoding_1
 		CodePoint.ixx
 	DEPENDS
 		Encoding_0
-		Module_2
+		Module_3
 )
 FAddObjectLibrary(Encoding_2
 	SOURCES
 		CodePage.ixx
 	DEPENDS
 		Encoding_1
-		Module_8
+		Module_9
 )
 FAddObjectLibrary(Encoding_3
 	SOURCES

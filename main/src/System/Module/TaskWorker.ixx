@@ -525,3 +525,25 @@ export namespace System {
 		TaskWorker& operator=(TaskWorker&&) noexcept = delete;
 	};
 }
+
+export namespace System {
+	class TMP {
+		uint32_t m_threadCount = 0;
+		Thread* m_threads = nullptr;
+	public:
+		TMP(uint32_t threadCount) noexcept : m_threadCount(threadCount) {
+			m_threads = new Thread[m_threadCount]();
+
+		}
+		~TMP() noexcept {
+			if (m_threads) {
+				for (uint32_t i = 0; i < m_threadCount; ++i) {
+					m_threads[i].join();
+				}
+				delete[] m_threads;
+				m_threads = nullptr;
+			}
+			m_threadCount = 0;
+		}
+	};
+}

@@ -1,9 +1,9 @@
 ﻿export module UniquePtr;
 import CSTDINT;
 import Traits;
+import Allocator;
 import <iostream>;	//overload operator<<
 import <functional>;	//specialization hash<>
-import <memory>;	//std::allocator<>
 
 namespace System::Internal {
 	template<class T, class D>
@@ -349,19 +349,19 @@ export namespace System {
 //MakeUnique
 export namespace System {
 	template<Traits::Concepts::CNotArray T, class ...Args>
-	constexpr UniquePtr<T> MakeUnique(Args&& ...args) noexcept {
-		std::allocator<T> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+	constexpr UniquePtr<T> MakeUnique(Args&& ...args) {
+		Allocator<T> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		T* ptr = traits::allocate(alloc, 1);
 		traits::construct(alloc, ptr, System::move(args)...);
 		return UniquePtr<T>(ptr);
 	}
 	template<Traits::Concepts::CUnknownBoundArray T>
 	requires Traits::Concepts::CDefaultConstructible<Traits::remove_extent_t<T>>
-	constexpr UniquePtr<T> MakeUnique(size_t N) noexcept {
+	constexpr UniquePtr<T> MakeUnique(size_t N) {
 		using type = Traits::remove_all_extents_t<T>;
-		std::allocator<type> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+		Allocator<type> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		constexpr size_t multiple_count = Traits::element_count_v<T>;
 		const size_t all_count = multiple_count * N;
 		type* ptr = traits::allocate(alloc, all_count);
@@ -374,21 +374,21 @@ export namespace System {
 		return UniquePtr<T>(ptr);
 	}
 	template<Traits::Concepts::CKnownBoundArray T, class ...Args>
-	constexpr auto MakeUnique(Args&& ...args) noexcept = delete;
+	constexpr auto MakeUnique(Args&& ...args) = delete;
 
 	template<Traits::Concepts::CNotArray T>
-	constexpr UniquePtr<T> MakeUniqueForOverwrite() noexcept {
-		std::allocator<T> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+	constexpr UniquePtr<T> MakeUniqueForOverwrite() {
+		Allocator<T> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		T* ptr = traits::allocate(alloc, 1);
 		::new (static_cast<void*>(ptr)) T;
 		return UniquePtr<T>(ptr);
 	}
 	template<Traits::Concepts::CUnknownBoundArray T>
-	constexpr UniquePtr<T> MakeUniqueForOverwrite(size_t N) noexcept {
+	constexpr UniquePtr<T> MakeUniqueForOverwrite(size_t N) {
 		using type = Traits::remove_all_extents_t<T>;
-		std::allocator<type> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+		Allocator<type> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		constexpr size_t multiple_count = Traits::element_count_v<T>;
 		const size_t all_count = multiple_count * N;
 		type* ptr = traits::allocate(alloc, all_count);
@@ -401,7 +401,7 @@ export namespace System {
 		return UniquePtr<T>(ptr);
 	}
 	template<Traits::Concepts::CKnownBoundArray T, class ...Args>
-	constexpr auto MakeUniqueForOverwrite(Args&& ...args) noexcept = delete;
+	constexpr auto MakeUniqueForOverwrite(Args&& ...args) = delete;
 }
 
 using namespace System;

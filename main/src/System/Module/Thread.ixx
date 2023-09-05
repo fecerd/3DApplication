@@ -2,20 +2,29 @@
 import CSTDINT;
 import Traits;
 import Function;
-import <thread>;	//std::thread
 export import <mutex>;	//std::mutex, std::lock_guard<>, std::unique_lock<>
 export import <condition_variable>;	//std::condition_variable
+
+//g++のみboost::threadを使用する
+#if !defined(__GNUC__) || defined(__clang__)
+import <thread>;	//std::thread
+using internal_thread = std::thread;
+#else
+import Boost;
+using internal_thread = System::Boost::Thread;
+#endif
+
 
 //Thread
 export namespace System {
 	class Thread {
-		std::thread m_thread = std::thread();
+		internal_thread m_thread = internal_thread();
 	public:
 		Thread() noexcept = default;
 		template<class R, class ...Args>
 		Thread(const Function<R(Args...)>& func, Args&& ...args) noexcept : m_thread(func, static_cast<Args&&>(args)...) {}
 		template<class Functor, class ...Args>
-		Thread(Functor&& f, Args&& ...args) noexcept : m_thread(Function(System::move(f)), static_cast<Args&&>(args)...) {}
+		Thread(Functor&& f, Args&& ...args) noexcept : m_thread(Function<Traits::function_t<Functor>>(System::move(f)), static_cast<Args&&>(args)...) {}
 		Thread(const Thread&) noexcept = delete;
 		Thread(Thread&&) noexcept = default;
 		~Thread() noexcept = default;

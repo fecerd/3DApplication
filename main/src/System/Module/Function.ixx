@@ -3,7 +3,7 @@
 export module Function;
 import CSTDINT;
 import Traits;
-import <new>;	//placement new/delete
+import Allocator;
 
 //FuncData
 namespace System {
@@ -15,7 +15,7 @@ namespace System {
 	public:
 		FuncData() noexcept : ptr(nullptr) {}
 		template<class F>
-		FuncData(F&& functor) noexcept {
+		FuncData(F&& functor) noexcept : ptr(nullptr) {
 			using type = Traits::remove_cvref_t<F>;
 			if constexpr (Traits::is_member_function_pointer_v<type>) {
 				ptr = new type(functor);
@@ -24,14 +24,16 @@ namespace System {
 				ptr = reinterpret_cast<void*>(functor);
 			}
 			else if constexpr (sizeof(type) <= sizeof(buf)) {
-				::new (buf) type(System::move(functor));
+				System::construct_at(reinterpret_cast<type*>(buf), System::move(functor));
 			}
 			else {
 				ptr = new type(System::move(functor));
 			}
 		}
 		FuncData(const FuncData&) noexcept = delete;
-		FuncData(FuncData&& arg) noexcept : ptr(arg.ptr) { arg.ptr = nullptr; }
+		FuncData(FuncData&& arg) noexcept : ptr(arg.ptr) {
+			arg.ptr = nullptr;
+		}
 	public:
 		FuncData& operator=(const FuncData&) noexcept = delete;
 		FuncData& operator=(FuncData&& rhs) noexcept {
@@ -193,10 +195,23 @@ export namespace System {
 			m_clone_or_destruct = rhs.m_clone_or_destruct;
 			return *this;
 		}
+		template<class T>
+		inline constexpr Traits::remove_reference_t<T>&& move_in(T&& t) noexcept {
+			return static_cast<Traits::remove_reference_t<T>&&>(t);
+		}
 		Function& operator=(Function&& rhs) noexcept {
 			if (this == &rhs) return *this;
 			Reset();
+			//Failed...
+			//m_data = std::forward<FuncData>(rhs.m_data);
+			//Failed...
 			m_data = System::move(rhs.m_data);
+			//Failed...
+			//m_data = std::move(rhs.m_data);
+			//Success!
+			//m_data = move_in(rhs.m_data);
+			//Success!
+			//m_data = static_cast<FuncData&&>(rhs.m_data);
 			m_invoke = rhs.m_invoke;
 			m_clone_or_destruct = rhs.m_clone_or_destruct;
 			rhs.m_invoke = nullptr;
@@ -237,4 +252,6 @@ export namespace System {
 	Function(P)->Function<Traits::function_t<P>>;
 	template<Traits::Concepts::CMemberFunctionPointer P>
 	Function(P)->Function<Traits::function_t<P>>;
+
+	template class Function<int(int)>;
 }

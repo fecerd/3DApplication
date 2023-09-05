@@ -607,6 +607,12 @@ export namespace System {
 		struct is_copy_assignable : is_assignable<L&, R const&> {};
 		template<class L, class R>
 		struct is_move_assignable : is_assignable<L&, R&&> {};
+		namespace Internal {
+			template<class T> struct is_empty_1 : public T { double value; };
+			struct is_empty_2 { double value; };
+			template<class T> struct is_empty_internal : public integral_constant<bool, sizeof(is_empty_1<T>) == sizeof(is_empty_2)> {};
+		}
+		template<class T> struct is_empty : public conditional_t<std::is_class<T>::value, Internal::is_empty_internal<T>, false_type> {};
 	}
 	namespace Traits {
 		template<class C> using is_class = std::is_class<C>;
@@ -649,6 +655,7 @@ export namespace System {
 		template<class L, class R = L> inline constexpr bool is_assignable_v = is_assignable<L, R>::value;
 		template<class L, class R = L> inline constexpr bool is_copy_assignable_v = is_copy_assignable<L, R>::value;
 		template<class L, class R = L> inline constexpr bool is_move_assignable_v = is_move_assignable<L, R>::value;
+		template<class T> inline constexpr bool is_empty_v = is_empty<T>::value;
 	}
 	//[固有] : パラメータパック判定
 	namespace Traits {
@@ -1369,7 +1376,7 @@ export namespace System {
 		template<class T>
 		using iterator_dereference_value_t = iterator_dereference_value<T>::type;
 	}
-	//[固有] : イテレータにも対応した参照外し型
+	//[固有]：イテレータにも対応した参照外し型
 	namespace Traits {
 		template<class T>
 		struct dereference { using type = T; };
@@ -1380,21 +1387,21 @@ export namespace System {
 		template<class T>
 		using dereference_t = dereference<T>::type;
 	}
-	//[固有] : Enum class 演算子自動定義型
+	//[固有]：Enum class 演算子自動定義型
 	//template<> struct enabling_***_enum : true_type {};で特殊化することで、
 	//演算子を自動定義できる
 	namespace Traits {
 		template<Concepts::CEnum T> struct enabling_bitwise_for_enum : false_type {};
 		template<Concepts::CEnum T> struct enabling_and_or_for_enum : enabling_bitwise_for_enum<T> {};
 	}
-	//[固有] : Enum class 演算子コンセプト
+	//[固有]：Enum class 演算子コンセプト
 	namespace Traits::Concepts{
 		template<class T>
 		concept CBitwiseEnum = enabling_bitwise_for_enum<T>::value;
 		template<class T>
 		concept CAndOrEnum = enabling_and_or_for_enum<T>::value;
 	}
-	//[固有] : ビットフラグ操作
+	//[固有]：ビットフラグ操作
 	namespace Traits {
 		template<Concepts::CBitFlag T, Concepts::CBitFlag U>
 		constexpr bool IncludeBitFlags(T value, U flags) noexcept {
@@ -1407,6 +1414,80 @@ export namespace System {
 			return (static_cast<size_t>(value) | u_inv) == u_inv;
 		}
 
+	}
+	//[memory]互換：pointer_traits
+	namespace Traits {
+		namespace Internal {
+			template<class T, class U>
+			struct DifferenceType { using type = U; };
+			template<class T, class U>
+			requires requires() { typename T::difference_type; }
+			struct DifferenceType<T, U> { using type = T::difference_type; };
+			template<class T, class U> struct RebindType;
+			template<class Ptr, class U>
+			requires requires() { typename Ptr::template rebind<U>; }
+			struct RebindType<Ptr, U> {
+				using type = typename Ptr::template rebind<U>;
+			};
+			template<template<class T, class ...Args> class Ptr, class U, class T, class ...Args>
+			struct RebindType<Ptr<T, Args...>, U> {
+				using type = Ptr<U, Args...>;
+			};
+			template<class T> struct ElementType;
+			template<class Ptr>
+			requires requires() { typename Ptr::element_type; }
+			struct ElementType<Ptr> {
+				using type = Ptr::element_type;
+			};
+			template<template<class T, class ...Args> class Ptr, class T, class ...Args>
+			struct ElementType<Ptr<T, Args...>> {
+				using type = T;
+			};
+			template<class Ptr, class E>
+			concept CHasPointerTo = requires(E& r){
+				Ptr::pointer_to(r);
+			};
+		}
+		
+		template<class Ptr>
+		struct pointer_traits {
+			using pointer = Ptr;
+			using difference_type = typename Internal::DifferenceType<Ptr, ptrdiff_t>::type;
+			using element_type =typename Internal::ElementType<Ptr>::type;
+		public:
+			template<class U>
+			using rebind = typename Internal::RebindType<Ptr, U>::type;
+		public:
+			static pointer pointer_to(element_type& r) {
+				static_assert(Internal::CHasPointerTo<Ptr, element_type>);
+				return Ptr::pointer_to(r);
+			}
+		};
+		template<class T>
+		struct pointer_traits<T*> {
+			using pointer = T*;
+			using element_type = T;
+			using difference_type = ptrdiff_t;
+		public:
+			template<class U>
+			using rebind = U*;
+		public:
+			static constexpr pointer pointer_to(element_type& r) noexcept {
+				return System::addressof(r);
+			}
+		};
+	}
+	//[type_traits]互換: make_unsigned
+	namespace Traits {
+		template<Concepts::CIntegral T>
+		requires (!Concepts::CSame<T, bool>)
+		struct make_unsigned {
+			using type = int_t<false, sizeof(T)>;
+		};
+	}
+	namespace Traits {
+		template<Concepts::CIntegral T>
+		using make_unsigned_t = make_unsigned<T>::type;
 	}
 }
 

@@ -6,7 +6,7 @@ FAddObjectLibrary(SmartPtrs_0
 		UniquePtr.ixx
 	DEPENDS
 		std
-		Module_1
+		Module_2
 )
 
 FAddObjectLibrary(SmartPtrs_1

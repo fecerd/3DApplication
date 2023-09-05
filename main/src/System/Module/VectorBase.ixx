@@ -1,9 +1,9 @@
 ﻿export module VectorBase;
 import CSTDINT;
 import Traits;
+import Allocator;
 import Iterators;
 import Sorts;
-import <memory>;//std::allocator
 
 export namespace System {
 	template<class T>
@@ -57,7 +57,7 @@ export namespace System {
 		}
 	private:
 		constexpr void InternalReset(size_t newSize = 0) noexcept {
-			std::allocator<T> al;
+			Allocator<T> al;
 			if (m_data) {
 				al.deallocate(m_data, m_capacity);
 				m_data = nullptr;
@@ -86,7 +86,7 @@ export namespace System {
 	protected:
 		constexpr bool Allocate(size_t n) noexcept {
 			if (n > SIZE_MAX - m_count) return false;
-			std::allocator<T> al;
+			Allocator<T> al;
 			if (!m_capacity) {
 				m_capacity = n;
 				m_count = 0;

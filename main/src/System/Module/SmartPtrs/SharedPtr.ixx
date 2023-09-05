@@ -1,11 +1,10 @@
 ﻿export module SharedPtr;
 import CSTDINT;
 import Traits;
+import Allocator;
 import IPtrCounter;
 import UniquePtr;
 import <typeinfo>;	//std::type_info
-import <memory>;	//std::allocator
-import <new>;	//overload new/delete
 import <iostream>;	//overload operator<<
 import <functional>;	//specialization std::hash<>
 
@@ -35,11 +34,11 @@ namespace System::Internal {
 		template<class P, class D, class A>
 		SharedCount(P ptr, D deleter, A allocator) noexcept : m_count(nullptr) {
 			using impl_type = PtrCounterDelAlloc<P, D, A>;
-			using alloc_type = typename std::allocator_traits<A>::template rebind_alloc<impl_type>;
+			using alloc_type = typename AllocatorTraits<A>::template rebind_alloc<impl_type>;
 			alloc_type alloc(allocator);
 			m_count = alloc.allocate(1);
 			if (m_count) {
-				::new(static_cast<void*>(m_count)) impl_type(ptr, deleter, allocator);
+				System::construct_at(static_cast<impl_type*>(m_count), ptr, deleter, allocator);
 			} else {
 				deleter(ptr);
 			}
@@ -47,11 +46,11 @@ namespace System::Internal {
 		template<class P, class D, class A>
 		SharedCount(P ptr, InplaceTag<D>, A allocator) noexcept : m_count(nullptr) {
 			using impl_type = PtrCounterDelAlloc<P, D, A>;
-			using alloc_type = typename std::allocator_traits<A>::template rebind_alloc<impl_type>;
+			using alloc_type = typename AllocatorTraits<A>::template rebind_alloc<impl_type>;
 			alloc_type alloc(allocator);
 			m_count = alloc.allocate(1);
 			if (m_count) {
-				::new (static_cast<void*>(m_count)) impl_type(ptr, allocator);
+				System::construct_at(static_cast<impl_type*>(m_count), ptr, allocator);
 			} else {
 				D::operator_fn(ptr);
 			}
@@ -646,8 +645,8 @@ export namespace System {
 export namespace System {
 	template<Traits::Concepts::CNotArray T, class ...Args>
 	SharedPtr<T> MakeShared(Args&& ...args) noexcept {
-		std::allocator<T> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+		Allocator<T> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		T* ptr = traits::allocate(alloc, 1);
 		traits::construct(alloc, ptr, System::move(args)...);
 		return SharedPtr<T>(ptr);
@@ -655,8 +654,8 @@ export namespace System {
 	template<Traits::Concepts::CUnknownBoundArray T>
 	SharedPtr<T> MakeShared(size_t N) noexcept {
 		using type = Traits::remove_all_extents_t<T>;
-		std::allocator<type> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+		Allocator<type> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		constexpr size_t multiple_count = Traits::element_count_v<T>;
 		const size_t all_count = multiple_count * N;
 		type* ptr = traits::allocate(alloc, all_count);
@@ -671,8 +670,8 @@ export namespace System {
 	template<Traits::Concepts::CKnownBoundArray T>
 	SharedPtr<T> MakeShared() noexcept {
 		using type = Traits::remove_all_extents_t<T>;
-		std::allocator<type> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+		Allocator<type> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		constexpr size_t multiple_count = Traits::element_count_v<Traits::remove_extent_t<T>>;
 		constexpr size_t all_count = Traits::element_count_v<T>;
 		constexpr size_t N = all_count / multiple_count;
@@ -688,8 +687,8 @@ export namespace System {
 	template<Traits::Concepts::CUnknownBoundArray T>
 	SharedPtr<T> MakeShared(size_t N, const Traits::remove_extent_t<T>& u) noexcept {
 		using type = Traits::remove_all_extents_t<T>;
-		std::allocator<type> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+		Allocator<type> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		constexpr size_t multiple_count = Traits::element_count_v<T>;
 		const size_t all_count = multiple_count * N;
 		type* ptr = traits::allocate(alloc, all_count);
@@ -707,8 +706,8 @@ export namespace System {
 	template<Traits::Concepts::CKnownBoundArray T>
 	SharedPtr<T> MakeShared(const Traits::remove_extent_t<T>& u) noexcept {
 		using type = Traits::remove_all_extents_t<T>;
-		std::allocator<type> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+		Allocator<type> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		constexpr size_t multiple_count = Traits::element_count_v<Traits::remove_extent_t<T>>;
 		constexpr size_t all_count = Traits::element_count_v<T>;
 		constexpr size_t N = all_count / multiple_count;
@@ -727,17 +726,17 @@ export namespace System {
 
 	template<Traits::Concepts::CNotArray T>
 	SharedPtr<T> MakeSharedForOverwrite() noexcept {
-		std::allocator<T> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+		Allocator<T> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		T* ptr = traits::allocate(alloc, 1);
-		::new (static_cast<void*>(ptr)) T;
+		System::construct_default(ptr);
 		return SharedPtr<T>(ptr);
 	}
 	template<Traits::Concepts::CKnownBoundArray T>
 	SharedPtr<T> MakeSharedForOverwrite() noexcept {
 		using type = Traits::remove_all_extents_t<T>;
-		std::allocator<type> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+		Allocator<type> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		constexpr size_t multiple_count = Traits::element_count_v<Traits::remove_extent_t<T>>;
 		constexpr size_t all_count = Traits::element_count_v<T>;
 		constexpr size_t N = all_count / multiple_count;
@@ -745,7 +744,7 @@ export namespace System {
 		type* p = ptr;
 		for (size_t i = 0; i < N; ++i) {
 			for (size_t j = 0; j < multiple_count; ++j) {
-				::new (static_cast<void*>(p++)) type;
+				System::construct_default(p++);
 			}
 		}
 		return SharedPtr<T>(reinterpret_cast<Traits::remove_extent_t<T>*>(ptr));
@@ -753,15 +752,15 @@ export namespace System {
 	template<Traits::Concepts::CUnknownBoundArray T>
 	SharedPtr<T> MakeSharedForOverwrite(size_t N) noexcept {
 		using type = Traits::remove_all_extents_t<T>;
-		std::allocator<type> alloc;
-		using traits = std::allocator_traits<decltype(alloc)>;
+		Allocator<type> alloc;
+		using traits = AllocatorTraits<decltype(alloc)>;
 		constexpr size_t multiple_count = Traits::element_count_v<T>;
 		const size_t all_count = multiple_count * N;
 		type* ptr = traits::allocate(alloc, all_count);
 		type* p = ptr;
 		for (size_t i = 0; i < N; ++i) {
 			for (size_t j = 0; j < multiple_count; ++j) {
-				new (static_cast<void*>(p++)) type;
+				System::construct_default(p++);
 			}
 		}
 		return SharedPtr<T>(reinterpret_cast<Traits::remove_extent_t<T>*>(ptr));

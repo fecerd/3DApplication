@@ -5,7 +5,7 @@ FAddObjectLibrary(Objects_0
 		Objects_Internal.ixx
 	DEPENDS
 		std
-		Module_5
+		Module_6
 )
 FAddObjectLibrary(Objects_1
 	SOURCES

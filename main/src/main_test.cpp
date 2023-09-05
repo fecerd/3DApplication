@@ -7,18 +7,8 @@ import <iostream>;
 import <cassert>;
 import <source_location>;
 //import <functional>;	//std::hash
-import Traits;
-import SharedPtr;
-import UniquePtr;
-import SmartPtrs;
-import Function;
-import TaskWorker;
-import DisposingObject;
-import StringBlock;
-import Objects;
-import Col;
 
-//import System;
+import System;
 using namespace System;
 
 int func_null();
@@ -26,14 +16,52 @@ int func_null();
 template<class T>
 struct Con { T* m_ptr = nullptr; };
 
-void test_func0() noexcept {
+void test_func0() {
 	StringBlock<char16_t> str = u"Hello";
 	String str3 = u"Hello";
 
 	std::wcout << str3.w_str() << std::endl;
 }
 
-void test_func1() noexcept {
+void test_func1() {
+	System::Thread th1 = System::Thread(
+		[](){ 
+			for (int i = 0; i < 10; ++i) std::cout << i << std::endl;
+			//return 0;
+		}
+	);
+	th1.join();
+
+	auto f2 = []() {
+		for (int i = 0; i < 10; ++i) std::cout << i << std::endl;
+	};
+	System::Thread th2 = System::Thread(f2);
+	th2.join();
+
+	auto f3 = [](int x) {
+		for (int i = 0; i < x; ++i) std::cout << i << std::endl;
+	};
+	System::Thread th3 = System::Thread(f3, 10);
+	th3.join();
+
+	auto f4 = [](int b, int e) {
+		try {
+			for (int i = b; i < e; ++i) std::cout << i << std::endl;
+		} catch (std_exception& e) {
+			std::cout << e.what() << std::endl;
+			return;
+		}
+	};
+	System::Thread th4 = System::Thread(f4, 0, 10);
+	th4.join();
+
+	std::cout << "Thread End." << std::endl;
+
+	UniquePtr<int> i { new int(10) };
+	//UniquePtr<int> i = MakeUnique<int>(10);
+
+	return;
+
 	Disposer* disposer = new Disposer();
 	Con<int> con;
 	con.m_ptr = new int(10);
@@ -54,19 +82,19 @@ void get() {
 	std::cout << __FUNCSIG__ << std::endl;
 }
 
-void test_func2() noexcept { get<int, double>(); }
+void test_func2() { get<int, double>(); }
 
 struct T1 {
 	int i = 0;
 	double d = 0.0;
 	float f = 0.f;
 public:
-	constexpr T1() noexcept = default;
-	constexpr T1(int _i) noexcept : T1(_i, 0.0, 0.f) {}
-	constexpr T1(int _i, double _d, float _f) noexcept : i(_i), d(_d), f(_f) {}
+	constexpr T1() = default;
+	constexpr T1(int _i) : T1(_i, 0.0, 0.f) {}
+	constexpr T1(int _i, double _d, float _f) : i(_i), d(_d), f(_f) {}
 };
 
-void test_func3() noexcept {
+void test_func3() {
 	UniquePtr<int> ptr1 { new int(10) };
 	UniquePtr<T1> ptr2 = MakeUnique<T1>(10, 15.0, 20.f);
 	UniquePtr<T1[]> ptr3 = MakeUnique<T1[]>(5);
@@ -94,7 +122,7 @@ struct Deleter<T[]> {
 	void operator()(T* ptr) const { delete[] ptr; }
 };
 
-void test_func4() noexcept {
+void test_func4() {
 	Deleter<int> delInt;
 	Deleter<T1> delT1;
 	Deleter<T1[]> delT1Arr;
@@ -125,17 +153,17 @@ struct T2 {
 		return ret++;
 	}
 	int m_value;
-	T2() noexcept : m_value(get()) {}
+	T2() : m_value(get()) {}
 };
 
 template<class A, class Y>
-SharedPtr<A> func6_internal(SharedPtr<A> shared, Y* ptr) noexcept {
+SharedPtr<A> func6_internal(SharedPtr<A> shared, Y* ptr) {
 	using type = Traits::remove_all_extents_t<A>;
 	type* p = nullptr;
 	return SharedPtr<A>(p);
 }
 
-void test_func5() noexcept {
+void test_func5() {
 	SharedPtr<int> ptr1_1 { new int(11) };
 	int* p1_1 = ptr1_1.Get();
 	SharedPtr<int> ptr1_2 { new int(12), Deleter<int>() };
@@ -162,7 +190,7 @@ concept CCanOutput = requires(T const& x) {
 };
 
 template<class T>
-void func6_internal(const SharedPtr<T>& shared, size_t count = 1) noexcept {
+void func6_internal(const SharedPtr<T>& shared, size_t count = 1) {
 	std::cout << __FUNCSIG__ << std::endl;
 	Traits::remove_extent_t<T>* p1 = shared.Get();
 	auto p2 = reinterpret_cast<Traits::remove_all_extents_t<T>*>(p1);
@@ -173,7 +201,7 @@ void func6_internal(const SharedPtr<T>& shared, size_t count = 1) noexcept {
 	}
 }
 
-void test_func6() noexcept {
+void test_func6() {
 	//1
 	SharedPtr<T1> ptr1 = MakeShared<T1>();
 	//2
@@ -227,7 +255,7 @@ void test_func6() noexcept {
 	func6_internal(ptr16, 5);
 }
 
-void test_func6_int() noexcept {
+void test_func6_int() {
 	//1
 	SharedPtr<int> ptr1 = MakeShared<int>();
 	//2
@@ -285,10 +313,10 @@ void test_func6_int() noexcept {
 class Hoge {
 	String m_str;
 public:
-	explicit Hoge(const String& str) noexcept : m_str(str) {
+	explicit Hoge(const String& str) : m_str(str) {
 		std::wcout << L"Hoge::Hoge(" << m_str.w_str() << L")" << std::endl;
 	}
-	~Hoge() noexcept {
+	~Hoge() {
 		std::wcout << L"Hoge::~Hoge(" << m_str.w_str() << L")" << std::endl;
 	}
 };
@@ -307,7 +335,6 @@ struct Fuga {
 		std::cout << "Fuga::~Fuga()" << std::endl;
 	}
 };
-
 
 void test_func7() {
 	if (false) {
@@ -352,7 +379,7 @@ void test_func7() {
 	}
 }
 
-void test_func8() noexcept {
+void test_func8() {
 	std::cout << cout_green << "test_func8() Start." << cout_reset << std::endl;
 
 	const auto lam1 = [](TaskPromise<bool, bool>& p) { p.Suspend(); };
@@ -389,70 +416,70 @@ void test_func8() noexcept {
 
 struct T3 {
 	int m_data = 1;
-	T3() noexcept = default;
-	T3(int data) noexcept : m_data(data) {}
+	T3() = default;
+	T3(int data) : m_data(data) {}
 	int func(int x, int y) { return x * y * m_data; }
-	int func_n(int x, int y) noexcept { return x * y * m_data; }
+	int func_n(int x, int y) { return x * y * m_data; }
 	int func_c(int x, int y) const { return x * y * m_data; }
 	int func_cv(int x, int y) const volatile { return x * y * m_data; }
-	int func_cn(int x, int y) const noexcept { return x * y * m_data; }
+	int func_cn(int x, int y) const { return x * y * m_data; }
 	int func_rx(int& x, int y) { x *= 2; return x * y * m_data; }
 	int func_ry(int x, int& y) { y *= 2; return x * y * m_data; }
 	int func_rxy(int& x, int& y) { x *= 2; y *= 2; return x * y * m_data; }
 };
 
-int t3_function(T3 t3, int x, int y) noexcept { return t3.func(x, y); }
-int t3_function_c(T3 const t3, int x, int y) noexcept { return t3.func_c(x, y); }
-int t3_func(T3* t3, int x, int y) noexcept { return t3->func(x, y); }
-int t3_func_r(T3& t3, int x, int y) noexcept { return t3.func(x, y); }
-int t3_func_cr(T3 const& t3, int x, int y) noexcept { return t3.func_c(x, y); }
-int t3_func_c(T3 const* t3, int x, int y) noexcept { return t3->func_c(x, y); }
-int t3_func_cv(T3 const volatile* t3, int x, int y) noexcept { return t3->func_cv(x, y); }
-int t3_func_rx(T3* t3, int& x, int y) noexcept { return t3->func_rx(x, y); }
-int t3_func_ry(T3* t3, int x, int& y) noexcept { return t3->func_ry(x, y); }
-int t3_func_rxy(T3* t3, int& x, int& y) noexcept { return t3->func_rxy(x, y); }
-int t3_func_cp(T3* const t3, int x, int y) noexcept { return t3->func(x, y); }
+int t3_function(T3 t3, int x, int y) { return t3.func(x, y); }
+int t3_function_c(T3 const t3, int x, int y) { return t3.func_c(x, y); }
+int t3_func(T3* t3, int x, int y) { return t3->func(x, y); }
+int t3_func_r(T3& t3, int x, int y) { return t3.func(x, y); }
+int t3_func_cr(T3 const& t3, int x, int y) { return t3.func_c(x, y); }
+int t3_func_c(T3 const* t3, int x, int y) { return t3->func_c(x, y); }
+int t3_func_cv(T3 const volatile* t3, int x, int y) { return t3->func_cv(x, y); }
+int t3_func_rx(T3* t3, int& x, int y) { return t3->func_rx(x, y); }
+int t3_func_ry(T3* t3, int x, int& y) { return t3->func_ry(x, y); }
+int t3_func_rxy(T3* t3, int& x, int& y) { return t3->func_rxy(x, y); }
+int t3_func_cp(T3* const t3, int x, int y) { return t3->func(x, y); }
 
 struct T3Func {
-	static int func(T3 t3, int x, int y) noexcept {
+	static int func(T3 t3, int x, int y) {
 		t3.m_data += 1;
 		return t3.func_cv(x, y);
 	}
-	static int func_c(T3 const t3, int x, int y) noexcept {
+	static int func_c(T3 const t3, int x, int y) {
 		//t3.m_data += 1;
 		return t3.func_cv(x, y);
 	}
-	static int func_p(T3* t3, int x, int y) noexcept {
+	static int func_p(T3* t3, int x, int y) {
 		t3->m_data += 1;
 		return t3->func_cv(x, y);
 	}
-	static int func_r(T3& t3, int x, int y) noexcept {
+	static int func_r(T3& t3, int x, int y) {
 		t3.m_data += 1;
 		return t3.func_cv(x, y);
 	}
-	static int func_cr(T3 const& t3, int x, int y) noexcept {
+	static int func_cr(T3 const& t3, int x, int y) {
 		//t3.m_data += 1;
 		return t3.func_cv(x, y);
 	}
-	static int func_cp(T3 const* t3, int x, int y) noexcept {
+	static int func_cp(T3 const* t3, int x, int y) {
 		//t3->m_data += 1;
 		return t3->func_cv(x, y);
 	}
-	static int func_cvp(T3 const volatile* t3, int x, int y) noexcept {
+	static int func_cvp(T3 const volatile* t3, int x, int y) {
 		//t3->m_data += 1;
 		return t3->func_cv(x, y);
 	}
-	static int func_cvr(T3 const volatile& t3, int x, int y) noexcept {
+	static int func_cvr(T3 const volatile& t3, int x, int y) {
 		//t3.m_data += 1;
 		return t3.func_cv(x, y);
 	}
-	static int func_p_c(T3* const t3, int x, int y) noexcept {
+	static int func_p_c(T3* const t3, int x, int y) {
 		t3->m_data += 1;
 		return t3->func_cv(x, y);
 	}
 };
 
-void test_func9() noexcept {
+void test_func9() {
 	std::cout << cout_cyan << "test_func9() Start." << cout_reset << std::endl;
 
 	Function<void(void)> global = &test_func8;
@@ -525,8 +552,8 @@ void test_func9() noexcept {
 	Function lambda = [](T3* t3, int x, int y) { return t3->func(x, y); };
 	Function lambda_m = [](T3* t3, int x, int y) mutable { return t3->func(x, y); };
 	Function lambda_c = [](T3 const* t3, int x, int y) { return t3->func_c(x, y); };
-	Function lambda_n = [](T3* t3, int x, int y) noexcept { return t3->func_n(x, y); };
-	Function lambda_cn = [](T3 const* t3, int x, int y) noexcept { return t3->func_c(x, y); };
+	Function lambda_n = [](T3* t3, int x, int y) { return t3->func_n(x, y); };
+	Function lambda_cn = [](T3 const* t3, int x, int y) { return t3->func_c(x, y); };
 	Function lambda_rx = [](T3* t3, int& x, int y) { return t3->func_rx(x, y); };
 	Function lambda_ry = [](T3* t3, int x, int& y) { return t3->func_ry(x, y); };
 	Function lambda_rxy = [](T3* t3, int& x, int& y) { return t3->func_rxy(x, y); };
@@ -628,9 +655,22 @@ int main(int argc, char **argv)
 	SetCrtDbg();
 	std::cout << cout_green << "main start." << cout_reset << std::endl;
 
-
-	test_func8();
-	test_func9();
+	try {
+		test_func0();
+		test_func1();
+		return 0;
+		test_func2();
+		test_func3();
+		test_func4();
+		test_func5();
+		test_func6();
+		test_func7();
+		test_func8();
+		test_func9();
+	}
+	catch(std_exception& ex) {
+		std::cout << ex.what() << std::endl;
+	}
 
 	int ret = func_null();
 	std::cout << cout_green << "main end.(return value: " << ret << ")" << cout_reset << std::endl;

@@ -13,6 +13,7 @@ endfunction()
 
 ## 可変長引数で渡した標準ライブラリヘッダをモジュールとしてコンパイルする。
 ## また、引数が一つ以上存在するとき、ターゲット"std"が定義される。
+## 成功したとき、DETECT_BMI_OPTIONS変数が公開される。
 ## 可変長引数: cstdint, iostreamなどのヘッダ名
 function(FPrecompileSTD)
 	if (NOT ARGC)
@@ -68,7 +69,7 @@ function(FPrecompileSTD)
 		set(MODULE_OPTIONS -fmodules-ts -Mno-modules -fmodule-header -fmodule-only)
 		set(WARNING_OPTIONS)
 	elseif (CLANG)
-		set(VERSION_OPTIONS "$<IF:$<STREQUAL:${CMAKE_CXX_STANDARD},23>,-std=gnu++2b,-std=gnu++${CMAKE_CXX_STANDARD}>")
+		set(VERSION_OPTIONS "$<IF:$<STREQUAL:${CMAKE_CXX_STANDARD},23>,-std=c++2b,-std=c++${CMAKE_CXX_STANDARD}>")
 		set(DEFINE_OPTIONS -DUNICODE -D_UNICODE)
 		set(DEBUG_OPTIONS -g)
 		set(OTHER_OPTIONS)
@@ -79,6 +80,8 @@ function(FPrecompileSTD)
 	set(ALL_OPTIONS ${VERSION_OPTIONS} ${DEFINE_OPTIONS} $<$<CONFIG:Debug>:${DEBUG_OPTIONS}> $<$<CONFIG:Release>:${RELEASE_OPTIONS}> ${INCLUDE_OPTIONS} ${OTHER_OPTIONS} ${WARNING_OPTIONS} ${MODULE_OPTIONS})
 	## 出力されるBMIファイルのパスのリスト
 	set(BMI_OUTPUT_LIST)
+	## 標準ライブラリのBMIファイルを読み込むためのコンパイルオプション
+	set(DETECT_BMI_LIST)
 	## 標準ライブラリをcleanターゲットから外すか決める
 	set(NO_CLEAN_STD true)
 	if (NO_CLEAN_STD)
@@ -106,13 +109,13 @@ function(FPrecompileSTD)
 			list(APPEND BMI_OUTPUT_LIST ${BMI_OUTPUT_PATH})
 			if (MSBUILD OR MSVC)
 				## cl.exeは-headerUnitオプションでヘッダ名とBMIファイルを関連付けする必要がある
-				add_compile_options("SHELL:-headerUnit:angle ${stdname}=${BMI_OUTPUT_PATH}")
+				list(APPEND DETECT_BMI_LIST "SHELL:-headerUnit:angle ${stdname}=${BMI_OUTPUT_PATH}")
 			elseif (GCC)
 				## g++はgcm.cacheから読み取ってくれる。(その他の場所はmodule-mapperを使用する必要がある)
 			elseif (CLANG)
 				## clang.exeは-fmodule-fileオプションでBMIファイルを関連付けする必要がある
 				## 作業ディレクトリからの相対パスで構わない
-				add_compile_options("SHELL:-fmodule-file=std/${stdname}.pcm")
+				list(APPEND DETECT_BMI_LIST "SHELL:-fmodule-file=std/${stdname}.pcm")
 			endif()
 		endforeach()
 		## チェック用ファイルを作成
@@ -125,7 +128,6 @@ function(FPrecompileSTD)
 			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 			DEPENDS ${STD_OUTPUT_DIR}/std_mkdir.phony
 		)
-		set(STD_BUILD_COMMAND)
 		if (MSBUILD)
 			set_target_properties(std_internal PROPERTIES SOURCES ${STD_OUTPUT_DIR}/std_start.phony)
 			add_custom_target(std DEPENDS std_internal)
@@ -178,22 +180,22 @@ function(FPrecompileSTD)
 			list(APPEND BMI_OUTPUT_LIST ${BMI_OUTPUT_PATH})
 			if (MSBUILD OR MSVC)
 				## cl.exeは-headerUnitオプションでヘッダ名とBMIファイルを関連付けする必要がある
-				add_compile_options("SHELL:-headerUnit:angle ${stdname}=${BMI_OUTPUT_PATH}")
+				list(APPEND DETECT_BMI_LIST "SHELL:-headerUnit:angle ${stdname}=${BMI_OUTPUT_PATH}")
 			elseif (GCC)
 				## g++はgcm.cacheから読み取ってくれる。(その他の場所はmodule-mapperを使用する必要がある)
 			elseif (CLANG)
 				## clang.exeは-fmodule-fileオプションでBMIファイルを関連付けする必要がある
 				## 作業ディレクトリからの相対パスで構わない
-				add_compile_options("SHELL:-fmodule-file=std/${stdname}.pcm")
+				list(APPEND DETECT_BMI_LIST "SHELL:-fmodule-file=std/${stdname}.pcm")
 			endif()
 		endforeach()
 		#BMIファイルに依存するターゲット"std"を追加する
-		add_custom_target(std
-			SOURCES ${BMI_OUTPUT_LIST}
-		)
+		add_custom_target(std SOURCES ${BMI_OUTPUT_LIST})
 	endif()
-	#stdに依存する遷移用ターゲット(MSVCに必要)
+	## stdに依存する遷移用ターゲット
 	add_custom_target(std_t DEPENDS std)
+	## BMIファイル読み取り用のオプションを外部に見えるようにする
+	set(DETECT_BMI_OPTIONS "${DETECT_BMI_LIST}" PARENT_SCOPE)
 endfunction()
 
 ## 引数に渡したソースファイルからオブジェクトライブラリを定義する
@@ -269,7 +271,7 @@ function(FAddObjectLibrary libname)
 		 	set_property(TARGET clean_module APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${_bmi_dir}/${_module_name}.gcm)
 		elseif (CLANG)
 			list(APPEND _bmi_files ${_bmi_dir}/${_module_name}${_extension}.pcm)						
-			set_source_files_properties(${_source} PROPERTIES COMPILE_FLAGS "-fmodules -x c++-module")
+			set_source_files_properties(${_source} PROPERTIES COMPILE_FLAGS "-x c++-module")
 		endif()
 		list(APPEND _interface_files ${_source})
 	endforeach()
@@ -290,8 +292,8 @@ function(FAddObjectLibrary libname)
 		## BMIファイルコンパイル用のオプションを設定
 		target_compile_options(${libname}_bmi PRIVATE --precompile)
 		## 依存関係を設定
-		add_dependencies(${libname}_bmi ${_depends})
 		foreach(_depend ${_depends})
+			add_dependencies(${libname}_bmi ${_depend})
 			## 遷移用ターゲットにも依存させる
 			if (TARGET ${_depend}_t)
 				add_dependencies(${libname}_bmi ${_depend}_t)
@@ -300,6 +302,10 @@ function(FAddObjectLibrary libname)
 			target_compile_options(${libname}_bmi
 				PUBLIC $<TARGET_PROPERTY:${_depend},COMPILE_OPTIONS>
 			)
+			## stdに依存している場合、DETECT_BMI_OPTIONSを継承する
+			if (${_depend} STREQUAL std AND DEFINED DETECT_BMI_OPTIONS)
+				target_compile_options(${libname}_bmi PUBLIC ${DETECT_BMI_OPTIONS})
+			endif()
 		endforeach()
 		## BMIファイルをBMI出力ディレクトリに移動するカスタムコマンドを設定
 		foreach(_source ${_interface_files})
@@ -337,12 +343,16 @@ function(FAddObjectLibrary libname)
 	## 遷移用ターゲットを作成
 	add_custom_target(${libname}_t DEPENDS ${libname})
 	## 依存関係を設定
-	add_dependencies(${libname} ${_depends})
 	foreach(_depend ${_depends})
+		add_dependencies(${libname} ${_depend})
 		## 遷移用ターゲットにも依存させる
 		add_dependencies(${libname} ${_depend}_t)
 		## 依存するターゲットからコンパイルオプションを伝播させる(モジュール名とBMIファイル名を関連付けるオプションのため)
 		target_compile_options(${libname} PUBLIC $<TARGET_PROPERTY:${_depend},COMPILE_OPTIONS>)
+		## stdに依存している場合、DETECT_BMI_OPTIONSを継承する
+		if (${_depend} STREQUAL std AND DEFINED DETECT_BMI_OPTIONS)
+			target_compile_options(${libname} PUBLIC ${DETECT_BMI_OPTIONS})
+		endif()
 	endforeach()
 
 	## MSBUILDではifcOutputオプションが作動しないため、カスタムコマンドでBMI出力ディレクトリに移す必要がある
@@ -431,6 +441,134 @@ function(FCombineObjectLibrary libname)
 			PUBLIC ${_public_link}
 			PRIVATE ${_private_link}
 		)
+	endif()
+endfunction()
+
+
+## Boostライブラリをリンクする
+## target: BoostライブラリをPUBLICリンクするターゲット名。executableのものでよい。
+function(FLinkBoost target)
+	## find_Boostで探せるBoostライブラリのコンポーネントリスト
+	set(Boost_Component_List
+		atomic
+		chrono
+		container
+		context
+		contract
+		coroutine
+		date_time
+		exception
+		fiber
+		filesystem
+		graph
+		headers
+		iostreams
+		json
+		locale
+		log_setup
+		log
+		math_c99
+		nowide
+		numpy
+		prg_exec_monitor
+		program_options
+		python
+		random
+		regex
+		serialization
+		stacktrace_noop
+		stacktrace_windbg_cached
+		stacktrace_windbg
+		system
+		test_exec_monitor
+		thread
+		timer
+		type_erasure
+		unit_test_framework
+		url
+		wave
+		wserialization
+	)
+
+	set(Boost_USE_STATIC_LIBS ON) 
+	set(Boost_USE_MULTITHREADED ON)
+	set(Boost_DEBUG OFF)
+	## 現状はthreadさえ使えればよい
+	set(Only_Thread true)
+
+	if (GCC)
+		set(BOOST_ROOT C:/msys64/mingw64/include/boost)
+		set(BOOST_INCLUDEDIR C:/msys64/mingw64/include/boost)
+		set(BOOST_LIBRARYDIR C:/msys64/mingw64/lib)
+		set(Boost_NO_SYSTEM_PATHS ON)
+		find_package(Boost 1.83.0 QUIET REQUIRED COMPONENTS ${Boost_Component_List})
+		if (Only_Thread)
+			target_link_libraries(${target}
+				PUBLIC
+					Boost::chrono
+					Boost::log
+					Boost::system
+					Boost::thread
+			)
+			## 上記のコマンドでは以下のようなライブラリがリンクされるらしい(メモ)
+			# target_link_libraries(${target}
+			# 	PUBLIC
+			# 		C:/msys64/mingw64/lib/libboost_chrono-mt.a
+			# 		C:/msys64/mingw64/lib/libboost_log-mt.a
+			# 		C:/msys64/mingw64/lib/libboost_system-mt.a
+			# 		C:/msys64/mingw64/lib/libboost_thread-mt.a
+			# 		ws2_32
+			# 		C:/msys64/mingw64/lib/libboost_filesystem-mt.a
+			# 		C:/msys64/mingw64/lib/libboost_atomic-mt.a
+			# 		C:/msys64/mingw64/lib/libboost_regex-mt.a
+			# )
+		else()
+			target_link_libraries(${target}
+				PUBLIC
+					Boost::atomic
+					Boost::chrono
+					Boost::container
+					Boost::context
+					Boost::contract
+					Boost::coroutine
+					Boost::date_time
+					Boost::exception
+					Boost::fiber
+					Boost::filesystem
+					Boost::graph
+					Boost::headers
+					Boost::iostreams
+					Boost::json
+					Boost::locale
+					Boost::log_setup
+					Boost::log
+					Boost::math_c99
+					Boost::nowide
+					Boost::numpy
+					Boost::prg_exec_monitor
+					Boost::program_options
+					Boost::python
+					Boost::random
+					Boost::regex
+					Boost::serialization
+					Boost::stacktrace_noop
+					Boost::stacktrace_windbg_cached
+					Boost::stacktrace_windbg
+					Boost::system
+					Boost::test_exec_monitor
+					Boost::thread
+					Boost::timer
+					Boost::type_erasure
+					Boost::unit_test_framework
+					Boost::url
+					Boost::wave
+					Boost::wserialization
+			)
+		endif()
+	elseif(CLANG)
+		## clang64下のboostが検索できないため、現状では使用できない
+	elseif(MSVC OR MSBUILD)
+		## cl.exe用boostは未インストールのため、現状では使用できない
 	endif()
 endfunction()
 

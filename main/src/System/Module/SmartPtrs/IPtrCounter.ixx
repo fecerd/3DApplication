@@ -1,9 +1,9 @@
 ﻿export module IPtrCounter;
 import CSTDINT;
 import Traits;
+import Allocator;
 import <atomic>;	//std::atomic<>
 import <typeinfo>;	//std::type_info
-import <memory>;	//std::allocator
 import <new>;	//overload new/delete
 
 //Functions
@@ -175,10 +175,10 @@ export namespace System::Internal {
 			return nullptr;
 		}
 		constexpr void* operator new(std::size_t) {
-			return std::allocator<this_type>().allocate(1);
+			return Allocator<this_type>().allocate(1);
 		}
 		constexpr void operator delete(void* p) noexcept {
-			std::allocator<this_type>().deallocate(static_cast<this_type*>(p), 1);
+			Allocator<this_type>().deallocate(static_cast<this_type*>(p), 1);
 		}
 	public:
 		constexpr PtrCounter& operator=(const PtrCounter&) noexcept = delete;
@@ -206,10 +206,10 @@ export namespace System::Internal {
 			return &reinterpret_cast<char&>(m_deleter);
 		}
 		void* operator new(size_t) noexcept {
-			return std::allocator<this_type>().allocate(1);
+			return Allocator<this_type>().allocate(1);
 		}
 		void operator delete(void* p) noexcept {
-			std::allocator<this_type>().deallocate(static_cast<this_type*>(p), 1);
+			Allocator<this_type>().deallocate(static_cast<this_type*>(p), 1);
 		}
 	public:
 		PtrCounterDel& operator=(const PtrCounterDel&) noexcept = delete;
@@ -232,7 +232,7 @@ export namespace System::Internal {
 	public:
 		constexpr void Dispose() noexcept override { m_deleter(m_ptr); }
 		constexpr void Destroy() noexcept override {
-			using alloc_type = typename std::allocator_traits<A>::template rebind_alloc<this_type>;
+			using alloc_type = typename AllocatorTraits<A>::template rebind_alloc<this_type>;
 			alloc_type alloc(m_allocator);
 			this->~this_type();
 			alloc.deallocate(this, 1);

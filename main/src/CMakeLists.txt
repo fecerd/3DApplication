@@ -1,6 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.8)
 
 ## サブディレクトリ
+add_subdirectory(Boost)
 add_subdirectory(System)
 add_subdirectory(Test)
 

@@ -5,7 +5,7 @@ FAddObjectLibrary(Test_0
 		Col.ixx
 	DEPENDS
 		std
-		Module_6
+		Module_7
 )
 
 FCombineObjectLibrary(Test

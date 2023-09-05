@@ -21,6 +21,12 @@ FAddObjectLibrary(Module_1
 )
 FAddObjectLibrary(Module_2
 	SOURCES
+		Allocator.ixx
+	DEPENDS
+		Module_1
+)
+FAddObjectLibrary(Module_3
+	SOURCES
 		BitStream.ixx
 		FlagSet.ixx
 		Iterators.ixx
@@ -28,50 +34,51 @@ FAddObjectLibrary(Module_2
 		Sorts.ixx
 		TypeID.ixx
 	DEPENDS
-		Module_1
+		Module_2
 		SmartPtrs
 )
-FAddObjectLibrary(Module_3
+FAddObjectLibrary(Module_4
 	SOURCES
 		Float.ixx
 		Memory.ixx
 		VectorBase.ixx
 	DEPENDS
-		Module_2
+		Module_3
 )
-FAddObjectLibrary(Module_4
+FAddObjectLibrary(Module_5
 	SOURCES
 		Memory.cpp
 		StringBlock.ixx
 		Suballocator.ixx
 	DEPENDS
-		Module_3
-		Encoding_1
-)
-FAddObjectLibrary(Module_5
-	SOURCES
-		Exception.ixx
-		TypeName.ixx
-	DEPENDS
 		Module_4
+		Encoding_1
 )
 FAddObjectLibrary(Module_6
 	SOURCES
-		Exception.cpp
-		ForwardList.ixx
-		Function.ixx
+		Exception.ixx
+		TypeName.ixx
 	DEPENDS
 		Module_5
 )
 FAddObjectLibrary(Module_7
 	SOURCES
-		IEnumerable.ixx
-		Property.ixx
-		Thread.ixx
+		Exception.cpp
+		ForwardList.ixx
+		Function.ixx
 	DEPENDS
 		Module_6
 )
 FAddObjectLibrary(Module_8
+	SOURCES
+		IEnumerable.ixx
+		Property.ixx
+		Thread.ixx
+	DEPENDS
+		Module_7
+		Boost
+)
+FAddObjectLibrary(Module_9
 	SOURCES
 		Counter.ixx
 		CString.ixx
@@ -83,10 +90,10 @@ FAddObjectLibrary(Module_8
 		Vector2.ixx
 		Vector3.ixx
 	DEPENDS
-		Module_7
+		Module_8
 		Objects
 )
-FAddObjectLibrary(Module_9
+FAddObjectLibrary(Module_10
 	SOURCES
 		BSpline.ixx
 		DisposingObject.ixx
@@ -95,30 +102,30 @@ FAddObjectLibrary(Module_9
 		Matrix.ixx
 		Range.ixx
 	DEPENDS
-		Module_8
+		Module_9
 )
-FAddObjectLibrary(Module_10
+FAddObjectLibrary(Module_11
 	SOURCES
 		ManagedObject.ixx
 		Quaternion.ixx
 		Time.ixx
 	DEPENDS
-		Module_9
+		Module_10
 )
-FAddObjectLibrary(Module_11
+FAddObjectLibrary(Module_12
 	SOURCES
 		DualQuaternion.ixx
 		StringBlock.cpp
 		Time.cpp
 	DEPENDS
-		Module_10
+		Module_11
 		Encoding
 )
-FAddObjectLibrary(Module_12
+FAddObjectLibrary(Module_13
 	SOURCES
 		Module.ixx
 	DEPENDS
-		Module_11
+		Module_12
 )
 
 FCombineObjectLibrary(Module
@@ -136,6 +143,7 @@ FCombineObjectLibrary(Module
 		Module_10
 		Module_11
 		Module_12
+		Module_13
 	PUBLIC_LINK
 		Objects
 		SmartPtrs

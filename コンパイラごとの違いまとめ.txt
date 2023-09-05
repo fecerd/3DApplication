@@ -18,4 +18,8 @@
 		<coroutine> -> Coroutine -> IEnumerable -> Vector -> EventHandler -> Time
 	のimportがすべてexport importである必要がある。
 
+> cl.exeと<compare>
+	strong_ordering, weak_ordering, partial_ordering構造体が持つstaticメンバ変数がエクスポートされておらず、リンク時に未定義参照となる。
+	CSTDINT内で再宣言を行うことで回避できる。
+
 

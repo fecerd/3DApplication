@@ -3,9 +3,7 @@ import CSTDINT;
 import Traits;
 import Objects;
 import EventHandler;
-//export import <chrono>;	//std::chrono
-//export import <compare>;
-import <chrono>;
+import <chrono>;	//std::chrono
 using namespace std::chrono;
 
 export namespace System {
