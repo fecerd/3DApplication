@@ -2,7 +2,7 @@
 import CSTDINT;
 import Traits;
 import Allocator;
-import <iostream>;	//overload operator<<
+//import <iostream>;	//overload operator<<
 import <functional>;	//specialization hash<>
 
 namespace System::Internal {
@@ -14,27 +14,6 @@ namespace System::Internal {
 	requires requires() { typename D::pointer; }
 	struct UniquePtrPointerType<T, D> {
 		using type = typename D::pointer;
-	};
-}
-
-//DefaultDelete
-export namespace System {
-	template<class T>
-	struct DefaultDelete {
-		constexpr DefaultDelete() noexcept = default;
-		template<class U>
-		constexpr DefaultDelete(const DefaultDelete<U>&) noexcept {}
-	public:
-		constexpr void operator()(T* ptr) const { delete ptr; }
-	};
-	template<class T>
-	struct DefaultDelete<T[]> {
-		constexpr DefaultDelete() noexcept = default;
-		template<class U>
-		constexpr DefaultDelete(const DefaultDelete<U[]>&) noexcept {}
-	public:
-		template<class U>
-		constexpr void operator()(U* ptr) const { delete[] ptr; }
 	};
 }
 
@@ -229,11 +208,11 @@ export namespace System {
 		}
 	};
 
-	template<class T>
-	class UniquePtr<T, DefaultDelete<T>> {
+	template<class T, CDefaultDeleter<T> D>
+	class UniquePtr<T, D> {
 	public:
 		using element_type = T;
-		using deleter_type = DefaultDelete<T>;
+		using deleter_type = D;
 		using pointer = typename Internal::UniquePtrPointerType<element_type, deleter_type>::type;
 	protected:
 		pointer m_ptr = nullptr;
@@ -283,11 +262,11 @@ export namespace System {
 		}
 	};
 
-	template<class T>
-	class UniquePtr<T[], DefaultDelete<T[]>> {
+	template<class T, CDefaultDeleter<T[]> D>
+	class UniquePtr<T[], D> {
 	public:
 		using element_type = T;
-		using deleter_type = DefaultDelete<T[]>;
+		using deleter_type = D;
 		using pointer = typename Internal::UniquePtrPointerType<element_type, deleter_type>::type;
 	protected:
 		pointer m_ptr = nullptr;
@@ -350,27 +329,14 @@ export namespace System {
 export namespace System {
 	template<Traits::Concepts::CNotArray T, class ...Args>
 	constexpr UniquePtr<T> MakeUnique(Args&& ...args) {
-		Allocator<T> alloc;
-		using traits = AllocatorTraits<decltype(alloc)>;
-		T* ptr = traits::allocate(alloc, 1);
-		traits::construct(alloc, ptr, System::move(args)...);
+		T* ptr = DefaultNew<T>()(System::move(args)...);
 		return UniquePtr<T>(ptr);
 	}
 	template<Traits::Concepts::CUnknownBoundArray T>
-	requires Traits::Concepts::CDefaultConstructible<Traits::remove_extent_t<T>>
+	requires Traits::Concepts::CDefaultConstructible<Traits::remove_all_extents_t<T>>
 	constexpr UniquePtr<T> MakeUnique(size_t N) {
 		using type = Traits::remove_all_extents_t<T>;
-		Allocator<type> alloc;
-		using traits = AllocatorTraits<decltype(alloc)>;
-		constexpr size_t multiple_count = Traits::element_count_v<T>;
-		const size_t all_count = multiple_count * N;
-		type* ptr = traits::allocate(alloc, all_count);
-		type* p = ptr;
-		for (size_t i = 0; i < N; ++i) {
-			for (size_t j = 0; j < multiple_count; ++j) {
-				traits::construct(alloc, p++);
-			}
-		}
+		type* ptr = DefaultNew<T>()(N);
 		return UniquePtr<T>(ptr);
 	}
 	template<Traits::Concepts::CKnownBoundArray T, class ...Args>
@@ -378,26 +344,13 @@ export namespace System {
 
 	template<Traits::Concepts::CNotArray T>
 	constexpr UniquePtr<T> MakeUniqueForOverwrite() {
-		Allocator<T> alloc;
-		using traits = AllocatorTraits<decltype(alloc)>;
-		T* ptr = traits::allocate(alloc, 1);
-		::new (static_cast<void*>(ptr)) T;
+		T* ptr = DefaultNew<T, true>()();
 		return UniquePtr<T>(ptr);
 	}
 	template<Traits::Concepts::CUnknownBoundArray T>
 	constexpr UniquePtr<T> MakeUniqueForOverwrite(size_t N) {
 		using type = Traits::remove_all_extents_t<T>;
-		Allocator<type> alloc;
-		using traits = AllocatorTraits<decltype(alloc)>;
-		constexpr size_t multiple_count = Traits::element_count_v<T>;
-		const size_t all_count = multiple_count * N;
-		type* ptr = traits::allocate(alloc, all_count);
-		type* p = ptr;
-		for (size_t i = 0; i < N; ++i) {
-			for (size_t j = 0; j < multiple_count; ++j) {
-				new (static_cast<void*>(p++)) type;
-			}
-		}
+		type* ptr = DefaultNew<T, true>()(N);
 		return UniquePtr<T>(ptr);
 	}
 	template<Traits::Concepts::CKnownBoundArray T, class ...Args>
@@ -415,10 +368,10 @@ export {
 	constexpr strong_ordering operator<=>(const UniquePtr<T, D>& lhs, nullptr_t) noexcept {
 		return lhs.Get() <=> static_cast<UniquePtr<T, D>::element_type*>(nullptr);
 	}
-	template<class CharT, class Traits, class Y, class D>
-	std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const UniquePtr<Y, D>& ptr) noexcept {
-		return (os << ptr.Get());
-	}
+	// template<class CharT, class Traits, class Y, class D>
+	// std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const UniquePtr<Y, D>& ptr) noexcept {
+	// 	return (os << ptr.Get());
+	// }
 }
 
 //std overload and specialization

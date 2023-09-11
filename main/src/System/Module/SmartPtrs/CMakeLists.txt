@@ -2,7 +2,6 @@
 
 FAddObjectLibrary(SmartPtrs_0
 	SOURCES
-		IPtrCounter.ixx
 		UniquePtr.ixx
 	DEPENDS
 		std

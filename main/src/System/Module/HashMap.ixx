@@ -2,15 +2,11 @@
 #include "FUNCSIG.hpp"
 export module HashMap;
 import CSTDINT;
-import Exception;
-import IEnumerable;
 import Traits;
-import Vector;
+import Exception;
 import Function;
-
-#if defined(__clang__)
-import <source_location>;
-#endif
+export import Vector;
+export import ICollection;
 
 //Hash関数オブジェクト型
 export namespace System {
@@ -340,11 +336,13 @@ export namespace System {
 		/// <returns>追加に成功したとき、true。すでに存在するキーを指定した場合、false</returns>
 		template<Traits::Concepts::CConstructibleTo<Key> K, Traits::Concepts::CConstructibleTo<Args> ...A>
 		bool Insert(K&& key, A&& ...args) noexcept {
-			Key tmpkey = Key(System::move(key));
+			Key tmpkey { System::move(key) };
 			size_t index = GetCode(tmpkey);
 			if (index >= m_nodesSize) return false;	//普通はありえない
 			Vector<nodetype*>& nodes = m_nodes[index];
-			for (nodetype* node : nodes) if (node->GetKey() == tmpkey) return false;
+			for (nodetype* node : nodes) {
+				if (node->GetKey() == tmpkey) return false;
+			}
 			nodes.Add(new HashNode<Key, Args...>(System::move(tmpkey), System::move(args)...));
 			HashNodeBase<Key>* tmp = nodes.Last();
 			HashNodeBase<Key>* last = m_first ? m_first->GetLast() : nullptr;
@@ -352,7 +350,9 @@ export namespace System {
 				last->SetNext(tmp);
 				tmp->SetPrev(last);
 			}
-			else m_first = static_cast<nodetype*>(tmp);
+			else {
+				m_first = static_cast<nodetype*>(tmp);
+			}
 			return true;
 		}
 		/// <summary>
@@ -429,8 +429,8 @@ export namespace System {
 			}
 			else {
 				nodetype* node = FindNode(key);
-				if (!node) return nullptr;
-				return node->template GetValue<i>();
+				if (!node) return static_cast<argtype<i>>(nullptr);
+				else return node->template GetValue<i>();
 			}
 		}
 		/// <summary>
@@ -445,8 +445,8 @@ export namespace System {
 			}
 			else {
 				nodetype* node = FindNode(key);
-				if (!node) return nullptr;
-				return node->template GetValuePtr<i>();
+				if (!node) return static_cast<argtype<i>*>(nullptr);
+				else return node->template GetValuePtr<i>();
 			}
 		}
 	public:
@@ -468,38 +468,107 @@ export namespace System {
 		/// </summary>
 		bool IsInitializedDestructor() const noexcept { return m_destructorInitialized; }
 	public://ICollectionオーバーライド
-		IEnumerator<nodetype> GetEnumerator() noexcept override {
-			nodetype* current = m_first;
-			while (current) {
-				co_yield *current;
-				current = static_cast<nodetype*>(current->GetNext());
+#if defined(__GNUC__) && !defined(__clang__)
+		IEnumerator<nodetype> GetEnumerator(bool reverse = false) noexcept override {
+			auto internal = [this](Boost::push_type<nodetype&>& sink) {
+				nodetype* current = m_first;
+				while (current) {
+					sink(*current);
+					current = static_cast<nodetype*>(current->GetNext());
+				}
+			};
+			auto internal_r = [this](Boost::push_type<nodetype&>& sink) {
+				HashNodeBase<Key>* current = m_first ? m_first->GetLast() : nullptr;
+				while (current) {
+					sink(*static_cast<nodetype*>(current));
+					current = current->GetPrev();
+				}
+			};
+			return IEnumerator<nodetype>(
+				[internal, internal_r](bool r) mutable {
+					return IEnumerator<nodetype>(r
+						? Function<void(Boost::push_type<nodetype&>&)>(internal_r)
+						: Function<void(Boost::push_type<nodetype&>&)>(internal)
+					);
+				},
+				reverse
+			);
+		}
+		IEnumerator<nodetype const> GetEnumerator(bool reverse = false) const noexcept override {
+			auto internal = [this](Boost::push_type<nodetype const&>& sink) {
+				nodetype* current = m_first;
+				while (current) {
+					nodetype const& ret = *current;
+					sink(ret);
+					current = static_cast<nodetype*>(current->GetNext());
+				}
+			};
+			auto internal_r = [this](Boost::push_type<nodetype const&>& sink) {
+				HashNodeBase<Key>* current = m_first ? m_first->GetLast() : nullptr;
+				while (current) {
+					nodetype const& ret = *static_cast<nodetype*>(current);
+					sink(ret);
+					current = current->GetPrev();
+				}
+			};
+			return IEnumerator<nodetype const>(
+				[internal, internal_r](bool r) mutable {
+					return IEnumerator<nodetype const>(r
+						? Function<void(Boost::push_type<nodetype const&>&)>(internal_r)
+						: Function<void(Boost::push_type<nodetype const&>&)>(internal)
+					);
+				},
+				reverse
+			);
+		}
+#else
+	private:
+		IEnumerator<nodetype> Internal(bool r) noexcept {
+			if (r) {
+				HashNodeBase<Key>* current = m_first ? m_first->GetLast() : nullptr;
+				while (current) {
+					co_yield *static_cast<nodetype*>(current);
+					current = current->GetPrev();
+				}
+			} else {
+				nodetype* current = m_first;
+				while (current) {
+					co_yield *current;
+					current = static_cast<nodetype*>(current->GetNext());
+				}
 			}
 		}
-		IEnumerator<nodetype const> GetEnumerator() const noexcept override {
-			nodetype* current = m_first;
-			while (current) {
-				co_yield *current;
-				current = static_cast<nodetype*>(current->GetNext());
+		IEnumerator<nodetype const> Internal(bool r) const noexcept {
+			if (r) {
+				HashNodeBase<Key>* current = m_first ? m_first->GetLast() : nullptr;
+				while (current) {
+					co_yield *static_cast<nodetype*>(current);
+					current = current->GetPrev();
+				}
+			} else {
+				nodetype* current = m_first;
+				while (current) {
+					co_yield *current;
+					current = static_cast<nodetype*>(current->GetNext());
+				}
 			}
-		}
-		IEnumerator<nodetype> GetReverseEnumerator() noexcept override {
-			HashNodeBase<Key>* current = m_first ? m_first->GetLast() : nullptr;
-			while (current) {
-				co_yield *static_cast<nodetype*>(current);
-				current = current->GetPrev();
-			}
-		}
-		IEnumerator<nodetype const> GetReverseEnumerator() const noexcept override {
-			HashNodeBase<Key>* current = m_first ? m_first->GetLast() : nullptr;
-			while (current) {
-				co_yield *static_cast<nodetype*>(current);
-				current = current->GetPrev();
-			}
+
 		}
 	public:
-		/// <summary>
-		/// 指定したインデックスの値(参照)を列挙する
-		/// </summary>
+		IEnumerator<nodetype> GetEnumerator(bool reverse = false) noexcept override {
+			return IEnumerator<nodetype>(
+				[this](bool r) { return Internal(r); },
+				reverse
+			);
+		}
+		IEnumerator<nodetype const> GetEnumerator(bool reverse = false) const noexcept override {
+			return IEnumerator<nodetype const>(
+				[this](bool r) { return Internal(r); },
+				reverse
+			);
+		}
+#endif
+	public:
 		template<size_t i = 0>
 		auto Values() noexcept {
 			if constexpr (Traits::is_void_v<argtype<i>>) {
@@ -509,7 +578,7 @@ export namespace System {
 			else {
 				return IEnumerable<argtype<i>>(
 					new MemberSelectEnumerator<argtype<i>, nodetype>(
-						new IEnumerator<nodetype>([this](bool r) { return r ? this->GetReverseEnumerator() : this->GetEnumerator(); }, false),
+						new IEnumerator<nodetype>(GetEnumerator(false)),
 						&nodetype::m_value
 					)
 				);
@@ -520,10 +589,11 @@ export namespace System {
 			if constexpr (Traits::is_void_v<argtype<i>>) {
 				static_assert("HashMap::Value()に無効なインデックスが指定されました。");
 				return;
-			} else {
+			}
+			else {
 				return IEnumerable<argtype<i> const>(
 					new MemberSelectEnumerator<argtype<i> const, nodetype const>(
-						new IEnumerator<nodetype const>([this](bool r) { return r ? this->GetReverseEnumerator() : this->GetEnumerator(); }, false),
+						new IEnumerator<nodetype const>(GetEnumerator(false)),
 						&nodetype::m_value
 					)
 				);

@@ -5,7 +5,6 @@ import CString;
 import Vector;
 import IO;
 import Compression;
-using namespace System;
 
 export namespace System::Formats {
 	struct FBXArray {
@@ -16,7 +15,7 @@ export namespace System::Formats {
 		//続くデータのファイル上でのバイト数
 		uint32_t m_byteSize = 0;
 		union {
-			bool* m_bool = nullptr;
+			bool* m_bool;
 			int32_t* m_i32;
 			int64_t* m_i64;
 			float* m_f32;
@@ -24,7 +23,9 @@ export namespace System::Formats {
 			uint8_t* m_read;
 		};
 	public:
-		bool Load(System::IO::FileStream& file, uint8_t typeCode) noexcept {
+		FBXArray() noexcept : m_bool(nullptr) {}
+	public:
+		bool Load(IO::FileStream& file, uint8_t typeCode) noexcept {
 			file.ReadLE(m_count);
 			file.ReadLE(m_encoding);
 			file.ReadLE(m_byteSize);
@@ -52,13 +53,13 @@ export namespace System::Formats {
 			if (m_encoding && typeSize) {
 				uint8_t* binary = new uint8_t[m_byteSize];
 				file.Read(binary, m_byteSize);
-				System::Compression::ZlibView zlib(binary, m_byteSize);
+				Compression::ZlibView zlib(binary, m_byteSize);
 				uint8_t* data = zlib.GetCompressedData();
 				if (!data) {
 					delete[] binary;
 					return false;
 				}
-				Vector<uint8_t> result = System::Compression::HuffmanDecoder::Decode(data, zlib.GetCompressedDataSize(), typeSize * m_count);
+				Vector<uint8_t> result = Compression::HuffmanDecoder::Decode(data, zlib.GetCompressedDataSize(), typeSize * m_count);
 				m_read = result.Release();
 				delete[] binary;
 			}
@@ -82,12 +83,14 @@ export namespace System::Formats {
 		uint32_t m_length = 0;
 		union {
 			//utf-8文字列。(基本的に)ヌル終端しない
-			char8_t* m_string = nullptr;
+			char8_t* m_string;
 			//バイナリデータ
 			uint8_t* m_byte;
 		};
 	public:
-		bool Load(System::IO::FileStream& file) noexcept {
+		FBXSpecialData() noexcept : m_string(nullptr) {}
+	public:
+		bool Load(IO::FileStream& file) noexcept {
 			file.ReadLE(m_length);
 			m_byte = new uint8_t[m_length];
 			file.Read(m_byte, m_length);
@@ -106,7 +109,7 @@ export namespace System::Formats {
 	struct FBXProperty {
 		uint8_t m_typeCode = 0;
 		union {
-			bool m_bool = false;
+			bool m_bool;
 			int16_t m_i16;
 			int32_t m_i32;
 			int64_t m_i64;
@@ -116,7 +119,7 @@ export namespace System::Formats {
 			FBXSpecialData m_special;
 		};
 	public:
-		FBXProperty() noexcept = default;
+		FBXProperty() noexcept : m_array() {}
 		~FBXProperty() noexcept {
 			switch (m_typeCode) {
 			case 'C':
@@ -137,7 +140,7 @@ export namespace System::Formats {
 			m_typeCode = 0;
 		}
 	public:
-		bool Load(System::IO::FileStream& file) noexcept {
+		bool Load(IO::FileStream& file) noexcept {
 			file.ReadLE(m_typeCode);
 			switch (m_typeCode) {
 			case 'C': {
@@ -184,7 +187,7 @@ export namespace System::Formats {
 		String m_name;
 		//属性リスト[m_numProperties]
 		FBXProperty* m_properties = nullptr;
-		//
+		//子ノード
 		Vector<FBXNode*> m_children;
 	public:
 		FBXNode() noexcept = default;
@@ -197,7 +200,7 @@ export namespace System::Formats {
 			m_children.DeleteAll();
 		}
 	public:
-		bool Load(System::IO::FileStream& file, uint32_t version, System::IO::StreamPos beg) noexcept {
+		bool Load(IO::FileStream& file, uint32_t version, IO::StreamPos beg) noexcept {
 			if (!file) return false;
 			if (version <= 7400) {
 				uint32_t tmp = 0;
@@ -225,7 +228,7 @@ export namespace System::Formats {
 			for (uint64_t i = 0; i < m_numProperties; ++i) {
 				if (!m_properties[i].Load(file)) return false;
 			}
-			System::IO::StreamPos end = beg + static_cast<System::IO::StreamOff>(m_endOffset);
+			IO::StreamPos end = beg + static_cast<IO::StreamOff>(m_endOffset);
 			while (end != file.TellPos()) {
 				FBXNode* node = new FBXNode();
 				if (!node->Load(file, version, beg)) break;
@@ -288,9 +291,9 @@ export namespace System::Formats {
 		}
 	public:
 		bool Load(const String& filePath) noexcept {
-			System::IO::FileStream file(filePath, System::IO::OpenMode::IN_BINARY);
+			IO::FileStream file(filePath, IO::OpenMode::IN_BINARY);
 			if (!file) return false;
-			System::IO::StreamPos beg = file.TellPos();
+			IO::StreamPos beg = file.TellPos();
 			char8_t magic[23]{};
 			file.Read(magic, 23);
 			for (size_t i = 0; i < sizeof(MagicNumber); ++i) {

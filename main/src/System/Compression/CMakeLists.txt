@@ -1,16 +1,32 @@
 ﻿cmake_minimum_required(VERSION 3.8)
 
-FSetModuleFileFlags(${CMAKE_CURRENT_SOURCE_DIR})
-add_library(Compression_0 OBJECT
-	Zlib.ixx
+FAddObjectLibrary(Compression_0
+	SOURCES
+		Zlib.ixx
+	DEPENDS
+		Objects
+		Module_3
 )
-add_library(Compression_1 OBJECT
-	Huffman.ixx
-	LZ77.ixx
+
+FAddObjectLibrary(Compression_1
+	SOURCES
+		Huffman.ixx
+		LZ77.ixx
+	DEPENDS
+		Compression_0
+		Module_10
 )
-add_library(Compression_2 OBJECT
-	Compression.ixx
+
+FAddObjectLibrary(Compression_2
+	SOURCES
+		Compression.ixx
+	DEPENDS
+		Compression_1
 )
-add_dependencies(Compression_1 PUBLIC Compression_0)
-add_dependencies(Compression_2 PUBLIC Compression_1)
-add_library(Compression INTERFACE Compression_0 Compression_1 Compression_2)
+
+FCombineObjectLibrary(Compression
+	PUBLIC
+		Compression_0
+		Compression_1
+		Compression_2
+)

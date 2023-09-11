@@ -1,13 +1,14 @@
 ﻿export module Allocator;
 import CSTDINT;
 import Traits;
-import <new>;	//std::align_val_t
+export import <new>;	//std::align_val_t
 
 //construct_at/destroy_at
 export namespace System {
 	template<class T, class ...Args>
-	requires requires() {
-		::new(Traits::declval<void*>()) T(Traits::declval<Args>()...);
+	requires requires(T* p, Args&& ...args) {
+//		::new (static_cast<void*>(p)) T(System::move(args)...);
+		Traits::true_v<T, Args...>;
 	}
 	constexpr T* construct_at(T* p, Args&& ...args) {
 		return ::new (static_cast<void*>(p)) T(System::move(args)...);
@@ -52,17 +53,23 @@ export namespace System {
 		constexpr ~Allocator() noexcept {}
 	public:
 		[[nodiscard]]
-		constexpr T* Allocate(size_t n) {
+		constexpr T* Allocate(size_t n) const {
 			void* ret = ::operator new(n * sizeof(T), static_cast<std::align_val_t>(alignof(T)));
 			return static_cast<T*>(ret);
 		}
-		constexpr void Deallocate(T* p, size_t n) {
+		constexpr void Deallocate(T* p, size_t n) const {
+			//clangでは直接呼ぶことはできない
+			//::operator delete(static_cast<void*>(p), n * sizeof(T), static_cast<std::align_val_t>(alignof(T)));
 			::operator delete(static_cast<void*>(p), static_cast<std::align_val_t>(alignof(T)));
 		}
 	public: /* std::allocator互換 */
 		[[nodiscard]]
-		constexpr T* allocate(size_t n) { return Allocate(n); }
-		constexpr void deallocate(T* p, size_t n) { return Deallocate(p, n); }
+		constexpr T* allocate(size_t n) const { return Allocate(n); }
+		constexpr void deallocate(T* p, size_t n) const { return Deallocate(p, n); }
+	public: /* オリジナル機能 */
+		constexpr void DeallocateUnknownSize(T* p) const {
+			::operator delete(static_cast<void*>(p), static_cast<std::align_val_t>(alignof(T)));
+		}
 	};
 }
 
@@ -154,6 +161,12 @@ namespace System::Internal {
 	concept CHasSelectOnContainerCopyConstruction = requires(const Alloc& alloc) {
 		alloc.select_on_container_copy_construction();
 	};
+
+	template<class Alloc>
+	concept CHasDeallocateUnknownSize = requires(Alloc& alloc) {
+		alloc.DeallocateUnknownSize();
+	};
+
 }
 
 //AllocatorTraits
@@ -229,5 +242,199 @@ export namespace System {
 		static constexpr void destroy(Alloc& alloc, T* p) { Destroy(alloc, p); }
 		static constexpr size_type max_size(const Alloc& alloc) noexcept { return MaxSize(alloc); }
 		static constexpr Alloc select_on_container_copy_construction(const Alloc& alloc) { return SelectOnContainerCopyConstruction(alloc); }
+	public: /* オリジナル機能 */
+		static constexpr void DeallocateUnknownSize(Alloc& alloc, pointer p) requires(Internal::CHasDeallocateUnknownSize<Alloc>) {
+			alloc.DeallocateUnknownSize(p);
+		}
+		template<class T>
+		static constexpr void ConstructDefault(Alloc& alloc, T* p) {
+			System::construct_default(p);
+		}
+	};
+}
+
+//DefaultNew/DefaultDelete
+export namespace System {
+	template<class T>
+	struct DefaultDelete {
+		constexpr DefaultDelete() noexcept = default;
+		template<class U>
+		constexpr DefaultDelete(const DefaultDelete<U>&) noexcept {}
+	public:
+		constexpr void operator()(T* ptr) const { delete ptr; }
+	};
+	template<class T>
+	struct DefaultDelete<T[]> {
+		using element_type = Traits::remove_all_extents_t<T[]>;
+	public:
+		constexpr DefaultDelete() noexcept = default;
+		template<class U>
+		constexpr DefaultDelete(const DefaultDelete<U[]>&) noexcept {}
+	public:
+		template<class U>
+		requires Traits::Concepts::CAssignableTo<U*, element_type*>
+		constexpr void operator()(U* ptr) const { delete[] static_cast<element_type*>(ptr); }
+	};
+	template<class T, size_t N>
+	struct DefaultDelete<T[N]> {
+		using element_type = Traits::remove_all_extents_t<T[N]>;
+	public:
+		constexpr DefaultDelete() noexcept = default;
+		template<class U>
+		constexpr DefaultDelete(const DefaultDelete<U[N]>&) noexcept {}
+	public:
+		template<class U>
+		requires Traits::Concepts::CAssignableTo<U*, element_type*>
+		constexpr void operator()(U* ptr) const { delete[] static_cast<element_type*>(ptr); }
+	};
+
+	template<class T, bool DefaultInitialize = false>
+	struct DefaultNew {
+		template<class ...Args>
+		constexpr T* operator()(Args&& ...args) const {
+			return new T(System::move(args)...);
+		}
+	};
+	template<class T>
+	struct DefaultNew<T, true> {
+		constexpr T* operator()() const {
+			return new T;
+		}
+	};
+	template<class T>
+	struct DefaultNew<T[], false> {
+		using element_type = Traits::remove_all_extents_t<T[]>;
+		static constexpr size_t element_count = Traits::element_count_v<T[]>;
+	public:
+		constexpr element_type* operator()(size_t n) const {
+			return new element_type[n * element_count]();
+		}
+	};
+	template<class T>
+	struct DefaultNew<T[], true> {
+		using element_type = Traits::remove_all_extents_t<T[]>;
+		static constexpr size_t element_count = Traits::element_count_v<T[]>;
+	public:
+		constexpr element_type* operator()(size_t n) const {
+			return new element_type[n * element_count];
+		}
+	};
+	template<class T, size_t N>
+	struct DefaultNew<T[N], false> {
+		using element_type = Traits::remove_all_extents_t<T[N]>;
+		static constexpr size_t element_count = Traits::element_count_v<T[N]>;
+	public:
+		constexpr element_type* operator()() const {
+			return new element_type[element_count]();
+		}
+	};
+	template<class T, size_t N>
+	struct DefaultNew<T[N], true> {
+		using element_type = Traits::remove_all_extents_t<T[N]>;
+		static constexpr size_t element_count = Traits::element_count_v<T[N]>;
+	public:
+		constexpr element_type* operator()() const {
+			return new element_type[element_count];
+		}
+	};
+
+	template<class T> struct CopyDelete;
+	template<class T>
+	struct CopyDelete<T[]> {
+		using element_type = Traits::remove_all_extents_t<T[]>;
+		static constexpr size_t element_count = Traits::element_count_v<T[]>;
+	private:
+		size_t m_n;
+	public:
+		constexpr CopyDelete() noexcept = delete;
+		constexpr CopyDelete(const CopyDelete&) noexcept = default;
+		constexpr CopyDelete(size_t n) noexcept : m_n(n) {}
+		constexpr ~CopyDelete() noexcept = default;
+	public:
+		template<class U>
+		requires Traits::Concepts::CAssignableTo<U*, element_type*>
+		void operator()(U* ptr) const {
+			Allocator<element_type> alloc;
+			using traits = AllocatorTraits<Allocator<element_type>>;
+			const size_t count = m_n * element_count;
+			for (size_t i = count; i-- > 0;) {
+				traits::destroy(alloc, static_cast<element_type*>(ptr) + i);
+			}
+			traits::deallocate(alloc, static_cast<element_type*>(ptr), count);
+		}
+	};
+	template<class T, size_t N>
+	struct CopyDelete<T[N]> {
+		using element_type = Traits::remove_all_extents_t<T[N]>;
+		static constexpr size_t element_count = Traits::element_count_v<T[N]>;
+	public:
+		template<class U>
+		requires Traits::Concepts::CAssignableTo<U*, element_type*>
+		void operator()(U* ptr) const {
+			Allocator<element_type> alloc;
+			using traits = AllocatorTraits<Allocator<element_type>>;
+			for (size_t i = element_count; i-- > 0;) {
+				traits::destroy(alloc, static_cast<element_type*>(ptr) + i);
+			}
+			traits::deallocate(alloc, static_cast<element_type*>(ptr), element_count);
+		}
+	};
+
+	template<class T> struct CopyNew;
+	template<class T>
+	struct CopyNew<T[]> {
+		using element_type = Traits::remove_all_extents_t<T[]>;
+		static constexpr size_t element_count = Traits::element_count_v<T[]>;
+	private:
+		size_t m_n;
+	public:
+		constexpr CopyNew() noexcept = delete;
+		constexpr CopyNew(const CopyNew&) noexcept = default;
+		constexpr CopyNew(size_t n) noexcept : m_n(n) {}
+		constexpr ~CopyNew() noexcept = default;
+	public:
+		element_type* operator()(const Traits::remove_extent_t<T[]>& u) const {
+			Allocator<element_type> alloc;
+			using traits = AllocatorTraits<Allocator<element_type>>;
+			element_type* ptr = traits::allocate(alloc, m_n * element_count);
+			element_type* p = ptr;
+			const element_type* init = nullptr;
+			if constexpr (Traits::Concepts::CArray<Traits::remove_extent_t<T[]>>) init = reinterpret_cast<const element_type*>(&u[0]);
+			else init = &u;
+			for (size_t i = 0; i < m_n; ++i) {
+				for (size_t j = 0; j < element_count; ++j) {
+					traits::construct(alloc, p++, init[j]);
+				}
+			}
+			return ptr;
+		}
+	};
+	template<class T, size_t N>
+	struct CopyNew<T[N]> {
+		using element_type = Traits::remove_all_extents_t<T[N]>;
+		static constexpr size_t element_count = Traits::element_count_v<T[N]>;
+	public:
+		element_type* operator()(const Traits::remove_extent_t<T[N]>& u) const {
+			Allocator<element_type> alloc;
+			using traits = AllocatorTraits<Allocator<element_type>>;
+			const size_t down_count = Traits::element_count_v<T>;
+			element_type* ptr = traits::allocate(alloc, element_count);
+			element_type* p = ptr;
+			const element_type* init = nullptr;
+			if constexpr (Traits::Concepts::CArray<Traits::remove_extent_t<T[N]>>) init = reinterpret_cast<const element_type*>(&u[0]);
+			else init = &u;
+			for (size_t i = 0; i < N; ++i) {
+				for (size_t j = 0; j < down_count; ++j) {
+					traits::construct(alloc, p++, init[j]);
+				}
+			}
+			return ptr;
+		}
+	};
+
+	template<class D, class T>
+	concept CDefaultDeleter = requires(D const& deleter, Traits::remove_all_extents_t<T>* ptr) {
+		requires Traits::Concepts::CDefaultConstructible<D>;
+		deleter(ptr);
 	};
 }

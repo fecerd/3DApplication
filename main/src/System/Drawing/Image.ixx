@@ -1,6 +1,6 @@
 ﻿export module Image;
 import Objects;
-import Vector;
+import VectorBase;
 import Memory;
 import File;
 export import Pixel;
@@ -16,7 +16,7 @@ export namespace System::Drawing {
 		Image(uint32_t width, uint32_t height) noexcept : width(width), height(height) {
 			data = new Pixel[static_cast<size_t>(width) * height]{};
 		}
-		Image(uint32_t width, uint32_t height, Vector<Pixel>&& pixels) noexcept : width(width), height(height), data(pixels.Release()) {}
+		Image(uint32_t width, uint32_t height, VectorBase<Pixel>&& pixels) noexcept : width(width), height(height), data(pixels.Release()) {}
 		Image(uint32_t width, uint32_t height, Pixel* data) noexcept : width(width), height(height) {
 			size_t size = static_cast<size_t>(width) * height;
 			this->data = new Pixel[size];
@@ -124,7 +124,7 @@ export namespace System::Drawing {
 		/// <param name="from">変更するアルファ値</param>
 		/// <param name="to">変更後のアルファ値</param>
 		void ChangePixelAlpha(uint8_t from, uint8_t to) noexcept {
-			for (size_t i = 0, size = Size(); i < size; ++i) if (data[i].a = from) data[i].a = to;
+			for (size_t i = 0, size = Size(); i < size; ++i) if (data[i].a == from) data[i].a = to;
 		}
 		/// <summary>
 		/// (x, y)のピクセルに色を設定する

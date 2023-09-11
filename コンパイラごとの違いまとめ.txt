@@ -1,11 +1,16 @@
-﻿> src/System/Module/List.ixx
+﻿> src/System/Module/TaskWorker.ixx
 	> gcc
-		co_yield, co_returnなどがコンパイルエラーを出すため、ICollectionのoverride関数を仮置きにする。
-
-> src/System/Module/TaskWorker.ixx
-	> gcc
-		shared_ptr<TaskData<bool, bool>>::swap()内部にバグがあり、swap()が使用されるムーブ操作ができない。
-		完全特殊化すればコンパイルは通る。
+		shared_ptr<TaskData<bool, bool>>::swap()関数内部にバグがあり、swap()が使用されるムーブ操作ができない。
+		以下のように関数を完全特殊化すればコンパイルは通る。
+			export namespace std {
+				template<>
+				constexpr void swap(System::TaskData<bool, bool>*& lhs, System::TaskData<bool, bool>*& rhs) noexcept {
+					System::TaskData<bool, bool>* tmp = lhs;
+					lhs = rhs;
+					rhs = tmp;
+				}
+			}
+		現在はSharedPtrクラスに切り替えたため問題ない。
 
 > src/System/Module/Time.cpp
 	> MSVC
@@ -18,8 +23,57 @@
 		<coroutine> -> Coroutine -> IEnumerable -> Vector -> EventHandler -> Time
 	のimportがすべてexport importである必要がある。
 
+> g++と<coroutine>
+	コルーチン関数を仮想メンバ関数にするとstd::coroutine_traitsが見つからなくなったり、メッセージなしのコンパイルエラーとなったりする。
+	現状ではvirtual指定とoverride指定を削除することで対応しているが、これはICollcetionクラスの参照からWhere()やSelect()を呼び出せないということである。
+	boost::coroutineへの置き換えも検討すべき。
+	現在使用しているのは、List, Vector, HashMap。
+
 > cl.exeと<compare>
 	strong_ordering, weak_ordering, partial_ordering構造体が持つstaticメンバ変数がエクスポートされておらず、リンク時に未定義参照となる。
 	CSTDINT内で再宣言を行うことで回避できる。
+
+> Exception.ixx
+	> clang
+		<source_location>ヘッダをexportしないと、使用先でSystem::srcloc = std::source_locationを見つけられない。
+
+> Objects_Internal.ixx
+	> gcc
+		Object.hpp, String.hpp, Type.hppに分割したとき、class Stringの基底クラスであるStringBlock<char16_t>が実体化されず、Undefined Referenceエラーとなる。
+		現状ではファイル分割をあきらめる。
+
+> g++と<thread>
+	importされる<thread>と、ほかの標準ヘッダモジュールの互換性に問題があるようで、atexit()(in stdlib.h)関数の定義にconflictが起き、コンパイルエラーとなる。
+	<thread>をboost::threadに置き換えることで対応する。
+
+> g++と<boost/thread.hpp>
+	boost/thread.hppをincludeするとコンパイルエラーとなる。
+	boost/thread/thread.hppをincludeすることで回避できる。
+
+> Image.cpp
+	> gcc
+		module Image;によって始まる定義モジュールの宣言があると、TGA, PNG, BMPモジュールに対してBad Import Dependencyが発生する。
+		
+> g++のマクロ定義矛盾(conflict)
+	マクロ定数NULLの定義が"#define NULL __null"と"#define NULL 0LL"で混在している。
+	my_std内で0LLを__nullに書き換えて対応する。
+	
+> g++のフラグ
+	-ggdbをつけるとUndefined Referenceエラーとなる。
+	-Ogをつけると標準ライブラリでエラーがでる。
+	基本的には-g -O0でコンパイルすること。
+
+> g++ではまったときは
+	- std::bad_allocなどのリンクエラー
+		作業ディレクトリを削除してcmakeからやり直せば上手くいく。
+	- segmentation fault
+		まずはデバッガがエラー箇所を出すか確認する。
+		出さない場合、std::coutなどを刻んで場所を特定する。
+		当該箇所のアセンブリを見て怪しいコードが出力されていないか確認する。
+		別モジュール内の関数を使用するときに起きやすく、継承元の関数なら継承先にも定義する(冗長だが……)ことで回避可能。
+		
+
+
+
 
 

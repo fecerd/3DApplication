@@ -1,0 +1,274 @@
+﻿
+c++20 coroutine
+
+	promise_type<T, Generator>
+		テンプレート引数
+			T
+				コルーチン関数が反復的に返す型。
+				for文などでは、Generator::operator*()の戻り値を受け取るため、
+				T = Uなら、基本的にはU&を処理できる。(実装としては、これは*valueであることが多い)
+
+			Generator
+				Generator::promise_typeが定義されているクラス(構造体)。
+				基本的にGenerator::promise_type = ::promise_type<T, Generator>であるはず。
+		メンバ変数
+			T* m_value;
+				コルーチンがco_yield, co_returnに指定した変数のポインタを入れる。
+				ゆえに co_yield 2;のような右辺値は束縛できないものと考えられる。
+				一方、T m_value;にすれば、yield_value(), return_value()の定義を合わせることで
+				co_yield, co_returnごとにコピー代入したりもできる。
+		メンバ関数
+			Generator get_return_object();
+				コルーチン関数呼び出し時に呼び出され、Generator型インスタンスを返す関数。
+				promise_type<T, Generator>型であるthisからは、
+				coroutine_handle<promise_type<T, Generator>>::from_promise(*this)で
+				coroutine_handle<promise_type<T, Generator>>型インスタンスを作成できる。
+				これはコルーチン制御に必要なインスタンスであるため、これをメンバに持つGeneratorを返せばよい。
+				実装方法としては、
+					Generator(coroutine_handle<promise_type<T, Generator>> handle)コンストラクタ内で、
+						m_handle(handle)とするか、
+					Generator(promise_type<T, Generator>& promise)コンストラクタ内から、
+						m_handle(coroutine_handle<promise_type<T, Generator>>::from_promise(promise))とするかである。
+				コピーコストを考えると、下の方がよさそうである。
+
+			suspend_always initiali_suspend();
+			suspend_never initiali_suspend();
+				suspend_always(), suspend_never()のいずれかを返す。
+				suspend_alwaysの場合、コルーチン作成時に関数処理が始まらない。
+				suspend_neverの場合、コルーチンを作成時にそのまま関数が進行し、co_yieldやco_returnまで停止しない。
+
+			suspend_always final_suspend();
+			suspend_never final_suspend();
+				上記と同様。コルーチン終了時に呼び出される。
+				通常はsuspend_alwaysを使用し、co_await用コルーチンの場合にsuspend_neverを使用する。
+				suspend_alwaysの場合、coroutine_handle<>::destroy()の呼び出しが必要。
+
+			void unhandled_exception();
+				コルーチンが例外を投げた時に呼び出される。
+				素直にterminate()するのがよい。
+
+			void return_void();
+				co_return;を使用する場合、これを宣言する。定義は空でよい。
+				終端到達時に呼び出されるため、基本的に定義したほうがよい。
+			
+			suspend_always yield_value(T& value);
+				co_yield value;を使用する場合、これを宣言する。
+				this->value = &value;によってメンバ変数valueを変更することが役割。
+				co_yield value;は一時停止されることを意図しているため、suspend_always()を返すのが普通。
+
+			void return_value(T& value);
+				co_return value;を使用する場合、これを宣言する。
+				戻り値がない以外はyield_value()と同じ。
+
+			なお、suspend_always yield_void()はないらしい。
+
+			void await_transform();
+			awaiter operator co_await(const T&);
+				co_await用のカスタマイズ関数。どちらかを使えばよいが、Qiitaの記事によれば、await_transform()で通らないコードが
+				operator co_await()なら通ったらしい。
+
+	Generator<T>
+		テンプレート型
+			T
+				コルーチン関数が反復的に返す型。
+		
+		メンバ型
+			promise_type
+				このクラスがコルーチン関数の戻り値になるために必要な型。
+				基本的にpromise_type = ::promise_type<T, Generator<T>>;である。
+			
+		メンバ変数
+			coroutine_handle<promise_type> m_handle;
+				コルーチン関数の制御を行うために必要な変数。
+				コルーチン関数呼び出し時のpromise_type::get_return_object()関数によって
+				Generator<T>が作成されるとき、初期化可能である。
+
+		特殊関数
+			Generator(promise_type& promise);
+			Generator(coroutine_handle<promise_type>);
+				promise_type::get_return_object()関数内で呼び出すため、どちらかを実装する必要がある。
+				m_handleを初期化すればよい。
+
+			~Generator();
+				m_handleを破棄する必要がある。実装は以下の通り。
+					if (m_handle) m_handle.destroy();
+					m_handle = handle();
+
+	for文をサポートする場合、イテレータを返すbegin(), end()があるとよい。
+	また、イテレータはoperator++(), operator!=()を使用できるとよい。
+	イテレータはm_handleが参照できれば最低限動くが、
+	複数種類のGeneratorからイテレータを使用する場合、virtual基底Generatorを作成し、
+	イテレータはその参照(ポインタ)を持つようにしたほうがよい。
+	Generatorはoperator++(), operator*(), operator!=(), (operator bool())などをoverrideできる。
+
+		coroutine_handle<promise_type>>について
+			メンバ関数
+				resume();
+					コルーチン関数を進行させ、次の停止ポイントまで到達したとき、制御を戻す。
+				
+				done();
+					コルーチンが最終ポイントに到達している場合、trueを返す。
+					trueのとき、このコルーチンはresume()できず、destroy()するしかない。
+
+				promise();
+					promise_type&を返すため、メンバ変数や自作機能にアクセスできる。
+					co_yieldで渡された値を参照するときに使うことが多い。
+				
+	コルーチンは再突入することはできないため、done() == trueのコルーチンは破棄するしかないが、
+	コルーチン関数 Generator<T> GetGenerator() { ... }に対して、
+	[](){ return GetGenerator(); };となる関数オブジェクトm_regenerateをGeneratorが保持することで、
+		if (m_handle) m_handle.destroy();
+		Generator&& tmp = m_regenerate();
+		m_handle = tmp.m_handle;
+		tmp.m_handle = handle();
+	として、何度でも再構築が可能。
+	m_regenerateに引数を取らせれば、順序を逆転させることも可能。
+		if (m_handle) m_handle.destroy();
+		m_reverse = !m_reverse;
+		Generator&& tmp = m_regenerate(m_reverse);
+		m_handle = tmp.m_handle;
+		tmp.m_handle = handle();
+
+	簡単な使用例:
+		Generator<int> GetGenerator(int count) {
+			for (int i = 0; i < count; ++i) co_yield i;
+		}
+		上は以下のように解釈され、co_awaitで中断し、m_handle.resume()に制御を返す。
+		Generator<int> GetGenerator(int count) {
+			Generator<int>::promise_type promise;
+			promise.initiali_suspend();
+			try {
+				for (int i = 0; i < count; ++i) {
+					co_await promise.yield_value(i);
+				}
+			} catch (...) {
+				promise.unhandled_exception();
+			}
+			promise.return_void();
+			promise.final_suspend();
+		}
+
+
+boost::coroutine
+	<boost/coroutine2/coroutine.hpp>に存在する。
+	モジュール化するときにエラーがでたため、以下を展開したうえで、std::swap()をすべて単純な動作に置き換えた。
+	<boost/coroutine2/coroutine.hpp>
+	<boost/coroutine2/fixedsize_stack.hpp>
+	<boost/coroutine2/segmented_stack.hpp>
+		<boost/coroutine2/detail/coroutine.hpp>
+		<boost/coroutine2/detail/pull_coroutine.hpp>
+		<boost/coroutine2/detail/push_coroutine.hpp>
+		<boost/coroutine2/detail/pull_control_block_cc.hpp>
+		<boost/coroutine2/detail/push_control_block_cc.hpp>
+		<boost/coroutine2/detail/pull_coroutine.ipp>
+		<boost/coroutine2/detail/push_coroutine.ipp>
+		<boost/coroutine2/detail/pull_control_block_cc.ipp>
+		<boost/coroutine2/detail/push_control_block_cc.ipp>
+
+
+	push_type<T>, pull_type<T>を対応させてコルーチンとして扱う。
+
+	push_type<T> sinkは void func(pull_type<T>& source)関数ポインタ(オブジェクト)をコンストラクタに渡すことで作成する。
+	pull_type<T> sourceは void func(push_type<T>& sink)関数ポインタ(オブジェクト)をコンストラクタに渡すことで作成する。
+
+	sink(val);
+		pull_typeに値を渡す。source.get()と対応している。
+		source側でsource()が呼び出されるまで、制御が戻らない。
+
+	source.get();
+		push_typeから渡された値を取得する。sink(val)と対応している。
+
+	source();
+		source側で待機する。sink側でsink(val)が呼び出されるまで、制御が戻らない。
+	
+	auto ite = begin(sink); (end(sink);)
+	ite = val;	(*ite = val;)
+		グローバル関数(std::begin(), std::end()ではない)であるbegin(), end()でイテレータを取得する。
+		イテレータはoperator*()がイテレータ自身を返すことになっているため、どちらの呼び出しも等価である。
+		operator=(val)は、sink(val)が呼ばれる。
+
+
+置き換え方
+
+	例1
+
+		c++20 coroutine
+
+			Generator<T> GetGenerator(bool reverse) {
+				auto internal = [this](bool r) {
+					if (r) {
+						...;
+						sink(val);
+						...;
+					} else {
+						...;
+						sink(val);
+						...;
+					}
+				};
+				return Generator<T>(
+					internal,
+					reverse
+				);
+			}
+
+		boost::coroutine
+
+			Generator<T> GetGenerator(bool reverse) {
+				auto internal = [this](push_type<T&>& sink) {
+					...;
+					sink(val);
+					...;
+				};
+				auto internal_rev = [this](push_type<T&>& sink) {
+					...;
+					sink(val);
+					...;
+				};
+				return Generator<T>(
+					[internal](bool r){ return Generator<T>(Function<void(push_type<T&>&)>(r ? internal_rev : internal)); },
+					reverse
+				);
+			}
+
+	例2
+	
+		c++20 coroutine
+
+			Generator<T> GetGenerator(bool reverse, Args ...args) {
+				auto internal = [this, args...](bool r) {
+					if (r) {
+						...;
+						sink(val);
+						...;
+					} else {
+						...;
+						sink(val);
+						...;
+					}
+				};
+				return Generator<T>(
+					internal,
+					reverse
+				);
+			}
+
+		boost::coroutine
+
+			Generator<T> GetGenerator(bool reverse, Args ...args) {
+				auto internal = [this, args...](push_type<T&>& sink) {
+					...;
+					sink(val);
+					...;
+				};
+				auto internal_rev = [this, args...](push_type<T&>& sink) {
+					...;
+					sink(val);
+					...;
+				};
+				return Generator<T>(
+					[internal](bool r){ return Generator<T>(Function<void(push_type<T&>&)>(r ? internal_rev : internal)); },
+					reverse
+				);
+			}
+

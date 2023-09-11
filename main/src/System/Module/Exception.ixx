@@ -3,7 +3,7 @@ import Traits;
 import StringBlock;
 import <exception>;//std::exception, std::terminate()
 import <stdexcept>;//std::runtime_error
-import <source_location>;//std::source_location
+export import <source_location>;//std::source_location
 
 //source_location
 export namespace System {

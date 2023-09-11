@@ -192,7 +192,7 @@ export namespace System {
 			if (count < 2) return;
 			Ite last = Increment(end, -1, beg);
 			if (count == 2) {
-				if (ascendingOrder == compare(*beg, *last) > 0) Swap<vtype>(*beg, *last);
+				if (ascendingOrder == (compare(*beg, *last) > 0)) Swap<vtype>(*beg, *last);
 				return;
 			}
 			Ite pivot = Middian<Ite>(beg, Increment(beg, count / 2, beg), last, compare);

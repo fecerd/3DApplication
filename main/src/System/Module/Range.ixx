@@ -1,7 +1,7 @@
 ﻿export module Range;
 import Traits;
 import Vector;	//using in ReverseEnumerator()
-import IEnumerable;
+import ICollection;
 
 export namespace System {
 	template<Traits::Concepts::CForwardIterator I>

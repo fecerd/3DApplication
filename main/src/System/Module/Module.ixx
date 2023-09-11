@@ -38,7 +38,7 @@ export import Thread;
 export import Time;
 export import Traits;
 export import TypeID;
-export import TypeName;
+export import TypeInfo;
 export import Vector;
 export import Vector2;
 export import Vector3;

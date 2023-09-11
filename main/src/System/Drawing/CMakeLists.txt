@@ -1,28 +1,49 @@
 ﻿cmake_minimum_required(VERSION 3.8)
 
-FSetModuleFileFlags(${CMAKE_CURRENT_SOURCE_DIR})
-add_library(Drawing_0 OBJECT
-	Color.ixx
-	Rectangle.ixx
+FAddObjectLibrary(Drawing_0
+	SOURCES
+		Color.ixx
+		Rectangle.ixx
+	DEPENDS
+		Module_0	#CSTDINT
 )
-add_library(Drawing_1 OBJECT
-	Pixel.ixx
+FAddObjectLibrary(Drawing_1
+	SOURCES
+		Pixel.ixx
+	DEPENDS
+		Drawing_0
+		Objects	#Type
 )
-add_library(Drawing_2 OBJECT
-	Image.ixx
+FAddObjectLibrary(Drawing_2
+	SOURCES
+		Image.ixx
+	DEPENDS
+		Drawing_1
+		Module_4	#VectorBase, Memory
+		IO_1	#File
 )
-add_library(Drawing_3 OBJECT
-	BMP.ixx
-	PNG.ixx
-	TGA.ixx
+FAddObjectLibrary(Drawing_3
+	SOURCES
+		BMP.ixx
+		PNG.ixx
+		TGA.ixx
+	DEPENDS
+		Drawing_2
+		Compression	#Zlib, Huffman
 )
-add_library(Drawing_4 OBJECT
-	Drawing.ixx
-	Image.cpp
+FAddObjectLibrary(Drawing_4
+	SOURCES
+		Drawing.ixx
+		Image.cpp
+	DEPENDS
+		Drawing_3
 )
 
-add_dependencies(Drawing_1 PUBLIC Drawing_0)
-add_dependencies(Drawing_2 PUBLIC Drawing_1)
-add_dependencies(Drawing_3 PUBLIC Drawing_2)
-add_dependencies(Drawing_4 PUBLIC Drawing_3)
-add_library(Drawing INTERFACE Drawing_0 Drawing_1 Drawing_2 Drawing_3 Drawing_4)
+FCombineObjectLibrary(Drawing
+	PUBLIC
+		Drawing_0
+		Drawing_1
+		Drawing_2
+		Drawing_3
+		Drawing_4
+)

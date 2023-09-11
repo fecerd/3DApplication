@@ -1,10 +1,11 @@
 ﻿export module StringBlock;
 export import CSTDINT;
 export import Traits;
-import Allocator;
+export import Allocator;
 import Math;
 export import VectorBase;
 import CodePoint;
+import <iostream>;	//overload operator<<
 
 //CStringBlock
 export namespace System {
@@ -368,49 +369,57 @@ export namespace System::Encoding {
 	StringBlock<char> ToMultiByteStringBlock(const CodePoint* codePoints, size_t count) noexcept;
 }
 
+namespace System {
+	/*
+		StringBlock<str_t>::allocをstatic constexpr alloc_tとして定義すると、
+		なぜかg++のみUndefined Referenceとなってしまう。
+		以下のように、外部に本体を定義し、参照を持てば問題ない。
+	*/
+	template<class T> inline constexpr const Allocator<T> alloc_ = Allocator<T>{};
+}
+
 //StringBlock
 export namespace System {
 	template<Traits::Concepts::CCharType str_t>
 	class StringBlock {
-	protected:
+	private:
+		using alloc_t = Allocator<str_t>;
+		using traits = AllocatorTraits<alloc_t const>;
+		static constexpr alloc_t const& alloc = alloc_<str_t>;
+	public: 
 		str_t* value = nullptr;
 		size_t size = 0;
 	public:
 		static constexpr size_t npos = MAX_VALUE<size_t>;
 	public:
 		StringBlock() noexcept : size(1) {
-			Allocator<str_t> al;
-			value = al.allocate(size);
-			value[0] = '\0';
+			value = alloc.allocate(size);
+			traits::construct(alloc, value, str_t('\0'));
 		}
-		StringBlock(const StringBlock<str_t>& arg) noexcept : size(arg.size) {
-			Allocator<str_t> al;
-			value = al.allocate(size);
-			for (size_t i = 0; i < size; ++i) value[i] = arg.value[i];
+		StringBlock(const StringBlock& arg) noexcept : size(arg.size) {
+			value = alloc.allocate(size);
+			for (size_t i = 0; i < size; ++i) traits::construct(alloc, value + i, arg.value[i]);
 		}
-		StringBlock(StringBlock<str_t>&& arg) noexcept : size(arg.size), value(arg.value) {
+		StringBlock(StringBlock&& arg) noexcept : size(arg.size), value(arg.value) {
 			arg.size = 0;
 			arg.value = nullptr;
 		}
-		StringBlock(const str_t c) noexcept : size(2) {
-			Allocator<str_t> al;
-			value = al.allocate(size);
-			value[0] = c;
-			value[1] = '\0';
+		StringBlock(str_t c) noexcept : size(2) {
+			value = alloc.allocate(size);
+			traits::construct(alloc, value, c);
+			traits::construct(alloc, value + 1, str_t('\0'));
 		}
 		template<size_t N>
 		StringBlock(const str_t(&arg)[N]) noexcept : size(N) {
-			Allocator<str_t> al;
-			value = al.allocate(size);
-			for (size_t i = 0; i < size; ++i) value[i] = arg[i];
+			value = alloc.allocate(size);
+			for (size_t i = 0; i < size; ++i) traits::construct(alloc, value + i, arg[i]);
 			value[size - 1] = '\0';
 		}
 		StringBlock(const str_t* arg, size_t n = npos) noexcept {
-			Allocator<str_t> al;
 			if (!arg) {
 				size = 1;
-				value = al.allocate(size);
-				value[0] = '\0';
+				value = alloc.allocate(size);
+				traits::construct(alloc, value, str_t('\0'));
 			}
 			else {
 				if (n == 0) n = npos;
@@ -421,20 +430,18 @@ export namespace System {
 					size = 1;
 				}
 				else size = len + 1;
-				value = al.allocate(size);
-				for (size_t i = 0; i < len; ++i) value[i] = arg[i];
-				value[size - 1] = '\0';
+				value = alloc.allocate(size);
+				for (size_t i = 0; i < len; ++i) traits::construct(alloc, value + i, arg[i]);
+				for (size_t i = len; i < size; ++i) traits::construct(alloc, value + i, str_t('\0'));
 			}
 		}
-		// StringBlock(nullptr_t arg) noexcept {}
 		template<size_t N>
 		StringBlock(const CStringBlock<str_t, N>& arg) noexcept {
 			size_t len = arg.Length();
 			size = len + 1;
-			Allocator<str_t> al;
-			value = al.allocate(size);
-			for (size_t i = 0; i < len; ++i) value[i] = arg.value[i];
-			value[size - 1] = '\0';
+			value = alloc.allocate(size);
+			for (size_t i = 0; i < len; ++i) traits::construct(alloc, value + i, arg.value[i]);
+			for (size_t i = len; i < size; ++i) traits::construct(alloc, value + i, str_t('\0'));			
 		}
 		~StringBlock() noexcept { InternalReset(); }
 	public:
@@ -462,15 +469,16 @@ export namespace System {
 		/// 一律で対処できるようにしたい。
 		/// </summary>
 		inline void InternalReset(size_t newSize = 0) noexcept {
-			Allocator<str_t> al;
 			if (value) {
-				al.deallocate(value, size);
+				for (size_t i = size; i-- > 0;) traits::destroy(alloc, value + i);
+				alloc.deallocate(value, size);
 				value = nullptr;
 				size = 0;
 			}
 			if (newSize) {
-				value = al.allocate(newSize);
 				size = newSize;
+				value = alloc.allocate(size);
+				for (size_t i = 0; i < size; ++i) traits::construct(alloc, value + i, str_t('\0'));
 			}
 		}
 	public:/* 文字配列取得 */
@@ -581,7 +589,12 @@ export namespace System {
 		/// 複数の要素で一文字を表す文字型の場合、文字数と一致しない可能性がある
 		/// </summary>
 		/// <returns>文字列がヌル終端のとき、戻り値はヌル終端文字のインデックスに等しい</returns>
-		size_t Length() const noexcept { for (size_t i = 0; i < size; ++i) if (value[i] == '\0') return i; return size; }
+		size_t Length() const noexcept {
+			for (size_t i = 0; i < size; ++i) {
+				if (value[i] == str_t('\0')) return i;
+			}
+			return size;
+		}
 		/// <summary>
 		/// 内部に確保されている要素数を取得する
 		/// </summary>
@@ -660,6 +673,9 @@ export namespace System {
 			for (size_t i = 0; i < len; ++i) if (value[i] != rdata[i]) return false;
 			return true;
 		}
+		friend inline bool operator==(const str_t lhs, const StringBlock<str_t>& rhs) noexcept {
+			return StringBlock<str_t>(lhs) == rhs;
+		}
 		bool operator!=(const StringBlock<str_t>& rhs) const noexcept { return !(*this == rhs); }
 	private:
 		/// <summary>
@@ -679,39 +695,44 @@ export namespace System {
 		}
 	public:/* 文字型変換 */
 		StringBlock<char8_t> ToU8StringBlock() const noexcept {
-			if constexpr (Traits::is_same_v<char8_t, str_t>) return StringBlock<char8_t>(*this);
+			if constexpr (Traits::is_same_v<char8_t, str_t>) return *this;
 			else {
 				VectorBase<Encoding::CodePoint> tmp = ToCodePoints();
 				return StringBlock<char8_t>(Encoding::ToU8StringBlock(tmp.Items(), tmp.Count()));
 			}
 		}
 		StringBlock<char16_t> ToU16StringBlock() const noexcept {
-			if constexpr (Traits::is_same_v<char16_t, str_t>) return StringBlock<char16_t>(*this);
+			if constexpr (Traits::is_same_v<char16_t, str_t>) return *this;
 			else {
 				VectorBase<Encoding::CodePoint> tmp = ToCodePoints();
 				return StringBlock<char16_t>(Encoding::ToU16StringBlock(tmp.Items(), tmp.Count()));
 			}
 		}
 		StringBlock<char32_t> ToU32StringBlock() const noexcept {
-			if constexpr (Traits::is_same_v<char32_t, str_t>) return StringBlock<char32_t>(*this);
+			if constexpr (Traits::is_same_v<char32_t, str_t>) return *this;
 			else {
 				VectorBase<Encoding::CodePoint> tmp = ToCodePoints();
 				return StringBlock<char32_t>(Encoding::ToU32StringBlock(tmp.Items(), tmp.Count()));
 			}
 		}
 		StringBlock<wchar_t> ToWideStringBlock() const noexcept {
-			if constexpr (Traits::is_same_v<wchar_t, str_t>) return StringBlock<wchar_t>(*this);
+			if constexpr (Traits::is_same_v<wchar_t, str_t>) return *this;
 			else {
 				VectorBase<Encoding::CodePoint> tmp = ToCodePoints();
 				return StringBlock<wchar_t>(Encoding::ToWideStringBlock(tmp.Items(), tmp.Count()));
 			}
 		}
 		StringBlock<char> ToMultiByteStringBlock() const noexcept {
-			if constexpr (Traits::is_same_v<char, str_t>) return StringBlock<char>(*this);
+			if constexpr (Traits::is_same_v<char, str_t>) return *this;
 			else {
 				VectorBase<Encoding::CodePoint> tmp = ToCodePoints();
 				return StringBlock<char>(Encoding::ToMultiByteStringBlock(tmp.Items(), tmp.Count()));
 			}
 		}
 	};
+
+	template<Traits::Concepts::CCharType str_t>
+	std::ostream& operator<<(std::ostream& os, const StringBlock<str_t>& str) noexcept {
+		return (os << str.ToMultiByteStringBlock().c_str());
+	}
 }

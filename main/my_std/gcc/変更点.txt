@@ -1,0 +1,34 @@
+﻿stdlib.h
+	37行目
+		#define NULL 0LL
+			->	#define NULL __null
+
+	425行目
+		int __cdecl atexit(void (__cdecl *)(void));
+			->	namespace my { int __cdecl atexit(void (__cdecl *)(void)); }
+
+cstdlib
+	79行目
+		#include_next<stdlib.h>
+			->	#include "stdlib.h"
+
+	139行目
+		using ::atexit;
+			->	using my::atexit;
+
+string.h
+	34行目
+		#define NULL 0LL
+			->	#define NULL __null
+
+bits/allocator.h
+	193-194行目
+		if (__builtin_mul_overflow(__n, sizeof(_Tp), &__n))
+	      std::__throw_bad_array_new_length();
+			->	if ((0xffffffffffffffff / sizeof(_Tp)) < __n) std::__throw_bad_array_new_length();
+				__n *= sizeof(_Tp);
+
+boost/context/fiber_context.hpp
+	382行目
+		std::swap( fctx_ , other.fctx_ )
+			->	detail::fcontext_t tmp = other.fctx_; other.fctx_ = fctx_; fctx_ = tmp;

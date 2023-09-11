@@ -18,7 +18,7 @@ FAddObjectLibrary(Encoding_2
 		CodePage.ixx
 	DEPENDS
 		Encoding_1
-		Module_9
+		Module_10
 )
 FAddObjectLibrary(Encoding_3
 	SOURCES

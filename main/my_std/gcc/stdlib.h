@@ -34,7 +34,7 @@ extern "C" {
 #ifndef _WIN64
 #define NULL 0
 #else
-#define NULL 0LL
+#define NULL __null
 #endif  /* W64 */
 #else
 #define NULL ((void *)0)
@@ -421,9 +421,8 @@ _CRTIMP int __cdecl ___mb_cur_max_func(void);
     return __builtin_llabs(x);
   }
 #endif
-	namespace my {
-		int __cdecl atexit(void (__cdecl *)(void));
-	}
+
+	namespace my { int __cdecl atexit(void (__cdecl *)(void)); }
 #ifdef _UCRT
   int __cdecl at_quick_exit(void (__cdecl *)(void));
 #endif

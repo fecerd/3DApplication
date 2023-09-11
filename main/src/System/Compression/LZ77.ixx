@@ -2,7 +2,7 @@
 import CSTDINT;
 import Traits;
 import Sorts;
-import Vector;
+export import Vector;
 using namespace System::Traits;
 
 export namespace System::Compression {

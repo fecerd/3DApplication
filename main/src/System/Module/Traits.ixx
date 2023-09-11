@@ -3,6 +3,7 @@ export import CSTDINT;
 import <concepts>;	//std::same_as, std::convertible_to
 import <iterator>;	//std::xxx_iterator, std::xxx_iterator_tag
 import <type_traits>;	//std::is_class, std::is_union
+import <iostream>;	//for operator<<() concepts
 
 //他の定義に非依存な定義
 export namespace System {
@@ -359,6 +360,29 @@ export namespace System {
 		template<class T> inline constexpr size_t extent_level_v = extent_level<T>::value;
 		template<class T> inline constexpr size_t element_count_v = element_count<T>::value;
 	}	
+	//[固有] : テンプレート型情報取得(template_info)
+	namespace Traits {
+		template<class T>
+		struct template_info {
+			static constexpr bool value = false;
+			static constexpr size_t args_count = 0;
+			using type = T;
+			template<size_t i>
+			using arg_type = void;
+		};
+		template<template<class ...Args> class T, class ...Args>
+		struct template_info<T<Args...>> {
+			static constexpr bool value = true;
+			static constexpr size_t args_count = sizeof...(Args);
+			using type = T<Args...>;
+			template<size_t i>
+			using arg_type = one_of_t<i, Args...>;
+		};
+	}
+	namespace Traits {
+		template<class T>
+		inline constexpr size_t template_args_count_v = template_info<T>::args_count;
+	}
 	//[固有]：浮動小数点型ビット情報(EXP_DIGIT, FRAC_DIGIT, EXP_BIAS)
 	namespace Traits {
 		template<class T>
@@ -789,6 +813,12 @@ export namespace System {
 		template<class T> struct remove_all_specifiers { using type = T; };
 		template<class T> requires(!is_same_v<T, typename remove_one_specifier<T>::type>)
 		struct remove_all_specifiers<T> : public remove_all_specifiers<typename remove_one_specifier<T>::type> {};
+		template<class T>
+		struct remove_all_specifiers_without_extents : remove_all_specifiers_without_extents<Traits::remove_pointer_t<Traits::remove_cvref_t<T>>> {};
+		template<class T> requires(Traits::is_same_v<T, Traits::remove_pointer_t<Traits::remove_cvref_t<T>>>)
+		struct remove_all_specifiers_without_extents<T> {
+			using type = T;
+		};
 		template<class T, size_t levels, size_t ...args>
 		struct add_extents : add_extents<T[one_of_value_v<size_t, levels - 1, args...>], levels - 1, args...> {};
 		template<class T, size_t ...args> struct add_extents<T, 0, args...> { using type = T; };
@@ -803,6 +833,7 @@ export namespace System {
 		template<class T> using array_access_return_t = array_access_return<T>::type;
 		template<class T> using remove_one_specifier_t = remove_one_specifier<T>::type;
 		template<class T> using remove_all_specifiers_t = remove_all_specifiers<T>::type;
+		template<class T> using remove_all_specifiers_without_extents_t = remove_all_specifiers_without_extents<T>::type;
 		template<class T, size_t ...args> using add_extents_t = add_extents<T, sizeof...(args), args...>::type;
 	}
 	//[固有] : 型判定
@@ -1488,6 +1519,13 @@ export namespace System {
 	namespace Traits {
 		template<Concepts::CIntegral T>
 		using make_unsigned_t = make_unsigned<T>::type;
+	}
+
+	namespace Traits::Concepts {
+		template<class T>
+		concept CCanOutputStream = requires(std::ostream& os, T x) {
+			os << x;
+		};
 	}
 }
 

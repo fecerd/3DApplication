@@ -1,12 +1,10 @@
-﻿module;
-#include<crtdbg.h>
-#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
-export module PMD;
+﻿export module PMD;
 import CSTDINT;
 import Vector3;
 import Vector;
 import Objects;
 import IEnumerable;
+import BoostCoroutine;
 import IO;
 import Memory;
 
@@ -36,27 +34,49 @@ export namespace System::Formats {
 		uint32_t indicesNum;
 		char texFilePath[20];
 	private:
-		System::IEnumerator<System::String> GetTextureFilePathEnumerator() const noexcept {
-			if (texFilePath[0] == '\0') co_return;
-			const String rawPath{ texFilePath, 20 };
-			const String separator = u"*";
-			size_t length = rawPath.find(separator);
-			size_t pos = 0;
-			do {
-				String ret = rawPath.substr(pos, length);
-				co_yield ret;
-				pos = length + 1;
-				length = rawPath.find(separator, pos);
-			} while (length != System::String::npos);
+#if defined(__GNUC__) && !defined(__clang__)
+		IEnumerator<String> GetTextureFilePathEnumerator(bool reverse) const noexcept {
+			auto internal_0 = [this](Boost::push_type<String&>& sink) {
+				if (texFilePath[0] == '\0') return;
+				const String rawPath{ texFilePath, 20 };
+				const String separator = u"*";
+				size_t length = rawPath.find(separator);
+				size_t pos = 0;
+				do {
+					String ret = rawPath.substr(pos, length);
+					sink(ret);
+					pos = length + 1;
+					length = rawPath.find(separator, pos);
+				} while (length != String::npos);				
+			};
+			auto internal = [internal_0](bool) -> IEnumerator<String> {
+				return IEnumerator<String>(internal_0);
+			};
+			return IEnumerator<String>(internal, reverse);
 		}
+#else
+		IEnumerator<String> GetTextureFilePathEnumerator(bool reverse) const noexcept {
+			auto internal = [this](bool) -> IEnumerator<String> {
+				if (texFilePath[0] == '\0') co_return;
+				const String rawPath{ texFilePath, 20 };
+				const String separator = u"*";
+				size_t length = rawPath.find(separator);
+				size_t pos = 0;
+				do {
+					String ret = rawPath.substr(pos, length);
+					co_yield ret;
+					pos = length + 1;
+					length = rawPath.find(separator, pos);
+				} while (length != String::npos);
+			};
+			return IEnumerator<String>(internal, reverse);
+		}	
+#endif
 	public:
-		System::IEnumerable<String> GetTextureFilePaths() const noexcept {
-			return System::IEnumerable<String>(
-				new System::IEnumerator<String>(
-					[this](bool reverse) { return GetTextureFilePathEnumerator(); },
-					false
-					)
-				);
+		IEnumerable<String> GetTextureFilePaths() const noexcept {
+			return IEnumerable<String>(
+				new IEnumerator<String>(GetTextureFilePathEnumerator(false))
+			);
 		}
 		String GetToonTexturePath() const noexcept {
 			//トゥーンテクスチャ名はtoon(toonIdx + 1).bmpで、一桁の場合、toon01.bmpのようにゼロ埋めする
@@ -106,7 +126,7 @@ export namespace System::Formats {
 	class PMD {
 	public:
 		//(親がいない)センターボーンの親ボーンNoに使用する値
-		static constexpr uint16_t CenterBoneParentNo = System::MAX_VALUE<uint16_t>;
+		static constexpr uint16_t CenterBoneParentNo = MAX_VALUE<uint16_t>;
 	private:
 		PMDHeader header;
 	public:
@@ -120,7 +140,7 @@ export namespace System::Formats {
 		PMD() noexcept = delete;
 		PMD(const PMD&) noexcept = delete;
 		PMD(const String& filePath) noexcept : filePathName(filePath) {
-			System::IO::FileStream file(filePath, System::IO::OpenMode::IN_BINARY);
+			IO::FileStream file(filePath, IO::OpenMode::IN_BINARY);
 			if (!file) return;
 			char sign[3]{};
 			file.Read(sign, 3);
@@ -132,7 +152,7 @@ export namespace System::Formats {
 			uint32_t indexCount = 0;
 			file.ReadLE(indexCount);
 			indices.AddRange(file, indexCount);
-			auto LoadMaterial = [](System::IO::FileStream& f, PMDMaterial* dst) {
+			auto LoadMaterial = [](IO::FileStream& f, PMDMaterial* dst) {
 				f.Read(dst, 46);
 				f.Read(&dst->indicesNum, 24);
 				//PMX -> PMDに変換するとtexFilePathの末尾が\0で埋められてしまうため処理
@@ -150,14 +170,14 @@ export namespace System::Formats {
 			materials.AddRange(file, materialCount, LoadMaterial);
 			uint16_t boneCount = 0;
 			file.ReadLE(boneCount);
-			auto LoadBone = [](System::IO::FileStream& f, PMDBone* dst) {
+			auto LoadBone = [](IO::FileStream& f, PMDBone* dst) {
 				f.Read(dst, 25);
 				f.Read(&dst->ikBoneNo, 14);
 			};
 			bones.AddRange(file, boneCount, LoadBone);
 			uint16_t ikCount = 0;
 			file.ReadLE(ikCount);
-			auto LoadIK = [](System::IO::FileStream& f, PMDIK* dst) {
+			auto LoadIK = [](IO::FileStream& f, PMDIK* dst) {
 				f.Read(dst, 5);
 				f.Read(&dst->iterations, 6);
 				if (dst->nodeIdxes) delete dst->nodeIdxes;

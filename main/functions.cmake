@@ -41,7 +41,7 @@ function(FPrecompileSTD)
 	set(DEFINE_OPTIONS)
 	set(DEBUG_OPTIONS)
 	set(RELEASE_OPTIONS)
-	set(INCLUDE_OPTIONS -I"${CMAKE_MY_STD_PATH}")
+	set(INCLUDE_OPTIONS -I ${CMAKE_MY_STD_PATH})
 	set(OTHER_OPTIONS)
 	set(MODULE_OPTIONS)
 	set(WARNING_OPTIONS)
@@ -62,12 +62,12 @@ function(FPrecompileSTD)
 		set(MODULE_OPTIONS -c -exportHeader -ifcOutput;"${STD_OUTPUT_DIR}")
 		set(WARNING_OPTIONS)
 	elseif (GCC)
-		set(VERSION_OPTIONS -std=gnu++${CMAKE_CXX_STANDARD})
+		set(VERSION_OPTIONS -std=c++${CMAKE_CXX_STANDARD})
 		set(DEFINE_OPTIONS -DUNICODE -D_UNICODE)
-		set(DEBUG_OPTIONS -g)
+		set(DEBUG_OPTIONS -g -D_DEBUG)
 		set(OTHER_OPTIONS -mwindows -x c++ -c)
 		set(MODULE_OPTIONS -fmodules-ts -Mno-modules -fmodule-header -fmodule-only)
-		set(WARNING_OPTIONS)
+		set(WARNING_OPTIONS -Wno-attributes -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-reorder -Wno-uninitialized)
 	elseif (CLANG)
 		set(VERSION_OPTIONS "$<IF:$<STREQUAL:${CMAKE_CXX_STANDARD},23>,-std=c++2b,-std=c++${CMAKE_CXX_STANDARD}>")
 		set(DEFINE_OPTIONS -DUNICODE -D_UNICODE)
@@ -77,7 +77,31 @@ function(FPrecompileSTD)
 		set(WARNING_OPTIONS -Wno-ambiguous-ellipsis -Wno-pragma-system-header-outside-header -Wno-unknown-attributes -Wno-user-defined-literals -Wno-keyword-compat -Wno-unknown-warning-option -Wno-deprecated-builtins)
 	endif()
 	## すべてのオプションをまとめる
-	set(ALL_OPTIONS ${VERSION_OPTIONS} ${DEFINE_OPTIONS} $<$<CONFIG:Debug>:${DEBUG_OPTIONS}> $<$<CONFIG:Release>:${RELEASE_OPTIONS}> ${INCLUDE_OPTIONS} ${OTHER_OPTIONS} ${WARNING_OPTIONS} ${MODULE_OPTIONS})
+	set(ALL_OPTIONS)
+	foreach(op ${VERSION_OPTIONS})
+		list(APPEND ALL_OPTIONS "${op}")
+	endforeach()
+	foreach(op ${DEFINE_OPTIONS})
+		list(APPEND ALL_OPTIONS "${op}")
+	endforeach()
+	foreach(op ${DEBUG_OPTIONS})
+		list(APPEND ALL_OPTIONS $<$<CONFIG:Debug>:${op}>)
+	endforeach()
+	foreach(op ${RELEASE_OPTIONS})
+		list(APPEND ALL_OPTIONS $<$<CONFIG:Release>:${op}>)
+	endforeach()
+	foreach(op ${OTHER_OPTIONS})
+		list(APPEND ALL_OPTIONS "${op}")
+	endforeach()
+	foreach(op ${WARNING_OPTIONS})
+		list(APPEND ALL_OPTIONS "${op}")
+	endforeach()
+	foreach(op ${INCLUDE_OPTIONS})
+		list(APPEND ALL_OPTIONS "${op}")
+	endforeach()
+	foreach(op ${MODULE_OPTIONS})
+		list(APPEND ALL_OPTIONS "${op}")
+	endforeach()
 	## 出力されるBMIファイルのパスのリスト
 	set(BMI_OUTPUT_LIST)
 	## 標準ライブラリのBMIファイルを読み込むためのコンパイルオプション
@@ -103,7 +127,7 @@ function(FPrecompileSTD)
 			endif()
 			## ヘッダのコンパイルコマンド
 			add_custom_command(TARGET std_internal POST_BUILD
-				COMMAND [ ! -e ${STD_OUTPUT_DIR}/std_end.phony ] && ${CMAKE_COMMAND} -E env -- ${CMAKE_CXX_COMPILER} "$<JOIN:${ALL_OPTIONS}, >" ${LAST_OPTIONS} || ${CMAKE_COMMAND} -E true
+				COMMAND [ ! -e ${STD_OUTPUT_DIR}/std_end.phony ] && ${CMAKE_COMMAND} -E env -- ${CMAKE_CXX_COMPILER} ${ALL_OPTIONS} ${LAST_OPTIONS} || ${CMAKE_COMMAND} -E true
 				WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 			)
 			list(APPEND BMI_OUTPUT_LIST ${BMI_OUTPUT_PATH})
@@ -173,7 +197,7 @@ function(FPrecompileSTD)
 				set(BMI_OUTPUT_PATH ${STD_OUTPUT_DIR}/${stdname}.pcm)
 			endif()
 			add_custom_command(OUTPUT ${BMI_OUTPUT_PATH}
-				COMMAND ${CMAKE_CXX_COMPILER} "$<JOIN:${ALL_OPTIONS}, >" ${LAST_OPTIONS}
+				COMMAND ${CMAKE_CXX_COMPILER} ${ALL_OPTIONS} ${LAST_OPTIONS}
 				WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 				DEPENDS ${STD_OUTPUT_DIR}/std_mkdir.phony
 			)
@@ -444,10 +468,9 @@ function(FCombineObjectLibrary libname)
 	endif()
 endfunction()
 
-
 ## Boostライブラリをリンクする
 ## target: BoostライブラリをPUBLICリンクするターゲット名。executableのものでよい。
-function(FLinkBoost target)
+function(FLinkBoost target onlythread)
 	## find_Boostで探せるBoostライブラリのコンポーネントリスト
 	set(Boost_Component_List
 		atomic
@@ -494,13 +517,10 @@ function(FLinkBoost target)
 	set(Boost_USE_MULTITHREADED ON)
 	set(Boost_DEBUG OFF)
 	## 現状はthreadさえ使えればよい
-	set(Only_Thread true)
+	set(Only_Thread ${onlythread})
 
 	if (GCC)
-		set(BOOST_ROOT C:/msys64/mingw64/include/boost)
-		set(BOOST_INCLUDEDIR C:/msys64/mingw64/include/boost)
-		set(BOOST_LIBRARYDIR C:/msys64/mingw64/lib)
-		set(Boost_NO_SYSTEM_PATHS ON)
+		set(Boost_NO_SYSTEM_PATHS OFF)
 		find_package(Boost 1.83.0 QUIET REQUIRED COMPONENTS ${Boost_Component_List})
 		if (Only_Thread)
 			target_link_libraries(${target}

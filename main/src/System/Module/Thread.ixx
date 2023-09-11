@@ -6,14 +6,13 @@ export import <mutex>;	//std::mutex, std::lock_guard<>, std::unique_lock<>
 export import <condition_variable>;	//std::condition_variable
 
 //g++のみboost::threadを使用する
-#if !defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__)
+import BoostThread;
+using internal_thread = System::Boost::Thread;
+#else
 import <thread>;	//std::thread
 using internal_thread = std::thread;
-#else
-import Boost;
-using internal_thread = System::Boost::Thread;
 #endif
-
 
 //Thread
 export namespace System {

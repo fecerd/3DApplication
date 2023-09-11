@@ -1,6 +1,0 @@
-﻿g++では、class Stringの宣言(in String.hpp)が実体化されておらず、基底クラスのStringBlock<char16_t>がUndefined Referenceになる。
-使用箇所で再度読み込むことでコンパイルには成功するが...。
-#include "System/Module/Objects/String.hpp"
-
-g++では、Module.ixx内でatexit()(in stdlib.h)のコンフリクトが起きてコンパイルエラーとなる。(Thread.ixx -> thread -> .. -> cstdlib -> stdlib.h)
-StringBlock, Thread, Col, iostreamの同時importはコンパイル可能であるため、どこかで異なるヘッダをincludeしている可能性がある。

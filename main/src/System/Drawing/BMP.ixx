@@ -1,11 +1,10 @@
 ﻿export module BMP;
 import Objects;
-import Image;
-using Image = System::Drawing::Image;
-import File;
 import Math;
 import Vector;
 import Exception;
+export import Image;
+import File;
 
 namespace System::Drawing {
 	/// <summary>
@@ -606,7 +605,7 @@ export namespace System::Drawing {
 		/// <param name="file">バイナリ入力で開かれたファイルオブジェクト</param>
 		static bool IsBMP(System::IO::FileStream& file) noexcept {
 			System::IO::StreamPos pos = file.TellPos();
-			file.Seek(0, System::IO::SeekDir::Begin);
+			file.Seek(0, System::IO::SeekDirs::Begin);
 			uint8_t type[2]{};
 			file.ReadLE(type);
 			file.Clear();

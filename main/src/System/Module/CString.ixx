@@ -1,6 +1,6 @@
 ﻿export module CString;
+import CSTDINT;
 import Objects;
-import StringBlock;
 
 export namespace System {
 	template<size_t N>
@@ -52,11 +52,14 @@ export namespace System {
 			for (size_t i = 0; i < len; ++i) if (l[i] != r[i]) return false;
 			return true;
 		}
-		template<size_t n>
-		friend bool operator==(const System::String& lhs, const CString<n>& rhs) noexcept { return rhs == lhs; }
 		bool operator!=(const System::String& rhs) const noexcept { return !(*this == rhs); }
-		template<size_t n>
-		friend bool operator!=(const System::String& lhs, const CString<n>& rhs) noexcept { return rhs != lhs; }
 	};
 	template<size_t N> CString(const char16_t(&)[N])->CString<N>;
+}
+
+export namespace System {
+	template<size_t n>
+	inline bool operator==(const String& lhs, const CString<n>& rhs) noexcept { return rhs == lhs; }
+	template<size_t n>
+	inline bool operator!=(const String& lhs, const CString<n>& rhs) noexcept { return rhs != lhs; }
 }

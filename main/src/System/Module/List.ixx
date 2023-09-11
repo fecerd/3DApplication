@@ -1,12 +1,13 @@
 ﻿module;
 #include "FUNCSIG.hpp"
+#include "EnableVirtual.hpp"
 export module List;
 import CSTDINT;
 import Traits;
 import SmartPtrs;
 import Sorts;
 import Exception;
-export import IEnumerable;
+export import ICollection;
 
 //ListNode
 namespace System::Internal {
@@ -341,56 +342,88 @@ export namespace System {
 		}
 	public:/* ICollection override */
 #if defined(__GNUC__) && !defined(__clang__)
-		IEnumerator<T> GetEnumerator() noexcept override {
-			//for (T& x : *this) co_yield x;
-			return IEnumerator<T>(std::coroutine_handle<promise_type<T, IEnumerator<T>>>{});
+		IEnumerator<T> GetEnumerator(bool reverse) noexcept override {
+			auto internal = [this](Boost::push_type<T&>& sink) {
+				for (T& x : *this) sink(x);
+			};
+			auto internal_r = [this](Boost::push_type<T&>& sink) {
+				if (m_first == m_last) return;
+				for (auto ite = --end(), b = begin(); ite != b; --ite) {
+					T& x = *ite;
+					sink(x);
+				}
+				sink(*m_first->value);
+			};
+			return IEnumerator<T>(
+				[internal, internal_r](bool r) mutable {
+					return IEnumerator<T>(r
+						? Function<void(Boost::push_type<T&>&)>(internal_r)
+						: Function<void(Boost::push_type<T&>&)>(internal)
+					);
+				},
+				reverse
+			);
 		}
-		IEnumerator<T const> GetEnumerator() const noexcept override {
-			//for (T& x : *this) co_yield x;
-			return IEnumerator<T const>(std::coroutine_handle<promise_type<T const, IEnumerator<T const>>>{});
-		}
-		IEnumerator<T> GetReverseEnumerator() noexcept override {
-			// if (m_first == m_last) co_return;
-			// for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
-			// 	T& x = *ite;
-			// 	co_yield x;
-			// }
-			// co_yield *m_first->value;
-			return IEnumerator<T>(std::coroutine_handle<promise_type<T, IEnumerator<T>>>{});
-		}
-		IEnumerator<T const> GetReverseEnumerator() const noexcept override {
-			// if (m_first == m_last) co_return;
-			// for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
-			// 	T& x = *ite;
-			// 	co_yield x;
-			// }
-			// co_yield *m_first->value;
-			return IEnumerator<T const>(std::coroutine_handle<promise_type<T const, IEnumerator<T const>>>{});
+		IEnumerator<T const> GetEnumerator(bool reverse) const noexcept override {
+			auto internal = [this](Boost::push_type<T const&>& sink) {
+				for (T const& x : *this) sink(x);
+			};
+			auto internal_r = [this](Boost::push_type<T const&>& sink) {
+				if (m_first == m_last) return;
+				for (auto ite = --end(), b = begin(); ite != b; --ite) {
+					T const& x = *ite;
+					sink(x);
+				}
+				sink(*m_first->value);
+			};
+			return IEnumerator<T const>(
+				[internal, internal_r](bool r) mutable {
+					return IEnumerator<T const>(r
+						? Function<void(Boost::push_type<T const&>&)>(internal_r)
+						: Function<void(Boost::push_type<T const&>&)>(internal)
+					);
+				},
+				reverse
+			);
 		}
 #else
-		IEnumerator<T> GetEnumerator() noexcept override {
-			for (T& x : *this)
-				co_yield x;
-		}
-		IEnumerator<T const> GetEnumerator() const noexcept override {
-			for (T& x : *this)
-				co_yield x;
-		}
-		IEnumerator<T> GetReverseEnumerator() noexcept override {
-			if (m_first == m_last) co_return;
-			for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
-				T& x = *ite;
-				co_yield x;
+	private:
+		IEnumerator<T> Internal(bool reverse) noexcept {
+			if (reverse) {
+				if (m_first == m_last) co_return;
+				for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
+					T& x = *ite;
+					co_yield x;
+				}
+				co_yield *m_first->value;
+			} else {
+				for (T& x : *this) co_yield x;
 			}
-			co_yield *m_first->value;
 		}
-		IEnumerator<T const> GetReverseEnumerator() const noexcept override {
-			if (m_first == m_last) co_return;
-			for (ListIterator<T> ite = --end(), b = begin(); ite != b; --ite) {
-				T& x = *ite;
-				co_yield x;
+		IEnumerator<T const> Internal(bool reverse) const noexcept {
+			if (reverse) {
+				if (m_first == m_last) co_return;
+				for (auto ite = --end(), b = begin(); ite != b; --ite) {
+					T const& x = *ite;
+					co_yield x;
+				}
+				co_yield *m_first->value;
+			} else {
+				for (T const& x : *this) co_yield x;
 			}
-			co_yield *m_first->value;
+		}
+	public:
+		IEnumerator<T> GetEnumerator(bool reverse) noexcept override {
+			return IEnumerator<T>(
+				[this](bool r) { return Internal(r); },
+				reverse
+			);
+		}
+		IEnumerator<T const> GetEnumerator(bool reverse) const noexcept override {
+			return IEnumerator<T const>(
+				[this](bool r) { return Internal(r); },
+				reverse
+			);
 		}
 #endif
 	};

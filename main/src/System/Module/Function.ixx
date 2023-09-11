@@ -202,16 +202,7 @@ export namespace System {
 		Function& operator=(Function&& rhs) noexcept {
 			if (this == &rhs) return *this;
 			Reset();
-			//Failed...
-			//m_data = std::forward<FuncData>(rhs.m_data);
-			//Failed...
 			m_data = System::move(rhs.m_data);
-			//Failed...
-			//m_data = std::move(rhs.m_data);
-			//Success!
-			//m_data = move_in(rhs.m_data);
-			//Success!
-			//m_data = static_cast<FuncData&&>(rhs.m_data);
 			m_invoke = rhs.m_invoke;
 			m_clone_or_destruct = rhs.m_clone_or_destruct;
 			rhs.m_invoke = nullptr;

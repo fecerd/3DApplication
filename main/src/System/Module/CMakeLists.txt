@@ -3,6 +3,7 @@
 ## サブディレクトリ
 add_subdirectory(Objects)
 add_subdirectory(SmartPtrs)
+add_subdirectory(IEnumerables)
 
 FAddObjectLibrary(Module_0
 	SOURCES
@@ -57,7 +58,7 @@ FAddObjectLibrary(Module_5
 FAddObjectLibrary(Module_6
 	SOURCES
 		Exception.ixx
-		TypeName.ixx
+		TypeInfo.ixx
 	DEPENDS
 		Module_5
 )
@@ -71,7 +72,6 @@ FAddObjectLibrary(Module_7
 )
 FAddObjectLibrary(Module_8
 	SOURCES
-		IEnumerable.ixx
 		Property.ixx
 		Thread.ixx
 	DEPENDS
@@ -79,6 +79,13 @@ FAddObjectLibrary(Module_8
 		Boost
 )
 FAddObjectLibrary(Module_9
+	SOURCES
+		ICollection.ixx
+	DEPENDS
+		Module_8
+		IEnumerables
+)
+FAddObjectLibrary(Module_10
 	SOURCES
 		Counter.ixx
 		CString.ixx
@@ -90,10 +97,10 @@ FAddObjectLibrary(Module_9
 		Vector2.ixx
 		Vector3.ixx
 	DEPENDS
-		Module_8
+		Module_9
 		Objects
 )
-FAddObjectLibrary(Module_10
+FAddObjectLibrary(Module_11
 	SOURCES
 		BSpline.ixx
 		DisposingObject.ixx
@@ -102,30 +109,30 @@ FAddObjectLibrary(Module_10
 		Matrix.ixx
 		Range.ixx
 	DEPENDS
-		Module_9
+		Module_10
 )
-FAddObjectLibrary(Module_11
+FAddObjectLibrary(Module_12
 	SOURCES
 		ManagedObject.ixx
 		Quaternion.ixx
 		Time.ixx
 	DEPENDS
-		Module_10
+		Module_11
 )
-FAddObjectLibrary(Module_12
+FAddObjectLibrary(Module_13
 	SOURCES
 		DualQuaternion.ixx
 		StringBlock.cpp
 		Time.cpp
 	DEPENDS
-		Module_11
+		Module_12
 		Encoding
 )
-FAddObjectLibrary(Module_13
+FAddObjectLibrary(Module_14
 	SOURCES
 		Module.ixx
 	DEPENDS
-		Module_12
+		Module_13
 )
 
 FCombineObjectLibrary(Module
@@ -144,7 +151,9 @@ FCombineObjectLibrary(Module
 		Module_11
 		Module_12
 		Module_13
+		Module_14
 	PUBLIC_LINK
 		Objects
 		SmartPtrs
+		IEnumerables
 )

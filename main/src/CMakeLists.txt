@@ -17,7 +17,7 @@ FAddObjectLibrary(src_1
 		main_test.cpp
 	DEPENDS
 		src_0
-		Test_0
+		Test
 )
 
 ## src全体のターゲット
@@ -30,4 +30,5 @@ FCombineObjectLibrary(src
 	PUBLIC_LINK
 		System
 		Test
+		Boost
 )

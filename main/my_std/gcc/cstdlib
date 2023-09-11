@@ -43,8 +43,6 @@
 #ifndef _GLIBCXX_CSTDLIB
 #define _GLIBCXX_CSTDLIB 1
 
-#define _GLIBCXX_HOSTED 1
-
 #if !_GLIBCXX_HOSTED
 // The C standard does not require a freestanding implementation to
 // provide <stdlib.h>.  However, the C++ standard does still require
@@ -77,7 +75,6 @@ namespace std
 
 // Need to ensure this finds the C library's <stdlib.h> not a libstdc++
 // wrapper that might already be installed later in the include search path.
-
 #define _GLIBCXX_INCLUDE_NEXT_C_HEADERS
 #include "stdlib.h"
 #undef _GLIBCXX_INCLUDE_NEXT_C_HEADERS

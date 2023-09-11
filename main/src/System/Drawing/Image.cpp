@@ -1,7 +1,13 @@
-﻿module Image;
-import BMP;
+﻿#if defined(__GNUC__) && !defined(__clang__)
+import Image;
+#else
+module Image;
+#endif
+import Objects;
+import File;
 import PNG;
 import TGA;
+import BMP;
 
 namespace System::Drawing {
 	Image::Image(const System::String& filePath) noexcept {

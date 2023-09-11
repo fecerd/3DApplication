@@ -1,6 +1,7 @@
 ﻿export module Huffman;
+import CSTDINT;
 import Objects;
-import Vector;
+export import Vector;
 import BitStream;
 
 namespace System::Compression {
@@ -61,7 +62,6 @@ namespace System::Compression {
 
 export namespace System::Compression {
 	class HuffmanDecoder {
-	private:
 		static HuffmanTree* GetHuffmanTree(BitStream& bits, uint16_t count, HuffmanTree* tableTree) noexcept {
 			if (count > 286) count = 286;
 			uint8_t codeLength[286]{};	//codeLength[n] : 値nの符号長

@@ -1,6 +1,12 @@
-﻿export module OpenType;
-import :Internal;
+﻿module;
+#include "../../Headers/EnableVirtual.hpp"
+export module OpenType;
+import CSTDINT;
+import VectorBase;
 import HashMap;
+import OpenType_Internal;
+import HashMap;
+export import Point;
 export import IFont;
 import Encoding;
 
@@ -36,7 +42,7 @@ namespace System {
 		/// TableRecordの動的配列から各テーブルへのオフセット値を読み込み、保存する
 		/// </summary>
 		/// <param name="tableRecords">TableRecord型の動的配列</param>
-		constexpr void Set(const Vector<TableRecord>& tableRecords) noexcept {
+		constexpr void Set(const VectorBase<TableRecord>& tableRecords) noexcept {
 			const ptrdiff_t count = tableRecords.end() - tableRecords.begin();
 			for (uint16_t i = 0; i < count; ++i) {
 				const char* tag = tableRecords[i].tag;
@@ -112,7 +118,7 @@ namespace System {
 export namespace System {
 	class OpenType : public IFont {
 		OffsetTable m_offsetTable;
-		Vector<TableRecord> m_tableRecords;
+		VectorBase<TableRecord> m_tableRecords;
 		TableRecordIndex m_tableIndex;
 	public://必須テーブル
 		CMAP m_cmap;
@@ -135,17 +141,20 @@ export namespace System {
 		//CFF2 m_cff2;
 		//VORG m_vorg;
 	private:
-		System::Drawing::Pixel m_baseLineColor = System::Drawing::Colors::Red;
-		System::Drawing::Pixel m_contoursColor = System::Drawing::Colors::Green;
+		Drawing::Pixel m_baseLineColor = Drawing::Colors::Red;
+		Drawing::Pixel m_contoursColor = Drawing::Colors::Green;
 	private:
 		//エラー時に使用する幅0高さ0のグリフ画像
-		const System::Drawing::Image m_notdef = System::Drawing::Image();
+		const Drawing::Image m_notdef = Drawing::Image();
 		//一度描画したグリフ画像をキャッシュするハッシュマップ。
 		//[Key: スケール(千分率), Value: [Key: グリフID, Value: グリフ画像]]
-		mutable System::HashMap<uint32_t, System::HashMap<uint16_t, System::Drawing::Image>> m_caches = 3;
+		mutable HashMap<uint32_t, HashMap<uint16_t, Drawing::Image>> m_caches = 3;
+	public:
+		OpenType() noexcept {}
+		virtual ~OpenType() noexcept {}
 	public:
 		bool Load(const String& filename) noexcept {
-			System::IO::FileStream file{ filename, System::IO::OpenMode::IN_BINARY };
+			IO::FileStream file{ filename, IO::OpenMode::IN_BINARY };
 			if (!file) return false;
 			if (!m_offsetTable.Load(file)) return false;
 			m_tableRecords.Reserve(m_offsetTable.numTables);
@@ -181,23 +190,23 @@ export namespace System {
 		uint16_t GetGID(uint32_t unicodePoint, uint32_t uvs = 0) const noexcept {
 			return m_cmap.GetGID(unicodePoint, uvs);
 		}
-		const System::Drawing::Image& GetGlyphImage(uint16_t gid, uint32_t scalePermill) const noexcept {
-			System::HashMap<uint16_t, System::Drawing::Image>* caches = m_caches.AtPtr(scalePermill);
+		const Drawing::Image& GetGlyphImage(uint16_t gid, uint32_t scalePermill) const noexcept {
+			HashMap<uint16_t, Drawing::Image>* caches = m_caches.AtPtr(scalePermill);
 			if (!caches) {
-				m_caches.Insert(scalePermill, System::HashMap<uint16_t, System::Drawing::Image>(3));
+				m_caches.Insert(scalePermill, HashMap<uint16_t, Drawing::Image>(3));
 				caches = m_caches.AtPtr(scalePermill);
 				if (!caches) return m_notdef;
 			}
-			System::Drawing::Image* ret = caches->AtPtr(gid);
+			Drawing::Image* ret = caches->AtPtr(gid);
 			if (ret) return *ret;
 			const float scale = scalePermill / 1000.0f;
 			if (!m_offsetTable.HasCFF()) {	//TrueType
-				System::Drawing::Image result = m_glyf.GetGlyphImageByGID(gid, scale, m_contoursColor);
-				caches->Insert(gid, static_cast<System::Drawing::Image&&>(result));
+				Drawing::Image result = m_glyf.GetGlyphImageByGID(gid, scale, m_contoursColor);
+				caches->Insert(gid, static_cast<Drawing::Image&&>(result));
 			}
 			else {	//CFF
-				System::Drawing::Image result = m_cff1.GetGlyphImageByGID(gid, scale, m_hmtx.GetAdvanceWidth(gid), m_contoursColor);
-				caches->Insert(gid, static_cast<System::Drawing::Image&&>(result));
+				Drawing::Image result = m_cff1.GetGlyphImageByGID(gid, scale, m_hmtx.GetAdvanceWidth(gid), m_contoursColor);
+				caches->Insert(gid, static_cast<Drawing::Image&&>(result));
 			}
 			ret = caches->AtPtr(gid);
 			if (ret) return *ret;
@@ -224,15 +233,15 @@ export namespace System {
 			else return m_cff1.GetAdvanceWidth(gid, advanceWidth);
 		}
 	private:
-		void DrawBaseLine(System::Drawing::Pixel* dstPixels, uint32_t dstWidth, uint32_t dstHeight, const Point<int32_t>& origin) const noexcept {
+		void DrawBaseLine(Drawing::Pixel* dstPixels, uint32_t dstWidth, uint32_t dstHeight, const Point<int32_t>& origin) const noexcept {
 			if (0 <= origin.y && origin.y < static_cast<int64_t>(dstHeight)) {
-				System::Drawing::Pixel* line0 = dstPixels + dstWidth * origin.y;
+				Drawing::Pixel* line0 = dstPixels + dstWidth * origin.y;
 				for (uint32_t x = 0; x < dstWidth; ++x) line0[x] = m_baseLineColor;
 			}
 		}
-		static Vector<Encoding::CodePoint> GetCodePoints(const String& str) noexcept {
+		static VectorBase<Encoding::CodePoint> GetCodePoints(const String& str) noexcept {
 			const char16_t* data = str.c_str();
-			Vector<Encoding::CodePoint> ret;
+			VectorBase<Encoding::CodePoint> ret;
 			ret.Reserve(str.Length());
 			do {
 				Encoding::CodePoint cp = Encoding::GetCodePoint(data);
@@ -241,16 +250,16 @@ export namespace System {
 			} while (*data != u'\0');
 			return ret;
 		}
-		IEnumerator<bool> UpdateStringImageEnumerator(System::Drawing::Image& dst, const String& str, Point<int32_t> origin, uint32_t scalePermill) const noexcept {
+		IEnumerator<bool> UpdateStringImageEnumerator(Drawing::Image& dst, const String& str, Point<int32_t> origin, uint32_t scalePermill) const noexcept {
 			bool ret = true;
 			const int16_t ascender = m_hhea.GetAscender();
 			const int16_t descender = m_hhea.GetDescender();
 			const int16_t lineGap = m_hhea.GetLineGap();
 			const float scale = scalePermill / 1000.f;
-			System::Drawing::Pixel* dstPixels = dst.Data();
+			Drawing::Pixel* dstPixels = dst.Data();
 			const uint32_t dstWidth = dst.Width();
 			const uint32_t dstHeight = dst.Height();
-			Vector<Encoding::CodePoint> cps = GetCodePoints(str);
+			VectorBase<Encoding::CodePoint> cps = GetCodePoints(str);
 			const int32_t xLeft = origin.x;
 			DrawBaseLine(dstPixels, dstWidth, dstHeight, origin);
 			for (size_t i = 0, count = cps.Count(); i < count; ++i) {
@@ -261,8 +270,8 @@ export namespace System {
 					continue;
 				}
 				uint16_t gid = GetGID(cps[i].point, i + 1 < count && cps[i + 1].IsUVS() ? cps[i + 1].point : 0);
-				const System::Drawing::Image& image = GetGlyphImage(gid, scalePermill);
-				const System::Drawing::Pixel* srcPixels = image.Data();
+				const Drawing::Image& image = GetGlyphImage(gid, scalePermill);
+				const Drawing::Pixel* srcPixels = image.Data();
 				const uint32_t srcWidth = image.Width();
 				const uint32_t srcHeight = image.Height();
 				int16_t leftSideBearing = static_cast<int16_t>(GetLeftSideBearing(gid) * scale);
@@ -281,13 +290,13 @@ export namespace System {
 						if (tDstY < 0) continue;
 						uint32_t dstY = static_cast<uint32_t>(tDstY);
 						if (srcY >= srcHeight || dstY >= dstHeight) continue;
-						const System::Drawing::Pixel* srcLine0 = srcPixels + srcWidth * srcY;
-						System::Drawing::Pixel* dstLine0 = dstPixels + dstWidth * dstY;
+						const Drawing::Pixel* srcLine0 = srcPixels + srcWidth * srcY;
+						Drawing::Pixel* dstLine0 = dstPixels + dstWidth * dstY;
 						for (uint32_t srcX = 0; srcX < srcWidth; ++srcX) {
 							int32_t tDstX = origin.x + srcX;
 							if (tDstX < 0) continue;
 							uint32_t dstX = static_cast<uint32_t>(tDstX);
-							if (dstX < dstWidth && !srcLine0[srcX].EqualColor(System::Drawing::Pixels::White)) {
+							if (dstX < dstWidth && !srcLine0[srcX].EqualColor(Drawing::Pixels::White)) {
 								dstLine0[dstX] = srcLine0[srcX];
 							}
 						}
@@ -299,13 +308,13 @@ export namespace System {
 						if (tDstY < 0) continue;
 						uint32_t dstY = static_cast<uint32_t>(tDstY);
 						if (srcY >= srcHeight || dstY >= dstHeight) continue;
-						const System::Drawing::Pixel* srcLine0 = srcPixels + srcWidth * srcY;
-						System::Drawing::Pixel* dstLine0 = dstPixels + dstWidth * dstY;
+						const Drawing::Pixel* srcLine0 = srcPixels + srcWidth * srcY;
+						Drawing::Pixel* dstLine0 = dstPixels + dstWidth * dstY;
 						for (uint32_t srcX = 0; srcX < srcWidth; ++srcX) {
 							int32_t tDstX = origin.x + srcX;
 							if (tDstX < 0) continue;
 							uint32_t dstX = static_cast<uint32_t>(tDstX);
-							if (dstX < dstWidth && !srcLine0[srcX].EqualColor(System::Drawing::Pixels::White)) {
+							if (dstX < dstWidth && !srcLine0[srcX].EqualColor(Drawing::Pixels::White)) {
 								dstLine0[dstX] = srcLine0[srcX];
 							}
 						}
@@ -318,13 +327,13 @@ export namespace System {
 			ret = false;
 			co_yield ret;
 		}
-	public:/* IFontオーバーライド */
+	public:/* IFont override */
 		int16_t GetAscenderLine(uint32_t scalePermill) const noexcept override {
 			return static_cast<int16_t>(m_hhea.ascender * (scalePermill / 1000.f));
 		}
 		uint32_t GetWidth(const String& str, uint32_t scalePermill) const noexcept override {
 			const float scale = scalePermill / 1000.f;
-			Vector<Encoding::CodePoint> cps = GetCodePoints(str);
+			VectorBase<Encoding::CodePoint> cps = GetCodePoints(str);
 			uint32_t ret = 0;
 			uint32_t current = 0;
 			for (size_t i = 0, count = cps.Count(); i < count; ++i) {
@@ -347,11 +356,13 @@ export namespace System {
 			const int16_t lineGap = m_hhea.GetLineGap();
 			return static_cast<uint32_t>((glyphHeight * numLines + lineGap * (numLines - 1)) * scale) + 1;
 		}
-		const System::Drawing::Image& GetImage(uint32_t codePoint, uint32_t scalePermill) const noexcept override {
+		const Drawing::Image& GetImage(uint32_t codePoint, uint32_t scalePermill) const noexcept override {
 			uint16_t gid = GetGID(codePoint);
 			return GetGlyphImage(gid, scalePermill);
 		}
-		IEnumerable<bool> UpdateStringImage(System::Drawing::Image& dst, const String& str, const Point<int32_t>& origin, uint32_t scalePermill) const noexcept override {
+#if defined(NO_VIRTUAL)
+#else
+		IEnumerable<bool> UpdateStringImage(Drawing::Image& dst, const String& str, const Point<int32_t>& origin, uint32_t scalePermill) const noexcept override {
 			return IEnumerable<bool>(
 				new IEnumerator<bool>(
 					[this, &dst, str, origin, scalePermill](bool) { return this->UpdateStringImageEnumerator(dst, str, origin, scalePermill); },
@@ -359,8 +370,9 @@ export namespace System {
 					)
 				);
 		}
+#endif
 	public:
-		void SetBaseLineColor(const System::Drawing::Color& color) noexcept override { m_baseLineColor = color; }
-		void SetContoursColor(const System::Drawing::Color& color) noexcept override { m_contoursColor = color; m_contoursColor.a = 0xaa; }
+		void SetBaseLineColor(const Drawing::Color& color) noexcept override { m_baseLineColor = color; }
+		void SetContoursColor(const Drawing::Color& color) noexcept override { m_contoursColor = color; m_contoursColor.a = 0xaa; }
 	};
 }

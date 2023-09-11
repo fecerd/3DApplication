@@ -1,4 +1,6 @@
-﻿export module IFont;
+﻿module;
+#include "../../Headers/EnableVirtual.hpp"
+export module IFont;
 import CSTDINT;
 import Objects;
 import Point;
@@ -11,7 +13,8 @@ export namespace System {
 	/// </summary>
 	class IFont {
 	public:
-		virtual ~IFont() noexcept = default;
+		IFont() noexcept {}
+		virtual ~IFont() noexcept {}
 	public:
 		/// <summary>
 		/// ベースラインを0としたときの(スケーリングした)アセンダーラインの高さを取得する
@@ -52,7 +55,7 @@ export namespace System {
 		/// その後、キャッシュデータへの参照を返す
 		/// </remarks>
 		/// <returns>グリフ画像データへのconst参照</returns>
-		virtual const System::Drawing::Image& GetImage(uint32_t codePoint, uint32_t scalePermill) const noexcept = 0;
+		virtual const Drawing::Image& GetImage(uint32_t codePoint, uint32_t scalePermill) const noexcept = 0;
 	public:
 		/// <summary>
 		/// 呼び出すたびに描画先に文字列から一文字ずつ描画するコルーチンを取得する
@@ -70,9 +73,12 @@ export namespace System {
 		/// 2. 描画先画像の範囲外には描画しない(範囲外アクセスに気をつける)
 		/// </remarks>
 		/// <returns>描画されていない文字が残っている場合、true。すべての文字を描画した場合、false</returns>
-		virtual IEnumerable<bool> UpdateStringImage(System::Drawing::Image& dst, const String& str, const Point<int32_t>& origin, uint32_t scalePermill) const noexcept = 0;
+#if defined(NO_VIRTUAL)
+#else
+		virtual IEnumerable<bool> UpdateStringImage(Drawing::Image& dst, const String& str, const Point<int32_t>& origin, uint32_t scalePermill) const noexcept = 0;
+#endif
 	public:
-		virtual void SetBaseLineColor(const System::Drawing::Color& color) noexcept = 0;
-		virtual void SetContoursColor(const System::Drawing::Color& color) noexcept = 0;
+		virtual void SetBaseLineColor(const Drawing::Color& color) noexcept = 0;
+		virtual void SetContoursColor(const Drawing::Color& color) noexcept = 0;
 	};
 }

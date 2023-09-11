@@ -1,7 +1,7 @@
 ﻿export module TaskWorker;
 import CSTDINT;
 import Traits;
-import Thread;
+export import Thread;
 import Function;
 import SmartPtrs;
 
@@ -247,19 +247,6 @@ namespace System {
 	};
 }
 
-//g++ではshared_ptr<TaskData<bool, bool>>::swap()内部にバグがあり、ムーブ操作ができない。
-//完全特殊化すればコンパイルは通る。
-#if defined(__GNUC__) && !defined(__clang__)
-export namespace std {
-	template<>
-	constexpr void swap(System::TaskData<bool, bool>*& lhs, System::TaskData<bool, bool>*& rhs) noexcept {
-		System::TaskData<bool, bool>* tmp = lhs;
-		lhs = rhs;
-		rhs = tmp;
-	}
-}
-#endif
-
 //TaskFuture, TaskPromise
 export namespace System {
 	template<class R, class S> class TaskPromise;
@@ -472,7 +459,6 @@ export namespace System {
 				*m_running = false;
 				//スレッド終了を通知
 				m_main_cv.notify_all();
-				//
 				for (TaskNode* node = m_begin; node != m_end; node = node->m_next) {
 					node->m_state->Notify();
 				}
@@ -523,27 +509,5 @@ export namespace System {
 	public:
 		TaskWorker& operator=(const TaskWorker&) noexcept = delete;
 		TaskWorker& operator=(TaskWorker&&) noexcept = delete;
-	};
-}
-
-export namespace System {
-	class TMP {
-		uint32_t m_threadCount = 0;
-		Thread* m_threads = nullptr;
-	public:
-		TMP(uint32_t threadCount) noexcept : m_threadCount(threadCount) {
-			m_threads = new Thread[m_threadCount]();
-
-		}
-		~TMP() noexcept {
-			if (m_threads) {
-				for (uint32_t i = 0; i < m_threadCount; ++i) {
-					m_threads[i].join();
-				}
-				delete[] m_threads;
-				m_threads = nullptr;
-			}
-			m_threadCount = 0;
-		}
 	};
 }

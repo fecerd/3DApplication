@@ -1,4 +1,6 @@
 ﻿module Path;
+import Objects;
+import <fstream>;
 using namespace System;
 
 namespace System::IO {

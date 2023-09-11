@@ -1,8 +1,8 @@
 ﻿export module File;
-import Objects;
-import Path;
-import <fstream>;
-import Memory;
+export import Objects;
+export import Memory;
+export import Path;
+export import <fstream>;
 
 //OpenMode
 export namespace System::IO {
@@ -27,17 +27,19 @@ export namespace System::IO {
 export namespace System::IO {
 	using StreamPos = std::streampos;
 	using StreamOff = std::streamoff;
-	enum class SeekDir {
-		Begin = std::ios_base::beg,
-		Current = std::ios_base::cur,
-		End = std::ios_base::end
-	};
-	enum class StreamState {
-		Good = std::ios_base::goodbit,
-		Bad = std::ios_base::badbit,
-		Eof = std::ios_base::eofbit,
-		Fail = std::ios_base::failbit
-	};
+	using SeekDir = std::ios_base::seekdir;
+	using StreamState = std::ios_base::iostate;
+	namespace SeekDirs {
+		SeekDir Begin = std::ios_base::beg;
+		SeekDir Current = std::ios_base::cur;
+		SeekDir End = std::ios_base::end;
+	}
+	namespace StreamStates {
+		StreamState Good = std::ios_base::goodbit;
+		StreamState Bad = std::ios_base::badbit;
+		StreamState Eof = std::ios_base::eofbit;
+		StreamState Fail = std::ios_base::failbit;
+	}
 }
 
 //FileStream
@@ -78,8 +80,8 @@ export namespace System::IO {
 		}
 		void Seek(StreamOff off, SeekDir dir) noexcept {
 			m_file.clear();
-			if ((m_mode & OpenMode::IN) == OpenMode::IN) m_file.seekg(off, static_cast<int>(dir));
-			else m_file.seekp(off, static_cast<int>(dir));
+			if ((m_mode & OpenMode::IN) == OpenMode::IN) m_file.seekg(off, dir);
+			else m_file.seekp(off, dir);
 		}
 		StreamPos TellPos() noexcept {
 			if ((m_mode & OpenMode::IN) == OpenMode::IN) return m_file.tellg();
@@ -102,20 +104,20 @@ export namespace System::IO {
 			if (!m_file.is_open()) return 0;
 			if (!m_file) Clear();
 			StreamPos cur = TellPos();
-			Seek(0, SeekDir::End);
+			Seek(0, SeekDirs::End);
 			StreamPos end = TellPos();
 			if (!m_file) Clear();
-			Seek(0, SeekDir::Begin);
+			Seek(0, SeekDirs::Begin);
 			StreamPos beg = TellPos();
 			Seek(cur);
 			return static_cast<size_t>(static_cast<std::streamsize>(end - beg));
 		}
 	public:
-		inline void Clear(StreamState state = StreamState::Good) noexcept { m_file.clear(static_cast<std::ios_base::iostate>(state)); }
+		inline void Clear(StreamState state = StreamStates::Good) noexcept { m_file.clear(state); }
 		inline bool IsEOF() noexcept { return m_file.eof(); }
 	public:
-		bool Equals(const Object& obj) const noexcept { return GetTypeID() == obj.GetTypeID() ? *this == static_cast<const FileStream&>(obj) : false; }
-		Type GetType() const noexcept override { return Type(u"System::IO::FileStream"); }
+		bool Equals(const Object& obj) const noexcept override { return GetTypeID() == obj.GetTypeID() ? *this == static_cast<const FileStream&>(obj) : false; }
+		Type GetType() const noexcept override { return Type::CreateType<FileStream>(); }
 		String ToString() const noexcept override { return String(u"FileStream Object"); }
 		uint32_t GetTypeID() const noexcept override { return GetID<FileStream>(); }
 	public:

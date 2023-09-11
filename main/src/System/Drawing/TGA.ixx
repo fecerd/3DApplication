@@ -1,11 +1,14 @@
-﻿export module TGA;
+﻿module;
+#include "../../Headers/FUNCSIG.hpp"
+export module TGA;
 import CSTDINT;
 import Objects;
-import Image;
-import File;
 import Math;
-import Vector;
+import VectorBase;
 import Exception;
+import File;
+import Path;
+export import Image;
 
 export namespace System::Drawing {
 	class TGA {
@@ -97,7 +100,7 @@ export namespace System::Drawing {
 		static bool IsTGA(System::IO::FileStream& file) noexcept {
 			System::IO::StreamPos pos = file.TellPos();
 			bool ret = true;
-			file.Seek(-18, System::IO::SeekDir::End);
+			file.Seek(-18, System::IO::SeekDirs::End);
 			char signature[18]{};
 			file.Read(signature, 18);
 			const char check[] = "TRUEVISION-";
@@ -146,7 +149,7 @@ export namespace System::Drawing {
 			return static_cast<bool>(file);
 		}
 	private:
-		void LoadTrueColor(Vector<Pixel>& pixels) const noexcept {
+		void LoadTrueColor(VectorBase<Pixel>& pixels) const noexcept {
 			size_t pixelCount = static_cast<size_t>(m_width) * m_height;
 			pixels.Reserve(pixelCount);
 			const uint8_t* read = m_data;
@@ -166,7 +169,7 @@ export namespace System::Drawing {
 	public:
 		Image ToImage() const {
 			if (!m_data) return Image();
-			Vector<Pixel> pixels;
+			VectorBase<Pixel> pixels;
 			if (m_colorMap) {
 
 			}
@@ -174,7 +177,7 @@ export namespace System::Drawing {
 				if (m_imageType == 2) LoadTrueColor(pixels);
 			}
 			if (!pixels.Count()) throw LogicException(__FUNCSIG__, u"このTGA形式のサポートは未実装です", __FILE__, __LINE__);
-			Image ret(m_width, m_height, static_cast<Vector<Pixel>&&>(pixels));
+			Image ret(m_width, m_height, System::move(pixels));
 			if (IsBottomToTop()) ret.Reverse();
 			return ret;
 		}

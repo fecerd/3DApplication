@@ -4,6 +4,8 @@ import Traits;
 import Math;
 export import Point;
 export import IEnumerable;
+export import BoostCoroutine;
+import <new>;
 
 //ControlPoint
 export namespace System {
@@ -120,7 +122,7 @@ export namespace System {
 			m_knot[0] = 0;
 			uint32_t val = m_unit;
 			if (m_points[index].OnCurve) {
-				for (size_t i = 1; i < m_n + 1; ++i) m_knot[i] = 0;
+				for (size_t i = 1; i < m_n + 1u; ++i) m_knot[i] = 0;
 				for (size_t i = m_n + 1, end = m_knotCount - (m_n + 1); i < end; ++i, val += m_unit) m_knot[i] = val;
 			}
 			else {
@@ -141,7 +143,7 @@ export namespace System {
 		/// <summary>
 		/// B-スプライン関数のtの範囲の最後の値を取得する
 		/// </summary>
-		uint32_t End() const noexcept { return m_knot && m_n + 1 <= m_knotCount ? m_knot[m_knotCount - m_n - 1] : 0; }
+		uint32_t End() const noexcept { return m_knot && m_n + 1u <= m_knotCount ? m_knot[m_knotCount - m_n - 1] : 0; }
 		/// <summary>
 		/// B-スプライン関数によって曲線上の点を取得する
 		/// </summary>
@@ -194,12 +196,95 @@ export namespace System {
 			y_ref = System::Math::Clamp<int32_t>(Math::Round(y), yMin, yMax);
 		}
 	private:
+#if defined(__GNUC__) && !defined(__clang__)
 		/// <summary>
 		/// Splines()関数用のコルーチン関数
 		/// </summary>
 		/// <param name="xMax">x座標の最大値</param>
 		/// <param name="yMax">y座標の最大値</param>
 		IEnumerator<Point<int32_t>> GetSplineEnumerator(int32_t xMin, int32_t yMin, int32_t xMax, int32_t yMax) noexcept {
+			auto internal = [this, xMin, yMin, xMax, yMax](Boost::push_type<Point<int32_t>&>& sink) {
+				//前回の結果を保持し、同じ値を連続で返さないようにする
+				Point<int32_t> prev = Point<int32_t>{ System::MAX_VALUE<int32_t>, System::MAX_VALUE<int32_t> };
+				for (size_t i = 0; i < m_pointCount - 1; ++i) {
+					//曲線上の制御点から次の曲線上の制御点までの制御点数
+					//次の曲線上の制御点が存在しない場合、最後の制御点までの制御点数
+					size_t usedPointCount = SetKnot(i);
+					if (usedPointCount != 2) {
+						for (uint32_t t = Start(), end = End(); t < end; ++t) {
+							Point<int32_t> ret;
+							Spline(i, t, ret.x, ret.y, xMin, yMin, xMax, yMax);
+							if (prev != ret) {
+								sink(ret);
+								prev = ret;
+							}
+						}
+						//最後の制御点が曲線上の点の場合、直前の計算で最後の制御点が取得できているか確認する
+						ControlPoint& last = m_points[i + usedPointCount - 1];
+						if (last.OnCurve) {
+							Point<int32_t> ret{ static_cast<int32_t>(last.x), static_cast<int32_t>(last.y) };
+							if (prev != ret) {
+								sink(ret);
+								prev = ret;
+							}
+						}
+						i += usedPointCount - 2;
+					}
+					else {
+						int16_t x0 = m_points[i].x;
+						int16_t y0 = m_points[i].y;
+						int16_t x1 = m_points[i + 1].x;
+						int16_t y1 = m_points[i + 1].y;
+						bool steep = System::Math::Abs(y1 - y0) > System::Math::Abs(x1 - x0);
+						if (steep) {
+							System::Math::Swap(x0, y0);
+							System::Math::Swap(x1, y1);
+						}
+						int64_t deltax = static_cast<int64_t>(System::Math::Abs(static_cast<int32_t>(x1) - x0));
+						int64_t deltay = static_cast<int64_t>(System::Math::Abs(static_cast<int32_t>(y1) - y0));
+						int64_t error = deltax / 2;
+						int16_t y = y0;
+						int16_t inc = x0 < x1 ? 1 : -1;
+						int16_t ystep = y0 < y1 ? 1 : -1;
+						for (int16_t x = x0; x != x1; x += inc) {
+							Point<int32_t> ret{ static_cast<int32_t>(x), static_cast<int32_t>(y) };
+							if (steep) System::Math::Swap(ret.x, ret.y);
+							if (prev != ret) {
+								sink(ret);
+								prev = ret;
+							}
+							error -= deltay;
+							if (error < 0) {
+								y += ystep;
+								error += deltax;
+							}
+						}
+						Point<int32_t> ret{ static_cast<int32_t>(x1), static_cast<int32_t>(y1) };
+						if (steep) System::Math::Swap(ret.x, ret.y);
+						if (prev != ret) {
+							sink(ret);
+							prev = ret;
+						}
+					}
+				}
+			};
+			return IEnumerator<Point<int32_t>>(
+				[internal](bool) {
+					return IEnumerator<Point<int32_t>>(
+						Function<void(Boost::push_type<Point<int32_t>&>&)>(internal)
+					);
+				},
+				false
+			);
+		}
+#else
+	private:
+		/// <summary>
+		/// Splines()関数用のコルーチン関数
+		/// </summary>
+		/// <param name="xMax">x座標の最大値</param>
+		/// <param name="yMax">y座標の最大値</param>
+		IEnumerator<Point<int32_t>> Internal(int32_t xMin, int32_t yMin, int32_t xMax, int32_t yMax) noexcept {
 			//前回の結果を保持し、同じ値を連続で返さないようにする
 			Point<int32_t> prev = Point<int32_t>{ System::MAX_VALUE<int32_t>, System::MAX_VALUE<int32_t> };
 			for (size_t i = 0; i < m_pointCount - 1; ++i) {
@@ -264,6 +349,14 @@ export namespace System {
 				}
 			}
 		}
+	public:
+		IEnumerator<Point<int32_t>> GetSplineEnumerator(int32_t xMin, int32_t yMin, int32_t xMax, int32_t yMax) noexcept {
+			return IEnumerator<Point<int32_t>>(
+				[this, xMin, yMin, xMax, yMax](bool) { return Internal(xMin, yMin, xMax, yMax); },
+				false
+			);
+		}
+#endif
 	public:
 		/// <summary>
 		/// SetFunction()関数で設定したB-スプライン曲線上の点を列挙する

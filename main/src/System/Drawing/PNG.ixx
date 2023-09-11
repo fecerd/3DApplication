@@ -1,12 +1,12 @@
 ﻿export module PNG;
-import Objects;
-import Image;
-import File;
+export import Objects;
 import Vector;
-import Zlib;
-import Huffman;
 import Memory;
 import Math;
+import File;
+import Zlib;
+import Huffman;
+export import Image;
 
 export namespace System::Drawing {
 	class PNG : public Object {

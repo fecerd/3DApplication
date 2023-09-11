@@ -577,7 +577,6 @@ export namespace System {
 			else {
 				const double sign = x < 0 ? -1.0 : 1.0;	//戻り値の符号(xの符号と一致する)
 				const double x_abs = Abs(x);	//xの絶対値
-				double v = sign < 0.0 ? -static_cast<double>(x) : static_cast<double>(x);
 				//マクローリン展開
 				auto maclaurin = [](double tx) -> double {
 					double result = tx;	//計算結果

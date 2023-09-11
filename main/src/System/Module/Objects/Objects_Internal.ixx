@@ -9,7 +9,7 @@ export import Traits;
 import Math;
 export import StringBlock;
 
-import TypeName;
+import TypeInfo;
 
 //export namespace System {
 //	using Object = System::Object;
@@ -73,13 +73,13 @@ export namespace System {
 		String() noexcept
 		    : StringBlock<char16_t>() {}
 		String(const String& arg) noexcept
-		    : StringBlock<char16_t>(static_cast<const StringBlock<char16_t>&>(arg)) {}
+		    : StringBlock<char16_t>(arg) {}
 		String(String&& arg) noexcept
-		    : StringBlock<char16_t>(static_cast<StringBlock<char16_t>&&>(arg)) {}
+		    : StringBlock<char16_t>(System::move(arg)) {}
 		String(const StringBlock<char16_t>& arg) noexcept
 		    : StringBlock<char16_t>(arg) {}
 		String(StringBlock<char16_t>&& arg) noexcept
-		    : StringBlock<char16_t>(static_cast<StringBlock<char16_t>&&>(arg)) {}
+		    : StringBlock<char16_t>(System::move(arg)) {}
 		template<Traits::Concepts::CCharType str_t>
 		String(const str_t* data, size_t N = npos) noexcept
 		    : StringBlock<char16_t>(StringBlock<str_t>(data, N).ToU16StringBlock()) {}
@@ -103,9 +103,15 @@ export namespace System {
 		    : StringBlock<char16_t>(arg) {}
 		template<size_t N>
 		String(CStringBlock<char16_t, N>&& arg) noexcept
-		    : StringBlock<char16_t>(static_cast<CStringBlock<char16_t, N>&&>(arg)) {}
+		    : StringBlock<char16_t>(System::move(arg)) {}
+		template<Traits::Concepts::CCharType str_t, size_t N>
+		String(const CStringBlock<str_t, N>& arg) noexcept
+			: StringBlock<char16_t>(StringBlock<str_t>(arg).ToU16StringBlock()) {}
 		~String() noexcept {}
-	public:
+	public:/* g++ではStringBlock<char16_t>側の関数の呼び出しに無駄なアセンブリ命令が混ざり、Segmentation faultとなるため、こちら側にも関数定義する */
+		size_t Length() const noexcept { return StringBlock<char16_t>::Length(); }
+		char16_t* c_str() noexcept { return this->value; }
+		const char16_t* c_str() const noexcept { return this->value; }
 		wchar_t* w_str() noexcept { return reinterpret_cast<wchar_t*>(c_str()); }
 		const wchar_t* w_str() const noexcept { return reinterpret_cast<const wchar_t*>(c_str()); }
 	public:
@@ -133,7 +139,7 @@ export namespace System {
 		String ToString() const noexcept { return *this; }
 		uint32_t GetTypeID() const noexcept;
 		size_t GetHashCode() const noexcept {
-			return Math::murmur3_32(this->c_str(), this->Length() * sizeof(char16_t), GetTypeID());
+			return Math::murmur3_32(c_str(), Length() * sizeof(char16_t), GetTypeID());
 		}
 	public:
 		template<Traits::Concepts::CCharType str_t>
@@ -157,11 +163,11 @@ export namespace System {
 			return StringBlock<char16_t>::operator!=(rhs);
 		}
 		String& operator=(const String& rhs) noexcept {
-			StringBlock<char16_t>::operator=(static_cast<const StringBlock<char16_t>&>(rhs));
+			StringBlock<char16_t>::operator=(rhs);
 			return *this;
 		}
 		String& operator=(String&& rhs) noexcept {
-			StringBlock<char16_t>::operator=(static_cast<StringBlock<char16_t>&&>(rhs));
+			StringBlock<char16_t>::operator=(System::move(rhs));
 			return *this;
 		}
 	private:
@@ -228,14 +234,14 @@ export namespace System {
 		~Type() noexcept;
 	public:
 		bool Equals(const Object& obj) const noexcept override { return obj.GetTypeID() == GetTypeID() ? *this == static_cast<const Type&>(obj) : false; }
-		Type GetType() const noexcept override { return Type(TypeName<Type>::GetFullName().c_str()); }
+		Type GetType() const noexcept override { return Type(String(TypeInfo<Type>::GetFullName()).c_str()); }
 		String ToString() const noexcept override;
 		uint32_t GetTypeID() const noexcept override;
 	public:
 		bool operator==(const Type& rhs) const noexcept;
 	public:
 		template<class T>
-		static Type CreateType() { return Type(TypeName<T>::GetFullName().c_str()); }
+		static Type CreateType() { return Type(String(TypeInfo<T>::GetFullName()).c_str()); }
 	};
 }
 

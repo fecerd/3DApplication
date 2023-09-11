@@ -12,7 +12,7 @@ include(./functions.cmake)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(STD_LIBRARY_DIR)
-add_compile_options(-I"${CMAKE_MY_STD_PATH}")
+add_compile_options(-I ${CMAKE_MY_STD_PATH})
 if (MSBUILD)
 	message(STATUS "MSBuild Mode")
 	add_compile_options($<IF:$<CONFIG:Debug>,/MDd,/MD>)
@@ -34,6 +34,9 @@ elseif(GCC)
 	add_link_options(-Wl,--allow-multiple-definition)
 	## 内部で使用されているstd::auto_ptr<>が警告を出すため、抑制しておく。
 	add_compile_options(-Wno-attributes)
+	add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-reorder -Wno-uninitialized)
+	add_compile_options($<$<CONFIG:Debug>:-g>)
+	add_link_options(-g)
 elseif (CLANG)
 	message(STATUS "CLANG Mode")
 	add_compile_options(-DUNICODE -D_UNICODE)
@@ -73,6 +76,7 @@ FPrecompileSTD(
 	functional
 	typeinfo
 	cassert
+	utility	#無いとg++のBoostでエラーがでる
 )
 
 ## ソースファイルディレクトリを追加
@@ -86,4 +90,4 @@ target_link_libraries(main PRIVATE src)
 set_target_properties(main PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 ## Boostライブラリをリンクする
-FLinkBoost(main)
+FLinkBoost(main false)
