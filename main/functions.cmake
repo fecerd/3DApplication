@@ -151,6 +151,17 @@ function(FPrecompileSTD)
 	set(G_DETECT_BMI_OPTIONS "${DETECT_BMI_LIST}" PARENT_SCOPE)
 endfunction()
 
+## ソースファイルにオプションを設定する
+## _filename: 設定するソースファイルのパス
+## 可変長引数: 設定するオプション
+function(FSetFileCompileOptions _filename)
+	if (ARGC LESS 2)
+		return()
+	endif()
+	string(REPLACE ";" " " _options "${ARGN}")
+	set_source_files_properties(${_filename} PROPERTIES COMPILE_FLAGS "${_options}")
+endfunction()
+
 ## 引数に渡したソースファイルからオブジェクトライブラリを定義する
 ## libname: 定義するライブラリ名。遷移用ターゲット${liname}_tも定義される。
 ## 可変長引数:
@@ -187,15 +198,6 @@ function(FAddObjectLibrary libname)
 	set(_bmi_files)
 	## BMIファイルの出力先ディレクトリ
 	set(_bmi_dir "${G_BMI_OUTPUT_DIR}")
-	# if (MSBUILD)
-	# 	set(_bmi_dir "${CMAKE_BINARY_DIR}/ifc/$<IF:$<CONFIG:Debug>,Debug,Release>")
-	# elseif (MSVC)
-	# 	set(_bmi_dir ${CMAKE_BINARY_DIR}/ifc)
-	# elseif (GCC)
-	# 	set(_bmi_dir ${CMAKE_BINARY_DIR}/gcm.cache)
-	# elseif (CLANG)
-	# 	set(_bmi_dir ${CMAKE_BINARY_DIR}/pcm)
-	# endif()
 
 	## 拡張子ixxとcxxのソースファイルをモジュールファイルとしてコンパイルされるようにする
 	## _cpp_files, _interface_files, _bmi_filesはここで設定される
@@ -210,21 +212,24 @@ function(FAddObjectLibrary libname)
 		## コンパイラごとの設定
 		if (MSBUILD)
 			list(APPEND _bmi_files ${_bmi_dir}/${_module_name}.ifc)
-			## -ifcOutputはvcxprojの<ModuleOutput>に正常に追加されるが、MSBuildが読み取らないため使用できない。
-			set_source_files_properties(${_source} PROPERTIES COMPILE_FLAGS "-interface -TP -ifcOutput${_bmi_dir}/${_module_name}.ifc")
+			FSetFileCompileOptions(${_source} ${G_COMPILE_MODULE_NO_PRECOMPILE_OPTIONS})
+			## 以下のコマンドでvcxprojの<ModuleOutput>に追加でき、実際に出力されるが、
+			## 同時に出力されるjsonファイル内のパス(\区切り)と-referenceオプションのパス(/区切り)が
+			## セパレータの違いにより読み取りエラーを引き起こしてしまう。
+			## デフォルトで${CMAKE_CURRENT_BINARY_DIR}下に出力されるBMIファイルをカスタムコマンドで移動することで対応する。
+			## (jsonファイルを削除するという手もある)
+			## set_source_files_properties(${_source} PROPERTIES COMPILE_FLAGS "-ifcOutput${_bmi_dir}/${_module_name}.ifc")
 		elseif (MSVC)
 			list(APPEND _bmi_files ${_bmi_dir}/${_module_name}.ifc)
-		 	set_source_files_properties(${_source} PROPERTIES COMPILE_FLAGS "-interface -TP -ifcOutput ${_bmi_dir}\\")
+			FSetFileCompileOptions(${_source} ${G_COMPILE_MODULE_NO_PRECOMPILE_OPTIONS})
 		 	#BMIファイル(./*.ifc)をcleanで削除されるようにする
 		 	set_property(TARGET clean_module APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${_bmi_dir}/${_module_name}.ifc)
 		elseif (GCC)
 			list(APPEND _bmi_files ${_bmi_dir}/${_module_name}.gcm)
-			set_source_files_properties(${_source} PROPERTIES COMPILE_FLAGS "-x c++")
 		 	#BMIファイル(gcm.cache/*.gcm)をcleanで削除されるようにする
 		 	set_property(TARGET clean_module APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${_bmi_dir}/${_module_name}.gcm)
 		elseif (CLANG)
 			list(APPEND _bmi_files ${_bmi_dir}/${_module_name}${_extension}.pcm)
-			set_source_files_properties(${_source} PROPERTIES COMPILE_FLAGS "-x c++-module")
 		endif()
 		list(APPEND _interface_files ${_source})
 	endforeach()
@@ -243,7 +248,7 @@ function(FAddObjectLibrary libname)
 		## BMIファイルコンパイル用ターゲットを作成
 		add_library(${libname}_bmi OBJECT ${_interface_files})
 		## BMIファイルコンパイル用のオプションを設定
-		target_compile_options(${libname}_bmi PRIVATE --precompile)
+		target_compile_options(${libname}_bmi PRIVATE "${G_COMPILE_MODULE_PRECOMPILE_OPTIONS}")
 		## 依存関係を設定
 		foreach(_depend ${_depends})
 			add_dependencies(${libname}_bmi ${_depend})
@@ -275,18 +280,17 @@ function(FAddObjectLibrary libname)
 		## BMIファイルをC++ソースファイルとして認識するようにする
 		foreach(_bmi ${_bmi_files})
 			set_source_files_properties(${_bmi} PROPERTIES LANGUAGE CXX)
-		endforeach()		
+		endforeach()
 	endif()
 
-	## オブジェクトライブラリを作成
-	
+	## オブジェクトライブラリを作成	
 	add_library(${libname} OBJECT
 		${_cpp_files}
 		$<IF:$<BOOL:${CLANG}>,${_bmi_files},${_interface_files}>
 	)
 
 	## CLANGでは、モジュールが使用できるようにコンパイルオプションを指定
-	target_compile_options(${libname} PRIVATE $<$<BOOL:${CLANG}>:-fmodules>)
+	target_compile_options(${libname} PRIVATE ${G_COMPILE_NO_HEADER_OPTIONS})
 	## CLANGでは、オブジェクトライブラリ <- BMIファイル移動コマンドの依存関係が必要
 	if (CLANG AND TARGET ${libname}_bmi_move)
 		add_dependencies(${libname} ${libname}_bmi_move)
@@ -302,18 +306,18 @@ function(FAddObjectLibrary libname)
 		add_dependencies(${libname} ${_depend}_t)
 		## 依存するターゲットからコンパイルオプションを伝播させる(モジュール名とBMIファイル名を関連付けるオプションのため)
 		target_compile_options(${libname} PUBLIC $<TARGET_PROPERTY:${_depend},COMPILE_OPTIONS>)
-		## stdに依存している場合、DETECT_BMI_OPTIONSを継承する
+		## stdに依存している場合、G_DETECT_BMI_OPTIONSを継承する
 		if (${_depend} STREQUAL std AND DEFINED G_DETECT_BMI_OPTIONS)
 			target_compile_options(${libname} PUBLIC ${G_DETECT_BMI_OPTIONS})
 		endif()
 	endforeach()
 
-	## MSBUILDではifcOutputオプションが作動しないため、カスタムコマンドでBMI出力ディレクトリに移す必要がある
+	## 上述の理由により、MSBUILDではBMIファイルをカスタムコマンドで移動する
 	if (MSBUILD)
 		foreach(_bmi ${_bmi_files})
 			get_filename_component(_module_name_ext ${_bmi} NAME)
 			add_custom_command(OUTPUT ${_bmi}
-				COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/${_module_name_ext} ${_bmi}
+				COMMAND [ -e ${CMAKE_CURRENT_BINARY_DIR}/${_module_name_ext} ] && ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/${_module_name_ext} ${_bmi} || echo "None"
 			)
 		endforeach()
 		add_custom_target(${libname}_bmi_move
@@ -521,6 +525,8 @@ function(FLinkBoost target onlythread)
 	endif()
 endfunction()
 
+## コンパイルフラグ全般を設定する
+## ここで設定されたコンパイルフラグがFPrecompileSTD()やFAddObjectLibrary()内で使用される
 function(FSetCompileOptions _my_std_path)
 	set(STD_OUTPUT_DIR)
 	set(BMI_OUTPUT_DIR)
@@ -528,12 +534,15 @@ function(FSetCompileOptions _my_std_path)
 	set(DEFINE_OPTIONS)
 	set(DEBUG_OPTIONS)
 	set(RELEASE_OPTIONS)
-	set(OTHER_OPTIONS)
-	set(MODULE_OPTIONS)
-	set(MODULE_HEADER_OPTIONS)
+	set(MODULE_OPTIONS)	#モジュール関連追加フラグ
 	set(WARNING_OPTIONS)
-	set(INCLUDE_OPTIONS)
+	set(OTHER_OPTIONS)
+	set(MODULE_HEADER_OPTIONS)	#標準ライブラリモジュールコンパイル用オプション
+	set(MODULE_PRECOMPILE_OPTIONS)	#インターフェースモジュールプリコンパイル用オプション
+	set(MODULE_NO_PRECOMPILE_OPTIONS)	#インターフェースモジュール本コンパイル用オプション
+	set(NO_HEADER_OPTIONS)	#本コンパイル用オプション(標準ライブラリを除く)
 	set(MY_STD_INCLUDE_OPTIONS)
+	set(INCLUDE_OPTIONS)
 	if (EXISTS "${_my_std_path}")
 		set(MY_STD_INCLUDE_OPTIONS -I "${_my_std_path}")
 	endif()
@@ -542,13 +551,16 @@ function(FSetCompileOptions _my_std_path)
 		set(STD_OUTPUT_DIR "${CMAKE_BINARY_DIR}/std/$<IF:$<CONFIG:Debug>,Debug,Release>")
 		set(BMI_OUTPUT_DIR "${CMAKE_BINARY_DIR}/ifc/$<IF:$<CONFIG:Debug>,Debug,Release>")
 		set(VERSION_OPTIONS "$<IF:$<STREQUAL:${CMAKE_CXX_STANDARD},23>,-std:c++latest,-std:c++${CMAKE_CXX_STANDARD}>")
-		set(DEFINE_OPTIONS -DUNICODE -D_UNICODE -D_M_FP_PRECISE)
+		set(DEFINE_OPTIONS -DUNICODE -D_UNICODE)
 		set(DEBUG_OPTIONS -MDd)
 		set(RELEASE_OPTIONS -MD)
-		set(OTHER_OPTIONS -EHsc -nologo)
-		set(MODULE_HEADER_OPTIONS -c -exportHeader -ifcOutput;"${STD_OUTPUT_DIR}")
-		set(MODULE_OPTIONS -ifcOutput;"${BMI_OUTPUT_DIR}")
+		set(MODULE_OPTIONS)
 		set(WARNING_OPTIONS)
+		set(OTHER_OPTIONS -EHsc -nologo -fp:precise)
+		set(MODULE_HEADER_OPTIONS -c -exportHeader -ifcOutput "${STD_OUTPUT_DIR}\\")
+		set(MODULE_PRECOMPILE_OPTIONS)
+		set(MODULE_NO_PRECOMPILE_OPTIONS -interface -TP)
+		set(NO_HEADER_OPTIONS)
 	elseif (MSVC)
 		message(STATUS "MSVC Mode")
 		set(STD_OUTPUT_DIR "${CMAKE_BINARY_DIR}/std")
@@ -557,10 +569,13 @@ function(FSetCompileOptions _my_std_path)
 		set(DEFINE_OPTIONS -DUNICODE -D_UNICODE)
 		set(DEBUG_OPTIONS -MDd)
 		set(RELEASE_OPTIONS -MD)
-		set(OTHER_OPTIONS -EHsc -nologo)
-		set(MODULE_HEADER_OPTIONS -c -exportHeader -ifcOutput;"${STD_OUTPUT_DIR}")
-		set(MODULE_OPTIONS -ifcOutput;"${BMI_OUTPUT_DIR}")
+		set(MODULE_OPTIONS)
 		set(WARNING_OPTIONS)
+		set(OTHER_OPTIONS -EHsc -nologo)
+		set(MODULE_HEADER_OPTIONS -c -exportHeader -ifcOutput "${STD_OUTPUT_DIR}\\")
+		set(MODULE_PRECOMPILE_OPTIONS)
+		set(MODULE_NO_PRECOMPILE_OPTIONS -interface -TP -ifcOutput "${BMI_OUTPUT_DIR}\\")
+		set(NO_HEADER_OPTIONS)
 	elseif (GCC)
 		message(STATUS "GCC Mode")
 		set(STD_OUTPUT_DIR "${CMAKE_BINARY_DIR}/gcm.cache/C-/msys64/mingw64/include/c++/13.2.0")
@@ -568,10 +583,13 @@ function(FSetCompileOptions _my_std_path)
 		set(VERSION_OPTIONS -std=c++${CMAKE_CXX_STANDARD})
 		set(DEFINE_OPTIONS -DUNICODE -D_UNICODE)
 		set(DEBUG_OPTIONS -g -D_DEBUG)
-		set(OTHER_OPTIONS -mwindows -x c++ -c -fmodules-ts -Mno-modules)
-		set(MODULE_HEADER_OPTIONS -fmodule-header -fmodule-only)
-		set(MODULE_OPTIONS)
+		set(MODULE_OPTIONS -fmodules-ts -Mno-modules)
 		set(WARNING_OPTIONS -Wno-attributes -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-reorder -Wno-uninitialized)
+		set(OTHER_OPTIONS -mwindows -x c++)
+		set(MODULE_HEADER_OPTIONS -fmodule-header -fmodule-only -c)
+		set(MODULE_PRECOMPILE_OPTIONS)
+		set(MODULE_NO_PRECOMPILE_OPTIONS)
+		set(NO_HEADER_OPTIONS)
 	elseif (CLANG)
 		message(STATUS "CLANG Mode")
 		set(STD_OUTPUT_DIR "${CMAKE_BINARY_DIR}/std")
@@ -579,10 +597,13 @@ function(FSetCompileOptions _my_std_path)
 		set(VERSION_OPTIONS "$<IF:$<STREQUAL:${CMAKE_CXX_STANDARD},23>,-std=c++2b,-std=c++${CMAKE_CXX_STANDARD}>")
 		set(DEFINE_OPTIONS -DUNICODE -D_UNICODE)
 		set(DEBUG_OPTIONS -g -D_DEBUG)
+		set(MODULE_OPTIONS)
+		set(WARNING_OPTIONS -Wno-ambiguous-ellipsis -Wno-pragma-system-header-outside-header -Wno-unknown-attributes -Wno-user-defined-literals -Wno-keyword-compat -Wno-unknown-warning-option -Wno-deprecated-builtins -Wno-unused-command-line-argument)
 		set(OTHER_OPTIONS)
 		set(MODULE_HEADER_OPTIONS --precompile -x c++-system-header)
-		set(MODULE_OPTIONS --precompile -x c++-module)
-		set(WARNING_OPTIONS -Wno-ambiguous-ellipsis -Wno-pragma-system-header-outside-header -Wno-unknown-attributes -Wno-user-defined-literals -Wno-keyword-compat -Wno-unknown-warning-option -Wno-deprecated-builtins -Wno-unused-command-line-argument)
+		set(MODULE_PRECOMPILE_OPTIONS --precompile -x c++-module)
+		set(MODULE_NO_PRECOMPILE_OPTIONS)
+		set(NO_HEADER_OPTIONS -fmodules)
 	endif()
 	## すべてのオプションをまとめる
 	set(ALL_OPTIONS)
@@ -615,6 +636,10 @@ function(FSetCompileOptions _my_std_path)
 		list(APPEND ALL_OPTIONS "${op}")
 		list(APPEND ALL_HEADER_OPTIONS "${op}")
 	endforeach()
+	foreach(op ${MODULE_OPTIONS})
+		list(APPEND ALL_OPTIONS "${op}")
+		list(APPEND ALL_HEADER_OPTIONS "${op}")
+	endforeach()
 	foreach(op ${MY_STD_INCLUDE_OPTIONS})
 		list(APPEND ALL_OPTIONS "${op}")
 		list(APPEND ALL_HEADER_OPTIONS "${op}")
@@ -633,14 +658,18 @@ function(FSetCompileOptions _my_std_path)
 	set(G_COMPILE_DEFINE_OPTIONS "${DEFINE_OPTIONS}" PARENT_SCOPE)
 	set(G_COMPILE_DEBUG_OPTIONS "${_DEBUG_OPTIONS}" PARENT_SCOPE)
 	set(G_COMPILE_RELEASE_OPTIONS "${_RELEASE_OPTIONS}" PARENT_SCOPE)
-	set(G_COMPILE_OTHER_OPTIONS "${OTHER_OPTIONS}" PARENT_SCOPE)
+	set(G_COMPILE_MODULE_OPTIONS "${MODULE_OPTIONS}" PARENT_SCOPE)
 	set(G_COMPILE_WARNING_OPTIONS "${WARNING_OPTIONS}" PARENT_SCOPE)
+	set(G_COMPILE_OTHER_OPTIONS "${OTHER_OPTIONS}" PARENT_SCOPE)
+	set(G_COMPILE_MODULE_HEADER_OPTIONS "${MODULE_HEADER_OPTIONS}" PARENT_SCOPE)
+	set(G_COMPILE_MODULE_PRECOMPILE_OPTIONS "${MODULE_PRECOMPILE_OPTIONS}" PARENT_SCOPE)
+	set(G_COMPILE_MODULE_NO_PRECOMPILE_OPTIONS "${MODULE_NO_PRECOMPILE_OPTIONS}" PARENT_SCOPE)
+	set(G_COMPILE_NO_HEADER_OPTIONS "${NO_HEADER_OPTIONS}" PARENT_SCOPE)
 	set(G_COMPILE_MY_STD_INCLUDE_OPTIONS "${MY_STD_INCLUDE_OPTIONS}" PARENT_SCOPE)
 	set(G_COMPILE_INCLUDE_OPTIONS "${INCLUDE_OPTIONS}" PARENT_SCOPE)
-	set(G_COMPILE_MODULE_OPTIONS "${MODULE_OPTIONS}" PARENT_SCOPE)
-	set(G_COMPILE_MODULE_HEADER_OPTIONS "${MODULE_HEADER_OPTIONS}" PARENT_SCOPE)
 endfunction()
 
+## リンカフラグを設定する
 function(FSetLinkerOptions)
 	set(DEBUG_OPTIONS)
 	set(RELEASE_OPTIONS)
@@ -681,6 +710,5 @@ function(FSetLinkerOptions)
 	set(G_LINKER_RELEASE_OPTIONS "${_RELEASE_OPTIONS}" PARENT_SCOPE)	
 	set(G_LINKER_OTHER_OPTIONS "${OTHER_OPTIONS}" PARENT_SCOPE)	
 endfunction()
-
 
 ###Functions End###
