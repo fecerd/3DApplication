@@ -4,6 +4,7 @@
 add_subdirectory(Boost)
 add_subdirectory(System)
 add_subdirectory(Test)
+add_subdirectory(Application)
 
 ## ターゲット追加
 FAddObjectLibrary(src_0
@@ -11,6 +12,8 @@ FAddObjectLibrary(src_0
 		null.cpp
 	DEPENDS
 		System
+		Boost
+		Application
 )
 FAddObjectLibrary(src_1
 	SOURCES
@@ -31,4 +34,5 @@ FCombineObjectLibrary(src
 		System
 		Test
 		Boost
+		Application
 )
