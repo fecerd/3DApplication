@@ -10,7 +10,7 @@ namespace System {
 	CFF1::~CFF1() noexcept {
 		delete[] privateDict;
 		privateDict = nullptr;
-		//for (Type2CharstringParser* x : m_parsers.Values()) delete x;
+		for (Type2CharstringParser* x : m_parsers.Values()) delete x;
 	}
 
 	Drawing::Image CFF1::GetGlyph_Internal(const Type2CharstringParser& parser, float scale, const Drawing::Pixel& contoursPixel) noexcept {

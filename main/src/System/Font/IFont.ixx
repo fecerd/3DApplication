@@ -1,6 +1,4 @@
-﻿module;
-#include "../../Headers/EnableVirtual.hpp"
-export module IFont;
+﻿export module IFont;
 import CSTDINT;
 import Objects;
 import Point;
@@ -73,10 +71,7 @@ export namespace System {
 		/// 2. 描画先画像の範囲外には描画しない(範囲外アクセスに気をつける)
 		/// </remarks>
 		/// <returns>描画されていない文字が残っている場合、true。すべての文字を描画した場合、false</returns>
-#if defined(NO_VIRTUAL)
-#else
 		virtual IEnumerable<bool> UpdateStringImage(Drawing::Image& dst, const String& str, const Point<int32_t>& origin, uint32_t scalePermill) const noexcept = 0;
-#endif
 	public:
 		virtual void SetBaseLineColor(const Drawing::Color& color) noexcept = 0;
 		virtual void SetContoursColor(const Drawing::Color& color) noexcept = 0;

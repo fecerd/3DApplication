@@ -1,5 +1,7 @@
 ﻿module Time;
+import CSTDINT;
 import Thread;
+import <chrono>;
 using namespace System;
 using namespace std::chrono;
 

@@ -1,6 +1,5 @@
 ﻿module;
 #include "FUNCSIG.hpp"
-#include "EnableVirtual.hpp"
 export module List;
 import CSTDINT;
 import Traits;

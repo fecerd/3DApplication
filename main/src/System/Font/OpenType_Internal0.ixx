@@ -2313,123 +2313,123 @@ export namespace System {
 			return IEnumerable<DICTKeyValue<T>>(new IEnumerator<DICTKeyValue<T>>(GetDICTKeyValueEnumerator<T>(), nullptr));
 		}
 	public:
-#if defined(NO_VIRTUAL)
-		template<typename T>
-		DICTKeyValue<T> GetDICTKeyValue(uint32_t index) const noexcept {
-			uint32_t s = 0;
-			for (uint32_t i = 0; i < size; ++i) {
-				if (data[i] >= 22) {
-					double tmp;
-					i = LoadNumber(tmp, data, i, size - 1) - 1;
-				}
-				else {
-					uint16_t tmpKey = 0;
-					if (data[i] != 12) tmpKey = data[i];
-					else tmpKey = static_cast<uint16_t>((data[i] << 8) | data[i + 1]);
-					DICTOperator currentKey = static_cast<DICTOperator>(tmpKey);
-					DICTKeyValue<T> ret;
-					ret.opr = currentKey;
-					switch (currentKey) {
-						//Valueが一つ
-					case DICTOperator::version:
-					case DICTOperator::Notice:
-					case DICTOperator::Fullname:
-					case DICTOperator::FamilyName:
-					case DICTOperator::Weight:
-					case DICTOperator::isFixedPitch:
-					case DICTOperator::ItalicAngle:
-					case DICTOperator::UnderlinePosition:
-					case DICTOperator::UnderlineThickness:
-					case DICTOperator::PaintType:
-					case DICTOperator::CharstringType:
-					case DICTOperator::UniqueID:
-					case DICTOperator::StrokeWidth:
-					case DICTOperator::charset:
-					case DICTOperator::Encoding:
-					case DICTOperator::CharStrings:
-					case DICTOperator::SyntheticBase:
-					case DICTOperator::PostScript:
-					case DICTOperator::BaseFontName:
-					case DICTOperator::BaseFontBlend:
-					case DICTOperator::CIDFontVersion:
-					case DICTOperator::CIDFontRevision:
-					case DICTOperator::CIDFontType:
-					case DICTOperator::CIDCount:
-					case DICTOperator::UIDBase:
-					case DICTOperator::FDArray:
-					case DICTOperator::FDSelect:
-					case DICTOperator::FontName:
-					case DICTOperator::BlueScale:
-					case DICTOperator::BlueShift:
-					case DICTOperator::BlueFuzz:
-					case DICTOperator::StdHW:
-					case DICTOperator::StdVW:
-					case DICTOperator::ForceBold:
-					case DICTOperator::LanguageGroup:
-					case DICTOperator::ExpansionFactor:
-					case DICTOperator::initialRandomSeed:
-					case DICTOperator::Subrs:
-					case DICTOperator::defaultWidthX:
-					case DICTOperator::nominalWidthX:
-					{
-						ret.count = 1;
-						ret.data = new T[1];
-						LoadNumber(ret.data[0], data, s, i);
-						break;
-					}
-					//Valueが2つ
-					case DICTOperator::Private:
-					{
-						ret.count = 2;
-						ret.data = new T[2];
-						uint32_t next = LoadNumber(ret.data[0], data, s, i);
-						LoadNumber(ret.data[1], data, next, i);
-						break;
-					}
-					//Valueが3つ
-					case DICTOperator::ROS:
-					{
-						ret.count = 3;
-						ret.data = new T[3];
-						uint32_t next = LoadNumber(ret.data[0], data, s, i);
-						next = LoadNumber(ret.data[1], data, next, i);
-						LoadNumber(ret.data[2], data, next, i);
-						break;
-					}
-					//Valueが配列
-					case DICTOperator::FontMatrix:
-					case DICTOperator::FontBBox:
-					case DICTOperator::XUID:
-					case DICTOperator::BlueValues:
-					case DICTOperator::OtherBlues:
-					case DICTOperator::FamilyBlues:
-					case DICTOperator::FamilyOtherBlues:
-					case DICTOperator::StemSnapH:
-					case DICTOperator::StemSnapV:
-					{
-						uint32_t ts = s;
-						while (ts < i) {
-							double tmp;
-							ts = LoadNumber(tmp, data, ts, i);
-							++ret.count;
-						}
-						ret.data = new T[ret.count];
-						uint32_t next = s;
-						for (uint32_t j = 0; j < ret.count; ++j) {
-							next = LoadNumber(ret.data[j], data, next, i);
-						}
-						break;
-					}
-					default:
-						return DICTKeyValue<T>();
-					}
-					if (data[i] == 12) ++i;
-					s = i + 1;
-					if (index-- <= 0) return ret;
-				}
-			}
-		}
-#else
+//#if defined(NO_VIRTUAL)
+		// template<typename T>
+		// DICTKeyValue<T> GetDICTKeyValue(uint32_t index) const noexcept {
+		// 	uint32_t s = 0;
+		// 	for (uint32_t i = 0; i < size; ++i) {
+		// 		if (data[i] >= 22) {
+		// 			double tmp;
+		// 			i = LoadNumber(tmp, data, i, size - 1) - 1;
+		// 		}
+		// 		else {
+		// 			uint16_t tmpKey = 0;
+		// 			if (data[i] != 12) tmpKey = data[i];
+		// 			else tmpKey = static_cast<uint16_t>((data[i] << 8) | data[i + 1]);
+		// 			DICTOperator currentKey = static_cast<DICTOperator>(tmpKey);
+		// 			DICTKeyValue<T> ret;
+		// 			ret.opr = currentKey;
+		// 			switch (currentKey) {
+		// 				//Valueが一つ
+		// 			case DICTOperator::version:
+		// 			case DICTOperator::Notice:
+		// 			case DICTOperator::Fullname:
+		// 			case DICTOperator::FamilyName:
+		// 			case DICTOperator::Weight:
+		// 			case DICTOperator::isFixedPitch:
+		// 			case DICTOperator::ItalicAngle:
+		// 			case DICTOperator::UnderlinePosition:
+		// 			case DICTOperator::UnderlineThickness:
+		// 			case DICTOperator::PaintType:
+		// 			case DICTOperator::CharstringType:
+		// 			case DICTOperator::UniqueID:
+		// 			case DICTOperator::StrokeWidth:
+		// 			case DICTOperator::charset:
+		// 			case DICTOperator::Encoding:
+		// 			case DICTOperator::CharStrings:
+		// 			case DICTOperator::SyntheticBase:
+		// 			case DICTOperator::PostScript:
+		// 			case DICTOperator::BaseFontName:
+		// 			case DICTOperator::BaseFontBlend:
+		// 			case DICTOperator::CIDFontVersion:
+		// 			case DICTOperator::CIDFontRevision:
+		// 			case DICTOperator::CIDFontType:
+		// 			case DICTOperator::CIDCount:
+		// 			case DICTOperator::UIDBase:
+		// 			case DICTOperator::FDArray:
+		// 			case DICTOperator::FDSelect:
+		// 			case DICTOperator::FontName:
+		// 			case DICTOperator::BlueScale:
+		// 			case DICTOperator::BlueShift:
+		// 			case DICTOperator::BlueFuzz:
+		// 			case DICTOperator::StdHW:
+		// 			case DICTOperator::StdVW:
+		// 			case DICTOperator::ForceBold:
+		// 			case DICTOperator::LanguageGroup:
+		// 			case DICTOperator::ExpansionFactor:
+		// 			case DICTOperator::initialRandomSeed:
+		// 			case DICTOperator::Subrs:
+		// 			case DICTOperator::defaultWidthX:
+		// 			case DICTOperator::nominalWidthX:
+		// 			{
+		// 				ret.count = 1;
+		// 				ret.data = new T[1];
+		// 				LoadNumber(ret.data[0], data, s, i);
+		// 				break;
+		// 			}
+		// 			//Valueが2つ
+		// 			case DICTOperator::Private:
+		// 			{
+		// 				ret.count = 2;
+		// 				ret.data = new T[2];
+		// 				uint32_t next = LoadNumber(ret.data[0], data, s, i);
+		// 				LoadNumber(ret.data[1], data, next, i);
+		// 				break;
+		// 			}
+		// 			//Valueが3つ
+		// 			case DICTOperator::ROS:
+		// 			{
+		// 				ret.count = 3;
+		// 				ret.data = new T[3];
+		// 				uint32_t next = LoadNumber(ret.data[0], data, s, i);
+		// 				next = LoadNumber(ret.data[1], data, next, i);
+		// 				LoadNumber(ret.data[2], data, next, i);
+		// 				break;
+		// 			}
+		// 			//Valueが配列
+		// 			case DICTOperator::FontMatrix:
+		// 			case DICTOperator::FontBBox:
+		// 			case DICTOperator::XUID:
+		// 			case DICTOperator::BlueValues:
+		// 			case DICTOperator::OtherBlues:
+		// 			case DICTOperator::FamilyBlues:
+		// 			case DICTOperator::FamilyOtherBlues:
+		// 			case DICTOperator::StemSnapH:
+		// 			case DICTOperator::StemSnapV:
+		// 			{
+		// 				uint32_t ts = s;
+		// 				while (ts < i) {
+		// 					double tmp;
+		// 					ts = LoadNumber(tmp, data, ts, i);
+		// 					++ret.count;
+		// 				}
+		// 				ret.data = new T[ret.count];
+		// 				uint32_t next = s;
+		// 				for (uint32_t j = 0; j < ret.count; ++j) {
+		// 					next = LoadNumber(ret.data[j], data, next, i);
+		// 				}
+		// 				break;
+		// 			}
+		// 			default:
+		// 				return DICTKeyValue<T>();
+		// 			}
+		// 			if (data[i] == 12) ++i;
+		// 			s = i + 1;
+		// 			if (index-- <= 0) return ret;
+		// 		}
+		// 	}
+		// }
+//#else
 		template<typename T>
 		DICTKeyValue<T> GetDICTKeyValue(uint32_t index) const noexcept {
 			for (DICTKeyValue<T>& x : GetDICTKeyValues<T>()) {
@@ -2438,7 +2438,7 @@ export namespace System {
 			}
 			return DICTKeyValue<T>();
 		}
-#endif
+//#endif
 		/// <summary>
 		/// DICTデータから指定したDICTOperatorに対応する値を検索して取得する
 		/// </summary>

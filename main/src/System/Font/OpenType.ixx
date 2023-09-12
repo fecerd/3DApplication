@@ -1,17 +1,11 @@
-﻿module;
-#include "../../Headers/EnableVirtual.hpp"
-export module OpenType;
-import CSTDINT;
-import VectorBase;
-import HashMap;
-import OpenType_Internal;
-import HashMap;
-export import Point;
-export import IFont;
+﻿export module OpenType;
+export import Module;
 import Encoding;
+export import IFont;
+export import OpenType_Internal;
 
 //TabelRecordIndex
-namespace System {
+export namespace System {
 	/// <summary>
 	/// 各テーブルがOpenType::m_tableRecordsのどのインデックスに対応しているか表す構造体
 	/// </summary>
@@ -72,7 +66,7 @@ namespace System {
 }
 
 //OpenTypeクラス未実装テーブル
-namespace System {
+export namespace System {
 /*SVGアウトライン用テーブル*/
 	//SVG m_svg;
 /*ビットマップグリフ用テーブル*/
@@ -250,6 +244,88 @@ export namespace System {
 			} while (*data != u'\0');
 			return ret;
 		}
+#if defined(__GNUC__) && !defined(__clang__)
+		IEnumerator<bool> UpdateStringImageEnumerator(Drawing::Image& dst, const String& str, Point<int32_t> origin, uint32_t scalePermill) const noexcept {
+			auto internal = [this, &dst, str, origin, scalePermill](Boost::push_type<bool&>& sink) mutable {
+				bool ret = true;
+				const int16_t ascender = m_hhea.GetAscender();
+				const int16_t descender = m_hhea.GetDescender();
+				const int16_t lineGap = m_hhea.GetLineGap();
+				const float scale = scalePermill / 1000.f;
+				Drawing::Pixel* dstPixels = dst.Data();
+				const uint32_t dstWidth = dst.Width();
+				const uint32_t dstHeight = dst.Height();
+				VectorBase<Encoding::CodePoint> cps = GetCodePoints(str);
+				const int32_t xLeft = origin.x;
+				DrawBaseLine(dstPixels, dstWidth, dstHeight, origin);
+				for (size_t i = 0, count = cps.Count(); i < count; ++i) {
+					if (cps[i].point == U'\n') {
+						origin.y += static_cast<uint32_t>((ascender - descender + lineGap) * scale);
+						origin.x = xLeft;
+						DrawBaseLine(dstPixels, dstWidth, dstHeight, origin);
+						continue;
+					}
+					uint16_t gid = GetGID(cps[i].point, i + 1 < count && cps[i + 1].IsUVS() ? cps[i + 1].point : 0);
+					const Drawing::Image& image = GetGlyphImage(gid, scalePermill);
+					const Drawing::Pixel* srcPixels = image.Data();
+					const uint32_t srcWidth = image.Width();
+					const uint32_t srcHeight = image.Height();
+					int16_t leftSideBearing = static_cast<int16_t>(GetLeftSideBearing(gid) * scale);
+					origin.x += leftSideBearing;
+					uint16_t advanceWidth = static_cast<uint16_t>(GetAdvanceWidth(gid) * scale);
+					if (image.Enabled()) {
+						if (origin.x + srcWidth >= dstWidth) {
+							origin.y += static_cast<uint32_t>((ascender - descender + lineGap) * scale);
+							origin.x = xLeft;
+							DrawBaseLine(dstPixels, dstWidth, dstHeight, origin);
+						}
+						const int16_t yMax = static_cast<int16_t>(GetYMax(gid) * scale);
+						for (int16_t y = 0; y < yMax; ++y) {
+							uint32_t srcY = static_cast<uint32_t>(y);
+							int32_t tDstY = origin.y - yMax + y;
+							if (tDstY < 0) continue;
+							uint32_t dstY = static_cast<uint32_t>(tDstY);
+							if (srcY >= srcHeight || dstY >= dstHeight) continue;
+							const Drawing::Pixel* srcLine0 = srcPixels + srcWidth * srcY;
+							Drawing::Pixel* dstLine0 = dstPixels + dstWidth * dstY;
+							for (uint32_t srcX = 0; srcX < srcWidth; ++srcX) {
+								int32_t tDstX = origin.x + srcX;
+								if (tDstX < 0) continue;
+								uint32_t dstX = static_cast<uint32_t>(tDstX);
+								if (dstX < dstWidth && !srcLine0[srcX].EqualColor(Drawing::Pixels::White)) {
+									dstLine0[dstX] = srcLine0[srcX];
+								}
+							}
+						}
+						for (int64_t y = yMax, yEnd = static_cast<int64_t>(srcHeight); y < yEnd; ++y) {
+							if (y < 0) continue;
+							uint32_t srcY = static_cast<uint32_t>(y);
+							int32_t tDstY = static_cast<int32_t>(static_cast<int32_t>(origin.y) - yMax + y);
+							if (tDstY < 0) continue;
+							uint32_t dstY = static_cast<uint32_t>(tDstY);
+							if (srcY >= srcHeight || dstY >= dstHeight) continue;
+							const Drawing::Pixel* srcLine0 = srcPixels + srcWidth * srcY;
+							Drawing::Pixel* dstLine0 = dstPixels + dstWidth * dstY;
+							for (uint32_t srcX = 0; srcX < srcWidth; ++srcX) {
+								int32_t tDstX = origin.x + srcX;
+								if (tDstX < 0) continue;
+								uint32_t dstX = static_cast<uint32_t>(tDstX);
+								if (dstX < dstWidth && !srcLine0[srcX].EqualColor(Drawing::Pixels::White)) {
+									dstLine0[dstX] = srcLine0[srcX];
+								}
+							}
+						}
+					}
+					sink(ret);
+					origin.x -= leftSideBearing;
+					origin.x += static_cast<uint32_t>(advanceWidth);
+				}
+				ret = false;
+				sink(ret);
+			};
+			return IEnumerator<bool>(no_mangling<bool>(internal, internal), false);
+		}
+#else
 		IEnumerator<bool> UpdateStringImageEnumerator(Drawing::Image& dst, const String& str, Point<int32_t> origin, uint32_t scalePermill) const noexcept {
 			bool ret = true;
 			const int16_t ascender = m_hhea.GetAscender();
@@ -327,6 +403,7 @@ export namespace System {
 			ret = false;
 			co_yield ret;
 		}
+#endif
 	public:/* IFont override */
 		int16_t GetAscenderLine(uint32_t scalePermill) const noexcept override {
 			return static_cast<int16_t>(m_hhea.ascender * (scalePermill / 1000.f));
@@ -360,17 +437,14 @@ export namespace System {
 			uint16_t gid = GetGID(codePoint);
 			return GetGlyphImage(gid, scalePermill);
 		}
-#if defined(NO_VIRTUAL)
-#else
 		IEnumerable<bool> UpdateStringImage(Drawing::Image& dst, const String& str, const Point<int32_t>& origin, uint32_t scalePermill) const noexcept override {
 			return IEnumerable<bool>(
 				new IEnumerator<bool>(
-					[this, &dst, str, origin, scalePermill](bool) { return this->UpdateStringImageEnumerator(dst, str, origin, scalePermill); },
+					[this, &dst, str, origin, scalePermill](bool) { return UpdateStringImageEnumerator(dst, str, origin, scalePermill); },
 					false
 					)
 				);
 		}
-#endif
 	public:
 		void SetBaseLineColor(const Drawing::Color& color) noexcept override { m_baseLineColor = color; }
 		void SetContoursColor(const Drawing::Color& color) noexcept override { m_contoursColor = color; m_contoursColor.a = 0xaa; }

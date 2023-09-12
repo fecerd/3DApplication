@@ -1,7 +1,33 @@
 ﻿export module ICollection;
 import Traits;
+import Function;
 export import IEnumerable;
 export import BoostCoroutine;
+
+//no_mangling
+#if defined(__GNUC__) && !defined(__clang__)
+//g++では3つ以上のラムダ式をテンプレートクラスのメンバ関数内に持つとname manglingが正常に設定されないエラーが起きることがある。
+//このクラスを使用してラムダ式の数を減らすことができる。
+export namespace System {
+	template<class T>
+	struct no_mangling {
+		mutable Function<void(Boost::push_type<T&>&)> m_internal;
+		mutable Function<void(Boost::push_type<T&>&)> m_internal_r;
+	public:
+		template<class F, class Fr>
+		no_mangling(F&& f, Fr&& fr) noexcept : m_internal(System::move(f)), m_internal_r(System::move(fr)) {}
+		no_mangling(const no_mangling&) noexcept = default;
+		no_mangling(no_mangling&&) noexcept = default;
+	public:
+		IEnumerator<T> operator()(bool r) const {
+			return IEnumerator<T>(r
+				? m_internal_r
+				: m_internal
+			);
+		}
+	};
+}
+#endif
 
 //ICollectionMemberSelect
 export namespace System::Internal {

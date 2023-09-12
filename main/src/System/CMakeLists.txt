@@ -7,7 +7,7 @@ add_subdirectory(Compression)
 add_subdirectory(IO)
 add_subdirectory(Drawing)
 add_subdirectory(Formats)
-#add_subdirectory(Font)
+add_subdirectory(Font)
 
 FAddObjectLibrary(System_0
 	SOURCES
@@ -16,7 +16,7 @@ FAddObjectLibrary(System_0
 		Compression
 		Drawing
 		Encoding
-#		Font
+		Font
 		Formats
 		IO
 		Module
@@ -29,7 +29,7 @@ FCombineObjectLibrary(System
 		Compression
 		Drawing
 		Encoding
-#		Font
+		Font
 		Formats
 		IO
 		Module

@@ -1,28 +1,9 @@
-﻿module;
-#include "../../Headers/EnableVirtual.hpp"
-export module FontFactory;
+﻿export module FontFactory;
+export import Module;
 export import IFont;
-import Objects;
-import Function;
-import HashMap;
-import OpenType;
-import SmartPtrs;
 
-#if defined(NO_VIRTUAL)
-
-export namespace System {
-	class FontFactory {
-	public:
-		static bool SetFont(const String& filePath, const String& fontName) noexcept {
-			return false;
-		}
-		static IFont* GetFont(const String& fontName) noexcept {
-			return nullptr;
-		}
-	};
-}
-
-#else
+export import OpenType;
+import Encoding;
 
 namespace System::Internal {
 	class FontMap : public HashMap<String, IFont*> {
@@ -39,20 +20,36 @@ export namespace System {
 	/// フォントを管理するファクトリクラス
 	/// </summary>
 	class FontFactory {
-		inline static Internal::FontMap fonts = Internal::FontMap(3);
+		HashMap<String, IFont*> fonts = 3;
 	public:
-		static bool SetFont(const String& filePath, const String& fontName) noexcept {
+		~FontFactory() noexcept {
+			for (IFont* x : fonts.Values()) {
+				delete x;
+			}
+		}
+	public:
+		bool SetFont(const String& filePath, const String& fontName) noexcept {
 			OpenType* font = new OpenType();
 			if (!font->Load(filePath)) {
-				delete font;
+				IFont* tmp = font;
+				font = nullptr;
+				delete tmp;
 				return false;
 			}
 			return fonts.Insert(fontName, font);
+			return false;
 		}
-		static IFont* GetFont(const String& fontName) noexcept {
+		IFont* GetFont(const String& fontName) noexcept {
 			return fonts.At(fontName);
+			return static_cast<IFont*>(nullptr);
+		}
+	public:
+		static ManagedObject<FontFactory> GetFontFactory() noexcept {
+			static ManagedObject<FontFactory> ret;
+			if (!ret) {
+				ret = ManagedObject<FontFactory>(new FontFactory());
+			}
+			return ret;
 		}
 	};
 }
-
-#endif

@@ -11,31 +11,6 @@ export namespace System::Internal {
 	};
 }
 
-#if defined(__GNUC__) && !defined(__clang__)
-
-export namespace System {
-	template<class T>
-	struct no_mangling {
-		mutable Function<void(Boost::push_type<T&>&)> m_internal;
-		mutable Function<void(Boost::push_type<T&>&)> m_internal_r;
-	public:
-		template<class F, class Fr>
-		no_mangling(F&& f, Fr&& fr) noexcept : m_internal(System::move(f)), m_internal_r(System::move(fr)) {}
-		no_mangling(const no_mangling&) noexcept = default;
-		no_mangling(no_mangling&&) noexcept = default;
-	public:
-		IEnumerator<T> operator()(bool r) const {
-			return IEnumerator<T>(r
-				? m_internal_r
-				: m_internal
-			);
-		}
-	};
-}
-
-#else
-#endif
-
 export namespace System {
 	template<class T>
 	class Vector : public VectorBase<T>, public Object, public ICollection<T> {

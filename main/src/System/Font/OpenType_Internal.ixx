@@ -1,6 +1,4 @@
-﻿module;
-#include "../../Headers/EnableVirtual.hpp"
-export module OpenType_Internal;
+﻿export module OpenType_Internal;
 export import CSTDINT;
 export import Traits;
 import HashMap;

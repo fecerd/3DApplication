@@ -5,3 +5,4 @@ export import Compression;
 export import Drawing;
 export import Formats;
 export import Encoding;
+export import Font;

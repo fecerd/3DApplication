@@ -5,6 +5,7 @@ using namespace System;
 
 export namespace ResourcePaths {
 	System::IO::Path RootPath;
+	System::IO::Path ExePath;
 }
 
 export namespace ResourcePaths {

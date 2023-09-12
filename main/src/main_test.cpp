@@ -314,14 +314,37 @@ void CoroutineTest6() noexcept {
 	std::cout << "CoroutineTest6 end." << std::endl;
 }
 
+void font_test() noexcept {
+	String path = ResourcePaths::GetPathName(u"./Font/century.ttf");
+	ManagedObject<FontFactory> factory = FontFactory::GetFontFactory();
+	bool success = factory->SetFont(path, u"Century");
+	IFont* century = factory->GetFont(u"Century");
+	if (!century) return;
+	std::cout << "Load Success!" << std::endl;
+	century->SetBaseLineColor(Drawing::Colors::White);
+	century->SetContoursColor(Drawing::Colors::Black);
+	Drawing::Image image(1920, 1080);
+	uint32_t permilli = 50;
+	int32_t originy = century->GetAscenderLine(permilli);
+	if (originy < 0) originy = 0;
+	for (bool b : century->UpdateStringImage(image, u"Hello World!", Point<int32_t>(0, originy), permilli)) {}
+	String savePath = ResourcePaths::ExePath.CreatePath(u"./Hello_World.bmp").PathName();
+	Drawing::BMP::FromImage(image).Save(savePath);
+}
+
 int main(int argc, char** argv) {
-	
+	//リソースパスのルートを設定
+	ResourcePaths::RootPath = String(u"C:/source/vscode/3DApplication/main/Resources");
+	ResourcePaths::ExePath = String(argv[0]);
+
 	CoroutineTest1();
 	CoroutineTest2();
 	CoroutineTest3();
 	CoroutineTest4();
 	CoroutineTest5();
 	CoroutineTest6();
+
+	font_test();
 
 	return 0;
 }
