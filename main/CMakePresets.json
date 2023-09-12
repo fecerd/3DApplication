@@ -61,9 +61,6 @@
 			"binaryDir": "${sourceDir}/build/${presetName}",
 			"installDir": "${sourceDir}/build/${presetName}",
 			"cacheVariables": {
-				"#CMAKE_C_COMPILER": "x86_64-w64-mingw32-gcc.exe",
-				"#CMAKE_CXX_COMPILER": "x86_64-w64-mingw32-g++.exe",
-				"#CMAKE_CXX_FLAGS": "-static -static-libgcc -static-libstdc++",
 				"CMAKE_C_COMPILER": "gcc",
 				"CMAKE_CXX_COMPILER": "g++",
 				"CMAKE_CXX_FLAGS": "",
