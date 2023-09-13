@@ -1,6 +1,6 @@
 ﻿export module IApplicationManager;
 import System;
-import IWindow;
+export import IWindow;
 export import ApplicationEnum;
 using namespace System;
 
