@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 
-## CMakeによるコンパイラ確認時のエラー回避
+## CMakeによるコンパイラ確認時のエラー回避(プロジェクト名より先にないとMSVCでエラー)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 
 ## 関数群の読み込み

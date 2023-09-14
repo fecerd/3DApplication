@@ -1,6 +1,47 @@
 ﻿
 環境構築
-msys64ディレクトリをコピー
-VisualStudio2022 Previewの必要な部分をコピー
 
+C:/Program Files/Microsoft Visual Studio/2022/Preview/にMSBuildとVCフォルダをコピーする
+C:/Program Files (x86)/Windows Kits/10/にIncludeとLibフォルダをコピーする。
+
+Windowsの環境変数を設定する。
+Path:
+	C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.37.32822\bin\Hostx64\x64
+	C:\Program Files\Microsoft Visual Studio\2022\Preview\MSBuild\Current\Bin
+	C:\msys64\mingw64\bin
+
+Include:
+	C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.37.32822\include
+	C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt
+	C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um
+	C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared
+
+Lib:
+	C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.37.32822\lib\x64
+	C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x64
+	C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\ucrt\x64
+
+VSCodeをインストールする。
+拡張機能を入れて設定を合わせる。
+	C/C++
+	C/C++ Extension Pack
+	C/C++ Themes
+
+msys2をインストールする。
+msys64/home/をコピーする。(設定のため)
+msys64/ext/profileをコピーする。(Windowsの環境変数を引き継ぐため)
+
+pacman -S ...で
+	git
+	mingw64-w64-x86_64-clang
+	mingw64-w64-x86_64-boost
+	ninja
+	mingw-w64-clang-x86_64-boost
+	mingw-w64-x86_64-lldb
+	mingw-w64-x86_64-cmake
+をインストールする。
+
+C:/source/VSCode/を作成して移動する。
+git clone git@github.com:fecerd/3DApplication.git
+でリポジトリをクローンする。
 

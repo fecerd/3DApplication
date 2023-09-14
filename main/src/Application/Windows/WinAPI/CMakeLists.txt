@@ -1,11 +1,10 @@
-﻿cmake_minimum_required(VERSION 3.8)
-
+﻿
 FAddObjectLibrary(WinAPI_0
 	SOURCES
 		WinAPI_Constants.ixx
 		WinAPI_Messages.ixx
 	DEPENDS
-		System	#Module_0
+		Module_0
 )
 
 FAddObjectLibrary(WinAPI_1

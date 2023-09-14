@@ -1,5 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.8)
-
+﻿
 FAddObjectLibrary(Forms_0
 	SOURCES
 		Brush.ixx

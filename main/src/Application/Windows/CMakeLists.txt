@@ -1,5 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.8)
-
+﻿
 add_subdirectory(DirectInput)
 add_subdirectory(Forms)
 add_subdirectory(MediaFoundation)
@@ -9,7 +8,7 @@ FAddObjectLibrary(Windows_0
 	SOURCES
 		WindowClass.ixx
 	DEPENDS
-		System	#Objects
+		Objects
 		WinAPI
 )
 

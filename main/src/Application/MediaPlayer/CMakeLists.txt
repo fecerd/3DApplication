@@ -1,5 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.8)
-
+﻿
 FAddObjectLibrary(MediaPlayer_0
 	SOURCES
 		IMediaPlayer.ixx

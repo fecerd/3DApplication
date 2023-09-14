@@ -162,6 +162,60 @@ function(FSetFileCompileOptions _filename)
 	set_source_files_properties(${_filename} PROPERTIES COMPILE_FLAGS "${_options}")
 endfunction()
 
+## 依存するターゲットの持つBMIファイルの参照オプションをライブラリのコンパイルオプションに追加する。
+## 成功したとき、${libname}_BMI_OPTIONS変数が公開される。
+## libname: 設定するライブラリ名。すでに作成されている必要がある
+## 可変長引数
+##  DEPENDS [target ...]: 依存するターゲット名を指定する。存在しなくてもよい。
+##  CUSTOM [target ...]: 依存するカスタムターゲット名を指定する。存在しなくてもよい。
+function(FSetLibraryDepends libname)
+	## 引数の解析
+	cmake_parse_arguments("FAddObjectLibrary_${libname}" "" "" "DEPENDS;CUSTOM" ${ARGN})
+	set(_depends "${FAddObjectLibrary_${libname}_DEPENDS}")
+	set(_custom "${FAddObjectLibrary_${libname}_CUSTOM}")
+	if (_custom)
+		add_dependencies(${libname} ${_custom})
+	endif()
+	## 一つも指定されていないなら何もしない
+	list(LENGTH _depends _depends_length)
+	if (NOT _depends_length)
+		## 関数外に変数をエクスポート
+		set(${libname}_BMI_OPTIONS "${${libname}_BMI_OPTIONS}" PARENT_SCOPE)
+		return()
+	endif()
+	## 依存するターゲットを設定する
+	add_dependencies(${libname} ${_depends})
+	foreach(depend ${_depends})
+		## 遷移用ターゲットにも依存させる
+		add_dependencies(${libname} ${depend}_t)
+		## 依存するターゲットからBMIファイルの参照オプションを引き継ぐ
+		if (${depend} STREQUAL std)
+			list(APPEND ${libname}_BMI_OPTIONS "${G_DETECT_BMI_OPTIONS}")
+		else()
+			if (TARGET ${depend})
+				if (DEFINED ${depend}_BMI_OPTIONS)
+					list(APPEND ${libname}_BMI_OPTIONS "${${depend}_BMI_OPTIONS}")
+				else()
+					get_target_property(target_dir ${depend} SOURCE_DIR)
+					get_directory_property(options DIRECTORY "${target_dir}" DEFINITION ${depend}_BMI_OPTIONS)
+					list(APPEND ${libname}_BMI_OPTIONS "${options}")
+				endif()
+			else()
+				list(APPEND ${libname}_BMI_OPTIONS "$<TARGET_PROPERTY:${depend},COMPILE_OPTIONS>")
+			endif()
+		endif()
+	endforeach()
+	## 重複するものを削除
+	list(REMOVE_DUPLICATES ${libname}_BMI_OPTIONS)
+	## コンパイルオプションを設定
+	target_compile_options(${libname}
+		PRIVATE
+			${${libname}_BMI_OPTIONS}
+	)
+	## 関数外に変数をエクスポート
+	set(${libname}_BMI_OPTIONS "${${libname}_BMI_OPTIONS}" PARENT_SCOPE)
+endfunction()
+
 ## 引数に渡したソースファイルからオブジェクトライブラリを定義する
 ## libname: 定義するライブラリ名。遷移用ターゲット${liname}_tも定義される。
 ## 可変長引数:
@@ -199,6 +253,15 @@ function(FAddObjectLibrary libname)
 	## BMIファイルの出力先ディレクトリ
 	set(_bmi_dir "${G_BMI_OUTPUT_DIR}")
 
+	## BMIファイル出力先ディレクトリを作成するカスタムターゲットを作成
+	add_custom_command(OUTPUT ${_bmi_dir}/bmi_mkdir.phony
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${_bmi_dir} && ${CMAKE_COMMAND} -E touch ${_bmi_dir}/bmi_mkdir.phony
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	)
+	if (NOT TARGET bmi_mkdir)
+		add_custom_target(bmi_mkdir SOURCES ${_bmi_dir}/bmi_mkdir.phony)
+	endif()
+
 	## 拡張子ixxとcxxのソースファイルをモジュールファイルとしてコンパイルされるようにする
 	## _cpp_files, _interface_files, _bmi_filesはここで設定される
 	foreach(_source ${_sources})
@@ -234,15 +297,6 @@ function(FAddObjectLibrary libname)
 		list(APPEND _interface_files ${_source})
 	endforeach()
 
-	## BMIファイル出力先ディレクトリを作成するカスタムターゲットを作成
-	add_custom_command(OUTPUT ${_bmi_dir}/bmi_mkdir.phony
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${_bmi_dir} && ${CMAKE_COMMAND} -E touch ${_bmi_dir}/bmi_mkdir.phony
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-	)
-	if (NOT TARGET bmi_mkdir)
-		add_custom_target(bmi_mkdir SOURCES ${_bmi_dir}/bmi_mkdir.phony)
-	endif()
-
 	## CLANGはモジュールファイル -> BMIファイル -> オブジェクトファイルの順に2度コンパイルする必要がある
 	if (CLANG AND _interface_files)
 		## BMIファイルコンパイル用ターゲットを作成
@@ -250,21 +304,10 @@ function(FAddObjectLibrary libname)
 		## BMIファイルコンパイル用のオプションを設定
 		target_compile_options(${libname}_bmi PRIVATE "${G_COMPILE_MODULE_PRECOMPILE_OPTIONS}")
 		## 依存関係を設定
-		foreach(_depend ${_depends})
-			add_dependencies(${libname}_bmi ${_depend})
-			## 遷移用ターゲットにも依存させる
-			if (TARGET ${_depend}_t)
-				add_dependencies(${libname}_bmi ${_depend}_t)
-			endif()
-			## 依存するターゲットからコンパイルオプションを伝播
-			target_compile_options(${libname}_bmi
-				PUBLIC $<TARGET_PROPERTY:${_depend},COMPILE_OPTIONS>
-			)
-			## stdに依存している場合、DETECT_BMI_OPTIONSを継承する
-			if (${_depend} STREQUAL std AND DEFINED G_DETECT_BMI_OPTIONS)
-				target_compile_options(${libname}_bmi PUBLIC ${G_DETECT_BMI_OPTIONS})
-			endif()
-		endforeach()
+		FSetLibraryDepends(${libname}_bmi
+			DEPENDS
+				${_depends}
+		)
 		## BMIファイルをBMI出力ディレクトリに移動するカスタムコマンドを設定
 		foreach(_source ${_interface_files})
 			get_filename_component(module_name_ext ${_source} NAME)
@@ -283,61 +326,60 @@ function(FAddObjectLibrary libname)
 		endforeach()
 	endif()
 
-	## オブジェクトライブラリを作成	
-	add_library(${libname} OBJECT
-		${_cpp_files}
-		$<IF:$<BOOL:${CLANG}>,${_bmi_files},${_interface_files}>
-	)
-
-	## CLANGでは、モジュールが使用できるようにコンパイルオプションを指定
-	target_compile_options(${libname} PRIVATE ${G_COMPILE_NO_HEADER_OPTIONS})
-	## CLANGでは、オブジェクトライブラリ <- BMIファイル移動コマンドの依存関係が必要
-	if (CLANG AND TARGET ${libname}_bmi_move)
-		add_dependencies(${libname} ${libname}_bmi_move)
-	endif()
-	## BMI出力ディレクトリが作成されていることに依存する
-	add_dependencies(${libname} bmi_mkdir)
-	## 遷移用ターゲットを作成
-	add_custom_target(${libname}_t DEPENDS ${libname})
-	## 依存関係を設定
-	foreach(_depend ${_depends})
-		add_dependencies(${libname} ${_depend})
-		## 遷移用ターゲットにも依存させる
-		add_dependencies(${libname} ${_depend}_t)
-		## 依存するターゲットからコンパイルオプションを伝播させる(モジュール名とBMIファイル名を関連付けるオプションのため)
-		target_compile_options(${libname} PUBLIC $<TARGET_PROPERTY:${_depend},COMPILE_OPTIONS>)
-		## stdに依存している場合、G_DETECT_BMI_OPTIONSを継承する
-		if (${_depend} STREQUAL std AND DEFINED G_DETECT_BMI_OPTIONS)
-			target_compile_options(${libname} PUBLIC ${G_DETECT_BMI_OPTIONS})
-		endif()
-	endforeach()
-
-	## 上述の理由により、MSBUILDではBMIファイルをカスタムコマンドで移動する
-	if (MSBUILD)
-		foreach(_bmi ${_bmi_files})
-			get_filename_component(_module_name_ext ${_bmi} NAME)
-			add_custom_command(OUTPUT ${_bmi}
-				COMMAND [ -e ${CMAKE_CURRENT_BINARY_DIR}/${_module_name_ext} ] && ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/${_module_name_ext} ${_bmi} || echo "None"
-			)
-		endforeach()
-		add_custom_target(${libname}_bmi_move
-			SOURCES ${_bmi_files}
-			DEPENDS ${libname}
+	## オブジェクトライブラリを定義する
+	if (CLANG)
+		add_library(${libname} OBJECT
+			${_bmi_files}
+			${_cpp_files}
 		)
-		add_dependencies(${libname}_t ${libname}_bmi_move)
+		if (TARGET ${libname}_bmi_move)
+			add_dependencies(${libname} ${libname}_bmi_move)
+		endif()
+	else()
+		add_library(${libname} OBJECT
+			${_interface_files}
+			${_cpp_files}
+		)
 	endif()
+	target_compile_options(${libname} PRIVATE ${G_COMPILE_NO_HEADER_OPTIONS})
+	add_custom_target(${libname}_t DEPENDS ${libname})
 
-	## モジュール名とBMIファイルを関連付けるオプションを追加する
-	if (MSBUILD OR MSVC OR CLANG)
+	## このライブラリが出力するBMIファイルの参照オプションをリストに追加
+	if (MSVC OR MSBUILD)
 		foreach(_bmi ${_bmi_files})
-			get_filename_component(_bmi_name ${_bmi} NAME_WE)
-			if (CLANG)
-				target_compile_options(${libname} PUBLIC "SHELL:-fmodule-file=${_bmi_name}=${_bmi}")
-			else()
-				target_compile_options(${libname} PUBLIC "SHELL:-reference ${_bmi_name}=${_bmi}")
+			get_filename_component(module_name ${_bmi} NAME_WE)
+			list(APPEND ${libname}_BMI_OPTIONS "SHELL:-reference ${module_name}=${_bmi}")
+			## 上述の理由により、MSBUILDではBMIファイルをカスタムコマンドで移動する
+			if (MSBUILD)
+				get_filename_component(module_name_ext ${_bmi} NAME)
+				add_custom_command(OUTPUT ${_bmi}
+					COMMAND [ -e ${CMAKE_CURRENT_BINARY_DIR}/${module_name_ext} ] && ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/${module_name_ext} ${_bmi} || echo "None"
+				)
 			endif()
 		endforeach()
+		if (MSBUILD)
+			add_custom_target(${libname}_bmi_move
+				SOURCES ${_bmi_files}
+				DEPENDS ${libname}
+			)
+			add_dependencies(${libname}_t ${libname}_bmi_move)
+		endif()
+	elseif (CLANG)
+		foreach(_bmi ${_bmi_files})
+			get_filename_component(module_name ${_bmi} NAME_WE)
+			list(APPEND ${libname}_BMI_OPTIONS "SHELL:-fmodule-file=${module_name}=${_bmi}")
+		endforeach()
 	endif()
+
+	## 依存するライブラリの持つ参照オプションをリストに追加
+	FSetLibraryDepends(${libname}
+		DEPENDS
+			${_depends}
+		CUSTOM
+			bmi_mkdir
+	)
+	## 関数外に変数をエクスポート
+	set(${libname}_BMI_OPTIONS "${${libname}_BMI_OPTIONS}" PARENT_SCOPE)
 endfunction()
 
 ## オブジェクトライブラリをまとめたスタティックライブラリを定義する
@@ -377,17 +419,13 @@ function(FCombineObjectLibrary libname)
 		PUBLIC ${_arg_public}
 		PRIVATE ${_arg_private}
 	)
-	set(_targets ${_public} ${_private})
-	## 指定された全てのライブラリの遷移用ターゲットに依存させる
-	foreach(_target ${_targets})
-		if (TARGET ${_target}_t)
-			add_dependencies(${libname} ${_target}_t)
-		else()
-			message(STATUS "依存関係: '${libname}'<-'${_target}_t'は追加されませんでした。")
-		endif()
-		## 依存するターゲットからコンパイルオプションを伝播させる(モジュール名とBMIファイル名を関連付けるオプションのため)
-		target_compile_options(${libname} PUBLIC $<TARGET_PROPERTY:${_target},COMPILE_OPTIONS>)
-	endforeach()
+	## 依存するターゲットからコンパイルオプションを伝播させる(モジュール名とBMIファイル名を関連付けるオプションのため)
+	FSetLibraryDepends(${libname}
+		DEPENDS
+			${_public} ${_private}
+	)
+	## 関数外に変数をエクスポート
+	set(${libname}_BMI_OPTIONS "${${libname}_BMI_OPTIONS}" PARENT_SCOPE)
 	## 遷移用ターゲットを作成しておく
 	add_custom_target(${libname}_t DEPENDS ${libname})
 	## リンクライブラリが指定されているなら設定する

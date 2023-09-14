@@ -1,5 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.8)
-
+﻿
 FAddObjectLibrary(Objects_0
 	SOURCES
 		Objects_Internal.ixx

@@ -1,5 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.8)
-
+﻿
 FAddObjectLibrary(IEnumerables_0
 	SOURCES
 		IEnumeratorBase.ixx

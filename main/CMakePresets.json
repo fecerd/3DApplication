@@ -32,6 +32,14 @@
 			}
 		},
 		{
+			"name": "make-base",
+			"hidden": true,
+			"generator": "MinGW Makefiles",
+			"cacheVariables": {
+				"CMAKE_MAKE_PROGRAM": "make.exe"
+			}
+		},
+		{
 			"name": "windows-base-msvc",
 			"hidden": true,
 			"inherits": "ninja-base",

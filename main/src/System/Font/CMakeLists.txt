@@ -1,6 +1,5 @@
-﻿cmake_minimum_required(VERSION 3.8)
-
-FAddObjectLibrary(Font_0_0
+﻿
+FAddObjectLibrary(Font_0
 	SOURCES
 		OpenType_Internal0.ixx
 	DEPENDS
@@ -9,36 +8,36 @@ FAddObjectLibrary(Font_0_0
 		Drawing
 )
 
-FAddObjectLibrary(Font_0
+FAddObjectLibrary(Font_1
 	SOURCES
 		IFont.ixx
 		OpenType_Internal.ixx
 	DEPENDS
-		Font_0_0
+		Font_0
 		Module
 		Drawing
 		IO
 )
-FAddObjectLibrary(Font_1
+FAddObjectLibrary(Font_2
 	SOURCES
 		OpenType.ixx
 		OpenType_Internal.cpp
 	DEPENDS
-		Font_0
+		Font_1
 		Encoding
 )
-FAddObjectLibrary(Font_2
+FAddObjectLibrary(Font_3
 	SOURCES
 		FontFactory.ixx
 	DEPENDS
-		Font_1
+		Font_2
 )
 
-FAddObjectLibrary(Font_3
+FAddObjectLibrary(Font_4
 	SOURCES
 		Font.ixx
 	DEPENDS
-		Font_2
+		Font_3
 )
 
 FCombineObjectLibrary(Font
@@ -47,5 +46,5 @@ FCombineObjectLibrary(Font
 		Font_1
 		Font_2
 		Font_3
-		Font_0_0
+		Font_4
 )

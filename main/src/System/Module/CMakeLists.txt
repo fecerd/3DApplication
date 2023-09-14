@@ -1,6 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.8)
-
-## サブディレクトリ
+﻿
 add_subdirectory(Objects)
 add_subdirectory(SmartPtrs)
 add_subdirectory(IEnumerables)

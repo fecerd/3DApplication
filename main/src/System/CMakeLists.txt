@@ -1,6 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.8)
-
-## サブディレクトリ
+﻿
 add_subdirectory(Module)
 add_subdirectory(Encoding)
 add_subdirectory(Compression)
