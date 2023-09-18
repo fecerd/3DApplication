@@ -8,6 +8,7 @@ export namespace System::IO {
 	template<class T>
 	concept ConvertibleToString = requires() {
 		String(declval<T>());
+		requires !Traits::Concepts::CSame<Traits::remove_cvref_t<T>, String>;
 	};
 
 	class Path : public Object {
@@ -16,27 +17,34 @@ export namespace System::IO {
 				static const String ret = u"/";
 				return ret;
 			}
-			static const String& Separator() noexcept {
+			static const String& WindowsSeparator() noexcept {
 				static const String ret = u"\\";
 				return ret;
+			}			
+			static const String& Separator() noexcept;
+			static const String& RelativeUnixSeparator() noexcept {
+				static const String ret = u"./";
+				return ret;
 			}
-			static const String& RelativeSeparator() noexcept {
+			static const String& RelativeWindowsSeparator() noexcept {
 				static const String ret = u".\\";
 				return ret;
 			}
+			static const String& RelativeSeparator() noexcept;
 		};
 	private:
 		String m_data;
 	public:
 		Path() noexcept : m_data() {}
+		Path(const String& arg) noexcept;
 		template<ConvertibleToString T>
-		Path(const T& arg) noexcept : m_data(String(arg).Replace(Constant::UnixSeparator(), Constant::Separator())) {}
+		Path(T const& arg) noexcept : Path(String(arg)) {}
 		~Path() noexcept {}
 	public:
 		String Extension() const noexcept;
 		bool Exists() const noexcept;
-		const System::String& PathName() const noexcept;
-		String GetDirectory() const noexcept;
+		const String& PathName() const noexcept;
+		Path GetDirectory() const noexcept;
 	public:
 		Path CreatePath(const String& relativePath) const noexcept;
 	public:

@@ -5,11 +5,10 @@ import HashMap;
 import Thread;
 import <type_traits>;
 
-export namespace System::Traits::Concepts {
+namespace System::Internal {
 	template<class T>
-	concept CHasDispose = requires(T& x) {
-		requires std::has_virtual_destructor_v<T>;
-		x.Dispose();
+	concept CHasManagedObjectDeleteType = requires {
+		typename T::managedObject_delete_type;
 	};
 }
 
@@ -54,8 +53,10 @@ export namespace System {
 			--(*m_refCount);
 			if (!*m_refCount) {
 				delete m_refCount;
-				if constexpr (Traits::Concepts::CHasDispose<T>) {
-					m_ptr->Dispose();
+				if constexpr (Internal::CHasManagedObjectDeleteType<T>) {
+					using delete_type = T::managedObject_delete_type;
+					delete_type* tmp = m_ptr;
+					delete tmp;
 				} else {
 					delete m_ptr;
 				}
@@ -170,8 +171,10 @@ export namespace System {
 				if (tmp) {
 					m_ptr = tmp->m_ptr;
 					m_refCount = tmp->m_refCount;
-					if constexpr (Traits::Concepts::CHasDispose<T>) {
-						ptr->Dispose();
+					if constexpr (Internal::CHasManagedObjectDeleteType<T>) {
+						using delete_type = T::managedObject_delete_type;
+						delete_type* tmp = ptr;
+						delete tmp;
 					} else {
 						delete ptr;
 					}

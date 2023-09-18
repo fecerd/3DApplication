@@ -7,6 +7,8 @@ using namespace System::Drawing;
 export namespace System::Application::Common3D {
 	class I3DBase {
 	public:
+		using managedObject_delete_type = I3DBase;
+	public:
 		virtual ~I3DBase() noexcept {}
 	public:
 		virtual PlatformID GetPlatformID() const noexcept = 0;
@@ -14,10 +16,6 @@ export namespace System::Application::Common3D {
 			return GetPlatformID() == id;
 		}
 		virtual void SetName(const String& name) noexcept {}
-	public:
-		void Dispose() noexcept {
-			delete this;
-		}
 	};
 
 	class IResource : public I3DBase {

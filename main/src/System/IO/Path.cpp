@@ -4,6 +4,28 @@ import <fstream>;
 using namespace System;
 
 namespace System::IO {
+	const String& Path::Constant::Separator() noexcept {
+#if !defined(_WIN32) && !defined(_WIN64)
+		return UnixSeperator();
+#else
+		return WindowsSeparator();
+#endif
+	}
+	const String& Path::Constant::RelativeSeparator() noexcept {
+#if !defined(_WIN32) && !defined(_WIN64)
+		return RelativeUnixSeperator();
+#else
+		return RelativeWindowsSeparator();
+#endif
+	}
+
+	Path::Path(const String& arg) noexcept :
+#if !defined(_WIN32) && !defined(_WIN64)
+		m_data(arg.Replace(Constant::WindowsSeparator(), Constant::UnixSeparator())) {}
+#else
+		m_data(arg.Replace(Constant::UnixSeparator(), Constant::WindowsSeparator())) {}
+#endif
+
 	String Path::Extension() const noexcept {
 		return m_data.substr(m_data.rfind(String(u'.')));
 	}
@@ -19,7 +41,7 @@ namespace System::IO {
 		}
 	}
 	const String& Path::PathName() const noexcept { return m_data; }
-	String Path::GetDirectory() const noexcept {
+	Path Path::GetDirectory() const noexcept {
 		const char16_t* cstr = m_data.c_str();
 		const size_t length = m_data.Length();
 		if (length > 0 && cstr[length - 1] == Constant::Separator()[0]) return m_data;
@@ -36,8 +58,8 @@ namespace System::IO {
 	Path Path::CreatePath(const String& relativePath) const noexcept {
 		if (m_data.IsNullOrEmpty()) return Path();	//currentはパスでない
 		if (relativePath.IsNullOrEmpty()) return *this;
-		const String directory = GetDirectory();
-		const String relative = relativePath.Replace(Constant::UnixSeparator(), Constant::Separator());
+		const String directory = GetDirectory().PathName();
+		const String relative = Path(relativePath).PathName();
 		size_t rpos = 0;
 		size_t dpos = directory.Length();
 		do {
