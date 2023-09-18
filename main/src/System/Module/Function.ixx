@@ -1,9 +1,8 @@
-﻿module;
-#include "FUNCSIG.hpp"
-export module Function;
+﻿export module Function;
 import CSTDINT;
 import Traits;
 import Allocator;
+import Exception;
 
 //FuncData
 namespace System {
@@ -183,6 +182,7 @@ export namespace System {
 		R operator()(Params&& ...params) const {
 			if (!m_invoke) {
 				//assert
+				throw InvalidOperationException(u"初期化されていないFunction型インスタンスを使用しました。");
 			}
 			return m_invoke(m_data, params...);
 		}

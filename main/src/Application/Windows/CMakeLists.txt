@@ -35,10 +35,11 @@ FAddObjectLibrary(Windows_3
 	DEPENDS
 		Windows_2
 		Forms
+		Application_3	#IApplicationManager
 )
 
 FCombineObjectLibrary(Windows
-	PUBLIC
+	PRIVATE
 		Windows_0
 		Windows_1
 		Windows_2

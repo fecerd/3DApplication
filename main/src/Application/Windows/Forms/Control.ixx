@@ -1,7 +1,4 @@
-﻿module;
-#include <crtdbg.h>
-#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
-export module Control;
+﻿export module Control;
 export import System;
 export import WinAPI;
 export import Brush;
@@ -9,7 +6,6 @@ export import Color;
 export import WindowClass;
 export import DeviceContext;
 export import WindowsEventArgs;
-using namespace System;
 using namespace System::Drawing;
 using namespace WinAPI;
 

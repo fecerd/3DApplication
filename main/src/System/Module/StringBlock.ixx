@@ -369,15 +369,6 @@ export namespace System::Encoding {
 	StringBlock<char> ToMultiByteStringBlock(const CodePoint* codePoints, size_t count) noexcept;
 }
 
-namespace System {
-	/*
-		StringBlock<str_t>::allocをstatic constexpr alloc_tとして定義すると、
-		なぜかg++のみUndefined Referenceとなってしまう。
-		以下のように、外部に本体を定義し、参照を持てば問題ない。
-	*/
-	template<class T> inline constexpr const Allocator<T> alloc_ = Allocator<T>{};
-}
-
 //StringBlock
 export namespace System {
 	template<Traits::Concepts::CCharType str_t>
@@ -385,7 +376,7 @@ export namespace System {
 	private:
 		using alloc_t = Allocator<str_t>;
 		using traits = AllocatorTraits<alloc_t const>;
-		static constexpr alloc_t const& alloc = alloc_<str_t>;
+		static constexpr alloc_t alloc = alloc_t{};
 	public: 
 		str_t* value = nullptr;
 		size_t size = 0;
@@ -612,14 +603,13 @@ export namespace System {
 		StringBlock<str_t> Replace(const StringBlock<str_t>& src, const StringBlock<str_t>& dst) const noexcept {
 			const size_t srcLen = src.Length();
 			const size_t dstLen = dst.Length();
-			VectorBase<size_t> vec;	//検索結果の配列
+			//検索結果の配列
+			VectorBase<size_t> vec;
 			size_t pos = 0;
-			do {
-				pos = find(src, pos);
-				if (pos == npos) break;
+			while ((pos = find(src, pos)) != npos) {
 				vec.Add(pos);
 				pos += srcLen;
-			} while (true);
+			}
 			//一つも見つからない場合、置換しない
 			if (!vec.Count()) return *this;
 			//要素数は{元の文字列の要素数 - (置換回数 * 置換文字列の要素数の差) + ヌル終端文字 }
@@ -730,6 +720,13 @@ export namespace System {
 			}
 		}
 	};
+
+	//g++ではStringBlock<str_t>::allocがUndefined Referenceとなってしまうため、すべて実体化しておく。
+	template class StringBlock<char>;
+	template class StringBlock<char8_t>;
+	template class StringBlock<char16_t>;
+	template class StringBlock<char32_t>;
+	template class StringBlock<wchar_t>;
 
 	template<Traits::Concepts::CCharType str_t>
 	std::ostream& operator<<(std::ostream& os, const StringBlock<str_t>& str) noexcept {

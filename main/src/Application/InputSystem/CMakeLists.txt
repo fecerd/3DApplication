@@ -25,11 +25,13 @@ FAddObjectLibrary(InputSystem_3
 	SOURCES
 		InputSystem.cpp
 	DEPENDS
+		InputSystem_2
 		DirectInput
+		Headers
 )
 
 FCombineObjectLibrary(InputSystem
-	PUBLIC
+	PRIVATE
 		InputSystem_0
 		InputSystem_1
 		InputSystem_2

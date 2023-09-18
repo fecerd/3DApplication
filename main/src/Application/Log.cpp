@@ -1,5 +1,15 @@
 ﻿module Log;
 import Thread;
+import Objects;
+#if !defined(SDL)
+
+#if defined(_WIN32) || defined(_WIN64)
+import WinAPI;
+#else	//_WIN32 or _WIN64
+#endif	//_WIN32 or _WIN64
+
+#else	//SDL
+#endif	//SDL
 
 namespace System::Application {
 	static Mutex& GetLogMutex() noexcept {
@@ -8,9 +18,9 @@ namespace System::Application {
 	}
 }
 
-#ifndef SDL
+#if !defined(SDL)
+
 #if defined(_WIN32) || defined(_WIN64)
-import WinAPI;
 namespace System::Application {
 	void Log(const String& str) noexcept {
 		LockGuard lock{ GetLogMutex() };
@@ -31,6 +41,7 @@ namespace System::Application {
 	}
 }
 #endif
+
 #else	//SDL
 namespace System::Application {
 	void Log(const String& str) noexcept {

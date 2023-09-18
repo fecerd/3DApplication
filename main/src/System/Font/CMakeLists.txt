@@ -41,7 +41,7 @@ FAddObjectLibrary(Font_4
 )
 
 FCombineObjectLibrary(Font
-	PUBLIC
+	PRIVATE
 		Font_0
 		Font_1
 		Font_2

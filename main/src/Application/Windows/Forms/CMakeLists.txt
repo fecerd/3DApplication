@@ -3,7 +3,7 @@ FAddObjectLibrary(Forms_0
 	SOURCES
 		Brush.ixx
 	DEPENDS
-		System	#Drawing
+		Drawing
 		WinAPI
 )
 
@@ -25,6 +25,7 @@ FAddObjectLibrary(Forms_2
 		Form.ixx
 		GroupBox.ixx
 		Label.ixx
+		ListBox.ixx
 		RadioButton.ixx
 		ScrollBar.ixx
 		TextBox.ixx
@@ -41,7 +42,7 @@ FAddObjectLibrary(Forms_3
 )
 
 FCombineObjectLibrary(Forms
-	PUBLIC
+	PRIVATE
 		Forms_0
 		Forms_1
 		Forms_2

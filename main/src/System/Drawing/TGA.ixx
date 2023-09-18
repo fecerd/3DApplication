@@ -1,6 +1,4 @@
-﻿module;
-#include "../../Headers/FUNCSIG.hpp"
-export module TGA;
+﻿export module TGA;
 import CSTDINT;
 import Objects;
 import Math;
@@ -176,7 +174,7 @@ export namespace System::Drawing {
 			else {
 				if (m_imageType == 2) LoadTrueColor(pixels);
 			}
-			if (!pixels.Count()) throw LogicException(__FUNCSIG__, u"このTGA形式のサポートは未実装です", __FILE__, __LINE__);
+			if (!pixels.Count()) throw LogicException(u"このTGA形式のサポートは未実装です");
 			Image ret(m_width, m_height, System::move(pixels));
 			if (IsBottomToTop()) ret.Reverse();
 			return ret;

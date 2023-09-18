@@ -1,13 +1,14 @@
 ﻿export module SDLWindowManager;
 import System;
-import IApplicationManager;
-using namespace System;
+import IWindow;
+import ApplicationEnum;
+export import IApplicationManager;
 
 export namespace System::Application::SDL {
 	class SDLWindowManager : public IApplicationManager {
 	private:
-		SDLWindowManager() noexcept = default;
-		~SDLWindowManager() noexcept = default;
+		SDLWindowManager() noexcept {}
+		~SDLWindowManager() noexcept {}
 	private:
 		static SDLWindowManager*& GetInterfacePtr() noexcept {
 			static SDLWindowManager* ret = new SDLWindowManager();

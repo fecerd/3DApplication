@@ -15,7 +15,7 @@ FAddObjectLibrary(WinAPI_1
 )
 
 FCombineObjectLibrary(WinAPI
-	PUBLIC
+	PRIVATE
 		WinAPI_0
 		WinAPI_1
 )

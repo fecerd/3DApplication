@@ -6,6 +6,6 @@ FAddObjectLibrary(Boost_0
 )
 
 FCombineObjectLibrary(Boost
-	PUBLIC
+	PRIVATE
 		Boost_0
 )

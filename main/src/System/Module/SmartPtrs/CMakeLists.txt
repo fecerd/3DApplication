@@ -22,7 +22,7 @@ FAddObjectLibrary(SmartPtrs_2
 )
 
 FCombineObjectLibrary(SmartPtrs
-	PUBLIC
+	PRIVATE
 		SmartPtrs_0
 		SmartPtrs_1
 		SmartPtrs_2

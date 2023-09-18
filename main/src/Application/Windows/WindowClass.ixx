@@ -2,7 +2,6 @@
 import CSTDINT;
 import WinAPI;
 import Objects;
-using namespace System;
 using namespace WinAPI;
 
 //WindowClassStyle

@@ -7,7 +7,16 @@ FAddObjectLibrary(Test_0
 		Module_7
 )
 
+FAddObjectLibrary(Test_1
+	SOURCES
+		WindowsTest.ixx
+	DEPENDS
+		Module
+		Headers
+)
+
 FCombineObjectLibrary(Test
-	PUBLIC
+	PRIVATE
 		Test_0
+		Test_1
 )

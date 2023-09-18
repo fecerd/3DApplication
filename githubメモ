@@ -39,6 +39,7 @@ pacman -S ...で
 	mingw-w64-clang-x86_64-boost
 	mingw-w64-x86_64-lldb
 	mingw-w64-x86_64-cmake
+	mingw64-w64-clang-x86_64-toolchain
 をインストールする。
 
 C:/source/VSCode/を作成して移動する。

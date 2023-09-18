@@ -134,7 +134,7 @@ FAddObjectLibrary(Module_14
 )
 
 FCombineObjectLibrary(Module
-	PUBLIC
+	PRIVATE
 		Module_0
 		Module_1
 		Module_2
@@ -154,4 +154,5 @@ FCombineObjectLibrary(Module
 		Objects
 		SmartPtrs
 		IEnumerables
+		Encoding
 )

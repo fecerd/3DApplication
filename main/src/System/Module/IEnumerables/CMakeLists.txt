@@ -29,7 +29,7 @@ FAddObjectLibrary(IEnumerables_3
 )
 
 FCombineObjectLibrary(IEnumerables
-	PUBLIC
+	PRIVATE
 		IEnumerables_0
 		IEnumerables_1
 		IEnumerables_2

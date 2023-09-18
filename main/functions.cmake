@@ -29,7 +29,7 @@ function(FPrecompileSTD)
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${STD_OUTPUT_DIR} && ${CMAKE_COMMAND} -E touch ${STD_OUTPUT_DIR}/std_mkdir.phony
 	)
 	## コンパイルオプションを設定
-	set(ALL_OPTIONS "${G_COMPILE_OPTIONS}" "${G_COMPILE_MODULE_HEADER_OPTIONS}")
+	set(ALL_OPTIONS "${G_COMPILE_OPTIONS}" "${G_CUSTOM_INCLUDE_OPTIONS}" "${G_COMPILE_MODULE_HEADER_OPTIONS}")
 
 	## 出力されるBMIファイルのパスのリスト
 	set(BMI_OUTPUT_LIST)
@@ -531,8 +531,8 @@ function(FLinkBoost target onlythread)
 					Boost::iostreams
 					Boost::json
 					Boost::locale
-					Boost::log_setup
 					Boost::log
+					Boost::log_setup
 					Boost::math_c99
 					Boost::nowide
 					Boost::numpy
@@ -579,11 +579,8 @@ function(FSetCompileOptions _my_std_path)
 	set(MODULE_PRECOMPILE_OPTIONS)	#インターフェースモジュールプリコンパイル用オプション
 	set(MODULE_NO_PRECOMPILE_OPTIONS)	#インターフェースモジュール本コンパイル用オプション
 	set(NO_HEADER_OPTIONS)	#本コンパイル用オプション(標準ライブラリを除く)
-	set(MY_STD_INCLUDE_OPTIONS)
-	set(INCLUDE_OPTIONS)
-	if (EXISTS "${_my_std_path}")
-		set(MY_STD_INCLUDE_OPTIONS -I "${_my_std_path}")
-	endif()
+	set(INCLUDE_PATHS)
+
 	if (MSBUILD)
 		message(STATUS "MSBuild Mode")
 		set(STD_OUTPUT_DIR "${CMAKE_BINARY_DIR}/std/$<IF:$<CONFIG:Debug>,Debug,Release>")
@@ -623,7 +620,7 @@ function(FSetCompileOptions _my_std_path)
 		set(DEBUG_OPTIONS -g -D_DEBUG)
 		set(MODULE_OPTIONS -fmodules-ts -Mno-modules)
 		set(WARNING_OPTIONS -Wno-attributes -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-reorder -Wno-uninitialized)
-		set(OTHER_OPTIONS -mwindows -x c++)
+		set(OTHER_OPTIONS -mwindows -x c++ -static)
 		set(MODULE_HEADER_OPTIONS -fmodule-header -fmodule-only -c)
 		set(MODULE_PRECOMPILE_OPTIONS)
 		set(MODULE_NO_PRECOMPILE_OPTIONS)
@@ -636,62 +633,69 @@ function(FSetCompileOptions _my_std_path)
 		set(DEFINE_OPTIONS -DUNICODE -D_UNICODE)
 		set(DEBUG_OPTIONS -g -D_DEBUG)
 		set(MODULE_OPTIONS)
-		set(WARNING_OPTIONS -Wno-ambiguous-ellipsis -Wno-pragma-system-header-outside-header -Wno-unknown-attributes -Wno-user-defined-literals -Wno-keyword-compat -Wno-unknown-warning-option -Wno-deprecated-builtins -Wno-unused-command-line-argument)
-		set(OTHER_OPTIONS)
+		set(WARNING_OPTIONS -Wno-ambiguous-ellipsis -Wno-pragma-system-header-outside-header -Wno-unknown-attributes -Wno-user-defined-literals -Wno-keyword-compat -Wno-unknown-warning-option -Wno-deprecated-builtins -Wno-unused-command-line-argument -Wno-nonportable-include-path -Wno-pragma-pack -Wno-ignored-attributes)
+		set(OTHER_OPTIONS -mwindows)
 		set(MODULE_HEADER_OPTIONS --precompile -x c++-system-header)
 		set(MODULE_PRECOMPILE_OPTIONS --precompile -x c++-module)
 		set(MODULE_NO_PRECOMPILE_OPTIONS)
-		set(NO_HEADER_OPTIONS -fmodules)
+#		set(NO_HEADER_OPTIONS -fmodules)
+		set(INCLUDE_PATHS)
 	endif()
 	## すべてのオプションをまとめる
 	set(ALL_OPTIONS)
-	set(ALL_HEADER_OPTIONS)
 	set(_DEBUG_OPTIONS)
 	set(_RELEASE_OPTIONS)
 	foreach(op ${VERSION_OPTIONS})
 		list(APPEND ALL_OPTIONS "${op}")
-		list(APPEND ALL_HEADER_OPTIONS "${op}")
 	endforeach()
 	foreach(op ${DEFINE_OPTIONS})
 		list(APPEND ALL_OPTIONS "${op}")
-		list(APPEND ALL_HEADER_OPTIONS "${op}")
 	endforeach()
 	foreach(op ${DEBUG_OPTIONS})
 		list(APPEND ALL_OPTIONS $<$<CONFIG:Debug>:${op}>)
-		list(APPEND ALL_HEADER_OPTIONS $<$<CONFIG:Debug>:${op}>)
 		list(APPEND _DEBUG_OPTIONS $<$<CONFIG:Debug>:${op}>)
 	endforeach()
 	foreach(op ${RELEASE_OPTIONS})
 		list(APPEND ALL_OPTIONS $<$<CONFIG:Release>:${op}>)
-		list(APPEND ALL_HEADER_OPTIONS $<$<CONFIG:Release>:${op}>)
 		list(APPEND _RELEASE_OPTIONS $<$<CONFIG:Release>:${op}>)
 	endforeach()
 	foreach(op ${OTHER_OPTIONS})
 		list(APPEND ALL_OPTIONS "${op}")
-		list(APPEND ALL_HEADER_OPTIONS "${op}")
 	endforeach()
 	foreach(op ${WARNING_OPTIONS})
 		list(APPEND ALL_OPTIONS "${op}")
-		list(APPEND ALL_HEADER_OPTIONS "${op}")
 	endforeach()
 	foreach(op ${MODULE_OPTIONS})
 		list(APPEND ALL_OPTIONS "${op}")
-		list(APPEND ALL_HEADER_OPTIONS "${op}")
-	endforeach()
-	foreach(op ${MY_STD_INCLUDE_OPTIONS})
-		list(APPEND ALL_OPTIONS "${op}")
-		list(APPEND ALL_HEADER_OPTIONS "${op}")
-	endforeach()
-	foreach(op ${INCLUDE_OPTIONS})
-		list(APPEND ALL_OPTIONS "${op}")
-		list(APPEND ALL_HEADER_OPTIONS "${op}")
 	endforeach()
 
+	set(INCLUDE_OPTIONS)
+	set(CUSTOM_INCLUDE_OPTIONS)
+	if (EXISTS "${_my_std_path}")
+		list(APPEND CUSTOM_INCLUDE_OPTIONS -I)
+		list(APPEND CUSTOM_INCLUDE_OPTIONS "${_my_std_path}")
+		list(APPEND INCLUDE_OPTIONS "SHELL:-I ${_my_std_path}")
+	endif()
+	foreach(_path ${INCLUDE_PATHS})
+		list(APPEND CUSTOM_INCLUDE_OPTIONS -I)
+		list(APPEND CUSTOM_INCLUDE_OPTIONS "${_path}")
+		list(APPEND INCLUDE_OPTIONS "SHELL:-I ${_path}")
+	endforeach()
+
+	## VERSION, DEFINE, DEBUG, RELEASE, WARNING, OTHER, MODULEオプションがすべてのライブラリに適用される
 	add_compile_options("${ALL_OPTIONS}")
+	## _my_std_path, INCLUDE_PATHSがすべてのライブラリでインクルードされる
+	add_compile_options("${INCLUDE_OPTIONS}")
+
+	## すべてのライブラリに適用されているオプション(インクルード除く)
 	set(G_COMPILE_OPTIONS "${ALL_OPTIONS}" PARENT_SCOPE)
-	set(G_COMPILE_HEADER_OPTIONS "${ALL_HEADER_OPTIONS}" PARENT_SCOPE)
+	## すべてのライブラリに適用されているインクルードオプション
+	set(G_INCLUDE_OPTIONS "${INCLUDE_OPTIONS}" PARENT_SCOPE)
+	## 標準ライブラリモジュールの出力先ディレクトリ
 	set(G_STD_OUTPUT_DIR "${STD_OUTPUT_DIR}" PARENT_SCOPE)
+	## インターフェースモジュールのBMIファイルの出力先ディレクトリ
 	set(G_BMI_OUTPUT_DIR "${BMI_OUTPUT_DIR}" PARENT_SCOPE)
+	## 各オプションのリスト
 	set(G_COMPILE_VERSION_OPTIONS "${VERSION_OPTIONS}" PARENT_SCOPE)
 	set(G_COMPILE_DEFINE_OPTIONS "${DEFINE_OPTIONS}" PARENT_SCOPE)
 	set(G_COMPILE_DEBUG_OPTIONS "${_DEBUG_OPTIONS}" PARENT_SCOPE)
@@ -699,12 +703,16 @@ function(FSetCompileOptions _my_std_path)
 	set(G_COMPILE_MODULE_OPTIONS "${MODULE_OPTIONS}" PARENT_SCOPE)
 	set(G_COMPILE_WARNING_OPTIONS "${WARNING_OPTIONS}" PARENT_SCOPE)
 	set(G_COMPILE_OTHER_OPTIONS "${OTHER_OPTIONS}" PARENT_SCOPE)
+	## 標準ライブラリモジュールのプリコンパイルにのみ使用されるオプション
 	set(G_COMPILE_MODULE_HEADER_OPTIONS "${MODULE_HEADER_OPTIONS}" PARENT_SCOPE)
+	## インターフェースモジュールのプリコンパイルにのみ使用されるオプション
 	set(G_COMPILE_MODULE_PRECOMPILE_OPTIONS "${MODULE_PRECOMPILE_OPTIONS}" PARENT_SCOPE)
+	## BMIファイルからのコンパイルにのみ使用されるオプション
 	set(G_COMPILE_MODULE_NO_PRECOMPILE_OPTIONS "${MODULE_NO_PRECOMPILE_OPTIONS}" PARENT_SCOPE)
+	## BMIファイルもしくはC++ソースファイルからのコンパイルに適用されるオプション
 	set(G_COMPILE_NO_HEADER_OPTIONS "${NO_HEADER_OPTIONS}" PARENT_SCOPE)
-	set(G_COMPILE_MY_STD_INCLUDE_OPTIONS "${MY_STD_INCLUDE_OPTIONS}" PARENT_SCOPE)
-	set(G_COMPILE_INCLUDE_OPTIONS "${INCLUDE_OPTIONS}" PARENT_SCOPE)
+	## カスタムコマンドで使用できるインクルードオプション。標準ライブラリモジュールのプリコンパイルに使用する
+	set(G_CUSTOM_INCLUDE_OPTIONS "${CUSTOM_INCLUDE_OPTIONS}" PARENT_SCOPE)
 endfunction()
 
 ## リンカフラグを設定する

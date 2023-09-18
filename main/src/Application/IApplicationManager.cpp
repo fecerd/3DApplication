@@ -1,22 +1,30 @@
-﻿module IApplicationManager;
+﻿#if defined(__GNUC__) && !defined(__clang__)
+import IApplicationManager;
+#else
+module IApplicationManager;
+#endif
+import NamespaceHelper;
 
-#ifndef SDL
+#if !defined(SDL)
 #if defined(_WIN32) || defined(_WIN64)
+
 import ControlManager;
-import WinAPI;
 namespace System::Application {
-	IApplicationManager& GetManager() noexcept {
-		return System::Application::Windows::ControlManager::GetInterface();
+	IApplicationManager& Implementation::GetManager_Internal() noexcept {
+		return Windows::ControlManager::GetInterface();
 	}
 }
+
 #else	//WindowsでもSDLでもない場合
 
 #endif
 #else	//SDL
 import SDLWindowManager;
+
 namespace System::Application {
-	IApplicationManager& GetManager() noexcept {
-		return System::Application::SDL::SDLWindowManager::GetInterface();
+	IApplicationManager& Implementation::GetManager_Internal() noexcept {
+		return SDL::SDLWindowManager::GetInterface();
 	}
 }
+
 #endif

@@ -3,20 +3,27 @@
 //マクロ再定義抑制
 #undef __SPECSTRINGS_STRICT_LEVEL
 #define __SPECSTRINGS_STRICT_LEVEL 0
-#pragma warning(disable : 5105)
+#include <cstdlib>	//clangに必要
+#include <cstddef>	//clangに必要
 #include <dinput.h>
 #undef __nullnullterminated
-#pragma comment(lib, "dinput8.lib")
-#pragma comment(lib, "dxguid.lib")
 #undef interface
 #undef OutputDebugString
 export module DirectInput;
-import System;
+import Module;
 import IInputManager;
-import WinAPI;
-using namespace System;
-using namespace System::Application;
 
+namespace System::Application::Windows::DirectInputConstant {
+	inline constexpr bool IsAbsAxis = true;
+	inline constexpr int32_t XAxisAbs = 1000;
+	inline constexpr int32_t YAxisAbs = 1000;
+	inline constexpr int32_t ZAxisAbs = 1000;
+	inline constexpr int32_t BufferCount = 64;
+	inline constexpr uint8_t MaxPlayerCount = 4;
+}
+using namespace System::Application::Windows::DirectInputConstant;
+
+//Internal Structure
 namespace System::Application::Windows {
 	enum class DirectInputButtons : uint8_t {
 		None = 0,
@@ -85,90 +92,7 @@ namespace System::Application::Windows {
 		default: return DirectInputValues::None;
 		}
 	}
-	uint8_t ToDirectInputKeys(ControllerButtons key) noexcept {
-		switch (key) {
-		case ControllerButtons::Key0: return DIK_0;
-		case ControllerButtons::Key1: return DIK_1;
-		case ControllerButtons::Key2: return DIK_2;
-		case ControllerButtons::Key3: return DIK_3;
-		case ControllerButtons::Key4: return DIK_4;
-		case ControllerButtons::Key5: return DIK_5;
-		case ControllerButtons::Key6: return DIK_6;
-		case ControllerButtons::Key7: return DIK_7;
-		case ControllerButtons::Key8: return DIK_8;
-		case ControllerButtons::Key9: return DIK_9;
-		case ControllerButtons::KeyA: return DIK_A;
-		case ControllerButtons::KeyB: return DIK_B;
-		case ControllerButtons::KeyC: return DIK_C;
-		case ControllerButtons::KeyD: return DIK_D;
-		case ControllerButtons::KeyE: return DIK_E;
-		case ControllerButtons::KeyF: return DIK_F;
-		case ControllerButtons::KeyG: return DIK_G;
-		case ControllerButtons::KeyH: return DIK_H;
-		case ControllerButtons::KeyI: return DIK_I;
-		case ControllerButtons::KeyJ: return DIK_J;
-		case ControllerButtons::KeyK: return DIK_K;
-		case ControllerButtons::KeyL: return DIK_L;
-		case ControllerButtons::KeyM: return DIK_M;
-		case ControllerButtons::KeyN: return DIK_N;
-		case ControllerButtons::KeyO: return DIK_O;
-		case ControllerButtons::KeyP: return DIK_P;
-		case ControllerButtons::KeyQ: return DIK_Q;
-		case ControllerButtons::KeyR: return DIK_R;
-		case ControllerButtons::KeyS: return DIK_S;
-		case ControllerButtons::KeyT: return DIK_T;
-		case ControllerButtons::KeyU: return DIK_U;
-		case ControllerButtons::KeyV: return DIK_V;
-		case ControllerButtons::KeyW: return DIK_W;
-		case ControllerButtons::KeyX: return DIK_X;
-		case ControllerButtons::KeyY: return DIK_Y;
-		case ControllerButtons::KeyZ: return DIK_Z;
-		case ControllerButtons::KeyEscape: return DIK_ESCAPE;
-		case ControllerButtons::KeyF1: return DIK_F1;
-		case ControllerButtons::KeyF2: return DIK_F2;
-		case ControllerButtons::KeyF3: return DIK_F3;
-		case ControllerButtons::KeyF4: return DIK_F4;
-		case ControllerButtons::KeyF5: return DIK_F5;
-		case ControllerButtons::KeyF6: return DIK_F6;
-		case ControllerButtons::KeyF7: return DIK_F7;
-		case ControllerButtons::KeyF8: return DIK_F8;
-		case ControllerButtons::KeyF9: return DIK_F9;
-		case ControllerButtons::KeyF10: return DIK_F10;
-		case ControllerButtons::KeyF11: return DIK_F11;
-		case ControllerButtons::KeyF12: return DIK_F12;
-		case ControllerButtons::KeyF13: return DIK_F13;
-		case ControllerButtons::KeyF14: return DIK_F14;
-		case ControllerButtons::KeyF15: return DIK_F15;
-		case ControllerButtons::KeyDelete: return DIK_DELETE;
-		case ControllerButtons::KeyTildeUS: return DIK_GRAVE;
-		case ControllerButtons::KeyOEMMinus: return DIK_MINUS;
-		case ControllerButtons::KeyOEMPlus: return DIK_EQUALS;
-		case ControllerButtons::KeyBack: return DIK_BACKSPACE;
-		case ControllerButtons::KeyTab: return DIK_TAB;
-		case ControllerButtons::KeyOpenBracketUS: return DIK_LBRACKET;
-		case ControllerButtons::KeyCloseBracketUS: return DIK_RBRACKET;
-		case ControllerButtons::KeyBackSlashUS: return DIK_BACKSLASH;
-		case ControllerButtons::KeyCapital: return DIK_CAPITAL;
-		case ControllerButtons::KeyColonUS: return DIK_SEMICOLON;
-		case ControllerButtons::KeyReturn: return DIK_RETURN;
-		case ControllerButtons::KeyLShift: return DIK_LSHIFT;
-		case ControllerButtons::KeyRShift: return DIK_RSHIFT;
-		case ControllerButtons::KeyOEMComma: return DIK_COMMA;
-		case ControllerButtons::KeyOEMPeriod: return DIK_PERIOD;
-		case ControllerButtons::KeySlashUS: return DIK_SLASH;
-		case ControllerButtons::KeyLControl: return DIK_LCONTROL;
-		case ControllerButtons::KeyLCmd: return DIK_LWIN;
-		case ControllerButtons::KeyLAlt: return DIK_LMENU;
-		case ControllerButtons::KeySpace: return DIK_SPACE;
-		case ControllerButtons::KeyRAlt: return DIK_RMENU;
-		case ControllerButtons::KeyRCmd: return DIK_RWIN;
-		case ControllerButtons::KeyUp: return DIK_UP;
-		case ControllerButtons::KeyRight: return DIK_RIGHT;
-		case ControllerButtons::KeyDown: return DIK_DOWN;
-		case ControllerButtons::KeyLeft: return DIK_LEFT;
-		default: return 0;
-		}
-	}
+	uint8_t ToDirectInputKeys(ControllerButtons key) noexcept;
 	enum class DirectInputEventState : uint8_t {
 		Empty = 0,
 		Started,
@@ -176,15 +100,6 @@ namespace System::Application::Windows {
 		Canceled
 	};
 
-	namespace DirectInputConstant {
-		inline constexpr bool IsAbsAxis = true;
-		inline constexpr int32_t XAxisAbs = 1000;
-		inline constexpr int32_t YAxisAbs = 1000;
-		inline constexpr int32_t ZAxisAbs = 1000;
-		inline constexpr int32_t BufferCount = 64;
-		inline constexpr uint8_t MaxPlayerCount = 4;
-	};
-	using namespace DirectInputConstant;
 	struct DirectInputState {
 		DIJOYSTATE joystick[2] = {};
 		uint8_t keyboard[2][256] = {};
@@ -372,8 +287,8 @@ namespace System::Application::Windows {
 	};
 }
 
+//DirectInputManager
 export namespace System::Application::Windows {
-	using namespace DirectInputConstant;
 	class DirectInputManager : public IInputManager {
 		DirectInputState m_states[MaxPlayerCount];
 		bool m_useBuffer = false;
@@ -400,17 +315,17 @@ export namespace System::Application::Windows {
 			if (hr != DI_OK) ret = nullptr;
 			return ret;
 		}
-		static Vector<IDirectInputDevice8*>& GetDevices() noexcept {
-			static Vector<IDirectInputDevice8*> ret;
+		static VectorBase<IDirectInputDevice8*>& GetDevices() noexcept {
+			static VectorBase<IDirectInputDevice8*> ret;
 			return ret;
 		}
 		static BOOL CALLBACK DeviceFindCallBack(LPCDIDEVICEINSTANCEW ipddi, LPVOID pvRef) {
-			Vector<DIDEVICEINSTANCE>& deviceInfo = *reinterpret_cast<Vector<DIDEVICEINSTANCE>*>(pvRef);
+			VectorBase<DIDEVICEINSTANCE>& deviceInfo = *reinterpret_cast<VectorBase<DIDEVICEINSTANCE>*>(pvRef);
 			deviceInfo.Add(*ipddi);
 			return DIENUM_CONTINUE;
 		}
-		static Vector<DIDEVICEINSTANCE> EnumDeviceInstancesForGameController(IDirectInput8& diInterface) noexcept {
-			Vector<DIDEVICEINSTANCE> deviceInfo;
+		static VectorBase<DIDEVICEINSTANCE> EnumDeviceInstancesForGameController(IDirectInput8& diInterface) noexcept {
+			VectorBase<DIDEVICEINSTANCE> deviceInfo;
 			HRESULT hr = diInterface.EnumDevices(
 				DI8DEVCLASS_GAMECTRL,
 				DeviceFindCallBack,
@@ -419,8 +334,8 @@ export namespace System::Application::Windows {
 			);
 			return deviceInfo;
 		}
-		static Vector<DIDEVICEINSTANCE> EnumDeviceInstancesForKeyboard(IDirectInput8& diInterface) noexcept {
-			Vector<DIDEVICEINSTANCE> deviceInfo;
+		static VectorBase<DIDEVICEINSTANCE> EnumDeviceInstancesForKeyboard(IDirectInput8& diInterface) noexcept {
+			VectorBase<DIDEVICEINSTANCE> deviceInfo;
 			HRESULT hr = diInterface.EnumDevices(
 				DI8DEVCLASS_KEYBOARD,
 				DeviceFindCallBack,
@@ -429,8 +344,8 @@ export namespace System::Application::Windows {
 			);
 			return deviceInfo;
 		}
-		static Vector<DIDEVICEINSTANCE> EnumDeviceInstancesForMouse(IDirectInput8& diInterface) noexcept {
-			Vector<DIDEVICEINSTANCE> deviceInfo;
+		static VectorBase<DIDEVICEINSTANCE> EnumDeviceInstancesForMouse(IDirectInput8& diInterface) noexcept {
+			VectorBase<DIDEVICEINSTANCE> deviceInfo;
 			HRESULT hr = diInterface.EnumDevices(
 				DI8DEVTYPE_MOUSE,
 				DeviceFindCallBack,
@@ -449,7 +364,7 @@ export namespace System::Application::Windows {
 		}
 		static nullptr_t SafeRelease(IDirectInputDevice8*& device, const String& log = String()) noexcept {
 			if (device) device->Release();
-			WinAPI::OutputDebugString(log.w_str());
+//			WinAPI::OutputDebugString(log.w_str());
 			return nullptr;
 		}
 	private:
@@ -748,9 +663,9 @@ export namespace System::Application::Windows {
 				hr = device.GetDeviceData(sizeof(data), &data, &bufferCount, 0);
 				if (FAILED(hr) || !bufferCount) break;
 				if (hr == DI_BUFFEROVERFLOW) {
-					WinAPI::OutputDebugString(
-						String::Joint(GetDeviceName(device, true), u"がバッファオーバーフローを起こしています。\n").w_str()
-					);
+					// WinAPI::OutputDebugString(
+					// 	String::Joint(GetDeviceName(device, true), u"がバッファオーバーフローを起こしています。\n").w_str()
+					// );
 				}
 				UpdateFunc(state, data);
 			} while (true);
@@ -760,10 +675,10 @@ export namespace System::Application::Windows {
 			DetachTopLevelWindow();
 			IDirectInput8* diInterface = GetInterface(nullptr);
 			if (!diInterface) return false;
-			Vector<IDirectInputDevice8*>& devices = GetDevices();
-			Vector<DIDEVICEINSTANCE> gameControllers = EnumDeviceInstancesForGameController(*diInterface);
-			Vector<DIDEVICEINSTANCE> keyboards = EnumDeviceInstancesForKeyboard(*diInterface);
-			Vector<DIDEVICEINSTANCE> mouses = EnumDeviceInstancesForMouse(*diInterface);
+			VectorBase<IDirectInputDevice8*>& devices = GetDevices();
+			VectorBase<DIDEVICEINSTANCE> gameControllers = EnumDeviceInstancesForGameController(*diInterface);
+			VectorBase<DIDEVICEINSTANCE> keyboards = EnumDeviceInstancesForKeyboard(*diInterface);
+			VectorBase<DIDEVICEINSTANCE> mouses = EnumDeviceInstancesForMouse(*diInterface);
 			devices.Reserve(gameControllers.Count() + keyboards.Count() + mouses.Count());
 			for (DIDEVICEINSTANCE& instance : gameControllers) {
 				IDirectInputDevice8* device = CreateJoyStickDevice(*diInterface, instance);
@@ -791,7 +706,7 @@ export namespace System::Application::Windows {
 			return true;
 		}
 		bool DetachTopLevelWindow() noexcept {
-			Vector<IDirectInputDevice8*>& devices = GetDevices();
+			VectorBase<IDirectInputDevice8*>& devices = GetDevices();
 			for (IDirectInputDevice8* device : devices) {
 				device->Unacquire();
 				device->Release();
@@ -803,7 +718,7 @@ export namespace System::Application::Windows {
 		}
 	public:
 		bool Update() noexcept override {
-			Vector<IDirectInputDevice8*>& devices = GetDevices();
+			VectorBase<IDirectInputDevice8*>& devices = GetDevices();
 			const size_t deviceCount = devices.Count();
 			DirectInputState& state = m_states[0];
 			state.Update();
@@ -877,11 +792,11 @@ export namespace System::Application::Windows {
 			return ret;
 		}
 		bool SetTopLevelWindow(const WindowPlatformData& data) noexcept override {
-			if (data.Type == WindowType::Windows) {
-				HWND hWnd = static_cast<HWND>(data.Data.GetData());
+			if (data.HasWindowType(WindowType::Windows)) {
+				HWND hWnd = static_cast<HWND>(data.GetNativePtr());
 				return AttachTopLevelWindow(hWnd, hWnd ? true : false);
 			}
-			else if (data.Type == WindowType::SDL) {
+			else if (data.HasWindowType(WindowType::SDL)) {
 				return false;
 			}
 			else return false;

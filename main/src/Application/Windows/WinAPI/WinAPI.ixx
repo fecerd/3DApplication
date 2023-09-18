@@ -1,12 +1,14 @@
 ﻿module;
 #define NOMINMAX
+#include <cstdlib>	//clangに必要
+#include <cstddef>	//clangに必要
+#include <cstdio>	//snprintf()
 #include<Windows.h>
-#include<stdio.h>
 #undef CreateWindow
 export module WinAPI;
-import CSTDINT;
 export import WinAPI_Messages;
 export import WinAPI_Constants;
+import CSTDINT;
 using namespace System;
 
 //using class
@@ -679,7 +681,7 @@ export namespace WinAPI {
 		if (cr) ::OutputDebugStringA("\n");
 	}
 #undef GetModuleHandle
-	HMODULE GetModuleHandle(std::nullptr_t) noexcept {
+	HMODULE GetModuleHandle(nullptr_t) noexcept {
 		return ::GetModuleHandleW(nullptr);
 	}
 	HMODULE GetModuleHandle(const char* moduleName) noexcept {

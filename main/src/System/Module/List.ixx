@@ -1,6 +1,4 @@
-﻿module;
-#include "FUNCSIG.hpp"
-export module List;
+﻿export module List;
 import CSTDINT;
 import Traits;
 import SmartPtrs;
@@ -148,19 +146,11 @@ export namespace System {
 		bool Any() const noexcept { return m_first != m_last; }
 		T& Front() const {
 			if (m_first != m_last) return *m_first->value;
-			throw LogicException(
-				__FUNCSIG__,
-				u"空のリストの要素を取得しようとしました。",
-				__FILE__, __LINE__
-			);
+			throw LogicException(u"空のリストの要素を取得しようとしました。");
 		}
 		T& Back() const {
 			if (m_first != m_last) return *m_last->prev->value;
-			throw LogicException(
-				__FUNCSIG__,
-				u"空のリストの要素を取得しようとしました。",
-				__FILE__, __LINE__
-			);
+			throw LogicException(u"空のリストの要素を取得しようとしました。");
 		}
 		T* TryFront() const noexcept {
 			if (m_first != m_last) return m_first->value.get();

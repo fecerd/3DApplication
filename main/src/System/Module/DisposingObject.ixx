@@ -1,11 +1,8 @@
-﻿module;
-#include "FUNCSIG.hpp"
-export module DisposingObject;
+﻿export module DisposingObject;
 import CSTDINT;
 import Traits;
 import Function;
 import TaskWorker;
-import Exception;
 import List;
 import Thread;	//Mutex, LockGuard
 

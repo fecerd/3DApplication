@@ -32,9 +32,16 @@ export namespace System {
 //ICollectionMemberSelect
 export namespace System::Internal {
 	template<class T, class C>
-	class ICollectionMemberSelect {};
+	class ICollectionMemberSelect {
+	public:
+		constexpr ICollectionMemberSelect() noexcept {}
+		constexpr ~ICollectionMemberSelect() noexcept {}
+	};
 	template<Traits::Concepts::CHasMember T, class C>
 	class ICollectionMemberSelect<T, C> {
+	public:
+		constexpr ICollectionMemberSelect() noexcept {}
+		constexpr ~ICollectionMemberSelect() noexcept {}
 	public:
 		/// <summary>
 		/// このコンテナが持つ要素の指定したメンバ変数を列挙するIEnumerableを取得する。

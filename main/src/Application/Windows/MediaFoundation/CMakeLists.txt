@@ -1,23 +1,28 @@
 ﻿
 FAddObjectLibrary(MediaFoundation_0
 	SOURCES
+		MFHeader.ixx
+)
+
+FAddObjectLibrary(MediaFoundation_1
+	SOURCES
 		MediaPlayerForMediaFoundation.ixx
 	DEPENDS
 		MediaPlayer_0	#IMediaPlayer
-		Application_4	#Application
-)
-
-FCombineObjectLibrary(MediaFoundation
-	PUBLIC
+		Application_5	#Application
 		MediaFoundation_0
 )
 
-# target_link_libraries(MediaFoundation
-# 	PUBLIC
-# 		Mfreadwrite.lib
-# 		mfplat.lib
-# 		Mf.lib
-# 		mfuuid.lib
-# 		Shlwapi.lib
-# 		Strmiids.lib
-# )
+FCombineObjectLibrary(MediaFoundation
+	PRIVATE
+		MediaFoundation_0
+		MediaFoundation_1
+	PUBLIC_LINK
+		Mfreadwrite
+		mfplat
+		Mf
+		mfuuid
+		#IUnknown実装用
+		Shlwapi
+		Strmiids		
+)

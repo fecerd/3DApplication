@@ -89,8 +89,8 @@
 			"binaryDir": "${sourceDir}/build/${presetName}",
 			"installDir": "${sourceDir}/build/${presetName}",
 			"cacheVariables": {
-				"CMAKE_C_COMPILER": "clang.exe",
-				"CMAKE_CXX_COMPILER": "clang++.exe",
+				"CMAKE_C_COMPILER": "clang",
+				"CMAKE_CXX_COMPILER": "clang++",
 				"CMAKE_MY_STD_PATH": "${sourceDir}/my_std/clang",
 				"CLANG": "true"
 			},

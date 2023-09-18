@@ -1,19 +1,18 @@
 ﻿export module IApplicationManager;
-import System;
+export import System;
 export import IWindow;
 export import ApplicationEnum;
-using namespace System;
 
 export namespace System::Application {
 	class IApplicationManager {
 	protected:
-		Timer m_timer;
+		Timer m_timer = Timer();
 		nanoseconds m_frameNs = static_cast<nanoseconds>(milliseconds(1000)) / 60;
 	public:
-		IApplicationManager() noexcept = default;
+		IApplicationManager() noexcept {}
 		IApplicationManager(const IApplicationManager&) noexcept = delete;
 		IApplicationManager(IApplicationManager&&) noexcept = delete;
-		virtual ~IApplicationManager() noexcept = default;
+		virtual ~IApplicationManager() noexcept {}
 	public:
 		Timer& GetTimer() noexcept { return m_timer; }
 		void SetFPS(uint32_t fps) noexcept {
@@ -38,6 +37,16 @@ export namespace System::Application {
 	public:
 		virtual void SetWindowTitle(IWindow* window, const String& title) noexcept = 0;
 	};
+}
 
-	IApplicationManager& GetManager() noexcept;
+export namespace System::Application {
+	struct Implementation {
+		static IApplicationManager& GetManager_Internal() noexcept;
+	};
+}
+
+export namespace System::Application {
+	IApplicationManager& GetManager() noexcept {
+		return Implementation::GetManager_Internal();
+	}
 }

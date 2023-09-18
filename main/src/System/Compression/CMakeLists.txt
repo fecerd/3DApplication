@@ -24,7 +24,7 @@ FAddObjectLibrary(Compression_2
 )
 
 FCombineObjectLibrary(Compression
-	PUBLIC
+	PRIVATE
 		Compression_0
 		Compression_1
 		Compression_2

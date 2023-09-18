@@ -1,6 +1,4 @@
-﻿module;
-#include "FUNCSIG.hpp"
-export module ForwardList;
+﻿export module ForwardList;
 import Traits;
 import Exception;
 
@@ -96,11 +94,11 @@ export namespace System {
 			return !m_first;
 		}
 		T& Front() {
-			if (!m_first) throw System::InvalidOperationException(__FUNCSIG__, u"要素が存在しません。", __FILE__, __LINE__);
+			if (!m_first) throw InvalidOperationException(u"要素が存在しません。");
 			return m_first->value;
 		}
 		const T& Front() const {
-			if (!m_first) throw System::InvalidOperationException(__FUNCSIG__, u"要素が存在しません。", __FILE__, __LINE__);
+			if (!m_first) throw InvalidOperationException(u"要素が存在しません。");
 			return m_first->value;
 		}
 		void Clear() noexcept {

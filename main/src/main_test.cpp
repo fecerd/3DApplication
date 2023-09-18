@@ -319,6 +319,7 @@ void font_test() noexcept {
 	ManagedObject<FontFactory> factory = FontFactory::GetFontFactory();
 	bool success = factory->SetFont(path, u"Century");
 	IFont* century = factory->GetFont(u"Century");
+	std::cout << path << std::endl;
 	if (!century) return;
 	std::cout << "Load Success!" << std::endl;
 	century->SetBaseLineColor(Drawing::Colors::White);
@@ -336,6 +337,9 @@ int main(int argc, char** argv) {
 	//リソースパスのルートを設定
 	ResourcePaths::RootPath = String(u"C:/source/vscode/3DApplication/main/Resources");
 	ResourcePaths::ExePath = String(argv[0]);
+
+	std::cout << ResourcePaths::RootPath.PathName() << std::endl;
+	std::cout << ResourcePaths::ExePath.PathName() << std::endl;
 
 	CoroutineTest1();
 	CoroutineTest2();

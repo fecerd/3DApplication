@@ -10,7 +10,7 @@ export namespace System::Application::Windows::Forms {
 	public:
 		ScrollBar() noexcept : Control(WS_CHILD | WS_VISIBLE, u"ScrollBar") {}
 	protected:
-		LRESULT WndProc(uint32_t msg, WPARAM wParam, LPARAM lParam) noexcept {
+		LRESULT WndProc(uint32_t msg, WPARAM wParam, LPARAM lParam) noexcept override {
 			return CallDefaultProc(msg, wParam, lParam);
 		}
 	protected:

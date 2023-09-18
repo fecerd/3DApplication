@@ -1,51 +1,14 @@
-﻿module;
-#pragma comment(lib, "Mfreadwrite.lib")
-#pragma comment(lib, "mfplat.lib")
-#pragma comment(lib, "Mf.lib")
-#pragma comment(lib, "mfuuid.lib")
-//IUnknown実装用
-#pragma comment(lib, "Shlwapi.lib")
-#pragma comment(lib, "Strmiids.lib")
-#pragma warning(default : 4005)
-#include <mfapi.h>
-#include <mfidl.h>
-#include <evr.h>
-#include <Mferror.h>
-#include <Shlwapi.h>
-#include <mfreadwrite.h>
-#pragma warning(disable : 4005)
-#pragma warning(disable : 5106)
-export module MediaPlayerForMediaFoundation;
+﻿export module MediaPlayerForMediaFoundation;
+import MFHeader;
 import System;
 import Application;	//Log
 import IMediaPlayer;
 using namespace System::Drawing;
+using namespace MF;
 
-//IUnknown Utilities
-namespace System::Application::Windows::Internal {
-	///<summary>
-	/// COMオブジェクトのメモリを解放し、nullptrを代入する
-	/// </summary>
-	template <class T>
-	void SafeRelease(T*& object) noexcept {
-		if (object) {
-			object->Release();
-			object = nullptr;
-		}
-	}
-	///<summary>
-	/// 複数のCOMオブジェクトのメモリを解放し、すべての変数にnullptrを代入する
-	/// </summary>
-	/// <param name="hr">この関数が返す値</param>
-	/// <param name="object">解放するCOMオブジェクト</param>
-	/// <param name="args">再帰的に解放されるCOMオブジェクト</param>
-	template<class T, class ...Args>
-	HRESULT SafeRelease(HRESULT hr, T*& object, Args*& ...args) noexcept {
-		SafeRelease(object);
-		if constexpr (sizeof...(Args) == 0) return hr;
-		else return SafeRelease(hr, args...);
-	}
-}
+#undef IID_PPV_ARGS
+#define IID_PPV_ARGS(ppType) MF::GetIID(ppType), MF::IID_PPV_ARGS_Helper(ppType)
+
 //MediaFoundation Utilities
 namespace System::Application::Windows::Internal {
 	class MediaFoundation {
@@ -61,7 +24,7 @@ namespace System::Application::Windows::Internal {
 			PROPVARIANT var;
 			HRESULT hr = mediaEvent->GetValue(&var);
 			if (hr >= 0) {
-				if (var.vt == VT_UNKNOWN) hr = var.punkVal->QueryInterface(&object);
+				if (var.vt == VARENUM::VT_UNKNOWN) hr = var.punkVal->QueryInterface(&object);
 				else hr = MF_E_INVALIDTYPE;
 				PropVariantClear(&var);
 			}
@@ -83,7 +46,7 @@ namespace System::Application::Windows::Internal {
 			if (hr < 0) return hr;
 			IMFActivate* activate = nullptr;
 			if (guidMajorType == MFMediaType_Audio) hr = MFCreateAudioRendererActivate(&activate);
-			else if (guidMajorType == MFMediaType_Video)	 hr = MFCreateVideoRendererActivate(hWnd, &activate);
+			else if (guidMajorType == MFMediaType_Video) hr = MFCreateVideoRendererActivate(hWnd, &activate);
 			else hr = E_FAIL;
 			if (hr < 0) return SafeRelease(hr, activate);
 			out = activate;
@@ -99,7 +62,9 @@ namespace System::Application::Windows::Internal {
 		/// <param name="out">トポロジに追加された入力ノードを受け取る参照変数。(変換ノードの補完に使用する)</param>
 		static HRESULT AddSourceNode(IMFTopology& topology, IMFMediaSource& mediaSource, IMFPresentationDescriptor& sourcePD, IMFStreamDescriptor& streamDesc, IMFTopologyNode*& out) noexcept {
 			IMFTopologyNode* node = nullptr;
-			HRESULT hr = MFCreateTopologyNode(MF_TOPOLOGY_SOURCESTREAM_NODE, &node);
+			HRESULT hr = MFCreateTopologyNode(
+				MF_TOPOLOGY_TYPE::MF_TOPOLOGY_SOURCESTREAM_NODE, &node
+			);
 			if (hr < 0) return SafeRelease(hr, node);
 			node->SetUnknown(MF_TOPONODE_SOURCE, &mediaSource);
 			node->SetUnknown(MF_TOPONODE_PRESENTATION_DESCRIPTOR, &sourcePD);
@@ -118,7 +83,9 @@ namespace System::Application::Windows::Internal {
 		/// <param name="out">トポロジに追加された出力ノードを受け取る参照変数。(変換ノードの補完に使用する)</param>
 		static HRESULT AddOutputNode(IMFTopology& topology, IMFActivate& activate, DWORD streamSinkID, IMFTopologyNode*& out) noexcept {
 			IMFTopologyNode* node = nullptr;
-			HRESULT hr = MFCreateTopologyNode(MF_TOPOLOGY_OUTPUT_NODE, &node);
+			HRESULT hr = MFCreateTopologyNode(
+				MF_TOPOLOGY_TYPE::MF_TOPOLOGY_OUTPUT_NODE, &node
+			);
 			if (hr < 0) return SafeRelease(hr, node);
 			node->SetObject(&activate);
 			node->SetUINT32(MF_TOPONODE_STREAMID, streamSinkID);
@@ -183,12 +150,12 @@ namespace System::Application::Windows::Internal {
 			IMFSourceResolver* sourceResolver = nullptr;
 			HRESULT hr = MFCreateSourceResolver(&sourceResolver);
 			if (hr < 0) return SafeRelease(hr, sourceResolver);
-			MF_OBJECT_TYPE objectType = MF_OBJECT_INVALID;
+			MF_OBJECT_TYPE objectType = MF_OBJECT_TYPE::MF_OBJECT_INVALID;
 			IUnknown* source = nullptr;
 			//非同期の場合、BeginCreateObjectFromURLを使用する
 			hr = sourceResolver->CreateObjectFromURL(
 				filePath.w_str(),
-				MF_RESOLUTION_MEDIASOURCE,
+				MF::MF_RESOLUTION_MEDIASOURCE,
 				nullptr,
 				&objectType,
 				&source
@@ -350,11 +317,8 @@ export namespace System::Application::Windows {
 			static bool first = true;
 			if (first) {
 				System::Application::Log(
-					System::Exception(
-						__FUNCSIG__,
-						u"MediaFoundationは内部で例外(bad_hresult)を投げることがありますが、これはリバースエンジニアリングを困難にするためにEVRが投げるものであり、正常です。\n",
-						__FILE__,
-						__LINE__
+					Exception(
+						u"MediaFoundationは内部で例外(bad_hresult)を投げることがありますが、これはリバースエンジニアリングを困難にするためにEVRが投げるものであり、正常です。\n"
 					).what()
 				);
 				first = false;
@@ -398,8 +362,8 @@ export namespace System::Application::Windows {
 		HRESULT __stdcall QueryInterface(const IID& iid, void** object) override {
 			if (!object) return E_POINTER;
 			static const QITAB qit[] = {
-				QITABENT(MFMediaPlayer, IMFAsyncCallback),
-				{ 0 }
+				GetQITAB<MFMediaPlayer, IMFAsyncCallback>(),
+				GetQITABSentinel()
 			};
 			return QISearch(this, qit, iid, object);
 		}
@@ -423,7 +387,7 @@ export namespace System::Application::Windows {
 			MediaEventType eventType;
 			hr = mediaEvent->GetType(&eventType);
 			if (hr < 0) return SafeRelease(hr, mediaEvent);
-			if (eventType != MESessionClosed) {
+			if (eventType != MF::MESessionClosed) {
 				//終了処理以外はイベントキューに追加する
 				m_mediaEventQueue.Push(mediaEvent);
 				SafeRelease(mediaEvent);
@@ -453,7 +417,7 @@ export namespace System::Application::Windows {
 			HRESULT hr = mediaEvent->GetUINT32(MF_EVENT_TOPOLOGY_STATUS, &status);
 			if (hr < 0) return hr;
 			//トポロジの状態がReadyになったとき、使用するVideoControlを取得しなおして再生を開始する
-			if (status == MF_TOPOSTATUS_READY) {
+			if (status == MF_TOPOSTATUS::MF_TOPOSTATUS_READY) {
 				SafeRelease(m_videoDisplayControl);
 				MFGetService(m_session, MR_VIDEO_RENDER_SERVICE, IID_PPV_ARGS(&m_videoDisplayControl));
 			}
@@ -499,16 +463,16 @@ export namespace System::Application::Windows {
 			PropVariantInit(&varStart);
 			const int64_t duration = ToMFDuration(offset);
 			if (pos == MediaPlayerSeekPos::Begin) {
-				varStart.vt = VT_I8;
+				varStart.vt = VARENUM::VT_I8;
 				varStart.hVal.QuadPart = duration;
 			}
 			else if (pos == MediaPlayerSeekPos::Current) {
 				if (duration == 0) {
-					varStart.vt = VT_EMPTY;
+					varStart.vt = VARENUM::VT_EMPTY;
 				}
 				else {
 					MFTIME time = GetCurrentMFTime();
-					varStart.vt = VT_I8;
+					varStart.vt = VARENUM::VT_I8;
 					varStart.hVal.QuadPart = time + duration;
 				}
 			}
@@ -517,7 +481,7 @@ export namespace System::Application::Windows {
 				if (m_currentSourceType == MediaPlayerSourceType::Local) source = m_sources.AtPtr(m_currentSourceName);
 				else if (m_currentSourceType == MediaPlayerSourceType::Global) source = GlobalSources().AtPtr(m_currentSourceName);
 				if (!source) return E_FAIL;
-				varStart.vt = VT_I8;
+				varStart.vt = VARENUM::VT_I8;
 				varStart.hVal.QuadPart = source->duration + duration;
 			}
 			HRESULT hr = m_session->Start(&GUID_NULL, &varStart);
@@ -547,7 +511,9 @@ export namespace System::Application::Windows {
 			);
 			SafeRelease(sourcePD);
 			if (hr < 0) return SafeRelease(hr, topology) >= 0;
-			hr = m_session->SetTopology(MFSESSION_SETTOPOLOGY_IMMEDIATE, topology);
+			hr = m_session->SetTopology(
+				MFSESSION_SETTOPOLOGY_FLAGS::MFSESSION_SETTOPOLOGY_IMMEDIATE, topology
+			);
 			SafeRelease(topology);
 			if (hr < 0) return false;
 			m_currentSourceName = name;
@@ -634,8 +600,8 @@ export namespace System::Application::Windows {
 		bool IsEnded() noexcept override { return m_state.load(memory_order::acquire) == MFPlayerState::Stopped; }
 		void Update() noexcept override {
 			IMFMediaEvent* mediaEvent = nullptr;
-			while (mediaEvent = m_mediaEventQueue.Pop()) {
-				MediaEventType eventType = MEUnknown;
+			while ((mediaEvent = m_mediaEventQueue.Pop()) != nullptr) {
+				MediaEventType eventType = MF::MEUnknown;
 				HRESULT hr = mediaEvent->GetType(&eventType);
 				if (hr < 0) {
 					SafeRelease(mediaEvent);
@@ -649,13 +615,13 @@ export namespace System::Application::Windows {
 					continue;
 				}
 				switch (eventType) {
-				case MESessionTopologyStatus:
+				case MF::MESessionTopologyStatus:
 					hr = OnTopologyStatus(mediaEvent);
 					break;
-				case MEEndOfPresentation:
+				case MF::MEEndOfPresentation:
 					hr = OnPresentationEnded(mediaEvent);
 					break;
-				case MENewPresentation:
+				case MF::MENewPresentation:
 					hr = OnNewPresentation(mediaEvent);
 					break;
 				default:
@@ -672,9 +638,9 @@ export namespace System::Application::Windows {
 			HWND tmp = nullptr;
 			if (window) {
 				WindowPlatformData data = window->GetPlatformData();
-				switch (data.Type) {
+				switch (data.GetWindowType()) {
 				case WindowType::Windows:
-					tmp = static_cast<HWND>(data.Data.GetData());
+					tmp = static_cast<HWND>(data.GetNativePtr());
 					break;
 				default:
 					tmp = nullptr;
@@ -684,7 +650,9 @@ export namespace System::Application::Windows {
 			if (m_hVideoWindow == tmp) return;
 			m_hVideoWindow = tmp;
 			MFTIME current = GetCurrentMFTime();
-			m_session->SetTopology(MFSESSION_SETTOPOLOGY_CLEAR_CURRENT, nullptr);
+			m_session->SetTopology(
+				MFSESSION_SETTOPOLOGY_FLAGS::MFSESSION_SETTOPOLOGY_CLEAR_CURRENT, nullptr
+			);
 			SetSource(m_currentSourceName, m_currentSourceType);
 			Play(MediaPlayerSeekPos::Begin, static_cast<int64_t>(current) * 100);
 		}

@@ -27,7 +27,7 @@ FAddObjectLibrary(Encoding_3
 )
 
 FCombineObjectLibrary(Encoding
-	PUBLIC
+	PRIVATE
 		Encoding_0
 		Encoding_1
 		Encoding_2

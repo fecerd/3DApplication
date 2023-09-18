@@ -2,8 +2,6 @@
 import System;
 export import EventArgs;
 import WinAPI;
-using namespace System;
-using namespace System::Application;
 using namespace WinAPI;
 
 namespace System::Application::Windows {

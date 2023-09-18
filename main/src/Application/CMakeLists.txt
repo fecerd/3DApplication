@@ -14,7 +14,7 @@ FAddObjectLibrary(Application_0
 )
 FAddObjectLibrary(Application_1
 	SOURCES
-		EventArgs.ixx		
+		EventArgs.ixx
 	DEPENDS
 		Application_0
 )
@@ -49,7 +49,8 @@ FAddObjectLibrary(Application_6
 		IApplicationManager.cpp
 	DEPENDS
 		Application_5
-		Windows_3	#ControlManager
+		Windows	#ControlManager
+		Headers
 )
 FAddObjectLibrary(Application_7
 	SOURCES
@@ -59,7 +60,7 @@ FAddObjectLibrary(Application_7
 		InputSystem
 )
 FCombineObjectLibrary(Application
-	PUBLIC
+	PRIVATE
 		Application_0
 		Application_1
 		Application_2

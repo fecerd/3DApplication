@@ -20,10 +20,11 @@ FAddObjectLibrary(MediaPlayer_2
 	DEPENDS
 		MediaPlayer_1	#MediaPlayerForMediaFoundation
 		MediaFoundation
+		Headers
 )
 
 FCombineObjectLibrary(MediaPlayer
-	PUBLIC
+	PRIVATE
 		MediaPlayer_0
 		MediaPlayer_1
 		MediaPlayer_2

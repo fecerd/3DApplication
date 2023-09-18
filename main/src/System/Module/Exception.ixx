@@ -1,9 +1,9 @@
 ﻿export module Exception;
 import Traits;
 import StringBlock;
-import <exception>;//std::exception, std::terminate()
-import <stdexcept>;//std::runtime_error
-export import <source_location>;//std::source_location
+import <exception>;	//std::exception, std::terminate()
+import <stdexcept>;	//std::runtime_error
+export import <source_location>;	//std::source_location
 
 //source_location
 export namespace System {
@@ -54,13 +54,19 @@ namespace System {
 		);
 	}
 	template<Traits::Concepts::CCharType T>
-	StringBlock<char> CreateExceptionMessage(const char* title, const char* funcsig, T const* message, const std::source_location& loc) noexcept {
+	StringBlock<char> CreateExceptionMessage(const char* title, const char* funcsig, T const* message, const std::source_location& loc = std::source_location::current()) noexcept {
 		auto lineNumber = loc.line();
 		return CreateExceptionMessage<T>(
 			title, funcsig, message, loc.file_name(),
-			lineNumber >= 0
-			? StringBlock<char>{ " " } + StringBlock<char>{ GetCStringBlock<char>(lineNumber) } + StringBlock<char>{ "行目(呼び出し元)" }
-			: StringBlock<char>{}
+			StringBlock<char>{ " " } + StringBlock<char>{ GetCStringBlock<char>(lineNumber) } + StringBlock<char>{ "行目(呼び出し元)" }
+		);
+	}
+	template<Traits::Concepts::CCharType T>
+	StringBlock<char> CreateExceptionMessage(const char* title, T const* message, const std::source_location& loc = std::source_location::current()) noexcept {
+		auto lineNumber = loc.line();
+		return CreateExceptionMessage<T>(
+			title, loc.function_name(), message, loc.file_name(),
+			StringBlock<char>{ " " } + StringBlock<char>{ GetCStringBlock<char>(lineNumber) } + StringBlock<char>{ "行目(呼び出し元)" }
 		);
 	}
 }
@@ -78,8 +84,6 @@ export namespace System {
 		Exception(Exception&&) noexcept = delete;
 		virtual ~Exception() noexcept {}
 	public: /* runtime_errorコンストラクタ */
-		explicit Exception(const char* message) noexcept
-		    : std::runtime_error(message) {}
 		explicit Exception(const std::string& message) noexcept
 		    : std::runtime_error(message) {}
 		Exception(const std::runtime_error& error) noexcept
@@ -89,8 +93,11 @@ export namespace System {
 		Exception(const char* funcsig, T const* message, const char* filename = nullptr, int lineNumber = -1) noexcept
 		    : std::runtime_error(CreateExceptionMessage("例外メッセージ：", funcsig, message, filename, lineNumber).c_str()) {}
 		template<Traits::Concepts::CCharType T>
-		Exception(const char* funcsig, T const* message, const std::source_location& loc) noexcept
+		Exception(const char* funcsig, T const* message, const std::source_location& loc = std::source_location::current()) noexcept
 		    : std::runtime_error(CreateExceptionMessage("例外メッセージ：", funcsig, message, loc).c_str()) {}
+		template<Traits::Concepts::CCharType T>
+		explicit Exception(T const* message, const std::source_location& loc = std::source_location::current()) noexcept
+		    : std::runtime_error(CreateExceptionMessage("例外メッセージ：", message, loc).c_str()) {}
 	public: /* whatはそのまま使用する */
 		const char* what() const noexcept override {
 			return std::runtime_error::what();
@@ -115,17 +122,18 @@ export namespace System {
 		LogicException(const LogicException&) noexcept = default;
 		~LogicException() noexcept = default;
 	public:
-		LogicException(const char* message) noexcept
-		    : std::logic_error(message) {}
-		LogicException(const std::string& message) noexcept
+		explicit LogicException(const std::string& message) noexcept
 		    : std::logic_error(message) {}
 	public:
 		template<Traits::Concepts::CCharType T>
 		LogicException(const char* funcsig, T const* message, const char* filename = nullptr, int lineNumber = -1) noexcept
 		    : std::logic_error(CreateExceptionMessage("論理例外メッセージ：", funcsig, message, filename, lineNumber).c_str()) {}
 		template<Traits::Concepts::CCharType T>
-		LogicException(const char* funcsig, T const* message, const std::source_location& loc) noexcept
+		LogicException(const char* funcsig, T const* message, const std::source_location& loc = std::source_location::current()) noexcept
 		    : std::logic_error(CreateExceptionMessage("論理例外メッセージ：", funcsig, message, loc).c_str()) {}
+		template<Traits::Concepts::CCharType T>
+		explicit LogicException(T const* message, const std::source_location& loc = std::source_location::current()) noexcept
+		    : std::logic_error(CreateExceptionMessage("論理例外メッセージ：", message, loc).c_str()) {}
 	public:
 		using std::logic_error::what;
 	};
@@ -141,8 +149,6 @@ export namespace System {
 		InvalidOperationException(InvalidOperationException&&) noexcept = delete;
 		virtual ~InvalidOperationException() noexcept {}
 	public: /* runtime_errorコンストラクタ */
-		explicit InvalidOperationException(const char* message) noexcept
-		    : Exception(message) {}
 		explicit InvalidOperationException(const std::string& message) noexcept
 		    : Exception(message) {}
 		InvalidOperationException(const std::runtime_error& error) noexcept
@@ -152,8 +158,11 @@ export namespace System {
 		InvalidOperationException(const char* funcsig, T const* message, const char* filename = nullptr, int lineNumber = -1) noexcept
 		    : Exception(CreateExceptionMessage("無効操作例外メッセージ：", funcsig, message, filename, lineNumber).c_str()) {}
 		template<Traits::Concepts::CCharType T>
-		InvalidOperationException(const char* funcsig, T const* message, const std::source_location& loc) noexcept
+		InvalidOperationException(const char* funcsig, T const* message, const std::source_location& loc = std::source_location::current()) noexcept
 		    : Exception(CreateExceptionMessage("無効操作例外メッセージ：", funcsig, message, loc).c_str()) {}
+		template<Traits::Concepts::CCharType T>
+		explicit InvalidOperationException(T const* message, const std::source_location& loc = std::source_location::current()) noexcept
+		    : Exception(CreateExceptionMessage("無効操作例外メッセージ：", message, loc).c_str()) {}
 	public:
 		const char* what() const noexcept override {
 			return Exception::what();

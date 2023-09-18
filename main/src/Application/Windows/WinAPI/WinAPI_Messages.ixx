@@ -1,6 +1,8 @@
 ﻿module;
 #define NOMINMAX
-#include<Windows.h>
+#include <cstdlib>	//clangに必要
+#include <cstddef>	//clangに必要
+#include <Windows.h>
 export module WinAPI_Messages;
 import CSTDINT;
 using namespace System;

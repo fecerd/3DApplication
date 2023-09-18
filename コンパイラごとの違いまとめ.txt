@@ -66,6 +66,8 @@
 > g++ではまったときは
 	- std::bad_allocなどのリンクエラー
 		作業ディレクトリを削除してcmakeからやり直せば上手くいく。
+		ModuleにEncodingをPUBLIC_LINKすれば解決した。(リンク順の問題だった。)
+		
 	- segmentation fault
 		まずはデバッガがエラー箇所を出すか確認する。
 		出さない場合、std::coutなどを刻んで場所を特定する。
@@ -91,3 +93,13 @@
 	10.0.22621.0
 
 	なお、ターゲットWindowsは10.0.19044。(2023/09/12時点)
+
+> src/Application/IApplicationManager.ixx/cpp
+	> gcc
+		System::Application::GetManager()関数について、ixxとcppの宣言の間でconflictが発生する。
+		内部関数をラッパすれば解決できる。
+
+> gccと入れ子名前空間
+	モジュール定義ユニット内で入れ子名前空間を使用すると、名前空間として読み取られずにエラーとなる。
+	入れ子名前空間だけをエクスポートするモジュールを作成して、それをインポートすればよい。
+	

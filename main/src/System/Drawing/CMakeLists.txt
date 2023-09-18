@@ -39,10 +39,12 @@ FAddObjectLibrary(Drawing_4
 )
 
 FCombineObjectLibrary(Drawing
-	PUBLIC
+	PRIVATE
 		Drawing_0
 		Drawing_1
 		Drawing_2
 		Drawing_3
 		Drawing_4
+	PUBLIC_LINK
+		Compression
 )

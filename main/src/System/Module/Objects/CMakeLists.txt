@@ -15,7 +15,7 @@ FAddObjectLibrary(Objects_1
 )
 
 FCombineObjectLibrary(Objects
-	PUBLIC
+	PRIVATE
 		Objects_0
 		Objects_1
 )

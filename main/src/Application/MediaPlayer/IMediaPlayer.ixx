@@ -1,6 +1,5 @@
 ﻿export module IMediaPlayer;
 export import System;
-export import Drawing;
 export import IWindow;
 using System::Drawing::Image;
 
@@ -18,10 +17,10 @@ export namespace System::Application {
 
 	class IMediaPlayer {
 	public:
-		IMediaPlayer() noexcept = default;
+		IMediaPlayer() noexcept {}
 		IMediaPlayer(const IMediaPlayer&) noexcept = delete;
 		IMediaPlayer(IMediaPlayer&&) noexcept = delete;
-		virtual ~IMediaPlayer() noexcept = default;
+		virtual ~IMediaPlayer() noexcept {}
 	public:
 		/// <summary>
 		/// メディアファイルを読み込み、キャッシュする

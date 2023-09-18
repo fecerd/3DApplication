@@ -24,7 +24,7 @@ FAddObjectLibrary(IO_2
 )
 
 FCombineObjectLibrary(IO
-	PUBLIC
+	PRIVATE
 		IO_0
 		IO_1
 		IO_2

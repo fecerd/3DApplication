@@ -1,11 +1,13 @@
 ﻿module InputSystem;
+import NamespaceHelper;
+import <mutex>;	//clang++で到達不可能のエラーが出るためつけておく
 
 #ifndef SDL
 #if defined(_WIN32) || defined(_WIN64)
 import DirectInput;
 namespace System::Application {
 	InputSystem::InputSystem() noexcept {
-		m_manager = System::Application::Windows::DirectInputManager::CreateManager();
+		m_manager = Windows::DirectInputManager::CreateManager();
 	}
 }
 #else	//WindowsでもSDLでもない場合

@@ -1,6 +1,6 @@
 ﻿export module Form;
+import Module;
 import Control;
-import Vector;
 import WinAPI;
 using namespace WinAPI;
 
@@ -13,7 +13,7 @@ export namespace System::Application::Windows::Forms {
 		}
 		~Form() noexcept { m_forms.RemoveValue(this); }
 	private:
-		inline static Vector<Form*> m_forms;
+		inline static VectorBase<Form*> m_forms;
 	public:
 		static Form* GetForm(HWND hWnd) noexcept {
 			for (size_t i = 0, end = m_forms.Count(); i < end; ++i) {

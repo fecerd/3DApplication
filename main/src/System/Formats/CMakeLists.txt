@@ -23,7 +23,7 @@ FAddObjectLibrary(Formats_2
 )
 
 FCombineObjectLibrary(Formats
-	PUBLIC
+	PRIVATE
 		Formats_0
 		Formats_1
 		Formats_2

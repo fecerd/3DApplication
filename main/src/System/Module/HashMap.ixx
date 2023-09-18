@@ -1,6 +1,4 @@
-﻿module;
-#include "FUNCSIG.hpp"
-export module HashMap;
+﻿export module HashMap;
 import CSTDINT;
 import Traits;
 import Exception;
@@ -237,7 +235,7 @@ export namespace System {
 					tmp = tmp->GetPrev();
 				}
 			}
-			throw InvalidOperationException(__FUNCSIG__, "異なるHashMapのイテレータ間で計算しようとしました。", __FILE__, __LINE__);
+			throw InvalidOperationException("異なるHashMapのイテレータ間で計算しようとしました。");
 		}
 		constexpr ptrdiff_t operator-(const toggle_iterator_type& rhs) const {
 			return operator-(iterator_type{ rhs.m_current });
@@ -412,7 +410,7 @@ export namespace System {
 			}
 			else {
 				nodetype* node = FindNode(key);
-				if (!node) throw InvalidOperationException(__FUNCSIG__, "存在しないキーが指定されました。", loc);
+				if (!node) throw InvalidOperationException("存在しないキーが指定されました。", loc);
 				return node->template GetValue<i>();
 			}
 		}

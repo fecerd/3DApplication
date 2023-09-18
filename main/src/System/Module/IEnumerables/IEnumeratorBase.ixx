@@ -1,6 +1,4 @@
-﻿module;
-#include "../../../Headers/FUNCSIG.hpp"
-export module IEnumeratorBase;
+﻿export module IEnumeratorBase;
 import Traits;
 import Exception;
 
@@ -97,7 +95,7 @@ export namespace System {
 			return *this;
 		}
 		constexpr T& operator*() const {
-			if (!m_enumerator) throw System::InvalidOperationException(__FUNCSIG__, "イテレータがIEnumeratorへのポインタを持っていません。", __FILE__, __LINE__);
+			if (!m_enumerator) throw InvalidOperationException(u"イテレータがIEnumeratorへのポインタを持っていません。");
 			return m_enumerator->operator*();
 		}
 		constexpr bool operator==(const EnumerableIterator<T>& rhs) const noexcept { return this->Done() == rhs.Done(); }

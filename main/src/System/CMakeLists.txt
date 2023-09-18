@@ -21,7 +21,7 @@ FAddObjectLibrary(System_0
 )
 
 FCombineObjectLibrary(System
-	PUBLIC
+	PRIVATE
 		System_0
 	PUBLIC_LINK
 		Compression

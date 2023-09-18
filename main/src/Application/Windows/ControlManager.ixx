@@ -1,21 +1,19 @@
 ﻿export module ControlManager;
 import System;
-import IApplicationManager;
+export import IApplicationManager;
+import IWindow;
 import Forms;
 import Log;
-using namespace System;
-using Control = System::Application::Windows::Forms::Control;
-using Form = System::Application::Windows::Forms::Form;
 using namespace WinAPI;
 
 export namespace System::Application::Windows {
-	class ControlManager : public System::Application::IApplicationManager {
-		HashMap<IWindow*, Form*> m_forms;
-		Vector<Form*> m_closed;
+	class ControlManager : public IApplicationManager {
+		HashMap<IWindow*, Forms::Form*> m_forms;
+		Vector<Forms::Form*> m_closedForm;
 	private:
-		ControlManager() noexcept = default;
+		ControlManager() noexcept {}
 	public:
-		~ControlManager() noexcept = default;
+		~ControlManager() noexcept {}
 	private:
 		static ControlManager*& GetInterfacePtr() noexcept {
 			static ControlManager* ret = new ControlManager();
@@ -82,9 +80,10 @@ export namespace System::Application::Windows {
 		}
 	public:
 		bool CreateWindow(IWindow* window, const WindowDesc& desc) noexcept override {
-			Form* form = new Form();
+			Forms::Form* form = new Forms::Form();
 			if (!m_forms.Insert(window, form)) {
-				delete form;
+				Forms::Control* temp = form;
+				delete temp;
 				return false;
 			}
 			form->Pos = Point<int32_t>{
@@ -98,35 +97,35 @@ export namespace System::Application::Windows {
 			form->classStyle = WindowClassStyle::Redraw;
 			form->hCursor = WinAPI::LoadCursor(nullptr, ConvertCursorType(desc.Cursor));
 			form->Name = desc.Name;
-			form->Awake += [window](Control&, const EventArgs&) {
+			form->Awake += [window](Forms::Control&, const EventArgs&) {
 				window->OnAwake();
 			};
-			form->Update += [window](Control&, const EventArgs&) {
+			form->Update += [window](Forms::Control&, const EventArgs&) {
 				window->OnUpdate();
 			};
-			form->FixedUpdate += [window](Control&, const EventArgs&) {
+			form->FixedUpdate += [window](Forms::Control&, const EventArgs&) {
 				window->OnFixedUpdate();
 			};
-			form->KeyDown += [window](Control&, const KeyEventArgs& e) {
+			form->KeyDown += [window](Forms::Control&, const KeyEventArgs& e) {
 				window->OnKeyDown(e);
 			};
-			form->KeyUp += [window](Control&, const KeyEventArgs& e) {
+			form->KeyUp += [window](Forms::Control&, const KeyEventArgs& e) {
 				window->OnKeyUp(e);
 			};
-			form->MouseMove += [window](Control&, const MouseEventArgs& e) {
+			form->MouseMove += [window](Forms::Control&, const MouseEventArgs& e) {
 				window->OnMouseMove(e);
 			};
-			form->Resized += [window](Control&, const ResizeEventArgs& e) {
+			form->Resized += [window](Forms::Control&, const ResizeEventArgs& e) {
 				window->OnResized(e);
 			};
-			form->Closing += [window](Control&, CloseEventArgs& e) {
+			form->Closing += [window](Forms::Control&, CloseEventArgs& e) {
 				window->OnClosing(e);
 			};
-			form->Closed += [this](Control& control, const EventArgs&) {
+			form->Closed += [this](Forms::Control& control, const EventArgs&) {
 				for (auto& pair : m_forms) {
-					Form* form = pair.GetValue();
+					Forms::Form* form = pair.GetValue();
 					if (form == &control) {
-						m_closed.Add(form);
+						m_closedForm.Add(form);
 						IWindow* window = pair.GetKey();
 						if (window) window->OnClosed();
 						m_forms.Remove(window);
@@ -139,21 +138,21 @@ export namespace System::Application::Windows {
 			return true;
 		}
 		bool ShowWindow(IWindow* window) noexcept override {
-			Form* form = m_forms.At(window);
+			Forms::Form* form = m_forms.At(window);
 			if (!form) return false;
 			form->Show();
 			return true;
 		}
 		WindowPlatformData GetWindowData(const IWindow* arg) noexcept override {
-			Form* form = m_forms.At(arg);
+			Forms::Form* form = m_forms.At(arg);
 			if (!form) return WindowPlatformData{ WindowType::Error, nullptr, [](void*) {} };
 			else return WindowPlatformData{ WindowType::Windows, form->GetHWND(), [](void*) {} };
 		}
 		void UpdateWindows() noexcept override {
-			for (Form* form : m_forms.Values()) form->RunLoopProc();
+			for (Forms::Form* form : m_forms.Values()) form->RunLoopProc();
 		}
 		bool CloseWindow(IWindow* window) noexcept override {
-			Form* form = m_forms.At(window);
+			Forms::Form* form = m_forms.At(window);
 			if (!form) return false;
 			form->Destroy();
 			return true;
@@ -167,7 +166,7 @@ export namespace System::Application::Windows {
 					TranslateMessage(&msg);
 					DispatchMessage(&msg);
 				}
-				if (m_closed.Count()) m_closed.DeleteAll();
+				for (Forms::Control* x : m_closedForm) delete x;
 				UpdateWindows();
 				this->m_timer.Update();
 				nanoseconds deltaNs = nanoseconds(this->m_timer.DeltaTime<nanoseconds>());
@@ -180,13 +179,13 @@ export namespace System::Application::Windows {
 			return static_cast<int>(msg.wParam);
 		}
 		MessageBoxResult MessageBox(IWindow* parent, const String& caption, const String& text, MessageBoxType type) noexcept override {
-			Form* form = m_forms.At(parent);
+			Forms::Form* form = m_forms.At(parent);
 			int ret = WinAPI::MessageBox(form ? form->GetHWND() : nullptr, text.w_str(), caption.w_str(), ConvertMessageBoxType(type));
 			return ConvertWin32MessageBoxResult(ret);
 		}
 	public:
 		Point<int32_t> GetWindowPos(const IWindow* window) noexcept override {
-			Form* form = m_forms.At(window);
+			Forms::Form* form = m_forms.At(window);
 			if (!form) return Point<int32_t>(-1, -1);
 			else {
 				Point<int32_t> ret{ -1, -1 };
@@ -195,7 +194,7 @@ export namespace System::Application::Windows {
 			}
 		}
 		Size<int32_t> GetWindowSize(const IWindow* window) noexcept override {
-			Form* form = m_forms.At(window);
+			Forms::Form* form = m_forms.At(window);
 			if (!form) return Size<int32_t>(-1, -1);
 			else {
 				Size<int32_t> ret{ -1, -1 };
@@ -204,13 +203,13 @@ export namespace System::Application::Windows {
 			}
 		}
 		String GetWindowTitle(const IWindow* window) noexcept override {
-			Form* form = m_forms.At(window);
+			Forms::Form* form = m_forms.At(window);
 			if (!form) return String();
 			else return form->GetText();
 		}
 	public:
 		void SetWindowTitle(IWindow* window, const String& title) noexcept override {
-			Form* form = m_forms.At(window);
+			Forms::Form* form = m_forms.At(window);
 			if (form) form->SetText(title);
 		}
 	};

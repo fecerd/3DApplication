@@ -1,13 +1,26 @@
 ﻿module MediaPlayer;
-using namespace System::Application;
+import NamespaceHelper;
 
-#ifndef SDL
+#if !defined(SDL)
 import MediaPlayerForMediaFoundation;
-MediaPlayer::MediaPlayer() noexcept {
-	m_mediaPlayer = new Windows::MFMediaPlayer();
-}
 #else
-MediaPlayer::MediaPlayer() noexcept {
+#endif
 
+#if !defined(SDL)
+
+namespace System::Application {
+	MediaPlayer::MediaPlayer() noexcept {
+		m_mediaPlayer = new Windows::MFMediaPlayer();
+	}
 }
+
+
+#else
+
+namespace System::Application {
+	MediaPlayer::MediaPlayer() noexcept {
+
+	}
+}
+
 #endif

@@ -8,6 +8,6 @@ FAddObjectLibrary(SDL_0
 )
 
 FCombineObjectLibrary(SDL
-	PUBLIC
+	PRIVATE
 		SDL_0
 )
