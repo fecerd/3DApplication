@@ -11,13 +11,27 @@ export import BoostCoroutine;
 export namespace System {
 	template<class T>
 	struct no_mangling {
-		mutable Function<void(Boost::push_type<T&>&)> m_internal;
-		mutable Function<void(Boost::push_type<T&>&)> m_internal_r;
+		Function<void(Boost::push_type<T&>&)> m_internal;
+		Function<void(Boost::push_type<T&>&)> m_internal_r;
 	public:
 		template<class F, class Fr>
 		no_mangling(F&& f, Fr&& fr) noexcept : m_internal(System::move(f)), m_internal_r(System::move(fr)) {}
-		no_mangling(const no_mangling&) noexcept = default;
-		no_mangling(no_mangling&&) noexcept = default;
+		no_mangling(const no_mangling& arg) noexcept : m_internal(arg.m_internal), m_internal_r(arg.m_internal_r) {}
+		no_mangling(no_mangling&& arg) noexcept : m_internal(System::move(arg.m_internal)), m_internal_r(System::move(arg.m_internal_r)) {}
+		~no_mangling() noexcept {}
+	public:
+		no_mangling& operator=(const no_mangling& rhs) noexcept {
+			if (this == &rhs) return *this;
+			m_internal = rhs.m_internal;
+			m_internal_r = rhs.m_internal_r;
+			return *this;
+		}
+		no_mangling& operator=(no_mangling&& rhs) noexcept {
+			if (this == &rhs) return *this;
+			m_internal = System::move(rhs.m_internal);
+			m_internal_r = System::move(rhs.m_internal_r);
+			return *this;
+		}
 	public:
 		IEnumerator<T> operator()(bool r) const {
 			return IEnumerator<T>(r

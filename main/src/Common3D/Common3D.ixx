@@ -1,26 +1,26 @@
 ﻿export module Common3D;
-import System;
-import Drawing;
+export import System;
+import ManagedObject;
 import Application;
-import Common3DInterface;
+export import Common3DInterface;
 export import Common3DUtilities;
-using namespace System;
 using namespace System::Drawing;
 
 //Resource
 export namespace System::Application::Common3D {
-	class Resource :public ManagedObject<IResource> {
+	class Resource : public ManagedObject<IResource> {
+		using basetype = ManagedObject<IResource>;
 	public:
-		using ManagedObject<IResource>::ManagedObject;
-		Resource() noexcept = default;
-		Resource(const ManagedObject<IResource>& arg) noexcept
-			: ManagedObject<IResource>(arg) {}
+		using basetype::ManagedObject;
+		Resource() noexcept {}
+		Resource(const basetype& arg) noexcept : basetype(arg) {}
+		~Resource() noexcept {}
 	public:
 		void SetDebugName(const String& name) noexcept {
 			if (*this) (*(*this)).SetName(name);
 		}
 		const String& GetName() const noexcept {
-			return ManagedObject<IResource>::GetName();
+			return basetype::GetName();
 		}
 		ResourceFormat GetFormat() const noexcept {
 			if (*this) return (*(*this)).GetFormat();

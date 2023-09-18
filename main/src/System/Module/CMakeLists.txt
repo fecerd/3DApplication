@@ -8,6 +8,7 @@ FAddObjectLibrary(Module_0
 		CSTDINT.ixx
 		Coroutine.ixx
 		ExclusiveObject.ixx
+		Atexit.ixx
 	DEPENDS
 		std
 )

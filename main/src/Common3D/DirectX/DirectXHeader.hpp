@@ -1,15 +1,17 @@
 ﻿#pragma once
-#include<crtdbg.h>
-#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#include <cstdlib>	//clangに必要
+#include <cstddef>	//clangに必要
 #define __SPECSTRINGS_STRICT_LEVEL 0
-#include<d3d12.h>
+#define __REQUIRED_RPCNDR_H_VERSION__ 475
+#if defined(__GNUC__)
+#define _MSC_VER 1933	//msys2のみ必要
+#include <d3d12sdklayers.h>
+#endif
+#include <d3d12.h>
 #undef __nullnullterminated
-#include<dxgi1_6.h>
-#include<dxgidebug.h>
-#include<d3dcompiler.h>
-#pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
+#include <dxgi1_6.h>
+#include <dxgidebug.h>
+#include <d3dcompiler.h>
 #undef MessageBox
 #undef MB_OK
 #undef SIZE_MAX

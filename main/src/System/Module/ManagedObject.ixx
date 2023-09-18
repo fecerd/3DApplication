@@ -3,10 +3,19 @@ import CSTDINT;
 import Objects;
 import HashMap;
 import Thread;
+import <type_traits>;
+
+export namespace System::Traits::Concepts {
+	template<class T>
+	concept CHasDispose = requires(T& x) {
+		requires std::has_virtual_destructor_v<T>;
+		x.Dispose();
+	};
+}
 
 //IManagedBase
-namespace System {
-	export template<class T> class ManagedObject;
+export namespace System {
+	template<class T> class ManagedObject;
 
 	/// <summary>
 	/// ManagedObjectの基底型。単純なスマートポインタ機能を提供する。
@@ -21,7 +30,7 @@ namespace System {
 		size_t* m_refCount = nullptr;
 		mutable RecursiveMutex m_mtx;
 	public:
-		IManagedBase() noexcept = default;
+		IManagedBase() noexcept {}
 		IManagedBase(T* ptr) noexcept : m_ptr(ptr), m_refCount(new size_t(1)) {}
 		IManagedBase(const IManagedBase& arg) noexcept {
 			LockGuard lock{ arg.GetMutex() };
@@ -29,7 +38,7 @@ namespace System {
 			m_refCount = arg.m_refCount;
 			if (m_refCount) ++(*m_refCount);
 		}
-		IManagedBase(IManagedBase<T>&& arg) noexcept {
+		IManagedBase(IManagedBase&& arg) noexcept {
 			LockGuard lock{ arg.GetMutex() };
 			m_ptr = arg.m_ptr;
 			m_refCount = arg.m_refCount;
@@ -45,7 +54,11 @@ namespace System {
 			--(*m_refCount);
 			if (!*m_refCount) {
 				delete m_refCount;
-				delete m_ptr;
+				if constexpr (Traits::Concepts::CHasDispose<T>) {
+					m_ptr->Dispose();
+				} else {
+					delete m_ptr;
+				}
 			}
 			m_refCount = nullptr;
 			m_ptr = nullptr;
@@ -75,7 +88,7 @@ namespace System {
 			if (m_refCount) ++(*m_refCount);
 			return *this;
 		}
-		IManagedBase& operator=(IManagedBase<T>&& rhs) noexcept {
+		IManagedBase& operator=(IManagedBase&& rhs) noexcept {
 			if (this == &rhs) return *this;
 			LockGuard rhs_lock{ rhs.GetMutex() };
 			Release();
@@ -98,26 +111,31 @@ export namespace System {
 	/// <typeparam name="T">管理するクラス。T*型ポインタを内部に持つ</typeparam>
 	template<class T>
 	class ManagedObject : public IManagedBase<T> {
-		static HashMap<String, IManagedBase<T>>*& GetHashMapPtr() noexcept {
-			static HashMap<String, IManagedBase<T>>* ret = new HashMap<String, IManagedBase<T>>{ 2 };
+		using maptype = HashMap<String, IManagedBase<T>>;
+		using namemaptype = HashMap<T*, String>;
+		using thistype = ManagedObject<T>;
+		using basetype = IManagedBase<T>;
+	private:
+		static maptype*& GetHashMapPtr() noexcept {
+			static maptype* ret = new maptype{ 2 };
 			return ret;
 		}
-		static HashMap<T*, String>*& GetNamesPtr() noexcept {
-			static HashMap<T*, String>* ret = new HashMap<T*, String>{ 2 };
+		static namemaptype*& GetNamesPtr() noexcept {
+			static namemaptype* ret = new namemaptype{ 2 };
 			return ret;
 		}
 	private:
-		static HashMap<String, IManagedBase<T>>& GetHashMap() noexcept {
-			HashMap<String, IManagedBase<T>>*& ptr = GetHashMapPtr();
+		static maptype& GetHashMap() noexcept {
+			maptype*& ptr = GetHashMapPtr();
 			if (!ptr) {
-				ptr = new HashMap<String, IManagedBase<T>>{ 2 };
+				ptr = new maptype{ 2 };
 			}
 			return *ptr;
 		}
-		static HashMap<T*, String>& GetNames() noexcept {
-			HashMap<T*, String>*& ptr = GetNamesPtr();
+		static namemaptype& GetNames() noexcept {
+			namemaptype*& ptr = GetNamesPtr();
 			if (!ptr) {
-				ptr = new HashMap<T*, String>{ 2 };
+				ptr = new namemaptype{ 2 };
 			}
 			return *ptr;
 		}
@@ -128,34 +146,35 @@ export namespace System {
 		inline static Mutex m_hashmap_mtx;
 		inline static Mutex m_names_mtx;
 	public:
-		static ManagedObject<T> GetObject(const String& name) noexcept {
+		static thistype GetObject(const String& name) noexcept {
 			LockGuard lock{ m_hashmap_mtx };
-			IManagedBase<T>* tmp = GetHashMap().AtPtr(name);
+			basetype* tmp = GetHashMap().AtPtr(name);
 			if (!tmp) return ManagedObject();
 			else return ManagedObject(*tmp);
 		}
 	protected:
-		using IManagedBase<T>::m_ptr;
-		using IManagedBase<T>::m_refCount;
+		using basetype::m_ptr;
+		using basetype::m_refCount;
 	public:
-		ManagedObject() noexcept = default;
-		ManagedObject(T* ptr) noexcept {
-			m_ptr = ptr;
-			m_refCount = new size_t(1);
-		}
-		ManagedObject(const String& name, T* ptr) noexcept {
+		ManagedObject() noexcept : basetype() {}
+		ManagedObject(T* ptr) noexcept : basetype(ptr) {}
+		ManagedObject(const String& name, T* ptr) noexcept : basetype() {
 			if (name.IsNullOrEmpty()) {
 				m_ptr = ptr;
 				m_refCount = new size_t(1);
 			}
 			else {
 				LockGuard hashmap_lock{ m_hashmap_mtx };
-				HashMap<String, IManagedBase<T>>& hashmap = GetHashMap();
-				IManagedBase<T>* tmp = hashmap.AtPtr(name);
+				maptype& hashmap = GetHashMap();
+				basetype* tmp = hashmap.AtPtr(name);
 				if (tmp) {
 					m_ptr = tmp->m_ptr;
 					m_refCount = tmp->m_refCount;
-					delete ptr;
+					if constexpr (Traits::Concepts::CHasDispose<T>) {
+						ptr->Dispose();
+					} else {
+						delete ptr;
+					}
 				}
 				else {
 					m_ptr = ptr;
@@ -166,20 +185,20 @@ export namespace System {
 				}
 			}
 		}
-		ManagedObject(const ManagedObject<T>& arg) noexcept = default;
-		ManagedObject(ManagedObject<T>&& arg) noexcept = default;
-		ManagedObject(const IManagedBase<T>& arg) noexcept : IManagedBase<T>(arg) {}
-		ManagedObject(IManagedBase<T>&& arg) noexcept : IManagedBase<T>(static_cast<IManagedBase<T>&&>(arg)) {}
+		ManagedObject(const ManagedObject& arg) noexcept : basetype(arg) {}
+		ManagedObject(ManagedObject&& arg) noexcept : basetype(System::move(arg)) {}
+		ManagedObject(const basetype& arg) noexcept : basetype(arg) {}
+		ManagedObject(basetype&& arg) noexcept : basetype(System::move(arg)) {}
 		~ManagedObject() noexcept { Release(); }
 	private:
 		void ReleaseInternal() noexcept {
-			LockGuard lock{ IManagedBase<T>::m_mtx };
+			LockGuard lock{ basetype::m_mtx };
 			if (!*this) return;
 			if (*this->m_refCount <= 2) {
 				LockGuard hashmap_lock{ m_hashmap_mtx };
 				LockGuard names_lock{ m_names_mtx };
-				HashMap<String, IManagedBase<T>>*& pHashmap = GetHashMapPtr();
-				HashMap<T*, String>*& pNames = GetNamesPtr();
+				maptype*& pHashmap = GetHashMapPtr();
+				namemaptype*& pNames = GetNamesPtr();
 				if (pHashmap && pNames) {
 					const String* tmp = pNames->AtPtr(this->m_ptr);
 					if (tmp) {
@@ -201,26 +220,26 @@ export namespace System {
 	public:
 		const String& GetName() const noexcept {
 			LockGuard names_lock{ m_names_mtx };
-			HashMap<T*, String>& names = GetNames();
+			namemaptype& names = GetNames();
 			String* ret = names.AtPtr(this->m_ptr);
 			return ret ? *ret : GetEmptyName();
 		}
 		void Release() noexcept {
-			LockGuard lock{ IManagedBase<T>::m_mtx };
+			LockGuard lock{ basetype::m_mtx };
 			ReleaseInternal();
-			IManagedBase<T>::Release();
+			basetype::Release();
 		}
 	public:
-		ManagedObject& operator=(const ManagedObject<T>& rhs) noexcept {
+		ManagedObject& operator=(const ManagedObject& rhs) noexcept {
 			if (this == &rhs) return *this;
 			ReleaseInternal();
-			IManagedBase<T>::operator=(rhs);
+			basetype::operator=(rhs);
 			return *this;
 		}
-		ManagedObject& operator=(ManagedObject<T>&& rhs) noexcept {
+		ManagedObject& operator=(ManagedObject&& rhs) noexcept {
 			if (this == &rhs) return *this;
 			ReleaseInternal();
-			IManagedBase<T>::operator=(static_cast<ManagedObject<T>&&>(rhs));
+			basetype::operator=(System::move(rhs));
 			return *this;
 		}
 	};

@@ -303,19 +303,4 @@ export namespace MF {
 	//以下のマクロをimport先で定義する
 	#undef IID_PPV_ARGS
 	#define IID_PPV_ARGS(ppType) MF::GetIID(ppType), MF::IID_PPV_ARGS_Helper(ppType)
-
-	class MFMediaPlayer : public IMFAsyncCallback {};
-
-	void test(IMFMediaSource*& out) {
-		IUnknown* source = nullptr;
-		source->QueryInterface(IID_PPV_ARGS(&out));
-
-		static const QITAB qit[] = {
-			GetQITAB<MFMediaPlayer, IMFAsyncCallback>(),
-			GetQITABSentinel()
-		};
-
-
-
-	}
 }

@@ -227,6 +227,24 @@ void CoroutineTest6() noexcept {
 		intmap.Insert(16, u"100");
 		intmap.Insert(32, u"400");
 		intmap.Insert(48, u"900");
+
+		{
+			std::cout << "Test Start." << std::endl;
+
+			for (HashNode<int, String>& x : intmap) std::cout << x.GetValue() << std::endl;
+
+			IEnumerator<HashNode<int, String>> ie = intmap.GetEnumerator(false);
+
+			auto ite = ie.begin();
+			auto e = ie.end();
+			if (ite != e) {
+				HashNode<int, String>& x = *ite;
+				std::cout << x.GetValue() << std::endl;
+			}
+
+			std::cout << "Test End." << std::endl;
+		}
+
 		for (HashNode<int, String>& x : intmap.GetEnumerator(false)) std::cout << x.GetKey() << ":" << x.GetValue() << std::endl;
 
 		if constexpr (true) {
@@ -333,6 +351,12 @@ void font_test() noexcept {
 	Drawing::BMP::FromImage(image).Save(savePath);
 }
 
+void macro_test() noexcept {
+#if !defined(_WIN32) && !defined(_WIN64)
+	static_assert(false, "Not Windows.");
+#endif
+}
+
 int main(int argc, char** argv) {
 	//リソースパスのルートを設定
 	ResourcePaths::RootPath = String(u"C:/source/vscode/3DApplication/main/Resources");
@@ -349,6 +373,7 @@ int main(int argc, char** argv) {
 	CoroutineTest6();
 
 	font_test();
+	macro_test();
 
 	return 0;
 }

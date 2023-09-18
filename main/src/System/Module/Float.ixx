@@ -15,6 +15,7 @@ export namespace System {
 			};
 		};
 	public:
+		constexpr Float2() noexcept : Float2(0.f) {}
 		explicit constexpr Float2(float v) noexcept
 			: x(v), y(v) {}
 		constexpr Float2(float x, float y) noexcept
@@ -99,23 +100,20 @@ export namespace System {
 	struct Float3 {
 		union {
 			struct {
-				union {
-					float x;
-					float r;
-				};
-				union {
-					float y;
-					float g;
-				};
+				float x;
+				float y;
+				float z;
+			};
+			struct {
+				float r;
+				float g;
+				float b;
 			};
 			Float2 xy;
 			Float2 rg;
 		};
-		union {
-			float z;
-			float b;
-		};
 	public:
+		constexpr Float3() noexcept : Float3(0.f) {}
 		explicit constexpr Float3(float v) noexcept
 			: x(v), y(v), z(v) {}
 		constexpr Float3(float x, float y, float z) noexcept
@@ -208,45 +206,26 @@ export namespace System {
 	};
 
 	struct Float4 {
-		// union {
-		// 	struct {
-		// 		union {
-		// 			struct {
-		// 				union {
-		// 					float x;
-		// 					float r;
-		// 				};
-		// 				union {
-		// 					float y;
-		// 					float g;
-		// 				};
-		// 			};
-		// 			Float2 xy;
-		// 			Float2 rg;
-		// 		};
-		// 		union ZB {
-		// 			float z;
-		// 			float b;
-		// 		};
-		// 	};
-		// 	Float3 xyz;
-		// 	Float3 rgb;
-		// };
-		// union {
-		// 	float w;
-		// 	float a;
-		// };
-		union{
+		union {
 			struct {
 				float x;
 				float y;
 				float z;
 				float w;
 			};
-			Float3 xyz;
+			struct {
+				float r;
+				float g;
+				float b;
+				float a;
+			};
 			Float2 xy;
+			Float2 rg;
+			Float3 xyz;
+			Float3 rgb;
 		};
 	public:
+		constexpr Float4() noexcept : Float4(0.f) {}
 		explicit constexpr Float4(float v) noexcept
 			: x{ v }, y{ v }, z{ v }, w{ v } {}
 		constexpr Float4(float x, float y, float z, float w) noexcept

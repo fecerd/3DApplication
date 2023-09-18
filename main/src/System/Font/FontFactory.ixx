@@ -37,11 +37,9 @@ export namespace System {
 				return false;
 			}
 			return fonts.Insert(fontName, font);
-			return false;
 		}
 		IFont* GetFont(const String& fontName) noexcept {
 			return fonts.At(fontName);
-			return static_cast<IFont*>(nullptr);
 		}
 	public:
 		static ManagedObject<FontFactory> GetFontFactory() noexcept {

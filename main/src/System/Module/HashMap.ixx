@@ -243,6 +243,7 @@ export namespace System {
 		constexpr bool operator==(const iterator_type& rhs) const noexcept { return m_current == rhs.m_current; }
 		constexpr bool operator==(const toggle_iterator_type& rhs) const noexcept { return m_current == rhs.m_current; }
 		constexpr iterator_type& operator=(const iterator_type&) noexcept = default;
+		constexpr operator bool() const noexcept { return m_current; }
 	};
 }
 
@@ -469,28 +470,23 @@ export namespace System {
 #if defined(__GNUC__) && !defined(__clang__)
 		IEnumerator<nodetype> GetEnumerator(bool reverse = false) noexcept override {
 			auto internal = [this](Boost::push_type<nodetype&>& sink) {
-				nodetype* current = m_first;
-				while (current) {
-					sink(*current);
-					current = static_cast<nodetype*>(current->GetNext());
+				for (nodetype& node : *this) {
+					sink(node);
 				}
 			};
 			auto internal_r = [this](Boost::push_type<nodetype&>& sink) {
-				HashNodeBase<Key>* current = m_first ? m_first->GetLast() : nullptr;
-				while (current) {
-					sink(*static_cast<nodetype*>(current));
-					current = current->GetPrev();
+				auto ite = iteratortype(static_cast<nodetype*>(m_first ? m_first->GetLast() : nullptr));
+				auto beg = begin();
+				for (; ite && ite != beg; --ite) {
+					nodetype& ret = *ite;
+					sink(ret);
+				}
+				if (beg) {
+					nodetype& ret = *beg;
+					sink(ret);
 				}
 			};
-			return IEnumerator<nodetype>(
-				[internal, internal_r](bool r) mutable {
-					return IEnumerator<nodetype>(r
-						? Function<void(Boost::push_type<nodetype&>&)>(internal_r)
-						: Function<void(Boost::push_type<nodetype&>&)>(internal)
-					);
-				},
-				reverse
-			);
+			return IEnumerator<nodetype>(no_mangling<nodetype>(internal, internal_r), reverse);
 		}
 		IEnumerator<nodetype const> GetEnumerator(bool reverse = false) const noexcept override {
 			auto internal = [this](Boost::push_type<nodetype const&>& sink) {
@@ -509,15 +505,7 @@ export namespace System {
 					current = current->GetPrev();
 				}
 			};
-			return IEnumerator<nodetype const>(
-				[internal, internal_r](bool r) mutable {
-					return IEnumerator<nodetype const>(r
-						? Function<void(Boost::push_type<nodetype const&>&)>(internal_r)
-						: Function<void(Boost::push_type<nodetype const&>&)>(internal)
-					);
-				},
-				reverse
-			);
+			return IEnumerator<nodetype const>(no_mangling<nodetype const>(internal, internal_r), reverse);
 		}
 #else
 	private:

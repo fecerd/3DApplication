@@ -1,5 +1,5 @@
 ﻿export module Common3DInterface;
-import System;
+export import System;
 export import Common3DUtilities;
 using namespace System::Drawing;
 
@@ -7,18 +7,22 @@ using namespace System::Drawing;
 export namespace System::Application::Common3D {
 	class I3DBase {
 	public:
-		virtual ~I3DBase() noexcept = default;
+		virtual ~I3DBase() noexcept {}
 	public:
 		virtual PlatformID GetPlatformID() const noexcept = 0;
 		bool IsValidPlatform(PlatformID id) const noexcept {
 			return GetPlatformID() == id;
 		}
 		virtual void SetName(const String& name) noexcept {}
+	public:
+		void Dispose() noexcept {
+			delete this;
+		}
 	};
 
 	class IResource : public I3DBase {
 	public:
-		virtual ~IResource() noexcept = default;
+		~IResource() noexcept {}
 	public:
 		virtual ResourceFormat GetFormat() const noexcept = 0;
 		virtual Size<uint32_t> GetSize() const noexcept = 0;
@@ -36,7 +40,7 @@ export namespace System::Application::Common3D {
 
 	class IHeap : public I3DBase {
 	public:
-		virtual ~IHeap() noexcept = default;
+		virtual ~IHeap() noexcept {}
 	public:
 		virtual uint32_t GetViewCount() const noexcept = 0;
 		virtual uint32_t GetViewsSetCount() const noexcept = 0;
@@ -47,17 +51,17 @@ export namespace System::Application::Common3D {
 
 	class IShader : public I3DBase {
 	public:
-		virtual ~IShader() noexcept = default;
+		~IShader() noexcept {}
 	};
 
 	class IRenderer : public I3DBase {
 	public:
-		virtual ~IRenderer() noexcept = default;
+		virtual ~IRenderer() noexcept {}
 	};
 
 	class IMeshResource : public I3DBase {
 	public:
-		virtual ~IMeshResource() noexcept = default;
+		virtual ~IMeshResource() noexcept {}
 	public:
 		virtual uint32_t GetVertexCount() const noexcept = 0;
 		virtual uint32_t GetIndexCount() const noexcept = 0;
@@ -68,7 +72,7 @@ export namespace System::Application::Common3D {
 	class IGraphicsCommand : public I3DBase {
 		RenderingMode m_mode = RenderingMode::Standard;
 	public:
-		virtual ~IGraphicsCommand() noexcept = default;
+		virtual ~IGraphicsCommand() noexcept {}
 	public:
 		virtual bool BeginCommand(RenderingMode mode) noexcept = 0;
 		virtual bool SetRenderer(const ManagedObject<IRenderer>& renderer) noexcept = 0;
@@ -84,7 +88,7 @@ export namespace System::Application::Common3D {
 
 	class ICommandList : public I3DBase {
 	public:
-		virtual ~ICommandList() noexcept = default;
+		virtual ~ICommandList() noexcept {}
 	public:
 		virtual bool BeginCommand() noexcept = 0;
 		virtual bool SetRenderer(ManagedObject<IRenderer> renderer) noexcept = 0;
@@ -102,7 +106,7 @@ export namespace System::Application::Common3D {
 
 	class IRenderTarget : public I3DBase {
 	public:
-		virtual ~IRenderTarget() noexcept = default;
+		virtual ~IRenderTarget() noexcept {}
 	public:
 		virtual bool IsSwapChain() const noexcept = 0;
 		virtual uint32_t GetBufferCount() const noexcept = 0;

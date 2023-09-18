@@ -4,6 +4,7 @@ add_subdirectory(Boost)
 add_subdirectory(System)
 add_subdirectory(Test)
 add_subdirectory(Headers)
+add_subdirectory(Common3D)
 
 FAddObjectLibrary(src_0
 	SOURCES
@@ -12,6 +13,7 @@ FAddObjectLibrary(src_0
 		System
 		Boost
 		Application
+		Common3D
 )
 FAddObjectLibrary(src_1
 	SOURCES
@@ -34,4 +36,5 @@ FCombineObjectLibrary(src
 		Boost
 		Application
 		Headers
+		Common3D
 )

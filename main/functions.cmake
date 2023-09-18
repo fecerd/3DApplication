@@ -625,6 +625,9 @@ function(FSetCompileOptions _my_std_path)
 		set(MODULE_PRECOMPILE_OPTIONS)
 		set(MODULE_NO_PRECOMPILE_OPTIONS)
 		set(NO_HEADER_OPTIONS)
+		set(INCLUDE_PATHS
+			C:/msys64/mingw64/include/directx
+		)
 	elseif (CLANG)
 		message(STATUS "CLANG Mode")
 		set(STD_OUTPUT_DIR "${CMAKE_BINARY_DIR}/std")
@@ -638,8 +641,9 @@ function(FSetCompileOptions _my_std_path)
 		set(MODULE_HEADER_OPTIONS --precompile -x c++-system-header)
 		set(MODULE_PRECOMPILE_OPTIONS --precompile -x c++-module)
 		set(MODULE_NO_PRECOMPILE_OPTIONS)
-#		set(NO_HEADER_OPTIONS -fmodules)
-		set(INCLUDE_PATHS)
+		set(INCLUDE_PATHS
+			C:/msys64/mingw64/include/directx
+		)
 	endif()
 	## すべてのオプションをまとめる
 	set(ALL_OPTIONS)

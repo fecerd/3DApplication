@@ -2,6 +2,7 @@
 export import Objects;
 export import SmartPtrs;
 export import Allocator;
+export import Atexit;
 export import BitStream;
 export import BSpline;
 export import Coroutine;

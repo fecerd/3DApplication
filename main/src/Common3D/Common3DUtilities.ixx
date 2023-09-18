@@ -53,12 +53,12 @@ export namespace System::Application::Common3D {
 			this->uv[0] = uv[0];
 			this->uv[1] = uv[1];
 		}
-		template<System::Traits::Integral T>
+		template<System::Traits::Concepts::CIntegral T>
 		constexpr void SetBoneNo(T bone0, T bone1) noexcept {
 			this->boneNo[0] = static_cast<uint32_t>(bone0);
 			this->boneNo[1] = static_cast<uint32_t>(bone1);
 		}
-		template<System::Traits::Integral T>
+		template<System::Traits::Concepts::CIntegral T>
 		constexpr void SetBoneNo(T(&boneNo)[2]) noexcept {
 			this->boneNo[0] = static_cast<uint32_t>(boneNo[0]);
 			this->boneNo[1] = static_cast<uint32_t>(boneNo[1]);
@@ -70,7 +70,8 @@ export namespace System::Application::Common3D {
 export namespace System::Application::Common3D {
 	enum class PlatformID : uint8_t {
 		DirectX,
-		OpenGL
+		OpenGL,
+		Undefined
 	};
 
 	enum class ResourceFormat : uint8_t {

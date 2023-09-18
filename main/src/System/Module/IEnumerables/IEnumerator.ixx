@@ -15,20 +15,17 @@ export namespace System {
 		Function<IEnumerator<T>(bool)> m_enumFunc;
 		Boost::pull_type<T&> m_source;
 		bool m_reverse = false;
+	private:
+		constexpr IEnumerator(IEnumerator&& arg, const Function<IEnumerator<T>(bool)>& getEnumFunc, bool reverse) noexcept
+			: m_enumFunc(getEnumFunc), m_source(System::move(arg.m_source)), m_reverse(reverse) {}
+		constexpr IEnumerator(IEnumerator&& arg, Function<IEnumerator<T>(bool)>&& getEnumFunc, bool reverse) noexcept
+			: m_enumFunc(System::move(getEnumFunc)), m_source(System::move(arg.m_source)), m_reverse(reverse) {}
 	public:
 		constexpr IEnumerator() noexcept = delete;
 		constexpr IEnumerator(const Function<IEnumerator<T>(bool)>& getEnumFunc, bool reverse = false)
-			: IEnumerator(getEnumFunc(reverse))
-		{
-			m_enumFunc = getEnumFunc;
-			m_reverse = reverse;
-		}
+			: IEnumerator(getEnumFunc(reverse), getEnumFunc, reverse) {}
 		constexpr IEnumerator(Function<IEnumerator<T>(bool)>&& getEnumFunc, bool reverse = false)
-			: IEnumerator(getEnumFunc(reverse))
-		{
-			m_enumFunc = System::move(getEnumFunc);
-			m_reverse = reverse;
-		}
+			: IEnumerator(getEnumFunc(reverse), System::move(getEnumFunc), reverse) {}
 		constexpr IEnumerator(IEnumerator&& arg) noexcept
 			: m_enumFunc(System::move(arg.m_enumFunc))
 			, m_reverse(arg.m_reverse), m_source(System::move(arg.m_source))
@@ -39,6 +36,11 @@ export namespace System {
 		template<class F>
 		requires requires (F&& f) { Boost::push_type<T&>(System::move(f)); }
 		constexpr IEnumerator(F&& f) : m_source(System::move(f)) {
+			this->m_done = !static_cast<bool>(m_source);
+		}
+		template<class F>
+		requires requires (F const& f) { Boost::push_type<T&>(f); }
+		constexpr IEnumerator(F const& f) : m_source(f) {
 			this->m_done = !static_cast<bool>(m_source);
 		}
 		virtual constexpr ~IEnumerator() noexcept {

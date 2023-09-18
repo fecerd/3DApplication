@@ -7,16 +7,16 @@ FAddObjectLibrary(Test_0
 		Module_7
 )
 
-FAddObjectLibrary(Test_1
-	SOURCES
-		WindowsTest.ixx
-	DEPENDS
-		Module
-		Headers
-)
+# FAddObjectLibrary(Test_1
+# 	SOURCES
+# 		WindowsTest.ixx
+# 	DEPENDS
+# 		Module
+# 		Headers
+# )
 
 FCombineObjectLibrary(Test
 	PRIVATE
 		Test_0
-		Test_1
+#		Test_1
 )

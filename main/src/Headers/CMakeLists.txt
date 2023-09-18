@@ -2,6 +2,7 @@
 FAddObjectLibrary(Headers_0
 	SOURCES
 		NamespaceHelper.ixx
+#		DebugClass.ixx
 )
 
 FCombineObjectLibrary(Headers
