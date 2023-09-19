@@ -216,8 +216,9 @@ function(FSetLibraryDepends libname)
 	set(${libname}_BMI_OPTIONS "${${libname}_BMI_OPTIONS}" PARENT_SCOPE)
 endfunction()
 
-## 引数に渡したソースファイルからオブジェクトライブラリを定義する
-## libname: 定義するライブラリ名。遷移用ターゲット${liname}_tも定義される。
+## 引数に渡したソースファイルからオブジェクトライブラリを定義する。
+## 遷移用ターゲット***_t、削除用ターゲット***_clean、依存先まで削除するターゲット***_clean_dも定義される。
+## libname: 定義するライブラリ名。
 ## 可変長引数:
 ##  SOURCES file [...]: ソースファイルのパスを指定する。呼び出し元からの相対パスでよい。一つも指定されていないとき、エラー。
 ##  DEPENDS [target ...]: 依存するターゲット名を指定する。存在しなくてもよい。遷移用ターゲット${target}_tにも自動的に依存する。
@@ -344,6 +345,30 @@ function(FAddObjectLibrary libname)
 	target_compile_options(${libname} PRIVATE ${G_COMPILE_NO_HEADER_OPTIONS})
 	add_custom_target(${libname}_t DEPENDS ${libname})
 
+	## ターゲット限定の削除コマンド
+	add_custom_target(${libname}_clean
+		COMMAND ${CMAKE_COMMAND} -E rm -f $<TARGET_OBJECTS:${libname}> ${_bmi_files}
+		COMMAND_EXPAND_LISTS	#これがないとgenerator expressionのリストがセミコロン区切りのstringになってしまう
+	)
+	## このターゲットに依存するターゲットも含めて削除するコマンド
+	add_custom_target(${libname}_clean_d DEPENDS ${libname}_clean)
+	foreach(_depend ${_depends})
+		if (TARGET ${_depend} AND NOT(${_depend} STREQUAL std))
+			## すでに存在するなら単純に依存関係を追加する
+			add_dependencies(${_depend}_clean_d ${libname}_clean_d)
+		else()
+			## まだ定義されていない依存ターゲットはキャッシュ変数に保存しておく
+			set(_tmp_list "${Cache_${_depend}_clean_depends}")
+			list(APPEND _tmp_list ${libname}_clean_d)
+			set(Cache_${_depend}_clean_depends "${_tmp_list}" CACHE INTERNAL "")
+		endif()
+	endforeach()
+	## キャッシュ変数が存在するなら依存関係を追加し、削除する
+	if (Cache_${libname}_clean_depends)
+		add_dependencies(${libname}_clean_d ${Cache_${libname}_clean_depends})
+		unset(Cache_${libname}_clean_depends CACHE)
+	endif()
+
 	## このライブラリが出力するBMIファイルの参照オプションをリストに追加
 	if (MSVC OR MSBUILD)
 		foreach(_bmi ${_bmi_files})
@@ -383,7 +408,8 @@ function(FAddObjectLibrary libname)
 endfunction()
 
 ## オブジェクトライブラリをまとめたスタティックライブラリを定義する
-## libname: 定義するライブラリ名。遷移用ターゲット${liname}_tも定義される。
+## 遷移用ターゲット***_t、削除用ターゲット***_clean、依存先まで削除するターゲット***_clean_dも定義される。
+## libname: 定義するライブラリ名。
 ## 可変長引数:
 ##  PUBLIC [target ...]: target_sources()に"PUBLIC $<TARGET_OBJECTS:target>"として追加するオブジェクトライブラリ名。
 ##  PRIVATE [target ...]: 上記のPRIVATE版。PUBLICとPRIVATE双方に一つもオブジェクトライブラリが指定されていないとき、エラー。
@@ -437,6 +463,31 @@ function(FCombineObjectLibrary libname)
 			PRIVATE ${_private_link}
 		)
 	endif()
+
+	## ターゲット限定の削除コマンド
+	set(remove_args ${_public} ${_private})
+	list(TRANSFORM remove_args APPEND _clean)
+	add_custom_target(${libname}_clean
+		## 単純に$<TARGET_FILE:${libname}>を使用するとそのファイルが依存関係に組み込まれてしまうため、以下のように取得する。
+		COMMAND ${CMAKE_COMMAND} -E rm -f $<TARGET_FILE_PREFIX:${libname}>$<TARGET_FILE_BASE_NAME:${libname}>$<TARGET_FILE_SUFFIX:${libname}>
+		## 上のコマンドはディレクトリを含まないため、WORKING_DIRECTORYを指定する必要がある。
+		WORKING_DIRECTORY $<TARGET_PROPERTY:${libname},BINARY_DIR>
+		## すべてのオブジェクトライブラリの削除ターゲットを含む
+		DEPENDS ${remove_args}
+		COMMAND_EXPAND_LISTS
+	)
+	## このターゲットに依存するターゲットも含めて削除するコマンド
+	add_custom_target(${libname}_clean_d DEPENDS ${libname}_clean)
+	## キャッシュ変数が存在するなら依存関係を追加し、削除する
+	if (Cache_${libname}_clean_depends)
+		add_dependencies(${libname}_clean_d ${Cache_${libname}_clean_depends})
+		unset(Cache_${libname}_clean_depends CACHE)
+	endif()
+	## 依存するオブジェクトライブラリの削除用ターゲット***_clean_dにこのライブラリの削除用ターゲットを追加する
+	## なお、オブジェクトライブラリはすべて同ディレクトリ内で定義済みとする
+	foreach(arg ${remove_args})
+		add_dependencies(${arg}_d ${libname}_clean_d)
+	endforeach()
 endfunction()
 
 ## Boostライブラリをリンクする
