@@ -34,7 +34,7 @@ FAddObjectLibrary(Windows_3
 		ControlManager.ixx
 	DEPENDS
 		Windows_2
-		Forms
+		Forms_3
 		Application_3	#IApplicationManager
 )
 

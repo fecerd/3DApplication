@@ -1,24 +1,10 @@
-﻿module Components:GameObject;
-import :Animator;
-import :MeshFilter;
-import :Camera;
-import :Rigidbody;
+﻿module GameObject;
+import System;
+import Common3D;
 using namespace System;
 using namespace System::Application;
 using namespace System::Application::Common3D;
 using namespace Engine;
-
-void GameObject::LastUpdate() noexcept {
-	for (Script* s : m_scripts) if (s->EnableLastUpdate) s->LastUpdate();
-	Animator* animator = GetComponentPtr<Animator>();
-	if (animator) animator->Update();
-}
-void GameObject::FixedUpdate() noexcept {
-	for (Script* s : m_scripts) if (s->EnableFixedUpdate) s->FixedUpdate();
-	Rigidbody* rigidbody = GetComponentPtr<Rigidbody>();
-	if (rigidbody) rigidbody->FixedUpdate();
-}
-
 
 void GameObject::UpdateAllHeap() noexcept {
 	UpdateHeap();
@@ -46,7 +32,7 @@ bool GameObject::UpdateCommandList() noexcept {
 	uint32_t materialIndex = 0;
 	for (Material& material : meshFilter->GetMaterials()) {
 		m_commandList.SetMaterialIndex(materialIndex);
-		m_commandList.SetRenderer(material.renderer);
+		m_commandList.SetRenderer(material.GetRenderer());
 		uint32_t useIndexCount = meshResource.GetIndexCountsInMaterial(materialIndex);
 		m_commandList.DrawIndexed(startIndex, useIndexCount);
 		startIndex += useIndexCount;
@@ -54,10 +40,4 @@ bool GameObject::UpdateCommandList() noexcept {
 	}
 	m_commandList.EndCommand();
 	return true;
-}
-
-CommandList GameObject::GetCommandList() noexcept {
-	if (m_commandList) return m_commandList;
-	UpdateCommandList();
-	return m_commandList;
 }

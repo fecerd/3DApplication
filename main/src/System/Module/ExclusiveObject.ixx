@@ -2,13 +2,13 @@
 import <mutex>;	//unique_lock, mutex
 
 export namespace System {
-	template<class T>
+	template<class T, class Mtx = std::recursive_mutex>
 	class ExclusiveObject {
 		T* m_object;
-		std::unique_lock<std::mutex> m_lock;
+		std::unique_lock<Mtx> m_lock;
 	public:
 		ExclusiveObject() noexcept = delete;
-		ExclusiveObject(T* object, std::mutex& mtx) noexcept
+		ExclusiveObject(T* object, Mtx& mtx) noexcept
 			: m_object(object), m_lock(mtx) {}
 		ExclusiveObject(const ExclusiveObject&) noexcept = delete;
 		ExclusiveObject(ExclusiveObject&&) noexcept = default;
@@ -25,4 +25,7 @@ export namespace System {
 		void Lock() noexcept { if (!m_lock.owns_lock()) m_lock.lock(); }
 		void Unlock() noexcept { if (m_lock.owns_lock()) m_lock.unlock(); }
 	};
+
+	template<class T, class Mtx>
+	ExclusiveObject(T*,Mtx&)->ExclusiveObject<T, Mtx>;
 }

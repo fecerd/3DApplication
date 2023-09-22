@@ -19,19 +19,19 @@ export namespace System {
 		void Clear() noexcept { funcs.Clear(); }
 		template<Traits::Concepts::CConstructibleTo<f_t> Func>
 		EventHandler& operator+=(Func&& f) noexcept {
-			funcs.Add(f_t(System::move(f)));
+			funcs.Add(f_t(System::forward<Func>(f)));
 			return *this;
 		}
 		template<Traits::Concepts::CConstructibleTo<f_t> Func>
 		EventHandler& operator-=(Func&& f) noexcept {
-			funcs.RemoveValue(f_t(System::move(f)));
+			funcs.RemoveValue(f_t(System::forward<Func>(f)));
 			return *this;
 		}
 		EventHandler& operator=(const EventHandler&) noexcept = delete;
 		EventHandler& operator=(EventHandler&&) noexcept = default;
 	public:
 		template<class ...A>
-		requires requires(f_t const& func, A&& ...args) { func(System::move(args)...); }
+		requires requires(f_t const& func, A&& ...args) { func(System::forward<A>(args)...); }
 		void operator()(A&& ...args) requires(!Traits::is_same_v<void, void, Args...>) {
 			for (size_t i = 0, count = funcs.Count(); i < count; ++i) {
 				if (count != funcs.Count()) return;

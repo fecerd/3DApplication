@@ -1,103 +1,15 @@
-﻿module Components:MeshFilter;
-import :GameObject;
-import EngineUtilities;
+﻿module MeshFilter;
+import Component;
+import System;
+import Bone;
+import Common3D;
+import EngineUtilities;	//***MeshName
 using namespace System;
-using namespace System::Drawing;
 using namespace System::Application;
 using namespace System::Application::Common3D;
 using namespace Engine;
-using namespace Engine::Internal;
 
-bool MeshFilter::UpdateMaterialHeap() noexcept {
-	if (!m_materialHeap || m_materialHeap.GetViewsSetCount() != GetMaterialCount()) {
-		m_materialHeap = CreateHeap(String::Empty(), HeapType::Material, GetMaterialCount());
-	}
-	if (!m_materialHeap) return false;
-	uint32_t materialIndex = 0;
-	for (Material& material : m_materials) {
-		m_materialHeap.SetView(materialIndex * 5 + 0, ViewFormat::CBV, material.reflections);
-		m_materialHeap.SetView(materialIndex * 5 + 1, ViewFormat::SRV, material.texture);
-		m_materialHeap.SetView(materialIndex * 5 + 2, ViewFormat::SRV, material.sphereM);
-		m_materialHeap.SetView(materialIndex * 5 + 3, ViewFormat::SRV, material.sphereA);
-		m_materialHeap.SetView(materialIndex * 5 + 4, ViewFormat::SRV, material.toon);
-		++materialIndex;
-	}
-	return true;
-}
-bool MeshFilter::UpdateReflections(uint32_t materialIndex, const ReflectionsResourceDesc& desc) noexcept {
-	if (m_materials.Count() <= materialIndex) return false;
-	Material& material = m_materials[materialIndex];
-	if (!material.reflections) {
-		material.reflections = CreateResource(String::Empty(), desc.GetData(), desc.GetCount());
-		if (!m_materialHeap) {
-			m_materialHeap = CreateHeap(String::Empty(), HeapType::Material, GetMaterialCount());
-			if (!m_materialHeap) return false;
-		}
-		m_materialHeap.SetView(materialIndex * 5 + 0, ViewFormat::CBV, material.reflections);
-	}
-	else material.reflections.UpdateResource(desc.GetData(), desc.GetCount());
-	return true;
-}
-bool MeshFilter::UpdateTexture(uint32_t materialIndex, const Resource& texture) noexcept {
-	if (m_materials.Count() <= materialIndex) return false;
-	Material& material = m_materials[materialIndex];
-	material.texture = texture;
-	if (!m_materialHeap) {
-		m_materialHeap = CreateHeap(String::Empty(), HeapType::Material, GetMaterialCount());
-		if (!m_materialHeap) return false;
-	}
-	m_materialHeap.SetView(materialIndex * 5 + 1, ViewFormat::SRV, material.texture);
-	return true;
-}
-bool MeshFilter::UpdateSphereM(uint32_t materialIndex, const Resource& sphereM) noexcept {
-	if (m_materials.Count() <= materialIndex) return false;
-	Material& material = m_materials[materialIndex];
-	material.sphereM = sphereM;
-	if (!m_materialHeap) {
-		m_materialHeap = CreateHeap(String::Empty(), HeapType::Material, GetMaterialCount());
-		if (!m_materialHeap) return false;
-	}
-	m_materialHeap.SetView(materialIndex * 5 + 2, ViewFormat::SRV, material.sphereM);
-	return true;
-}
-bool MeshFilter::UpdateSphereA(uint32_t materialIndex, const Resource& sphereA) noexcept {
-	if (m_materials.Count() <= materialIndex) return false;
-	Material& material = m_materials[materialIndex];
-	material.sphereA = sphereA;
-	if (!m_materialHeap) {
-		m_materialHeap = CreateHeap(String::Empty(), HeapType::Material, GetMaterialCount());
-		if (!m_materialHeap) return false;
-	}
-	m_materialHeap.SetView(materialIndex * 5 + 3, ViewFormat::SRV, material.sphereA);
-	return true;
-}
-bool MeshFilter::UpdateToon(uint32_t materialIndex, const Resource& toon) noexcept {
-	if (m_materials.Count() <= materialIndex) return false;
-	Material& material = m_materials[materialIndex];
-	material.toon = toon;
-	if (!m_materialHeap) {
-		m_materialHeap = CreateHeap(String::Empty(), HeapType::Material, GetMaterialCount());
-		if (!m_materialHeap) return false;
-	}
-	m_materialHeap.SetView(materialIndex * 5 + 4, ViewFormat::SRV, material.toon);
-	return true;
-}
-bool MeshFilter::UpdateRenderer(uint32_t materialIndex, const Renderer& renderer) noexcept {
-	if (m_materials.Count() <= materialIndex) return false;
-	Material& material = m_materials[materialIndex];
-	material.renderer = renderer;
-	this->GetObject().UpdateCommandList();
-	return true;
-}
-ReflectionsResourceDesc MeshFilter::GetReflections(uint32_t materialIndex) const noexcept {
-	if (m_materials.Count() <= materialIndex) return ReflectionsResourceDesc();
-	const Material& material = m_materials[materialIndex];
-	ReflectionsResourceDesc desc{};
-	material.reflections.GetData(desc.GetData(), desc.GetCount());
-	return desc;
-}
-
-bool MeshFilter::LoadPlane(Drawing::Color diffuseColor) noexcept {
+bool MeshFilter_NoObj::LoadPlane(Drawing::Color diffuseColor) noexcept {
 	m_meshResource = Common3D::GetMeshResource(Constants::PlaneMeshName);
 	if (!m_meshResource) {
 		Common3D::MeshDesc desc{};
@@ -129,16 +41,21 @@ bool MeshFilter::LoadPlane(Drawing::Color diffuseColor) noexcept {
 	Material m;
 	ReflectionsResourceDesc desc{};
 	desc.SetDiffuseColor(diffuseColor);
-	m.reflections = CreateResource(String::Empty(), desc.GetData(), desc.GetCount());
-	m.texture = GetResource(Common3D::DefaultWhiteTextureName);
-	m.sphereM = GetResource(Common3D::DefaultWhiteTextureName);
-	m.sphereA = GetResource(Common3D::DefaultBlackTextureName);
-	m.toon = GetResource(Common3D::DefaultToonTextureName);
-	m_materials.Add(static_cast<Material&&>(m));
+	//reflections
+	m.AddResource(CreateResource(String::Empty(), desc.GetData(), desc.GetCount()));
+	//texture
+	m.AddResource(GetResource(Common3D::DefaultWhiteTextureName));
+	//sphereM
+	m.AddResource(GetResource(Common3D::DefaultWhiteTextureName));
+	//sphereA
+	m.AddResource(GetResource(Common3D::DefaultBlackTextureName));
+	//toon
+	m.AddResource(GetResource(Common3D::DefaultToonTextureName));
+	m_materials.Add(System::move(m));
 	UpdateMaterialHeap();
 	return true;
 }
-bool MeshFilter::LoadTriangle(Drawing::Color diffuseColor) noexcept {
+bool MeshFilter_NoObj::LoadTriangle(Drawing::Color diffuseColor) noexcept {
 	m_meshResource = Common3D::GetMeshResource(Constants::TriangleMeshName);
 	if (!m_meshResource) {
 		Common3D::MeshDesc desc{};
@@ -168,16 +85,21 @@ bool MeshFilter::LoadTriangle(Drawing::Color diffuseColor) noexcept {
 	Material m;
 	ReflectionsResourceDesc desc{};
 	desc.SetDiffuseColor(diffuseColor);
-	m.reflections = CreateResource(String::Empty(), desc.GetData(), desc.GetCount());
-	m.texture = Common3D::GetResource(Common3D::DefaultWhiteTextureName);
-	m.sphereM = Common3D::GetResource(Common3D::DefaultWhiteTextureName);
-	m.sphereA = Common3D::GetResource(Common3D::DefaultBlackTextureName);
-	m.toon = Common3D::GetResource(Common3D::DefaultToonTextureName);
-	m_materials.Add(static_cast<Material&&>(m));
+	//reflections
+	m.AddResource(CreateResource(String::Empty(), desc.GetData(), desc.GetCount()));
+	//texture
+	m.AddResource(GetResource(Common3D::DefaultWhiteTextureName));
+	//sphereM
+	m.AddResource(GetResource(Common3D::DefaultWhiteTextureName));
+	//sphereA
+	m.AddResource(GetResource(Common3D::DefaultBlackTextureName));
+	//toon
+	m.AddResource(GetResource(Common3D::DefaultToonTextureName));
+	m_materials.Add(System::move(m));
 	UpdateMaterialHeap();
 	return true;
 }
-bool MeshFilter::LoadCube(Drawing::Color diffuseColor) noexcept {
+bool MeshFilter_NoObj::LoadCube(Drawing::Color diffuseColor) noexcept {
 	m_meshResource = Common3D::GetMeshResource(Constants::CubeMeshName);
 	if (!m_meshResource) {
 		Common3D::MeshDesc desc{};
@@ -306,19 +228,25 @@ bool MeshFilter::LoadCube(Drawing::Color diffuseColor) noexcept {
 		if (!m_meshResource) return false;
 	}
 	m_materials.Clear();
+
 	Material m;
 	ReflectionsResourceDesc desc{};
 	desc.SetDiffuseColor(diffuseColor);
-	m.reflections = CreateResource(String::Empty(), desc.GetData(), desc.GetCount());
-	m.texture = GetResource(Common3D::DefaultWhiteTextureName);
-	m.sphereM = GetResource(Common3D::DefaultWhiteTextureName);
-	m.sphereA = GetResource(Common3D::DefaultBlackTextureName);
-	m.toon = GetResource(Common3D::DefaultToonTextureName);
+	//reflections
+	m.AddResource(CreateResource(String::Empty(), desc.GetData(), desc.GetCount()));
+	//texture
+	m.AddResource(GetResource(Common3D::DefaultWhiteTextureName));
+	//sphereM
+	m.AddResource(GetResource(Common3D::DefaultWhiteTextureName));
+	//sphereA
+	m.AddResource(GetResource(Common3D::DefaultBlackTextureName));
+	//toon
+	m.AddResource(GetResource(Common3D::DefaultToonTextureName));
 	for (int i = 0; i < 6; ++i) m_materials.Add(m);
 	UpdateMaterialHeap();
 	return true;
 }
-bool MeshFilter::LoadSphere(Drawing::Color diffuseColor) noexcept {
+bool MeshFilter_NoObj::LoadSphere(Drawing::Color diffuseColor) noexcept {
 	m_meshResource = Common3D::GetMeshResource(Constants::SphereMeshName);
 	if (!m_meshResource) {
 		MeshDesc desc{};
@@ -376,17 +304,22 @@ bool MeshFilter::LoadSphere(Drawing::Color diffuseColor) noexcept {
 	Material m;
 	ReflectionsResourceDesc desc{};
 	desc.SetDiffuseColor(diffuseColor);
-	m.reflections = CreateResource(String::Empty(), desc.GetData(), desc.GetCount());
-	m.texture = Common3D::GetResource(Common3D::DefaultWhiteTextureName);
-	m.sphereM = Common3D::GetResource(Common3D::DefaultWhiteTextureName);
-	m.sphereA = Common3D::GetResource(Common3D::DefaultBlackTextureName);
-	m.toon = Common3D::GetResource(Common3D::DefaultToonTextureName);
-	m_materials.Add(static_cast<Material&&>(m));
+	//reflections
+	m.AddResource(CreateResource(String::Empty(), desc.GetData(), desc.GetCount()));
+	//texture
+	m.AddResource(GetResource(Common3D::DefaultWhiteTextureName));
+	//sphereM
+	m.AddResource(GetResource(Common3D::DefaultWhiteTextureName));
+	//sphereA
+	m.AddResource(GetResource(Common3D::DefaultBlackTextureName));
+	//toon
+	m.AddResource(GetResource(Common3D::DefaultToonTextureName));
+	m_materials.Add(System::move(m));
 	UpdateMaterialHeap();
 	return true;
 }
 
-bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) noexcept {
+bool MeshFilter_NoObj::LoadModelForPMD(const String& filename, bool calcTangentSpace) noexcept {
 	Formats::PMD pmd{ filename };
 	if (!pmd) return false;
 	//メッシュデータを作成
@@ -409,7 +342,8 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 				v.boneWeight = pv.boneWeight;
 				desc.vertices.Add(v);
 				desc.indices.Add(i++);
-				mod = mod >= 2 ? 0 : ++mod;
+				if (mod >= 2) mod = 0;
+				else ++mod;
 				//接ベクトル空間を計算して設定する
 				if (!mod) {
 					Vertex& v2 = desc.vertices[i - 1];
@@ -506,9 +440,12 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 		desc.ambient[0] = material.ambient.x;
 		desc.ambient[1] = material.ambient.y;
 		desc.ambient[2] = material.ambient.z;
-		m.reflections = Common3D::CreateResource(String::Empty(), desc.GetData(), desc.GetCount());
+		m.AddResource(Common3D::CreateResource(String::Empty(), desc.GetData(), desc.GetCount()));
 		//各種テクスチャリソース
 		bool exists[3]{};	//texture, sph, spa
+		Resource texture;
+		Resource sphereM;
+		Resource sphereA;
 		for (const String& path : material.GetTextureFilePaths()) {
 			const IO::Path fullPath = modelPath.CreatePath(path);
 			const String ext = fullPath.Extension();
@@ -518,46 +455,47 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 			static const String sph = u".sph";
 			static const String spa = u".spa";
 			if (!exists[1] && ext == sph) {
-				m.sphereM = Common3D::GetResource(fullPath.PathName());
-				if (!m.sphereM) {
-					Image image{ fullPath.PathName() };
-					if (image) m.sphereM = Common3D::CreateResource(fullPath.PathName(), image);
-					else m.sphereM = Common3D::GetResource(Common3D::DefaultWhiteTextureName);
+				sphereM = Common3D::GetResource(fullPath.PathName());
+				if (!sphereM) {
+					Drawing::Image image{ fullPath.PathName() };
+					if (image) sphereM = Common3D::CreateResource(fullPath.PathName(), image);
+					else sphereM = Common3D::GetResource(Common3D::DefaultWhiteTextureName);
 				}
 				exists[1] = true;
 			}
 			else if (!exists[2] && ext == spa) {
-				m.sphereA = Common3D::GetResource(fullPath.PathName());
-				if (!m.sphereA) {
-					Image image{ fullPath.PathName() };
-					if (image) m.sphereA = Common3D::CreateResource(fullPath.PathName(), image);
-					else m.sphereA = Common3D::GetResource(Common3D::DefaultBlackTextureName);
+				sphereA = Common3D::GetResource(fullPath.PathName());
+				if (!sphereA) {
+					Drawing::Image image{ fullPath.PathName() };
+					if (image) sphereA = Common3D::CreateResource(fullPath.PathName(), image);
+					else sphereA = Common3D::GetResource(Common3D::DefaultBlackTextureName);
 				}
 				exists[2] = true;
 			}
 			else if (!exists[0] && (ext == bmp || ext == png || ext == tga)) {
-				m.texture = Common3D::GetResource(fullPath.PathName());
-				if (!m.texture) {
-					Image image{ fullPath.PathName() };
-					if (image) m.texture = Common3D::CreateResource(fullPath.PathName(), image);
-					else m.texture = Common3D::GetResource(Common3D::DefaultWhiteTextureName);
+				texture = Common3D::GetResource(fullPath.PathName());
+				if (!texture) {
+					Drawing::Image image{ fullPath.PathName() };
+					if (image) texture = Common3D::CreateResource(fullPath.PathName(), image);
+					else texture = Common3D::GetResource(Common3D::DefaultWhiteTextureName);
 				}
 				exists[0] = true;
 			}
 		}
-		if (!exists[0]) m.texture = whiteTexture;
-		if (!exists[1]) m.sphereM = whiteTexture;
-		if (!exists[2]) m.sphereA = blackTexture;
+		m.AddResource(exists[0] ? texture : whiteTexture);
+		m.AddResource(exists[1] ? sphereM : whiteTexture);
+		m.AddResource(exists[2] ? sphereA : blackTexture);
 		//トゥーンテクスチャリソース
 		const IO::Path toonFullPath = modelPath.CreatePath(material.GetToonTexturePath());
-		m.toon = Common3D::GetResource(toonFullPath.PathName());
-		if (!m.toon) {
-			Image image{ toonFullPath.PathName() };
-			if (image) m.toon = Common3D::CreateResource(toonFullPath.PathName(), image);
-			else m.toon = toonTexture;
+		Resource toon = Common3D::GetResource(toonFullPath.PathName());
+		if (!toon) {
+			Drawing::Image image{ toonFullPath.PathName() };
+			if (image) toon = Common3D::CreateResource(toonFullPath.PathName(), image);
+			else toon = toonTexture;
 		}
-		m.renderer = mmdRenderer;
-		m_materials.Add(static_cast<Material&&>(m));
+		m.AddResource(toon);
+		m.SetRenderer(mmdRenderer);
+		m_materials.Add(System::move(m));
 	}
 	UpdateMaterialHeap();
 	//ボーン情報を変換する
@@ -575,7 +513,7 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 		tmp.scale = Vector3::One();
 		tmp.parent = bone.parentNo;
 		tmp.isIKBone = bone.IsIKBone();
-		bones.Add(static_cast<Bone&&>(tmp));
+		bones.Add(System::move(tmp));
 		boneIDs.Insert(bone.boneName, i);
 	}
 	//IKボーン情報を変換する
@@ -589,16 +527,7 @@ bool MeshFilter::LoadModelForPMD(const String& filename, bool calcTangentSpace) 
 		tmp.limit = ik.limit;
 		tmp.chainID.Reserve(ik.chainLen);
 		for (uint8_t i = 0; i < ik.chainLen; ++i) tmp.chainID.Add(ik.nodeIdxes[i]);
-		iks.Add(static_cast<IK&&>(tmp));
+		iks.Add(System::move(tmp));
 	}
 	return true;
-}
-
-MeshFilter* MeshFilter::Clone(GameObject* object) noexcept {
-	MeshFilter* ret = new MeshFilter(object);
-	ret->m_meshResource = m_meshResource;
-	ret->m_materials = m_materials;
-	ret->m_boneInfo = m_boneInfo;
-	ret->UpdateMaterialHeap();
-	return ret;
 }

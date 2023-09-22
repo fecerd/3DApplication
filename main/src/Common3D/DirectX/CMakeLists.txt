@@ -36,9 +36,8 @@ FCombineObjectLibrary(DirectX
 		DirectX_2
 		DirectX_3
 	PUBLIC_LINK
-		System
-		Application
 		d3d12
 		dxgi
 		d3dcompiler
+		dxguid
 )

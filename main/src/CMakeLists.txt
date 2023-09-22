@@ -5,6 +5,7 @@ add_subdirectory(System)
 add_subdirectory(Test)
 add_subdirectory(Headers)
 add_subdirectory(Common3D)
+add_subdirectory(Engine)
 
 FAddObjectLibrary(src_0
 	SOURCES
@@ -14,13 +15,49 @@ FAddObjectLibrary(src_0
 		Boost
 		Application
 		Common3D
+		Engine
+		Test
+		Headers
 )
 FAddObjectLibrary(src_1
 	SOURCES
-		main_test.cpp
+		DefaultWindow.ixx
+		Resource1.ixx
 	DEPENDS
 		src_0
-		Test
+)
+FAddObjectLibrary(src_2
+	SOURCES
+		Script1.ixx
+	DEPENDS
+		src_1
+)
+FAddObjectLibrary(src_3
+	SOURCES
+		MyWindow2.ixx
+		Scene1.ixx
+	DEPENDS
+		src_2
+)
+FAddObjectLibrary(src_4
+	SOURCES
+		Scene2.ixx
+		SplashScreenScene.ixx
+	DEPENDS
+		src_3
+)
+FAddObjectLibrary(src_5
+	SOURCES
+		MyWindow1.ixx
+	DEPENDS
+		src_4
+)
+
+FAddObjectLibrary(src_6
+	SOURCES
+		main.cpp
+	DEPENDS
+		src_5
 )
 
 ## src全体のターゲット
@@ -30,6 +67,11 @@ FCombineObjectLibrary(src
 	PUBLIC
 		src_0
 		src_1
+		src_2
+		src_3
+		src_4
+		src_5
+		src_6
 	PUBLIC_LINK
 		System
 		Test
@@ -37,4 +79,5 @@ FCombineObjectLibrary(src
 		Application
 		Headers
 		Common3D
+		Engine
 )

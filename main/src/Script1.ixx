@@ -3,6 +3,14 @@ import System;
 import Application;
 import InputSystem;
 import Engine;
+import Components;
+import Script;
+
+import MediaPlayer;
+import NamespaceHelper;
+
+import Resource1;
+
 using namespace System;
 using namespace System::Application;
 using namespace Engine;
@@ -336,9 +344,6 @@ public:
 		m_position = currentPos;
 	}
 };
-
-import MediaPlayer;
-import Resource1;
 
 export class AudioScript : public Script {
 public:

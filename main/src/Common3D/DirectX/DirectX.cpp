@@ -1,4 +1,8 @@
-﻿module DirectX;
+﻿module;
+#define DEFINE_CRTDBG_new
+#include "../../CRTDBG/crtdbg_wrapper.hpp"
+#include <guiddef.h>
+module DirectX;
 import System;
 import Application;	//IWindow
 import Common3DInterface;
@@ -443,7 +447,9 @@ namespace System::Application::Windows::DirectX {
 		if (!hWnd) return;
 		m_queue = Helpers::CreateCommandQueue(device);
 		if (!m_queue) return;
+#if false
 		m_queue->SetName(L"SwapChainQueue");
+#endif
 		m_swapChain = manager->CreateSwapChain(*m_queue, hWnd, bufferCount);
 		if (!m_swapChain) {
 			SafeRelease(m_queue);
@@ -626,6 +632,9 @@ namespace System::Application::Windows::DirectX {
 		m_device = Helpers::CreateDevice(*m_adapter);
 		SafeRelease(debugDevice);
 		m_device->QueryInterface(&debugDevice);
+
+		m_copyCommandList = MakeUnique<CopyCommandList>(*m_device);
+
 		m_CBVSRVUAVIncrementSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		m_RTVIncrementSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		m_DSVIncrementSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
@@ -687,52 +696,28 @@ namespace System::Application::Windows::DirectX {
 		m_toonTexture = ManagedObject<IResource>(Common3D::DefaultToonTextureName, CreateResource(image));
 	}
 	DirectXManager::~DirectXManager() noexcept {
+		//Queueもここで待機できる
+		m_copyCommandList.Reset();
+
 		m_whiteTexture.Release();
 		m_blackTexture.Release();
 		m_toonTexture.Release();
 		for (ID3D12RootSignature*& rs : m_rootSignatures.Values()) SafeRelease(rs);
+
 		SafeRelease(m_device, m_adapter, m_factory);
 	}
 
 	bool DirectXManager::CopyTextureResource(ID3D12Resource& texture, ID3D12Resource& upload, D3D12_RESOURCE_STATES currentState) noexcept {
-		D3D12_RESOURCE_DESC uploadDesc = upload.GetDesc();
 		D3D12_RESOURCE_DESC textureDesc = texture.GetDesc();
-		//コピー用コマンドリスト生成
-		constexpr uint32_t allocatorCount = 2;
-		struct TEMP {
-			ID3D12CommandAllocator* allocators[allocatorCount] = {};
-			uint32_t currentIndex = 0;
-			ID3D12GraphicsCommandList* list = nullptr;
-			ID3D12CommandQueue* queue = nullptr;
-			ID3D12Fence* fence = nullptr;
-			uint64_t fenceVal = 0;
-		public:
-			~TEMP() noexcept {
-				if (fence) Helpers::WaitForFenceValue(*fence, fenceVal);
-				if (++currentIndex >= allocatorCount) currentIndex = 0;
-				if (allocators[currentIndex]) allocators[currentIndex]->Reset();
-				if (list && allocators[currentIndex]) list->Reset(allocators[currentIndex], nullptr);
-				SafeRelease(fence);
-				SafeRelease(queue, list);
-				for (uint32_t i = 0; i < allocatorCount; ++i) SafeRelease(allocators[i]);
-			}
-		};
-		static TEMP temp;
-		if (!temp.queue) temp.queue = Helpers::CreateCommandQueue(*m_device);
-		if (!temp.fence) temp.fence = Helpers::CreateFence(*m_device);
-		else Helpers::WaitForFenceValue(*temp.fence, temp.fenceVal);
-		if (!temp.allocators[temp.currentIndex]) temp.allocators[temp.currentIndex] = Helpers::CreateCommandAllocator(*m_device);
-		else temp.allocators[temp.currentIndex]->Reset();
-		if (!temp.list) temp.list = Helpers::CreateCommandList(*m_device, *temp.allocators[temp.currentIndex]);
-		else temp.list->Reset(temp.allocators[temp.currentIndex], nullptr);
-		if (!temp.allocators[temp.currentIndex] || !temp.list || !temp.queue) return false;
-		if (!temp.fence) return false;
+		D3D12_RESOURCE_DESC uploadDesc = upload.GetDesc();
+
+		m_copyCommandList->BeginCommand();
 
 		//テクスチャリソースの状態をCopyDestに変更
 		D3D12_RESOURCE_BARRIER barrier{};
 		if (currentState != D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST) {
 			barrier = CreateTransitionBarrier(texture, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, currentState, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST);
-			temp.list->ResourceBarrier(1, &barrier);
+			m_copyCommandList->ResourceBarrier(1, &barrier);
 		}
 		//テクスチャ用バッファへコピー
 		D3D12_TEXTURE_COPY_LOCATION src{};
@@ -748,70 +733,67 @@ namespace System::Application::Windows::DirectX {
 		dst.pResource = &texture;
 		dst.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
 		dst.SubresourceIndex = 0;
-		temp.list->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+		m_copyCommandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
 		//テクスチャリソースの状態をピクセルシェーダリソースに変更
 		barrier = CreateTransitionBarrier(texture, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		temp.list->ResourceBarrier(1, &barrier);
-		temp.list->Close();
-		ID3D12CommandList* lists[] = { temp.list };
-		temp.queue->ExecuteCommandLists(1, lists);
-		//GPUと同期
-		temp.fenceVal = Helpers::Signal(*temp.queue, *temp.fence);
-		if (++temp.currentIndex >= allocatorCount) temp.currentIndex = 0;
+		m_copyCommandList->ResourceBarrier(1, &barrier);
+		m_copyCommandList->EndCommand();
 		return true;
 	}
+
 	bool DirectXManager::UpdateTextureResource(ID3D12Resource& resource, D3D12_RESOURCE_STATES currentState, const Image& image) noexcept {
-		struct TEMP {
-			ID3D12Resource* m_resource;
-		public:
-			~TEMP() noexcept { SafeRelease(m_resource); }
-		};
-		static TEMP temp;
-		if (!temp.m_resource) {
-			temp.m_resource = CreateUploadResource(sizeof(Pixel), 1920, 1080);
-		}
-		struct TEMP2 {
-			ID3D12Resource* resource = nullptr;
-			uint32_t count = 0;
-		};
-		struct TEMP1 {
-			List<TEMP2> uploads;
-		public:
-			~TEMP1() noexcept {
-				System::Timer::Sleep(milliseconds(100));
-				for (TEMP2& u : uploads) SafeRelease(u.resource);
+		ID3D12Resource* pUpload = m_copyCommandList->GetUploadResourceCache(sizeof(Pixel), image.Width(), image.Height());
+		if (!pUpload) return false;
+		if (!UpdateUploadResource(*pUpload, image)) return false;
+#if defined(__GNUC__)
+		bool ret = false;
+		{
+			ID3D12Resource& texture = resource;
+			ID3D12Resource& upload = *pUpload;
+
+			m_copyCommandList->BeginCommand();
+
+			//テクスチャリソースの状態をCopyDestに変更
+			D3D12_RESOURCE_BARRIER barrier{};
+			if (currentState != D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST) {
+				barrier = CreateTransitionBarrier(texture, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, currentState, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST);
+				m_copyCommandList->ResourceBarrier(1, &barrier);
 			}
-		};
-		static TEMP1 temp1;
-		for (auto ite = temp1.uploads.begin(), e = temp1.uploads.end(); ite != e; ++ite) {
-			TEMP2& t = *ite;
-			--t.count;
-			if (!t.count) {
-				SafeRelease(t.resource);
-				temp1.uploads.Remove(ite);
-			}
+			//テクスチャ用バッファへコピー
+			D3D12_TEXTURE_COPY_LOCATION src{};
+			src.pResource = &upload;
+			src.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+			src.PlacedFootprint.Offset = 0;
+			src.PlacedFootprint.Footprint.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+			src.PlacedFootprint.Footprint.Width = static_cast<uint32_t>(image.Width());	//画像の幅(px)
+			src.PlacedFootprint.Footprint.Height = image.Height();	//画像の幅(px)
+			src.PlacedFootprint.Footprint.Depth = 1;
+			src.PlacedFootprint.Footprint.RowPitch = static_cast<uint32_t>(image.Width() * sizeof(Pixel) / image.Height());	//幅のバイトサイズ
+			D3D12_TEXTURE_COPY_LOCATION dst{};
+			dst.pResource = &texture;
+			dst.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+			dst.SubresourceIndex = 0;
+			m_copyCommandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+			//テクスチャリソースの状態をピクセルシェーダリソースに変更
+			barrier = CreateTransitionBarrier(texture, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			m_copyCommandList->ResourceBarrier(1, &barrier);
+			m_copyCommandList->EndCommand();
+			ret = true;
 		}
-		if (image.Width() == 1920 && image.Height() == 1080) {
-			if (!UpdateUploadResource(*temp.m_resource, image)) return false;
-			bool ret = CopyTextureResource(resource, *temp.m_resource, currentState);
-			return ret;
-		}
-		else {
-			ID3D12Resource* upload = CreateUploadResource(sizeof(Pixel), image.Width(), image.Height());
-			if (!upload) return false;
-			if (!UpdateUploadResource(*upload, image)) {
-				upload->Release();
-				return false;
-			}
-			bool ret = CopyTextureResource(resource, *upload, currentState);
-			temp1.uploads.PushBack(TEMP2{ upload, 2 });
-			return ret;
-		}
+#else
+		bool ret = CopyTextureResource(resource, *pUpload, currentState);
+#endif
+		return ret;
 	}
 
 }
 
 namespace System::Application::Windows::DirectX {
+	RecursiveMutex& GetMutex() noexcept {
+		static RecursiveMutex ret{};
+		return ret;
+	}
+
 	void DirectXManager::DebugReport() noexcept {
 		LockGuard lock{ GetMutex() };
 		if (debugDevice) {
@@ -821,24 +803,20 @@ namespace System::Application::Windows::DirectX {
 		}
 		SafeRelease(debugDevice);
 	}
-	
-	Mutex& DirectXManager::GetMutex() noexcept {
-		static Mutex ret{};
-		return ret;
-	}
 	ExclusiveObject<DirectXManager> DirectXManager::GetManager() {
 		{
 			LockGuard lock{ GetMutex() };
 			if (!pManager) {
 				try {
 					pManager = new DirectXManager();
+					atexit([](){ DirectXManager::CloseManager(); });
 				} catch (std_exception& ex) {
 					pManager = nullptr;
 					System::Application::Log(String(ex.what()));
 				}
 			}
 		}
-		return ExclusiveObject<DirectXManager>{ pManager, GetMutex() };
+		return ExclusiveObject{ pManager, GetMutex() };
 	}
 	bool DirectXManager::CloseManager() {
 		{

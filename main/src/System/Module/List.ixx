@@ -343,15 +343,7 @@ export namespace System {
 				}
 				sink(*m_first->value);
 			};
-			return IEnumerator<T>(
-				[internal, internal_r](bool r) mutable {
-					return IEnumerator<T>(r
-						? Function<void(Boost::push_type<T&>&)>(internal_r)
-						: Function<void(Boost::push_type<T&>&)>(internal)
-					);
-				},
-				reverse
-			);
+			return IEnumerator<T>(no_mangling<T>(internal, internal_r), reverse);
 		}
 		IEnumerator<T const> GetEnumerator(bool reverse) const noexcept override {
 			auto internal = [this](Boost::push_type<T const&>& sink) {
@@ -365,15 +357,7 @@ export namespace System {
 				}
 				sink(*m_first->value);
 			};
-			return IEnumerator<T const>(
-				[internal, internal_r](bool r) mutable {
-					return IEnumerator<T const>(r
-						? Function<void(Boost::push_type<T const&>&)>(internal_r)
-						: Function<void(Boost::push_type<T const&>&)>(internal)
-					);
-				},
-				reverse
-			);
+			return IEnumerator<T const>(no_mangling<T const>(internal, internal_r), reverse);
 		}
 #else
 	private:

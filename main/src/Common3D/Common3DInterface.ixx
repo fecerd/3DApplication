@@ -7,7 +7,7 @@ using namespace System::Drawing;
 export namespace System::Application::Common3D {
 	class I3DBase {
 	public:
-		using managedObject_delete_type = I3DBase;
+		using virtual_delete_type = I3DBase;
 	public:
 		virtual ~I3DBase() noexcept {}
 	public:

@@ -17,7 +17,8 @@ FAddObjectLibrary(Encoding_2
 		CodePage.ixx
 	DEPENDS
 		Encoding_1
-		Module_10
+		SmartPtrs	#UniquePtr
+		Module_4	#VectorBase
 )
 FAddObjectLibrary(Encoding_3
 	SOURCES

@@ -38,7 +38,5 @@ FCombineObjectLibrary(Common3D
 		Common3D_2
 		Common3D_3
 	PUBLIC_LINK
-		System
-		Application
 		DirectX
 )

@@ -102,8 +102,7 @@ namespace System::Internal {
 	public:
 		PtrCounterD() noexcept = delete;
 		PtrCounterD(const PtrCounterD&) noexcept = default;
-		PtrCounterD(Deleter const& deleter) noexcept : m_deleter(deleter) {}
-		PtrCounterD(Deleter&& deleter) noexcept : m_deleter(System::move(deleter)) {}
+		PtrCounterD(Deleter&& deleter) noexcept : m_deleter(System::forward<Deleter>(deleter)) {}
 		~PtrCounterD() noexcept = default;
 	public:
 		constexpr void Dispose(void* ptr) noexcept override {
@@ -134,7 +133,7 @@ namespace System::Internal {
 		PtrCounterDA(const PtrCounterDA&) noexcept = default;
 		template<class D, class A>
 		PtrCounterDA(D&& deleter, A&& allocator) noexcept
-			: m_deleter(System::move(deleter)), m_allocator(System::move(allocator)) {}
+			: m_deleter(System::forward<D>(deleter)), m_allocator(System::forward<A>(allocator)) {}
 		~PtrCounterDA() noexcept = default;
 	public:
 		constexpr void Dispose(void* ptr) noexcept override {
@@ -269,7 +268,7 @@ export namespace System {
 			m_ptr = t_ptr;
 			m_counter = t_counter;
 		}
-	public:
+	public:/* std::shared_ptr互換 */
 		void reset() noexcept { Reset(); }
 		template<class Y> void reset(Y* ptr) noexcept { Reset<Y>(ptr); }
 		element_type* get() const noexcept { return m_ptr; }
@@ -316,7 +315,7 @@ export namespace System {
 export namespace System {
 	template<Traits::Concepts::CNotArray T, class ...Args>
 	SharedPtr<T> MakeShared(Args&& ...args) noexcept {
-		T* ptr = DefaultNew<T>()(System::move(args)...);
+		T* ptr = DefaultNew<T>()(System::forward<Args>(args)...);
 		return SharedPtr<T>(ptr, DefaultDelete<T>());
 	}
 	template<Traits::Concepts::CUnknownBoundArray T>
@@ -452,7 +451,7 @@ export namespace System {
 		size_t OwnerHashValue() const noexcept {
 			return Internal::HashPointer(m_counter);
 		}
-	public:
+	public:/* std::weak_ptr互換 */
 		SharedPtr<T> lock() const noexcept { return Lock(); }
 		int32_t use_count() const noexcept { return UseCount(); }
 		bool expired() const noexcept { return Expired(); }

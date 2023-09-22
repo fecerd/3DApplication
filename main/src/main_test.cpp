@@ -212,11 +212,11 @@ void CoroutineTest6() noexcept {
 		std::cout << "Block start." << std::endl;
 		Vector<HashNode<String, String>*> nodeVec;
 		String key0{ "Hello" };
-		nodeVec.Add(new HashNode<String, String>(System::move(key0), System::move(u"World")));
+		nodeVec.Add(new HashNode<String, String>(System::move(key0), u"World"));
 		String key1{ "Hoge" };
-		nodeVec.Add(new HashNode<String, String>(System::move(key1), System::move(u"HogeHoge")));
+		nodeVec.Add(new HashNode<String, String>(System::move(key1), u"HogeHoge"));
 		String key2{ "Piyo" };
-		nodeVec.Add(new HashNode<String, String>(System::move(key2), System::move(u"PiyoPiyo")));
+		nodeVec.Add(new HashNode<String, String>(System::move(key2), u"PiyoPiyo"));
 
 		for (auto& x : nodeVec) std::cout << x->GetValue<0>() << std::endl;
 		std::cout << "Block end." << std::endl;

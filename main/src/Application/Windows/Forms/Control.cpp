@@ -1,5 +1,6 @@
 ﻿module Control;
 import Log;
+import WindowsEventArgs;
 using namespace System;
 using namespace WinAPI;
 using namespace System::Application::Windows;

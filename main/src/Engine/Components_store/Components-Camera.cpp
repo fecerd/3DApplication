@@ -1,5 +1,13 @@
-﻿module Components:Camera;
+﻿#if defined(__GNUC__) //&& !defined(__clang__)
+module Components;
 import :GameObject;
+#else
+module Components:Camera;
+import Components;
+#endif
+import System;
+import LayerMask;
+import Common3D;
 using namespace System;
 using namespace System::Application::Common3D;
 using namespace Engine;
@@ -23,7 +31,6 @@ Vector3 Camera::Eye() const noexcept {
 }
 
 Matrix Camera::View() const noexcept {
-	FlagSet<CameraFlag> f = m_flag & CameraFlag::OnScreenSpace;
 	if (m_flag & CameraFlag::OnScreenSpace) return Matrix::Identity();
 	const Transform& cameraTr = GetObject().GetTransform();
 	return cameraTr.WorldInverse();

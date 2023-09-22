@@ -1,5 +1,11 @@
-﻿module Components:Light;
+﻿#if defined(__GNUC__) //&& !defined(__clang__)
+module Components;
 import :GameObject;
+#else
+module Components:Light;
+import Components;
+#endif
+import System;
 using namespace System;
 using namespace System::Drawing;
 using namespace Engine;

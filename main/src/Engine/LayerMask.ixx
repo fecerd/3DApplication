@@ -1,5 +1,6 @@
 ﻿export module LayerMask;
-import System;
+import Module;
+using namespace System;
 
 export namespace Engine {
 	enum class LayerMask : uint32_t {

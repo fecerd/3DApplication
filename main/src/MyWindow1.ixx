@@ -1,10 +1,11 @@
 ﻿export module MyWindow1;
 import DefaultWindow;
+
+import SplashScreenScene;
+
 using namespace System;
 using namespace System::Application;
 using namespace Engine;
-
-import SplashScreenScene;
 
 export class MyWindow1 : public DefaultWindow {
 public:

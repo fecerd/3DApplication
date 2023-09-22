@@ -1,23 +1,22 @@
 ﻿export module SceneManager;
 import System;
-export import Scene;
-import Components;
 import Common3D;
 import Log;
+import InputSystem;
+export import Scene;
+export import Components;	//Scene = Scene_Impl<GameObject>;
 using namespace System;
 using namespace System::Application;
 using namespace System::Application::Common3D;
 
+//コンセプト
 export namespace Engine {
-	template<class T>
-	concept IsScene = System::Traits::is_base_of_v<Scene, T>;
+	template<class T> concept IsScene = Traits::is_base_of_v<Scene_Impl<GameObject>, T>;
 }
 
-import TaskWorker;
-import InputSystem;
-
+//SceneManager
 export namespace Engine {
-	class SceneManager {
+	class SceneManager : public ISceneManager {
 		static constexpr uint32_t FenceLevel = 0;
 		static constexpr uint32_t UpdateLevel = 1;
 		static constexpr uint32_t DrawLevelBase = 2;
@@ -64,22 +63,22 @@ export namespace Engine {
 
 					for (ListIterator<Scene*> ite = m_activeScenes.begin(), e = m_activeScenes.end(); ite != e;) {
 						Scene* scene = *ite;
-						++scene->m_frameCount;
-						scene->m_elapsedTimeNs += deltaTime;
-						if (scene->GetState() == SceneState::Added) scene->SetState(SceneState::Activate);
-						if (scene->GetState() == SceneState::Activate) {
+						IncrementFrameCount(*scene);
+						AddElapsedTimeNs(*scene, deltaTime);
+						if (GetSceneState(*scene) == SceneState::Added) SetSceneState(*scene, SceneState::Activate);
+						if (GetSceneState(*scene) == SceneState::Activate) {
 							scene->Activate();
 							if (m_end.load(memory_order::acquire)) scene->EndActivate();
 						}
-						if (scene->GetState() == SceneState::Deactivate) {
+						if (GetSceneState(*scene) == SceneState::Deactivate) {
 							scene->Deactivate();
 							if (m_end.load(memory_order::acquire)) scene->EndDeactivate();
 						}
-						if (scene->GetState() == SceneState::Removed) {
-							scene->SetState(SceneState::Loaded);
+						if (GetSceneState(*scene) == SceneState::Removed) {
+							SetSceneState(*scene, SceneState::Loaded);
 							ListIterator<Scene*> cur = ite;
-							++ite;
 							m_activeScenes.Remove(cur);
+							++ite;
 						}
 						else ++ite;
 					}
@@ -97,12 +96,12 @@ export namespace Engine {
 			m_fence.Wait(TaskState::Suspended);
 			m_end.store(true, memory_order::release);
 			for (Scene* scene : m_loadedScenes) {
-				SceneState state = scene->GetState();
+				SceneState state = GetSceneState(*scene);
 				switch (state) {
 				case SceneState::Added:
 				case SceneState::Activate:
 				case SceneState::Active:
-					scene->SetState(SceneState::Deactivate);
+					SetSceneState(*scene, SceneState::Deactivate);
 					break;
 				default:
 					break;
@@ -125,8 +124,9 @@ export namespace Engine {
 			for (GameObject* gObj : planeObjects.Values()) delete gObj;
 			planeObjects.Clear();
 		}
+	public:/* ISceneManager override */
+		Timer& GetTimer() noexcept override { return m_timer; }
 	public:
-		Timer& GetTimer() noexcept { return m_timer; }
 		void SetTimeScale(float scale) noexcept {
 			m_prevTimeScale = m_timer.TimeScale();
 			m_timer.TimeScale(scale);
@@ -143,7 +143,7 @@ export namespace Engine {
 						T* scene = new T(name);
 						scene->Init();
 						scene->Awake();
-						scene->SetState(SceneState::Loaded);
+						SetSceneState(*scene, SceneState::Loaded);
 						{
 							LockGuard lock{ m_mtx };
 							m_loadedScenes.PushBack(scene);
@@ -156,48 +156,14 @@ export namespace Engine {
 				LoadingLevel, true
 			);
 		}
-		void ActivateScene(const String& name, uint16_t level = 0) noexcept {
-			m_loader->Push<bool, void>(
-				[this, name, level](TaskPromise<bool, void>& p) {
-					LockGuard lock{ m_mtx };
-					Scene** pScene = m_loadedScenes.TryFirst([&name](Scene* const& scene) { return scene->GetName() == name; });
-					if (!pScene) return;
-					if (m_activeScenes.TryFirst([&name](Scene* const& scene) { return scene->GetName() == name; })) {
-						p.RemoveTask();
-						return;
-					}
-					Scene* scene = *pScene;
-					scene->SetState(SceneState::Added);
-					scene->m_frameCount = 0;
-					scene->m_elapsedTimeNs = nanoseconds(0);
-					scene->m_alpha = 1.f;
-					scene->m_brightness = 1.f;
-					scene->m_depth = 1.f;
-					scene->m_visible = true;
-					m_loader->Push<bool, void>(
-						[this, scene](TaskPromise<bool, void>& p) {
-							SceneState state = scene->GetState();
-							if (state == SceneState::Loaded) {
-								p.RemoveTask();
-								return;
-							}
-							if (Renderable(scene)) scene->Draw();
-						},
-						DrawLevelBase + level, false
-							);
-					m_activeScenes.PushBack(scene);
-					p.RemoveTask();
-				},
-				ActivateLevel, false
-					);
-		}
+		void ActivateScene(const String& name, uint16_t level = 0) noexcept;
 		void DeactivateScene(const String& name) noexcept {
 			LockGuard lock{ m_mtx };
 			Scene** pScene = m_activeScenes.TryFirst([&name](Scene* const& scene) { return scene->GetName() == name; });
 			if (!pScene) return;
 			Scene* scene = *pScene;
-			if (scene->GetState() != SceneState::Active) return;
-			scene->SetState(SceneState::Deactivate);
+			if (GetSceneState(*scene) != SceneState::Active) return;
+			SetSceneState(*scene, SceneState::Deactivate);
 		}
 		void UnloadScene(const String& name) noexcept {
 			Scene* scene = nullptr;
@@ -206,15 +172,15 @@ export namespace Engine {
 				Scene** pScene = m_loadedScenes.TryFirst([&name](Scene* const& scene) { return scene->GetName() == name; });
 				if (!pScene) return;
 				scene = *pScene;
-				SceneState state = scene->GetState();
+				SceneState state = GetSceneState(*scene);
 				if (state != SceneState::Deactivate && state != SceneState::Removed && state != SceneState::Loaded) return;
 			}
 			m_loader->Push<bool, void>(
 				[this, scene](TaskPromise<bool, void>& p) {
-					SceneState state = scene->GetState();
+					SceneState state = GetSceneState(*scene);
 					if (state == SceneState::Deactivate || state == SceneState::Removed) return;
 					else if (state == SceneState::Loaded) {
-						scene->SetState(SceneState::UnLoading);
+						SetSceneState(*scene, SceneState::UnLoading);
 						{
 							LockGuard lock{ m_mtx };
 							m_loadedScenes.Remove(m_loadedScenes.FindFront(scene));
@@ -259,7 +225,7 @@ export namespace Engine {
 		}
 	private:
 		static bool Renderable(Scene* scene) noexcept {
-			SceneState state = scene->GetState();
+			SceneState state = GetSceneState(*scene);
 			return state == SceneState::Activate || state == SceneState::Active || state == SceneState::Deactivate;
 		}
 	public:

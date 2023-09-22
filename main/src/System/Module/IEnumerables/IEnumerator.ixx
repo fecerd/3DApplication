@@ -35,12 +35,7 @@ export namespace System {
 		}
 		template<class F>
 		requires requires (F&& f) { Boost::push_type<T&>(System::move(f)); }
-		constexpr IEnumerator(F&& f) : m_source(System::move(f)) {
-			this->m_done = !static_cast<bool>(m_source);
-		}
-		template<class F>
-		requires requires (F const& f) { Boost::push_type<T&>(f); }
-		constexpr IEnumerator(F const& f) : m_source(f) {
+		constexpr IEnumerator(F&& f) : m_source(System::forward<F>(f)) {
 			this->m_done = !static_cast<bool>(m_source);
 		}
 		virtual constexpr ~IEnumerator() noexcept {

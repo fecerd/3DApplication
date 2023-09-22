@@ -2,6 +2,9 @@
 export import Engine;
 export import Common3D;
 import Application;
+
+import Scene1;
+
 using namespace System;
 using namespace System::Drawing;
 using namespace System::Application::Common3D;
@@ -10,8 +13,6 @@ using namespace Engine;
 namespace ResourcePaths::Picture {
 	inline constexpr CString SplashScreenImage = uR"(.\Picture\SplashScreen.png)";
 }
-
-import Scene1;
 
 export class SplashScreenScene : public Scene {
 	using Scene::Scene;
@@ -27,9 +28,9 @@ public:
 		Image image = Image::FromFile(ResourcePaths::GetPathName(ResourcePaths::Picture::SplashScreenImage));
 		Resource texture = CreateResource(u"SplashScreenImage", image);
 		for (Material& material : mf.GetMaterials()) {
-			material.renderer = videoRenderer;
-			if (texture) material.texture = texture;
-			else material.texture = GetResource(DefaultBlackTextureName);
+			material.SetRenderer(videoRenderer);
+			if (texture) material.GetResource(1) = texture;
+			else material.GetResource(1) = GetResource(DefaultBlackTextureName);
 		}
 		this->AddObject(gObj);
 		GameObject* cameraObj = new GameObject(u"Camera");

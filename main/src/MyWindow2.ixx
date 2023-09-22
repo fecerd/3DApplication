@@ -1,14 +1,15 @@
 ﻿export module MyWindow2;
 import DefaultWindow;
-import Common3D;
+
+import Resource1;
+import Script1;
+
+import MediaPlayer;
+
 using namespace System;
 using namespace System::Application;
 using namespace System::Application::Common3D;
 using namespace Engine;
-
-import TaskWorker;
-import Resource1;
-import Script1;
 
 export class MyScene2 : public Scene {
 public:
@@ -49,14 +50,15 @@ public:
 			desc.diffuse[1] = 0.f;
 			desc.diffuse[2] = 0.f;
 			desc.diffuse[3] = 1.f;
-			material.reflections.UpdateResource(desc.GetData(), desc.GetCount());
+			Resource& reflections = material.GetResource(0);
+			reflections.UpdateResource(desc.GetData(), desc.GetCount());
 		}
 		this->AddObject(background);
 
 		GameObject* triangle = new GameObject(u"Triangle");
 		triangle->AddComponent<MeshFilter>().LoadTriangle();
 		for (Material& material : triangle->GetComponent<MeshFilter>().GetMaterials()) {
-			material.renderer = noheapRenderer;
+			material.SetRenderer(noheapRenderer);
 		}
 		this->AddObject(triangle);
 	}
@@ -71,7 +73,8 @@ public:
 			desc.diffuse[1] = 0.f;
 			desc.diffuse[2] = 0.f;
 			desc.diffuse[3] = 1.f;
-			material.reflections.UpdateResource(desc.GetData(), desc.GetCount());
+			Resource& reflections = material.GetResource(0);
+			reflections.UpdateResource(desc.GetData(), desc.GetCount());
 		}
 		if (up) {
 			if (++r == 255) up = false;
@@ -80,15 +83,14 @@ public:
 	}
 };
 
-import MediaPlayer;
 export class MyScene1 : public Scene {
 	Resource texture;
-	System::Application::MediaPlayer m_player;
+	Application::MediaPlayer m_player;
 public:
 	using Scene::Scene;
 	~MyScene1() noexcept = default;
 	void Init() noexcept override {
-		m_player.Load(u"Test2", System::Application::MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Video::Test2));
+		m_player.Load(u"Test2", Application::MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Video::Test2));
 		texture = Common3D::GetResource(DefaultBlackTextureName);
 
 		Renderer videoRenderer = Common3D::GetRenderer(Common3D::DefaultVideoRendererName);
@@ -105,15 +107,16 @@ public:
 		Heap materialHeap = meshFilter.GetHeap();
 		uint32_t materialIndex = 0;
 		for (Material& material : meshFilter.GetMaterials()) {
-			material.texture = texture;
-			materialHeap.SetView(materialIndex * 5 + 1, ViewFormat::SRV, material.texture);
-			material.renderer = videoRenderer;
+			Resource& tex = material.GetResource(1);
+			tex = texture;
+			materialHeap.SetView(materialIndex * 5 + 1, ViewFormat::SRV, tex);
+			material.SetRenderer(videoRenderer);
 			++materialIndex;
 		}
 		this->AddObject(gObj);
 	}
-	void OnActivate() noexcept {
-		m_player.Play(u"Test2", System::Application::MediaPlayerSourceType::Local);
+	void OnActivate() noexcept override {
+		m_player.Play(u"Test2", Application::MediaPlayerSourceType::Local);
 		this->EndActivate();
 	}
 	void OnUpdate() noexcept override {
@@ -124,7 +127,7 @@ public:
 			return;
 		}
 		m_player.Update();
-		System::Drawing::Image frame = m_player.GetCurrentFrame();
+		Drawing::Image frame = m_player.GetCurrentFrame();
 		if (!frame.Enabled()) return;
 		Size<uint32_t> currentSize = texture.GetSize();
 		if (currentSize.width == frame.Width() && currentSize.height == frame.Height()) {
@@ -138,8 +141,9 @@ public:
 			Heap materialHeap = meshFilter.GetHeap();
 			uint32_t index = 0;
 			for (Material& material : meshFilter.GetMaterials()) {
-				material.texture = texture;
-				materialHeap.SetView(index * 5 + 1, ViewFormat::SRV, material.texture);
+				Resource& tex = material.GetResource(1);
+				tex = texture;
+				materialHeap.SetView(index * 5 + 1, ViewFormat::SRV, tex);
 				++index;
 			}
 			plane->UpdateCommandList();

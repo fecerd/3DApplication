@@ -20,8 +20,14 @@ project ("3DApplication")
 
 ## 必要なヘッダを設定
 FPrecompileSTD(
-	condition_variable
 	cstdint
+	initializer_list
+	new
+	iostream
+	fstream
+	cstring
+	string
+	condition_variable
 	compare
 	thread
 	type_traits
@@ -32,14 +38,9 @@ FPrecompileSTD(
 	chrono
 	coroutine
 	limits
-	initializer_list
-	iostream
 	stdexcept
 	source_location
-	cstring
 	atomic
-	fstream
-	new
 	exception
 	functional
 	typeinfo

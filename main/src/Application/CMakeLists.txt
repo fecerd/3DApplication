@@ -58,6 +58,8 @@ FAddObjectLibrary(Application_7
 	DEPENDS
 		Application_6
 		InputSystem
+		MediaPlayer
+		SDL
 )
 FCombineObjectLibrary(Application
 	PRIVATE
@@ -73,5 +75,6 @@ FCombineObjectLibrary(Application
 		InputSystem
 		MediaPlayer
 		SDL
+		Forms
 		Windows
 )

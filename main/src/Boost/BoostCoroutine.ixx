@@ -66,7 +66,7 @@ namespace detail {
 
 template< typename T >
 class pull_coroutine {
-private:
+public:
     template< typename X >
     friend class push_coroutine;
 
@@ -179,7 +179,7 @@ public:
 
 template< typename T >
 class pull_coroutine< T & > {
-private:
+public:
     template< typename X >
     friend class push_coroutine;
 
@@ -292,7 +292,7 @@ public:
 
 template<>
 class pull_coroutine< void > {
-private:
+public:
     template< typename X >
     friend class push_coroutine;
 
@@ -355,7 +355,7 @@ namespace detail {
 
 template< typename T >
 class push_coroutine {
-private:
+public:
     template< typename X >
     friend class pull_coroutine;
 
@@ -464,7 +464,7 @@ public:
 
 template< typename T >
 class push_coroutine< T & > {
-private:
+public:
     template< typename X >
     friend class pull_coroutine;
 
@@ -570,7 +570,7 @@ public:
 
 template<>
 class push_coroutine< void > {
-private:
+public:
     template< typename X >
     friend class pull_coroutine;
 

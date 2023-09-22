@@ -4,6 +4,8 @@ import Common3D;
 import Engine;
 import Resource1;
 import Script1;
+import MediaPlayer;
+
 using namespace System;
 using namespace System::Application;
 using namespace System::Application::Common3D;
@@ -41,7 +43,6 @@ GameObject* CreateMirror(const String& name = u"Mirror", uint8_t renderingOrder 
 	return gObj;
 }
 
-import MediaPlayer;
 class VideoScript : public Script {
 	MediaPlayer m_player;
 	Resource texture;
@@ -63,9 +64,10 @@ public:
 			uint32_t materialIndex = 0;
 			Renderer videoRenderer = Common3D::GetRenderer(Common3D::DefaultVideoRendererName);
 			for (Material& material : materials) {
-				material.texture = texture;
-				materialHeap.SetView(materialIndex * 5 + 1, ViewFormat::SRV, material.texture);
-				material.renderer = videoRenderer;
+				Resource& tex = material.GetResource(1);
+				tex = texture;
+				materialHeap.SetView(materialIndex * 5 + 1, ViewFormat::SRV, tex);
+				material.SetRenderer(videoRenderer);
 				++materialIndex;
 			}
 		}
@@ -92,8 +94,9 @@ public:
 			Heap materialHeap = mf.GetHeap();
 			uint32_t index = 0;
 			for (Material& material : mf.GetMaterials()) {
-				material.texture = texture;
-				materialHeap.SetView(index * 5 + 1, ViewFormat::SRV, material.texture);
+				Resource& tex = material.GetResource(1);
+				tex = texture;
+				materialHeap.SetView(index * 5 + 1, ViewFormat::SRV, tex);
 				++index;
 			}
 			gObj.UpdateCommandList();
@@ -245,7 +248,7 @@ public:
 			MeshFilter& mainMF = mainCameraScreen->AddComponent<MeshFilter>();
 			mainMF.LoadPlane();
 			Material& material = mainMF.GetMaterials()[0];
-			material.renderer = Common3D::GetRenderer(Common3D::DefaultVideoRendererName);
+			material.SetRenderer(Common3D::GetRenderer(Common3D::DefaultVideoRendererName));
 			this->AddObject(mainCameraScreen);
 
 			GameObject* uiCanvas = new GameObject(u"UI Canvas");

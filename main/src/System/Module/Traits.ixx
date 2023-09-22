@@ -5,6 +5,16 @@ import <iterator>;	//std::xxx_iterator, std::xxx_iterator_tag
 import <type_traits>;	//std::is_class, std::is_union
 import <iostream>;	//for operator<<() concepts
 
+//g++のために用意されたコンセプト
+export namespace System {
+	namespace Traits::Concepts {
+		template<class T>
+		concept CHasVirtualDeleteType = requires {
+			typename T::virtual_delete_type;
+		};
+	}
+}
+
 //他の定義に非依存な定義
 export namespace System {
 	//[固有] : テンプレート依存の定数(false_v, true_v, value_v)

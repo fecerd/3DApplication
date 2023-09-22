@@ -7,15 +7,21 @@ export import <new>;	//std::align_val_t
 export namespace System {
 	template<class T, class ...Args>
 	requires requires(T* p, Args&& ...args) {
-//		::new (static_cast<void*>(p)) T(System::move(args)...);
+//		::new (static_cast<void*>(p)) T(System::forward<Args>(args)...);
 		Traits::true_v<T, Args...>;
 	}
 	constexpr T* construct_at(T* p, Args&& ...args) {
-		return ::new (static_cast<void*>(p)) T(System::move(args)...);
+		return ::new (static_cast<void*>(p)) T(System::forward<Args>(args)...);
 	}
 	template<class T>
 	constexpr void destroy_at(T* p) requires (!Traits::Concepts::CArray<T>) {
-		p->~T();
+		if constexpr (Traits::Concepts::CHasVirtualDeleteType<T>) {
+			using delete_type = T::virtual_delete_type;
+			delete_type* tmp = p;
+			tmp->~delete_type();
+		} else {
+			p->~T();
+		}
 	}
 	template<Traits::Concepts::CForwardIterator Ite>
 	constexpr void destroy(Ite first, Ite last) {
@@ -147,7 +153,7 @@ namespace System::Internal {
 
 	template<class Alloc, class T, class ...Args>
 	concept CHasConstruct = requires(Alloc& alloc, T* p, Args&& ...args) {
-		alloc.construct(p, System::move(args)...);
+		alloc.construct(p, System::forward<Args>(args)...);
 	};
 	template<class Alloc, class T>
 	concept CHasDestroy = requires(Alloc& alloc, T* p) {
@@ -204,11 +210,11 @@ export namespace System {
 		}
 		template<class T, class ...Args>
 		static constexpr void Construct(Alloc& alloc, T* p, Args&& ...args) requires (Internal::CHasConstruct<Alloc, T, Args...>) {
-			alloc.construct(p, System::move(args)...);
+			alloc.construct(p, System::forward<Args>(args)...);
 		}
 		template<class T, class ...Args>
 		static constexpr void Construct(Alloc& alloc, T* p, Args&& ...args) requires (!Internal::CHasConstruct<Alloc, T, Args...>) {
-			System::construct_at(p, System::move(args)...);
+			System::construct_at(p, System::forward<Args>(args)...);
 		}
 		template<class T>
 		static constexpr void Destroy(Alloc& alloc, T* p) requires(Internal::CHasDestroy<Alloc, T>) {
@@ -237,7 +243,7 @@ export namespace System {
 		static constexpr pointer allocate(Alloc& alloc, size_type n, const_void_pointer hint) { return Allocate(alloc, n, hint); }
 		static constexpr void deallocate(Alloc& alloc, pointer p, size_type n) { Deallocate(alloc, p, n); }
 		template<class T, class ...Args>
-		static constexpr void construct(Alloc& alloc, T* p, Args&& ...args) { Construct(alloc, p, System::move(args)...); }
+		static constexpr void construct(Alloc& alloc, T* p, Args&& ...args) { Construct(alloc, p, System::forward<Args>(args)...); }
 		template<class T>
 		static constexpr void destroy(Alloc& alloc, T* p) { Destroy(alloc, p); }
 		static constexpr size_type max_size(const Alloc& alloc) noexcept { return MaxSize(alloc); }
@@ -261,7 +267,15 @@ export namespace System {
 		template<class U>
 		constexpr DefaultDelete(const DefaultDelete<U>&) noexcept {}
 	public:
-		constexpr void operator()(T* ptr) const { delete ptr; }
+		constexpr void operator()(T* ptr) const {
+			if constexpr (Traits::Concepts::CHasVirtualDeleteType<T>) {
+				using delete_type = T::virtual_delete_type;
+				delete_type* tmp = ptr;
+				delete tmp;
+			} else {
+				delete ptr;
+			}
+		}
 	};
 	template<class T>
 	struct DefaultDelete<T[]> {
@@ -273,7 +287,15 @@ export namespace System {
 	public:
 		template<class U>
 		requires Traits::Concepts::CAssignableTo<U*, element_type*>
-		constexpr void operator()(U* ptr) const { delete[] static_cast<element_type*>(ptr); }
+		constexpr void operator()(U* ptr) const {
+			if constexpr (Traits::Concepts::CHasVirtualDeleteType<element_type>) {
+				using delete_type = element_type::virtual_delete_type;
+				delete_type* tmp = static_cast<element_type*>(ptr);
+				delete[] tmp;
+			} else {
+				delete[] static_cast<element_type*>(ptr);
+			}
+		}
 	};
 	template<class T, size_t N>
 	struct DefaultDelete<T[N]> {
@@ -285,14 +307,22 @@ export namespace System {
 	public:
 		template<class U>
 		requires Traits::Concepts::CAssignableTo<U*, element_type*>
-		constexpr void operator()(U* ptr) const { delete[] static_cast<element_type*>(ptr); }
+		constexpr void operator()(U* ptr) const {
+			if constexpr (Traits::Concepts::CHasVirtualDeleteType<element_type>) {
+				using delete_type = element_type::virtual_delete_type;
+				delete_type* tmp = static_cast<element_type*>(ptr);
+				delete[] tmp;
+			} else {
+				delete[] static_cast<element_type*>(ptr);
+			}
+		}
 	};
 
 	template<class T, bool DefaultInitialize = false>
 	struct DefaultNew {
 		template<class ...Args>
 		constexpr T* operator()(Args&& ...args) const {
-			return new T(System::move(args)...);
+			return new T(System::forward<Args>(args)...);
 		}
 	};
 	template<class T>

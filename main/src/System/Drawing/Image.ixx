@@ -1,4 +1,5 @@
 ﻿export module Image;
+import Allocator;
 import Objects;
 import VectorBase;
 import Memory;
@@ -14,19 +15,22 @@ export namespace System::Drawing {
 	public:
 		Image() = default;
 		Image(uint32_t width, uint32_t height) noexcept : width(width), height(height) {
-			data = new Pixel[static_cast<size_t>(width) * height]{};
+			Allocator<Pixel> alloc;
+			const size_t size = static_cast<size_t>(width) * height;
+			data = alloc.allocate(size);
+			for (size_t i = 0; i < size; ++i) AllocatorTraits<Allocator<Pixel>>::ConstructDefault(alloc, data + i);
+			//data = new Pixel[static_cast<size_t>(width) * height]{};
 		}
 		Image(uint32_t width, uint32_t height, VectorBase<Pixel>&& pixels) noexcept : width(width), height(height), data(pixels.Release()) {}
-		Image(uint32_t width, uint32_t height, Pixel* data) noexcept : width(width), height(height) {
-			size_t size = static_cast<size_t>(width) * height;
-			this->data = new Pixel[size];
-			for (size_t i = 0; i < size; ++i) this->data[i] = data[i];
+		Image(uint32_t width, uint32_t height, Pixel* pixels) noexcept : width(width), height(height) {
+			Allocator<Pixel> alloc;
+			const size_t size = static_cast<size_t>(width) * height;
+			data = alloc.allocate(size);
+			for (size_t i = 0; i < size; ++i) AllocatorTraits<Allocator<Pixel>>::Construct(alloc, data + i, pixels[i]);
+			//data = new Pixel[size];
+			//for (size_t i = 0; i < size; ++i) this->data[i] = data[i];
 		}
-		Image(const Image& arg) noexcept : width(arg.width), height(arg.height) {
-			size_t size = static_cast<size_t>(width) * height;
-			data = new Pixel[size];
-			for (size_t i = 0; i < size; ++i) data[i] = arg.data[i];
-		}
+		Image(const Image& arg) noexcept : Image(arg.width, arg.height, arg.data) {}
 		Image(Image&& arg) noexcept : width(arg.width), height(arg.height), data(arg.data) {
 			arg.data = nullptr;
 			arg.width = 0;
@@ -34,7 +38,16 @@ export namespace System::Drawing {
 		}
 		Image(const String& filePath) noexcept;
 		~Image() noexcept {
-			delete[] data;
+			Reset();
+		}
+	private:
+		void Reset() noexcept {
+			if (data) {
+				Allocator<Pixel> alloc;
+				const size_t size = static_cast<size_t>(width) * height;
+				for (size_t i = size; i-- > 0;) AllocatorTraits<Allocator<Pixel>>::Destroy(alloc, data + i);
+				alloc.deallocate(data, size);
+			}
 			data = nullptr;
 			width = 0;
 			height = 0;
@@ -48,31 +61,41 @@ export namespace System::Drawing {
 		size_t Size() const noexcept { return static_cast<size_t>(width) * height; }
 	public:
 		static Image CreateImage(uint32_t width, uint32_t height) noexcept {
-			Image ret;
-			ret.width = width;
-			ret.height = height;
-			ret.data = new Pixel[ret.Size()]{};
-			return ret;
+			return Image(width, height);
 		}
 		static Image CreateSingleColorImage(uint32_t width, uint32_t height, Pixel pixel) noexcept {
 			Image ret;
 			ret.width = width;
 			ret.height = height;
-			size_t size = ret.Size();
-			ret.data = new Pixel[size];
-			for (size_t i = 0; i < size; ++i) ret.data[i] = pixel;
+
+			Allocator<Pixel> alloc;
+			const size_t size = ret.Size();
+			ret.data = alloc.allocate(size);
+			for (size_t i = 0; i < size; ++i) AllocatorTraits<Allocator<Pixel>>::Construct(alloc, ret.data + i, pixel);
+
+			//size_t size = ret.Size();
+			//ret.data = new Pixel[size];
+			//for (size_t i = 0; i < size; ++i) ret.data[i] = pixel;
 			return ret;
 		}
 		static Image CreateToonImage() noexcept {
 			Image ret;
 			ret.width = 1;
 			ret.height = 256;
-			size_t size = ret.Size();
-			ret.data = new Pixel[size];
-			uint8_t i = 0;
-			do {
-				ret.data[255 - i] = Pixel(i, i, i, 255);
-			} while (++i);
+
+			Allocator<Pixel> alloc;
+			const size_t size = ret.Size();
+			ret.data = alloc.allocate(size);
+			for (uint32_t i = 0; i < ret.height; ++i) {
+				AllocatorTraits<Allocator<Pixel>>::Construct(alloc, ret.data + (255 - i), Pixel(i, i, i, 255));
+			}
+
+			// size_t size = ret.Size();
+			// ret.data = new Pixel[size];
+			// uint8_t i = 0;
+			// do {
+			// 	ret.data[255 - i] = Pixel(i, i, i, 255);
+			// } while (++i);
 			return ret;
 		}
 		static Image FromFile(const String& filePath) noexcept;
@@ -187,17 +210,19 @@ export namespace System::Drawing {
 		const Pixel& operator[](size_t index) const { return data[index]; }
 		Image& operator=(const Image& rhs) noexcept {
 			if (this == &rhs) return *this;
-			delete[] data;
-			width = rhs.width;
-			height = rhs.height;
-			size_t size = static_cast<size_t>(width) * height;
-			data = new Pixel[size];
-			for (size_t i = 0; i < size; ++i) data[i] = rhs.data[i];
+			*this = Image(rhs);
+			//delete[] data;
+			// width = rhs.width;
+			// height = rhs.height;
+			// const size_t size = Size();
+			// data = new Pixel[size];
+			// for (size_t i = 0; i < size; ++i) data[i] = rhs.data[i];
 			return *this;
 		}
 		Image& operator=(Image&& rhs) noexcept {
 			if (this == &rhs) return *this;
-			delete[] data;
+			Reset();
+			//delete[] data;
 			width = rhs.width;
 			height = rhs.height;
 			data = rhs.data;

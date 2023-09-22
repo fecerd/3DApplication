@@ -4,7 +4,7 @@ import Application;	//IWindow
 import Common3DInterface;
 import DirectXHelper;
 import DirectXResource;
-import DXHeader;
+export import DXHeader;
 
 using namespace System::Application::Common3D;
 using namespace DX;
@@ -491,7 +491,11 @@ export namespace System::Application::Windows::DirectX {
 		PlatformID GetPlatformID() const noexcept override { return PlatformID::DirectX; }
 		void SetName(const String& name) noexcept override {
 			if (!m_resources) return;
-			for (uint32_t i = 0; i < m_count; ++i) m_resources[i]->SetName(String::Joint(name, i).w_str());
+			for (uint32_t i = 0; i < m_count; ++i) {
+#if false
+				m_resources[i]->SetName(String::Joint(name, i).w_str());
+#endif
+			}
 		}
 	public:
 		void Next() noexcept override {
@@ -535,7 +539,9 @@ export namespace System::Application::Windows::DirectX {
 		uint32_t GetAllViewCount() const noexcept override { return m_viewCount * m_viewsSetCount; }
 		PlatformID GetPlatformID() const noexcept override { return PlatformID::DirectX; }
 		void SetName(const String& name) noexcept override {
+#if false
 			if (m_heap) m_heap->SetName(name.w_str());
+#endif
 		}
 	public:
 		bool SetView(uint32_t index, ViewFormat format, ManagedObject<IResource> resource) noexcept override;
@@ -559,6 +565,13 @@ export namespace System::Application::Windows::DirectX {
 		D3DBundle(ID3D12Device& device, uint32_t materialCount) noexcept;
 		~D3DBundle() noexcept {
 			SafeRelease(m_bundle, m_allocator);
+		}
+	public:
+		void SetName(const String& name) noexcept override {
+#if false
+			m_allocator->SetName((name).w_str());
+			m_bundle->SetName((name).w_str());
+#endif
 		}
 	private:
 		bool SetHeap_Internal(const ManagedObject<IHeap>& heap, HeapType type) noexcept;
@@ -665,6 +678,7 @@ export namespace System::Application::Windows::DirectX {
 			return PlatformID::DirectX;
 		}
 		void SetName(const String& name) noexcept override {
+#if false
 			for (uint32_t i = 0, targetCount = GetTargetCount(); i < targetCount; ++i) {
 				String tmp = String::Joint(name, u": Target", i);
 				m_rtvResources[i]->SetName(tmp + u": RTVResource");
@@ -672,6 +686,11 @@ export namespace System::Application::Windows::DirectX {
 			m_dsvResources->SetName(String::Joint(name, u": DSVResource"));
 			m_rtvHeap->SetName(String::Joint(name, u": RTVHeap"));
 			m_dsvHeap->SetName(String::Joint(name, u": DSVHeap"));
+			m_allocator->SetName((name).w_str());
+			m_list->SetName((name).w_str());
+			m_queue->SetName((name).w_str());
+			m_fence->SetName((name).w_str());
+#endif
 		}
 	private:
 		void SetTransitionBarrier(ID3D12Resource& resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after, uint32_t subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES) {
@@ -905,6 +924,196 @@ export namespace System::Application::Windows::DirectX {
 	};
 }
 
+//CopyCommandList
+namespace System::Application::Windows::DirectX {
+	struct CommandAllocator {
+		ID3D12CommandAllocator* allocator = nullptr;
+		uint64_t fenceVal = 0;
+		List<IUnknown*> releaseList;
+	public:
+		CommandAllocator() noexcept = default;
+		CommandAllocator(const CommandAllocator&) noexcept = delete;
+		CommandAllocator(CommandAllocator&&) noexcept = default;
+		~CommandAllocator() noexcept = default;
+	public:
+		CommandAllocator& operator=(const CommandAllocator&) noexcept = delete;
+		CommandAllocator& operator=(CommandAllocator&&) noexcept = default;		
+	};
+
+	struct UploadResourceCache {
+		ID3D12Resource* resource = nullptr;
+		uint64_t fenceVal = 0;
+		size_t typeSize = 0;
+		uint64_t width = 0;
+		uint32_t height = 0;
+	};
+
+	class CopyCommandList {
+		List<CommandAllocator> m_allocatorList;
+		ID3D12GraphicsCommandList* m_list = nullptr;
+		ID3D12CommandQueue* m_queue = nullptr;
+		ID3D12Fence* m_fence = nullptr;
+		uint64_t m_fenceVal = 0;
+		bool m_beginning = false;
+		ID3D12Device& m_device;
+		List<UploadResourceCache> m_uploadCache;
+	private:
+		void Signal(uint64_t val) noexcept {
+			m_queue->Signal(m_fence, val);
+		}
+		bool Wait(uint64_t val, bool wait) noexcept {
+			const uint64_t completedVal = m_fence->GetCompletedValue();
+			//val未満の値が設定されている、もしくはvalがオーバーフローしている
+			if ((completedVal < val) || (completedVal - val > 0xffffffffull)) {
+				if (!wait) return false;
+				HANDLE fenceEv = CreateEvent(nullptr, false, false, nullptr);
+				m_fence->SetEventOnCompletion(val, fenceEv);
+				WaitForSingleObject(fenceEv, INFINITE);
+				CloseHandle(fenceEv);
+				return true;
+			}
+			else return true;
+		}
+	public:
+		CopyCommandList(ID3D12Device& device) noexcept : m_device(device) {
+			m_device.AddRef();
+			m_queue = Helpers::CreateCommandQueue(m_device);
+			m_fence = Helpers::CreateFence(m_device);
+			CommandAllocator allocator;
+			allocator.allocator = Helpers::CreateCommandAllocator(m_device);
+			m_list = Helpers::CreateCommandList(m_device, *allocator.allocator);
+			m_list->Close();
+			allocator.fenceVal = m_fenceVal + 1;
+			m_allocatorList.PushBack(System::move(allocator));
+		}
+		~CopyCommandList() noexcept {
+			if (m_beginning) EndCommand();
+			Signal(++m_fenceVal);
+			Wait(m_fenceVal, true);
+			for (UploadResourceCache& x : m_uploadCache) {
+				SafeRelease(x.resource);
+			}
+			for (CommandAllocator& x : m_allocatorList) {
+				x.allocator->Reset();
+				if (m_list) {
+					m_list->Reset(x.allocator, nullptr);
+					SafeRelease(m_list);
+				}
+				for (IUnknown*& i : x.releaseList) SafeRelease(i);
+				x.releaseList.Clear();
+				SafeRelease(x.allocator);
+			}
+			SafeRelease(m_fence, m_queue);
+			m_device.Release();
+		}
+	public:
+		bool BeginCommand() noexcept {
+			if (m_beginning) return false;
+			uint32_t del = 0;
+			for (auto ite = m_allocatorList.begin(), e = m_allocatorList.end(); ite != e;) {
+				CommandAllocator& allocator = *ite;
+				if (Wait(allocator.fenceVal, false)) {
+					allocator.allocator->Reset();
+					for (IUnknown*& i : allocator.releaseList) SafeRelease(i);
+					allocator.releaseList.Clear();
+					if (!m_beginning) {
+						m_list->Reset(allocator.allocator, nullptr);
+						allocator.fenceVal = ++m_fenceVal;
+						m_beginning = true;
+					}
+					else {
+						++del;
+						if (del > 10) {
+							m_allocatorList.Remove(ite);
+						}
+					}
+				}
+				++ite;
+			}
+			if (m_beginning) return true;
+			CommandAllocator allocator;
+			allocator.allocator = Helpers::CreateCommandAllocator(m_device);
+			allocator.fenceVal = ++m_fenceVal;
+			m_list->Reset(allocator.allocator, nullptr);
+			m_allocatorList.PushBack(System::move(allocator));
+			m_beginning = true;
+			return true;
+		}
+		bool ResourceBarrier(uint32_t count, const D3D12_RESOURCE_BARRIER* barriers) noexcept {
+			if (!m_beginning) return false;
+			m_list->ResourceBarrier(count, barriers);
+			return true;
+		}
+		bool CopyTextureRegion(const D3D12_TEXTURE_COPY_LOCATION* pDst, uint32_t dstX, uint32_t dstY, uint32_t dstZ, const D3D12_TEXTURE_COPY_LOCATION* pSrc, const D3D12_BOX* pSrcBox) noexcept {
+			if (!m_beginning) return false;
+			m_list->CopyTextureRegion(pDst, dstX, dstY, dstZ, pSrc, pSrcBox);
+			return true;
+		}
+		bool AddReleaseObject(IUnknown* obj) noexcept {
+			if (!m_beginning) return false;
+			for (CommandAllocator& x : m_allocatorList) {
+				if (x.fenceVal == m_fenceVal) {
+					x.releaseList.PushBack(obj);
+					return true;
+				}
+			}
+			return false;
+		}
+		bool EndCommand() noexcept {
+			if (!m_beginning) return false;
+			m_list->Close();
+			ID3D12CommandList* lists[] = { m_list };
+			m_queue->ExecuteCommandLists(1, lists);
+			Signal(m_fenceVal);
+			m_beginning = false;
+			return true;
+		}
+	public:
+		ID3D12Resource* GetUploadResourceCache(size_t typeSize, uint64_t width, uint32_t height, bool alignment = true, uint32_t remainCount = 1) noexcept {
+			for (UploadResourceCache& x : m_uploadCache) {
+				if (Wait(x.fenceVal, false)) {
+					if (x.typeSize == typeSize && x.width == width && x.height == height) {
+						x.fenceVal = m_fenceVal + remainCount + 1;
+						return x.resource;
+					}
+				}
+			}
+			D3D12_HEAP_PROPERTIES prop{};
+			prop.Type = D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
+			prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+			prop.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
+			prop.CreationNodeMask = 0;
+			prop.VisibleNodeMask = 0;
+			D3D12_RESOURCE_DESC desc{};
+			desc.Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+			desc.Dimension = D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;
+			//データサイズ
+			desc.Width = alignment
+				? Helpers::GetAlignmentedSize(width * typeSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT) * height
+				: width * typeSize * height;
+			desc.Height = 1;	//Widthに高さを含めているため一次元
+			desc.DepthOrArraySize = 1;
+			desc.MipLevels = 1;
+			desc.Layout = D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+			desc.Flags = D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
+			desc.SampleDesc.Count = 1;
+			desc.SampleDesc.Quality = 0;
+			ID3D12Resource* ret = nullptr;
+			if (m_device.CreateCommittedResource(&prop, D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&ret)) != S_OK) {
+				return nullptr;
+			}
+			UploadResourceCache cache;
+			cache.resource = ret;
+			cache.typeSize = typeSize;
+			cache.width = width;
+			cache.height = height;
+			cache.fenceVal = m_fenceVal + remainCount + 1;
+			m_uploadCache.PushBack(System::move(cache));
+			return ret;
+		}	
+	};
+}
+
 //Manager
 export namespace System::Application::Windows::DirectX {
 	class DirectXManager {
@@ -915,7 +1124,6 @@ export namespace System::Application::Windows::DirectX {
 		static void DebugReport() noexcept;
 	private:
 		inline static DirectXManager* pManager = nullptr;
-		static Mutex& GetMutex() noexcept;
 	public:
 		static ExclusiveObject<DirectXManager> GetManager();
 		static bool CloseManager();
@@ -930,6 +1138,7 @@ export namespace System::Application::Windows::DirectX {
 		ManagedObject<IResource> m_whiteTexture;
 		ManagedObject<IResource> m_blackTexture;
 		ManagedObject<IResource> m_toonTexture;
+		UniquePtr<CopyCommandList> m_copyCommandList = nullptr;
 	private:
 		VectorBase<ManagedObject<IShader>> m_shaders;
 		VectorBase<ManagedObject<IRenderer>> m_renderers;

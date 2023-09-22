@@ -1,12 +1,13 @@
 ﻿export module Scene2;
 import Engine;
-using namespace System;
-using namespace System::Application;
-using namespace Engine;
 
 import MediaPlayer;
 import Resource1;
 import Scene1;
+
+using namespace System;
+using namespace System::Application;
+using namespace Engine;
 
 export class Scene2 : public Scene {
 	using Scene::Scene;

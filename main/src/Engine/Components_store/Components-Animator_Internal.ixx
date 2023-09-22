@@ -43,13 +43,23 @@ struct Engine::KeyBone {
 	Vector<Bone*> bones;
 public:
 	KeyBone() noexcept = default;
-	KeyBone(KeyBone&&) noexcept = default;
+	KeyBone(const KeyBone&) noexcept = delete;
+	KeyBone(KeyBone&& arg) noexcept : hash(arg.hash), bones(System::move(arg.bones)) {
+		arg.hash = 0;
+	}
 	~KeyBone() noexcept {
 		bones.DeleteAll();
 		hash = 0;
 	}
 public:
-	KeyBone& operator=(KeyBone&&) noexcept = default;
+	KeyBone& operator=(const KeyBone&) noexcept = delete;
+	KeyBone& operator=(KeyBone&& rhs) noexcept {
+		if (this == &rhs) return *this;
+		hash = rhs.hash;
+		rhs.hash = 0;
+		bones = System::move(rhs.bones);
+		return *this;
+	}
 };
 
 /// <summary>
@@ -216,18 +226,18 @@ public:
 class Engine::State {
 	String m_name;	//この状態の名前(Animationクラスのインスタンス内で一意)
 	bool m_useFrameMotion = true;	//trueのときMotionクラスを、falseのときMotionByBoneクラスを使用する
-	union {
-		Motion* m_motion = nullptr;	//この状態時のアニメーション
-		MotionByBone* m_motionByBone;
-	};
+	union MotionUnion {
+		Motion* motion = nullptr;	//この状態時のアニメーション
+		MotionByBone* motionByBone;
+	} m_motions;
 	bool m_repeat = true;	//アニメーションをリピートするか否か
 public:
 	State() noexcept = default;
 	State(const String& name) noexcept : m_name(name) {}
 	~State() noexcept {
-		if (m_useFrameMotion) delete m_motion;
-		else delete m_motionByBone;
-		m_motion = nullptr;
+		if (m_useFrameMotion) delete m_motions.motion;
+		else delete m_motions.motionByBone;
+		m_motions.motion = nullptr;
 	}
 public:
 	/// <summary>
@@ -243,13 +253,13 @@ public:
 	/// 状態名"Empty"、初期姿勢のアニメーションを設定する
 	/// </summary>
 	void SetEmptyMotion(bool useFrameMotion = true) noexcept {
-		if (m_motion) {
-			if (m_useFrameMotion) delete m_motion;
-			else delete m_motionByBone;
+		if (m_motions.motion) {
+			if (m_useFrameMotion) delete m_motions.motion;
+			else delete m_motions.motionByBone;
 		}
 		m_useFrameMotion = useFrameMotion;
-		if (m_useFrameMotion) m_motion = new Motion();
-		else m_motionByBone = new MotionByBone();
+		if (m_useFrameMotion) m_motions.motion = new Motion();
+		else m_motions.motionByBone = new MotionByBone();
 		m_name = u"Empty";
 	}
 	/// <summary>
@@ -257,13 +267,13 @@ public:
 	/// </summary>
 	/// <param name="filePath">VMDファイル名</param>
 	void SetMotion(const String& filePath, bool useFrameMotion = true) noexcept {
-		if (m_motion) {
-			if (m_useFrameMotion) delete m_motion;
-			else delete m_motionByBone;
+		if (m_motions.motion) {
+			if (m_useFrameMotion) delete m_motions.motion;
+			else delete m_motions.motionByBone;
 		}
 		m_useFrameMotion = useFrameMotion;
-		if (m_useFrameMotion) m_motion = new Motion(filePath);
-		else m_motionByBone = new MotionByBone(filePath);
+		if (m_useFrameMotion) m_motions.motion = new Motion(filePath);
+		else m_motions.motionByBone = new MotionByBone(filePath);
 	}
 public:
 	/// <summary>
@@ -284,8 +294,8 @@ public:
 	/// </summary>
 	template<bool useFrameMotion = true>
 	Traits::conditional_t<useFrameMotion, Motion*, MotionByBone*> GetMotion() noexcept {
-		if constexpr (useFrameMotion) return m_motion;
-		else return m_motionByBone;
+		if constexpr (useFrameMotion) return m_motions.motion;
+		else return m_motions.motionByBone;
 	}
 };
 
@@ -298,7 +308,9 @@ struct Engine::Transition {
 	Function<bool(GameObject&)> condition;	//遷移条件式。trueのとき、状態が遷移する
 public:
 	bool operator()(GameObject& gObj) noexcept { return condition(gObj); }
-	bool operator==(const Transition& rhs) noexcept { return before == rhs.before && after == rhs.after && condition == rhs.condition; }
+	bool operator==(const Transition& rhs) noexcept {
+		return before == rhs.before && after == rhs.after;// && condition == rhs.condition;
+	}
 };
 
 /// <summary>

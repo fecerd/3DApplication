@@ -48,16 +48,16 @@ export namespace System {
 		constexpr ~UniquePtr() noexcept { Reset(); }
 	public:
 		constexpr UniquePtr(pointer ptr, deleter_type const& deleter) noexcept requires(NonReferenceDeleter)
-			: m_ptr(ptr), m_deleter(System::move(deleter)) {}
+			: m_ptr(ptr), m_deleter(System::forward<deleter_type>(deleter)) {}
 		constexpr UniquePtr(pointer ptr, deleter_type&& deleter) noexcept requires(NonReferenceDeleter)
-			: m_ptr(ptr), m_deleter(System::move(deleter)) {}
+			: m_ptr(ptr), m_deleter(System::forward<deleter_type>(deleter)) {}
 	public:
 		constexpr UniquePtr(pointer ptr, deleter_type& deleter) noexcept requires(LValueReferenceDeleter)
-			: m_ptr(ptr), m_deleter(System::move(deleter)) {}
+			: m_ptr(ptr), m_deleter(System::forward<deleter_type>(deleter)) {}
 		constexpr UniquePtr(pointer ptr, deleter_type&& deleter) noexcept requires(LValueReferenceDeleter) = delete;
 	public:
 		constexpr UniquePtr(pointer ptr, deleter_type const& deleter) noexcept requires(RValueReferenceDeleter)
-			: m_ptr(ptr), m_deleter(System::move(deleter)) {}
+			: m_ptr(ptr), m_deleter(System::forward<deleter_type>(deleter)) {}
 		constexpr UniquePtr(pointer ptr, deleter_type const&& deleter) noexcept requires(RValueReferenceDeleter) = delete;
 	public:
 		constexpr pointer Release() noexcept {
@@ -85,6 +85,13 @@ export namespace System {
 		constexpr deleter_type const& GetDeleter() const noexcept {
 			return m_deleter;
 		}
+	public:/* std::unique_ptr互換 */
+		constexpr pointer release() noexcept { return Release(); }
+		constexpr void reset(pointer ptr = pointer()) noexcept { Reset(ptr); }
+		constexpr void swap(UniquePtr& other) noexcept { Swap(other); }
+		constexpr pointer get() const noexcept { return Get(); }
+		constexpr deleter_type& get_deleter() noexcept { return GetDeleter(); }
+		constexpr deleter_type const& get_deleter() const noexcept { return GetDeleter(); }
 	public:
 		constexpr Traits::add_lvalue_reference_t<T> operator*() const noexcept {
 			return *m_ptr;
@@ -141,16 +148,16 @@ export namespace System {
 		constexpr ~UniquePtr() noexcept { Reset(); }
 	public:
 		constexpr UniquePtr(pointer ptr, deleter_type const& deleter) noexcept requires(NonReferenceDeleter)
-			: m_ptr(ptr), m_deleter(System::move(deleter)) {}
+			: m_ptr(ptr), m_deleter(System::forward<deleter_type>(deleter)) {}
 		constexpr UniquePtr(pointer ptr, deleter_type&& deleter) noexcept requires(NonReferenceDeleter)
-			: m_ptr(ptr), m_deleter(System::move(deleter)) {}
+			: m_ptr(ptr), m_deleter(System::forward<deleter_type>(deleter)) {}
 	public:
 		constexpr UniquePtr(pointer ptr, deleter_type& deleter) noexcept requires(LValueReferenceDeleter)
-			: m_ptr(ptr), m_deleter(System::move(deleter)) {}
+			: m_ptr(ptr), m_deleter(System::forward<deleter_type>(deleter)) {}
 		constexpr UniquePtr(pointer ptr, deleter_type&& deleter) noexcept requires(LValueReferenceDeleter) = delete;
 	public:
 		constexpr UniquePtr(pointer ptr, deleter_type const& deleter) noexcept requires(RValueReferenceDeleter)
-			: m_ptr(ptr), m_deleter(System::move(deleter)) {}
+			: m_ptr(ptr), m_deleter(System::forward<deleter_type>(deleter)) {}
 		constexpr UniquePtr(pointer ptr, deleter_type const&& deleter) noexcept requires(RValueReferenceDeleter) = delete;
 	public:
 		constexpr pointer Release() noexcept {
@@ -184,6 +191,15 @@ export namespace System {
 		constexpr deleter_type const& GetDeleter() const noexcept {
 			return m_deleter;
 		}
+	public:/* std::unique_ptr互換 */
+		constexpr pointer release() noexcept { return Release(); }
+		template<class U>
+		constexpr void reset(U ptr) noexcept { Reset(ptr); }
+		constexpr void reset(nullptr_t = nullptr) noexcept { Reset(nullptr); }
+		constexpr void swap(UniquePtr& other) noexcept { Swap(other); }
+		constexpr pointer get() const noexcept { return Get(); }
+		constexpr deleter_type& get_deleter() noexcept { return GetDeleter(); }
+		constexpr deleter_type const& get_deleter() const noexcept { return GetDeleter(); }
 	public:
 		constexpr T& operator[](size_t index) const {
 			return m_ptr[index];
@@ -242,6 +258,13 @@ export namespace System {
 			m_ptr = tmp;
 		}
 		constexpr pointer Get() const noexcept { return m_ptr; }
+		constexpr deleter_type GetDeleter() const noexcept { return deleter_type(); }
+	public:/* std::unique_ptr互換 */
+		constexpr pointer release() noexcept { return Release(); }
+		constexpr void reset(pointer ptr = pointer()) noexcept { Reset(ptr); }
+		constexpr void swap(UniquePtr& other) noexcept { Swap(other); }
+		constexpr pointer get() const noexcept { return Get(); }
+		constexpr deleter_type get_deleter() const noexcept { return GetDeleter(); }
 	public:
 		constexpr Traits::add_lvalue_reference_t<T> operator*() const noexcept {
 			return *m_ptr;
@@ -307,6 +330,15 @@ export namespace System {
 			m_ptr = tmp;
 		}
 		constexpr pointer Get() const noexcept { return m_ptr; }
+		constexpr deleter_type GetDeleter() const noexcept { return deleter_type(); }
+	public:/* std::unique_ptr互換 */
+		constexpr pointer release() noexcept { return Release(); }
+		template<class U>
+		constexpr void reset(U ptr) noexcept { Reset(ptr); }
+		constexpr void reset(nullptr_t = nullptr) noexcept { Reset(nullptr); }
+		constexpr void swap(UniquePtr& other) noexcept { Swap(other); }
+		constexpr pointer get() const noexcept { return Get(); }
+		constexpr deleter_type get_deleter() const noexcept { return GetDeleter(); }
 	public:
 		constexpr T& operator[](size_t index) const {
 			return m_ptr[index];
@@ -329,7 +361,7 @@ export namespace System {
 export namespace System {
 	template<Traits::Concepts::CNotArray T, class ...Args>
 	constexpr UniquePtr<T> MakeUnique(Args&& ...args) {
-		T* ptr = DefaultNew<T>()(System::move(args)...);
+		T* ptr = DefaultNew<T>()(System::forward<Args>(args)...);
 		return UniquePtr<T>(ptr);
 	}
 	template<Traits::Concepts::CUnknownBoundArray T>

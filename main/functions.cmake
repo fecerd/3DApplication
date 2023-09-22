@@ -346,26 +346,28 @@ function(FAddObjectLibrary libname)
 	add_custom_target(${libname}_t DEPENDS ${libname})
 
 	## ターゲット限定の削除コマンド
-	add_custom_target(${libname}_clean
+	add_custom_target(${libname}_clean_internal
 		COMMAND ${CMAKE_COMMAND} -E rm -f $<TARGET_OBJECTS:${libname}> ${_bmi_files}
 		COMMAND_EXPAND_LISTS	#これがないとgenerator expressionのリストがセミコロン区切りのstringになってしまう
 	)
+	add_custom_target(${libname}_clean DEPENDS ${libname}_clean_internal)
 	## このターゲットに依存するターゲットも含めて削除するコマンド
-	add_custom_target(${libname}_clean_d DEPENDS ${libname}_clean)
+	add_custom_target(${libname}_clean_d_internal DEPENDS ${libname}_clean_internal)
+	add_custom_target(${libname}_clean_d DEPENDS ${libname}_clean_d_internal)
 	foreach(_depend ${_depends})
 		if (TARGET ${_depend} AND NOT(${_depend} STREQUAL std))
 			## すでに存在するなら単純に依存関係を追加する
-			add_dependencies(${_depend}_clean_d ${libname}_clean_d)
+			add_dependencies(${_depend}_clean_d_internal ${libname}_clean_d_internal)
 		else()
 			## まだ定義されていない依存ターゲットはキャッシュ変数に保存しておく
 			set(_tmp_list "${Cache_${_depend}_clean_depends}")
-			list(APPEND _tmp_list ${libname}_clean_d)
+			list(APPEND _tmp_list ${libname}_clean_d_internal)
 			set(Cache_${_depend}_clean_depends "${_tmp_list}" CACHE INTERNAL "")
 		endif()
 	endforeach()
 	## キャッシュ変数が存在するなら依存関係を追加し、削除する
 	if (Cache_${libname}_clean_depends)
-		add_dependencies(${libname}_clean_d ${Cache_${libname}_clean_depends})
+		add_dependencies(${libname}_clean_d_internal ${Cache_${libname}_clean_depends})
 		unset(Cache_${libname}_clean_depends CACHE)
 	endif()
 
@@ -373,6 +375,7 @@ function(FAddObjectLibrary libname)
 	if (MSVC OR MSBUILD)
 		foreach(_bmi ${_bmi_files})
 			get_filename_component(module_name ${_bmi} NAME_WE)
+			string(REPLACE "-" ":" module_name ${module_name})
 			list(APPEND ${libname}_BMI_OPTIONS "SHELL:-reference ${module_name}=${_bmi}")
 			## 上述の理由により、MSBUILDではBMIファイルをカスタムコマンドで移動する
 			if (MSBUILD)
@@ -392,6 +395,7 @@ function(FAddObjectLibrary libname)
 	elseif (CLANG)
 		foreach(_bmi ${_bmi_files})
 			get_filename_component(module_name ${_bmi} NAME_WE)
+			string(REPLACE "-" ":" module_name ${module_name})
 			list(APPEND ${libname}_BMI_OPTIONS "SHELL:-fmodule-file=${module_name}=${_bmi}")
 		endforeach()
 	endif()
@@ -466,27 +470,34 @@ function(FCombineObjectLibrary libname)
 
 	## ターゲット限定の削除コマンド
 	set(remove_args ${_public} ${_private})
-	list(TRANSFORM remove_args APPEND _clean)
-	add_custom_target(${libname}_clean
+	list(TRANSFORM remove_args APPEND _clean_internal)
+	add_custom_target(${libname}_clean_internal
 		## 単純に$<TARGET_FILE:${libname}>を使用するとそのファイルが依存関係に組み込まれてしまうため、以下のように取得する。
 		COMMAND ${CMAKE_COMMAND} -E rm -f $<TARGET_FILE_PREFIX:${libname}>$<TARGET_FILE_BASE_NAME:${libname}>$<TARGET_FILE_SUFFIX:${libname}>
 		## 上のコマンドはディレクトリを含まないため、WORKING_DIRECTORYを指定する必要がある。
 		WORKING_DIRECTORY $<TARGET_PROPERTY:${libname},BINARY_DIR>
-		## すべてのオブジェクトライブラリの削除ターゲットを含む
-		DEPENDS ${remove_args}
 		COMMAND_EXPAND_LISTS
 	)
+	## 依存するオブジェクトライブラリの削除コマンドも呼び出す
+	add_custom_target(${libname}_clean DEPENDS ${libname}_clean_internal ${remove_args})
 	## このターゲットに依存するターゲットも含めて削除するコマンド
-	add_custom_target(${libname}_clean_d DEPENDS ${libname}_clean)
+	add_custom_target(${libname}_clean_d_internal DEPENDS ${libname}_clean_internal)
+	add_custom_target(${libname}_clean_d DEPENDS ${libname}_clean_d_internal)
 	## キャッシュ変数が存在するなら依存関係を追加し、削除する
 	if (Cache_${libname}_clean_depends)
-		add_dependencies(${libname}_clean_d ${Cache_${libname}_clean_depends})
+		add_dependencies(${libname}_clean_d_internal ${Cache_${libname}_clean_depends})
 		unset(Cache_${libname}_clean_depends CACHE)
 	endif()
+
 	## 依存するオブジェクトライブラリの削除用ターゲット***_clean_dにこのライブラリの削除用ターゲットを追加する
 	## なお、オブジェクトライブラリはすべて同ディレクトリ内で定義済みとする
-	foreach(arg ${remove_args})
-		add_dependencies(${arg}_d ${libname}_clean_d)
+	foreach(arg ${_public} ${_private})
+		add_dependencies(${arg}_clean_d_internal ${libname}_clean_d_internal)
+		## 依存するオブジェクトライブラリの削除用ターゲットも呼び出す
+		add_custom_target(${libname}_${arg}_clean_internal
+			DEPENDS ${arg}_clean_d_internal
+		)
+		add_dependencies(${libname}_clean_d ${libname}_${arg}_clean_internal)
 	endforeach()
 endfunction()
 
@@ -642,7 +653,7 @@ function(FSetCompileOptions _my_std_path)
 		set(RELEASE_OPTIONS -MD)
 		set(MODULE_OPTIONS)
 		set(WARNING_OPTIONS)
-		set(OTHER_OPTIONS -EHsc -nologo -fp:precise)
+		set(OTHER_OPTIONS -EHsc -nologo -fp:precise -bigobj)
 		set(MODULE_HEADER_OPTIONS -c -exportHeader -ifcOutput "${STD_OUTPUT_DIR}\\")
 		set(MODULE_PRECOMPILE_OPTIONS)
 		set(MODULE_NO_PRECOMPILE_OPTIONS -interface -TP)
@@ -657,7 +668,7 @@ function(FSetCompileOptions _my_std_path)
 		set(RELEASE_OPTIONS -MD)
 		set(MODULE_OPTIONS)
 		set(WARNING_OPTIONS)
-		set(OTHER_OPTIONS -EHsc -nologo)
+		set(OTHER_OPTIONS -EHsc -nologo -bigobj)
 		set(MODULE_HEADER_OPTIONS -c -exportHeader -ifcOutput "${STD_OUTPUT_DIR}\\")
 		set(MODULE_PRECOMPILE_OPTIONS)
 		set(MODULE_NO_PRECOMPILE_OPTIONS -interface -TP -ifcOutput "${BMI_OUTPUT_DIR}\\")
@@ -688,12 +699,19 @@ function(FSetCompileOptions _my_std_path)
 		set(DEBUG_OPTIONS -g -D_DEBUG)
 		set(MODULE_OPTIONS)
 		set(WARNING_OPTIONS -Wno-ambiguous-ellipsis -Wno-pragma-system-header-outside-header -Wno-unknown-attributes -Wno-user-defined-literals -Wno-keyword-compat -Wno-unknown-warning-option -Wno-deprecated-builtins -Wno-unused-command-line-argument -Wno-nonportable-include-path -Wno-pragma-pack -Wno-ignored-attributes)
-		set(OTHER_OPTIONS -mwindows)
+		set(OTHER_OPTIONS
+			-mwindows
+		)
 		set(MODULE_HEADER_OPTIONS --precompile -x c++-system-header)
 		set(MODULE_PRECOMPILE_OPTIONS --precompile -x c++-module)
 		set(MODULE_NO_PRECOMPILE_OPTIONS)
 		set(INCLUDE_PATHS
+#			C:/msys64/clang64/include/directx
 			C:/msys64/mingw64/include/directx
+#			"\"C:/Program Files/Microsoft Visual Studio/2022/Preview/VC/Tools/MSVC/14.37.32822/include\""
+#			"\"C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/shared\""
+#			"\"C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/um\""
+#			"\"C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/ucrt\""
 		)
 	endif()
 	## すべてのオプションをまとめる
@@ -775,19 +793,32 @@ function(FSetLinkerOptions)
 	set(DEBUG_OPTIONS)
 	set(RELEASE_OPTIONS)
 	set(OTHER_OPTIONS)
+	set(WINDOWS_OPTIONS)
 
 	if (MSBUILD)
 
 	elseif (MSVC)
-		## MSVCではMANIFESTを無効にしないとリンクできない
-		set(OTHER_OPTIONS -MANIFEST:NO)
+		set(OTHER_OPTIONS
+			-MANIFEST:NO	## MSVCではMANIFESTを無効にしないとリンクできない
+		)
+		set(WINDOWS_OPTIONS
+			-SUBSYSTEM:WINDOWS -entry:mainCRTStartup	## サブシステムとエントリポイントの指定
+		)
 	elseif (GCC)
 		set(DEBUG_OPTIONS -g)
 		## 多重定義でリンクエラーがでる。
 		## あまり得策ではないが、多重定義を無視するリンカオプションをつけて対応する。
 		set(OTHER_OPTIONS -Wl,--allow-multiple-definition)
 	elseif (CLANG)
-
+		set(WINDOWS_OPTIONS
+			-Wl,-subsystem,windows	##サブシステムの指定
+			-Wl,--allow-multiple-definition
+#			-LC:/source/vscode/3dapplication/my_std/clang
+#			-LC:/msys64/clang64/lib
+#			-Wl,-fuse-ld=lld
+#			-nodefaultlibs
+#			-Xlinker C:/msys64/clang64/bin/lld.exe
+		)
 	endif()
 
 	set(ALL_OPTIONS)
@@ -804,12 +835,15 @@ function(FSetLinkerOptions)
 	foreach(op ${OTHER_OPTIONS})
 		list(APPEND ALL_OPTIONS "${op}")
 	endforeach()
+	foreach(op ${WINDOWS_OPTIONS})
+		list(APPEND ALL_OPTIONS "${op}")
+	endforeach()
 
 	add_link_options("${ALL_OPTIONS}")
 	set(G_LINKER_OPTIONS "${ALL_OPTIONS}" PARENT_SCOPE)	
 	set(G_LINKER_DEBUG_OPTIONS "${_DEBUG_OPTIONS}" PARENT_SCOPE)	
 	set(G_LINKER_RELEASE_OPTIONS "${_RELEASE_OPTIONS}" PARENT_SCOPE)	
-	set(G_LINKER_OTHER_OPTIONS "${OTHER_OPTIONS}" PARENT_SCOPE)	
+	set(G_LINKER_OTHER_OPTIONS "${OTHER_OPTIONS}" PARENT_SCOPE)
 endfunction()
 
 ###Functions End###

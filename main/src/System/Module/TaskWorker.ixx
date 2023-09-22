@@ -157,8 +157,8 @@ namespace System {
 		template<Traits::Concepts::CMoveConstructibleTo<r_t> T>
 		void SetValue(T&& value) noexcept {
 			LockGuard lock{ m_value_mtx };
-			if (m_value) *m_value = System::move(value);
-			else m_value = MakeUnique<r_t>(System::move(value));
+			if (m_value) *m_value = System::forward<T>(value);
+			else m_value = MakeUnique<r_t>(System::forward<T>(value));
 			m_isChangedValue = true;
 		}
 		bool HasValue() const noexcept {
@@ -204,8 +204,8 @@ namespace System {
 		template <Traits::Concepts::CMoveConstructibleTo<s_t> T>
 		void SetSuspendValue(T&& value) noexcept requires(IsNotVoid) {
 			LockGuard lock{m_suspend_mtx};
-			if (m_suspendValue) *m_suspendValue = System::move(value);
-			else m_suspendValue = MakeUnique<s_t>(System::move(value));
+			if (m_suspendValue) *m_suspendValue = System::forward<T>(value);
+			else m_suspendValue = MakeUnique<s_t>(System::forward<T>(value));
 			m_isChangedSuspendValue = true;
 		}
 		bool HasSuspendValue() const noexcept requires(IsNotVoid) {
@@ -274,12 +274,12 @@ export namespace System {
 	public:
 		bool IsFinished() const noexcept { return m_ptr->IsFinished(); }
 		template<Traits::Concepts::CMoveConstructibleTo<r_t> T>
-		void SetValue(T&& value) noexcept { m_ptr->SetValue(System::move(value)); }
+		void SetValue(T&& value) noexcept { m_ptr->SetValue(System::forward<T>(value)); }
 		r_t& GetValue() noexcept { return m_ptr->GetValue(); }
 		const_r_t& GetValue() const noexcept { return m_ptr->GetValue(); }
 		bool HasValue() const noexcept { return m_ptr->HasValue(); }
 		template<Traits::Concepts::CMoveConstructibleTo<s_t> T>
-		void SetSuspendValue(T&& value) noexcept requires(Suspendable) { m_ptr->SetSuspendValue(System::move(value)); }
+		void SetSuspendValue(T&& value) noexcept requires(Suspendable) { m_ptr->SetSuspendValue(System::forward<T>(value)); }
 		auto& GetSuspendValue() noexcept requires(Suspendable) { return m_ptr->GetSuspendValue(); }
 		auto& GetSuspendValue() const noexcept requires(Suspendable) { return m_ptr->GetSuspendValue(); }
 		bool HasSuspendValue() const noexcept requires(Suspendable) { return m_ptr->HasSuspendValue(); }
@@ -318,12 +318,12 @@ export namespace System {
 		void Finish() noexcept { m_ptr->Finish(); }
 	public:
 		template<Traits::Concepts::CMoveConstructibleTo<r_t> T>
-		void SetValue(T&& value) noexcept { m_ptr->SetValue(System::move(value)); }
+		void SetValue(T&& value) noexcept { m_ptr->SetValue(System::forward<T>(value)); }
 		r_t& GetValue() noexcept { return m_ptr->GetValue(); }
 		const_r_t& GetValue() const noexcept { return m_ptr->GetValue(); }
 		bool HasValue() const noexcept { return m_ptr->HasValue(); }
 		template<Traits::Concepts::CMoveConstructibleTo<s_t> T>
-		void SetSuspendValue(T&& value) noexcept requires(Suspendable) { m_ptr->SetSuspendValue(System::move(value)); }
+		void SetSuspendValue(T&& value) noexcept requires(Suspendable) { m_ptr->SetSuspendValue(System::forward<T>(value)); }
 		auto& GetSuspendValue() noexcept requires(Suspendable) { return m_ptr->GetSuspendValue(); }
 		auto& GetSuspendValue() const noexcept requires(Suspendable) { return m_ptr->GetSuspendValue(); }
 		bool HasSuspendValue() const noexcept requires(Suspendable) { return m_ptr->HasSuspendValue(); }
@@ -486,7 +486,7 @@ export namespace System {
 				return ret;
 			}
 			//タスクをノードリストに追加
-			TaskNode* tmp = new TaskNode(System::move(p), Function<void(TaskPromise<R, S>&)>(System::move(task)), level);
+			TaskNode* tmp = new TaskNode(System::move(p), Function<void(TaskPromise<R, S>&)>(System::forward<Functor>(task)), level);
 			//先頭から検索して初めて追加するタスクよりレベルが高くなるタスク
 			TaskNode* next = m_begin;
 			while (next != m_end && next->m_level <= level) next = next->m_next;

@@ -1,6 +1,6 @@
 ﻿export module DirectXHelper;
 import System;
-import DXHeader;
+export import DXHeader;
 using namespace DX;
 
 #undef IID_PPV_ARGS
@@ -92,8 +92,10 @@ export namespace System::Application::Windows::DirectX::Helpers {
 			if (D3D12CreateDevice(&adapter, level, IID_PPV_ARGS(&ret)) == S_OK) break;
 		}
 		if (ret) {
+#if false
 #ifdef _DEBUG
 			ret->SetName(L"Common3D::Device");
+#endif
 #endif
 			return ret;
 		}

@@ -137,6 +137,8 @@ export namespace System {
 			T* tmp = alloc.allocate(m_capacity);
 			for (size_t i = 0; i < m_count; ++i) {
 				traits::construct(alloc, tmp + i, System::move(m_data[i]));
+			}
+			for (size_t i = m_count; i-- > 0;) {
 				traits::destroy(alloc, m_data + i);
 			}
 			alloc.deallocate(m_data, prevCapacity);
@@ -147,15 +149,15 @@ export namespace System {
 		constexpr size_t AddInternal(T&& value) noexcept {
 			Allocator<T> alloc;
 			using traits = AllocatorTraits<Allocator<T>>;
-			traits::construct(alloc, m_data + m_count, System::move(value));
+			traits::construct(alloc, m_data + m_count, System::forward<T>(value));
 			return m_count++;
 		}
 		constexpr size_t InsertInternal(size_t index, T&& value) noexcept {
-			if (index < m_count) m_data[index] = System::move(value);
+			if (index < m_count) m_data[index] = System::forward<T>(value);
 			else {
 				Allocator<T> alloc;
 				using traits = AllocatorTraits<Allocator<T>>;
-				traits::construct(alloc, m_data + index, System::move(value));
+				traits::construct(alloc, m_data + index, System::forward<T>(value));
 			}
 			return index;
 		}
@@ -213,9 +215,9 @@ export namespace System {
 			if (Allocate(count)) {
 				Allocator<T> alloc;
 				using traits = AllocatorTraits<Allocator<T>>;
-				traits::construct(alloc, m_data + m_count, System::move(head));
+				traits::construct(alloc, m_data + m_count, System::forward<T>(head));
 				++m_count;
-				for (auto&& x : initializer_list<size_t>{ AddInternal(System::move(args))... }) {}
+				for (auto&& x : initializer_list<size_t>{ AddInternal(System::forward<Args>(args))... }) {}
 				return m_count - 1;
 			}
 			else return ErrorValue;
@@ -326,7 +328,7 @@ export namespace System {
 				if (index >= m_count) {
 					index = m_count;
 					size_t cur = index;
-					for (auto&& x : { InsertInternal(cur++, System::move(head)), InsertInternal(cur++, System::move(args))... }) {}
+					for (auto&& x : { InsertInternal(cur++, System::forward<T>(head)), InsertInternal(cur++, System::forward<Args>(args))... }) {}
 					m_count += count;
 					return cur - 1;
 				}
@@ -341,7 +343,7 @@ export namespace System {
 						}						
 					}
 					size_t cur = index;
-					for (auto&& x : { InsertInternal(cur++, System::move(head)), InsertInternal(cur++, System::move(args))... }) {}
+					for (auto&& x : { InsertInternal(cur++, System::forward<T>(head)), InsertInternal(cur++, System::forward<Args>(args))... }) {}
 					m_count += count;
 					return cur - 1;
 				}
@@ -391,7 +393,9 @@ export namespace System {
 		}
 	public:
 		constexpr void DeleteAll() noexcept requires(Traits::is_pointer_v<T>) {
-			for (T& x : *this) delete x;
+			using type = Traits::remove_cv_t<Traits::remove_pointer_t<Traits::remove_cv_t<T>>>;
+			DefaultDelete<type> deleter;
+			for (T& x : *this) deleter(x);
 			InternalReset();
 		}
 		template<class F>

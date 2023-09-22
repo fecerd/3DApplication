@@ -363,4 +363,6 @@ export namespace System::Application::Common3D {
 		return Heap(ManagedObject<IHeap>::GetObject(name));
 	}
 	CommandList CreateCommandList(const String& name, uint32_t materialCount) noexcept;
+
+	bool Release3DManager() noexcept;
 }

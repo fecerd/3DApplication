@@ -1,8 +1,47 @@
-﻿module SceneManager;
+﻿#if defined(__GNUC__) && !defined(__clang__)
+import SceneManager;
+#else
+module SceneManager;
+#endif
+import System;
+import Common3D;
+import Components;
+import Engine;
 using namespace System;
 using namespace System::Application;
 using namespace System::Application::Common3D;
 using namespace Engine;
+
+void SceneManager::ActivateScene(const String& name, uint16_t level) noexcept {
+	m_loader->Push<bool, void>(
+		[this, name, level](TaskPromise<bool, void>& p) {
+			LockGuard lock{ m_mtx };
+			Scene** pScene = m_loadedScenes.TryFirst([&name](Scene* const& scene) { return scene->GetName() == name; });
+			if (!pScene) return;
+			if (m_activeScenes.TryFirst([&name](Scene* const& scene) { return scene->GetName() == name; })) {
+				p.RemoveTask();
+				return;
+			}
+			Scene* scene = *pScene;
+			SetSceneState(*scene, SceneState::Added);
+			ResetSceneVariable(*scene);
+			m_loader->Push<bool, void>(
+				[this, scene](TaskPromise<bool, void>& p) {
+					SceneState state = GetSceneState(*scene);
+					if (state == SceneState::Loaded) {
+						p.RemoveTask();
+						return;
+					}
+					if (Renderable(scene)) scene->Draw();
+				},
+				DrawLevelBase + level, false
+					);
+			m_activeScenes.PushBack(scene);
+			p.RemoveTask();
+		},
+		ActivateLevel, false
+	);
+}
 
 void SceneManager::Rendering(RenderTarget renderTarget) noexcept {
 	if (!cameraObj) {
@@ -73,7 +112,7 @@ void SceneManager::Rendering(RenderTarget renderTarget) noexcept {
 					MeshFilter& mf = planeObj->AddComponent<MeshFilter>();
 					mf.LoadPlane();
 					Material& material = mf.GetMaterials()[0];
-					material.renderer = Common3D::GetRenderer(Common3D::DefaultVideoRendererName);
+					material.SetRenderer(Common3D::GetRenderer(Common3D::DefaultVideoRendererName));
 					planeObjects.Insert(scene, planeObj);
 				}
 				//デプス値は変更される場合がある

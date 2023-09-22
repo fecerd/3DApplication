@@ -3,9 +3,24 @@ export import System;
 export import Application;
 export import InputSystem;
 export import Engine;
+export import Common3D;
+
+import <mutex>;
 using namespace System;
 using namespace System::Application;
+using namespace System::Application::Common3D;
 using namespace Engine;
+
+#if defined(__clang__)
+//clang++: 未定義のシンボル回避用
+export namespace System {
+	template class LockGuard<RecursiveMutex>;
+	void recursive_mutex_reference() {
+		std::recursive_mutex mtx;
+		std::lock_guard<std::recursive_mutex> lock { mtx };
+	}
+}
+#endif
 
 export namespace Engine
 {
@@ -17,9 +32,6 @@ export namespace Engine
 	template <class S>
 	using scene_type = typename StartScene<S>::type;
 }
-
-import Common3D;
-using namespace System::Application::Common3D;
 
 export namespace Engine
 {
@@ -33,7 +45,7 @@ export namespace Engine
 		{
 			if constexpr (!Traits::is_void_v<typename StartScene<S>::type>)
 			{
-				String scenename = String(TypeName<typename StartScene<S>::type>::GetTypeName());
+				String scenename = String(TypeInfo<typename StartScene<S>::type>::GetTypeName());
 				SceneManager::GetManager().LoadScene<scene_type<S>>(scenename);
 				SceneManager::GetManager().ActivateScene(scenename, 0);
 			}

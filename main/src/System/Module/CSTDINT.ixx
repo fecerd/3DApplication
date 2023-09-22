@@ -282,19 +282,20 @@ export namespace System {
 }
 
 //cl.exeでは***_ordering構造体内のstaticメンバ変数が未定義のシンボルとなるため、定義しておく。
+//宣言のみの場合、未初期化となりバグの元となる。
 //g++ではあってもなくてもよく、clangでは定義が重複する。不要なため、隠しておく
 #if defined(_MSC_VER)
-constexpr std::partial_ordering std::partial_ordering::less;
-constexpr std::partial_ordering std::partial_ordering::equivalent;
-constexpr std::partial_ordering std::partial_ordering::greater;
-constexpr std::partial_ordering std::partial_ordering::unordered;
-constexpr std::weak_ordering std::weak_ordering::less;
-constexpr std::weak_ordering std::weak_ordering::equivalent;
-constexpr std::weak_ordering std::weak_ordering::greater;
-constexpr std::strong_ordering std::strong_ordering::less;
-constexpr std::strong_ordering std::strong_ordering::equal;
-constexpr std::strong_ordering std::strong_ordering::equivalent;
-constexpr std::strong_ordering std::strong_ordering::greater;
+constexpr std::partial_ordering std::partial_ordering::less = std::weak_ordering(-1);
+constexpr std::partial_ordering std::partial_ordering::equivalent = std::weak_ordering(0);
+constexpr std::partial_ordering std::partial_ordering::greater = std::weak_ordering(1);
+constexpr std::partial_ordering std::partial_ordering::unordered = std::weak_ordering(-128);
+constexpr std::weak_ordering std::weak_ordering::less = std::weak_ordering(-1);
+constexpr std::weak_ordering std::weak_ordering::equivalent = std::weak_ordering(0);
+constexpr std::weak_ordering std::weak_ordering::greater = std::weak_ordering(1);
+constexpr std::strong_ordering std::strong_ordering::less = std::strong_ordering(-1);
+constexpr std::strong_ordering std::strong_ordering::equal = std::strong_ordering(0);
+constexpr std::strong_ordering std::strong_ordering::equivalent  = std::strong_ordering(0);
+constexpr std::strong_ordering std::strong_ordering::greater = std::strong_ordering(1);
 #endif
 
 //remove_reference
@@ -304,11 +305,20 @@ namespace System::Internal {
 	template<typename T> struct remove_reference<T&&> { using type = T; };
 }
 
-//move
+//move, forward
 export namespace System {
 	template<class T>
 	constexpr typename Internal::remove_reference<T>::type&& move(T&& t) noexcept {
 		return static_cast<typename Internal::remove_reference<T>::type&&>(t);
+	}
+
+	template<class T>
+	constexpr T&& forward(typename Internal::remove_reference<T>::type& t) noexcept {
+		return static_cast<T&&>(t);
+	}
+	template<class T>
+	constexpr T&& forward(typename Internal::remove_reference<T>::type&& t) noexcept {
+		return static_cast<T&&>(t);
 	}
 }
 

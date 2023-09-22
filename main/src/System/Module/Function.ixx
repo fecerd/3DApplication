@@ -23,10 +23,10 @@ namespace System {
 				ptr = reinterpret_cast<void*>(functor);
 			}
 			else if constexpr (sizeof(type) <= sizeof(buf)) {
-				System::construct_at(reinterpret_cast<type*>(buf), System::move(functor));
+				System::construct_at(reinterpret_cast<type*>(buf), System::forward<F>(functor));
 			}
 			else {
-				ptr = new type(System::move(functor));
+				ptr = new type(System::forward<F>(functor));
 			}
 		}
 		FuncData(const FuncData&) noexcept = delete;
@@ -116,7 +116,7 @@ export namespace System {
 						return (head.*pfunc)(params...);
 					}
 				};
-				return internal(System::move(args)...);
+				return internal(System::forward<F>(args)...);
 			}
 			else if constexpr (Traits::is_pointer_v<type>) {
 				type pfunc = reinterpret_cast<type>(data.ptr);

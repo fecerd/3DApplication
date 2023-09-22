@@ -1,220 +1,255 @@
-﻿export module Components:Transform;
-import :Component;
+﻿export module Transform;
+export import Component;
 import System;
 using namespace System;
-using namespace Engine;
 
-export namespace Engine { class Transform; }
+export namespace Engine {
+	class Transform_NoObj {
+	public:
+		Vector3 LocalPosition = Vector3::Zero();
+		Quaternion LocalRotation = Quaternion::Identity();
+		Vector3 LocalScale = Vector3::One();
+	public:
+		Transform_NoObj() noexcept = default;
+		Transform_NoObj(const Transform_NoObj&) noexcept = default;
+		Transform_NoObj(Transform_NoObj&&) noexcept = default;
+		Transform_NoObj(const Vector3& pos, const Quaternion& rot, const Vector3& scale) noexcept
+			: LocalPosition(pos), LocalRotation(rot), LocalScale(scale) {}
+		~Transform_NoObj() noexcept = default;
+	public:
+		/// <summary>
+		/// 親空間への変換行列を取得する。
+		/// 親がいない場合、ワールド座標系への変換行列と等しい
+		/// </summary>
+		Matrix Local() const noexcept {
+			Matrix rot = LocalRotation.ToRotationMatrix();
+			return Matrix{
+				LocalScale.x * rot[0], LocalScale.y * rot[4], LocalScale.z * rot[8], LocalPosition.x,
+				LocalScale.x * rot[1], LocalScale.y * rot[5], LocalScale.z * rot[9], LocalPosition.y,
+				LocalScale.x * rot[2], LocalScale.y * rot[6], LocalScale.z * rot[10], LocalPosition.z,
+				0, 0, 0, 1
+			};
+		}
+		/// <summary>
+		/// 親空間への変換を打ち消す変換行列を取得する。
+		/// 親空間の座標(このTransformも親空間に存在する)にかけることで、
+		/// このTransformの座標系に変換できる
+		/// </summary>
+		Matrix LocalInverse() const noexcept {
+			Matrix inv = LocalRotation.Inverse().ToRotationMatrix();
+			float sx = 1.f / LocalScale.x;
+			float sy = 1.f / LocalScale.y;
+			float sz = 1.f / LocalScale.z;
+			return Matrix{
+				sx * inv[0], sx * inv[4], sx * inv[8], -sx * (inv[0] * LocalPosition.x + inv[4] * LocalPosition.y + inv[8] * LocalPosition.z),
+				sy * inv[1], sy * inv[5], sy * inv[9], -sy * (inv[1] * LocalPosition.x + inv[5] * LocalPosition.y + inv[9] * LocalPosition.z),
+				sz * inv[2], sz * inv[6], sz * inv[10], -sz * (inv[2] * LocalPosition.x + inv[6] * LocalPosition.y + inv[10] * LocalPosition.z),
+				0, 0, 0, 1
+			};
+		}
+		/// <summary>
+		/// 指定したベクトル分だけ平行移動してから親空間への変換を行い、
+		/// さらに最初の平行移動の逆へ平行移動する操作を表す行列を取得する
+		/// </summary>
+		/// <param name="origin">親空間への変換を行うときの原点</param>
+		Matrix LocalOrigin(const Vector3& origin) const noexcept {
+			Matrix ret = Local();
+			ret[12] += -origin.x * (ret[0] - 1) - origin.y * ret[4] - origin.z * ret[8];
+			ret[13] += -origin.x * ret[1] - origin.y * (ret[5] - 1) - origin.z * ret[9];
+			ret[14] += -origin.x * ret[2] - origin.y * ret[6] - origin.z * (ret[10] - 1);
+			return ret;
+		}
+		/// <summary>
+		/// 親空間座標系の点をこのTransform空間座標系の点に変換する
+		/// </summary>
+		/// <param name="parentSpacePos">親空間座標系の点</param>
+		Vector3 ToLocalSpace(const Vector3& parentSpacePos) const noexcept {
+			return Vector3::Scale((LocalRotation.Inverse() * (parentSpacePos - LocalPosition)), LocalScale.Reciprocal());
+		}
+	public:
+		Transform_NoObj& operator=(const Transform_NoObj& rhs) noexcept = default;
+		Transform_NoObj& operator=(Transform_NoObj&& rhs) noexcept = default;
+	};
+}
 
-export class Engine::Transform : public Component {
-public:
-	Vector3 LocalPosition = Vector3::Zero();
-	Quaternion LocalRotation = Quaternion::Identity();
-	Vector3 LocalScale = Vector3::One();
-private:
-	Transform* m_parent = nullptr;
-	Vector<Transform*> m_children;
-public:
-	using Component::Component;
-	Transform() noexcept = default;
-	Transform(GameObject* gObj) noexcept : Component(gObj) {}
-	Transform(const Vector3& pos, const Quaternion& rot, const Vector3& scale) noexcept
-		: LocalPosition(pos), LocalRotation(rot), LocalScale(scale) {}
-public:
-	Transform* GetParent() const noexcept { return m_parent; }
-	void SetParent(Transform* parent) noexcept {
-		if (m_parent) m_parent->m_children.RemoveValue(this);
-		m_parent = parent;
-		if (m_parent) m_parent->m_children.Add(this);
-	}
-	bool HasParent() const noexcept { return m_parent; }
-	const Vector<Transform*>& GetChildren() const noexcept { return m_children; }
-	Transform* GetRoot() const noexcept {
-		Transform* ret = const_cast<Transform*>(this);
-		while (ret->m_parent) ret = ret->m_parent;
-		return ret;
-	}
-public:
-	/// <summary>
-	/// ワールド空間上での位置を取得する
-	/// </summary>
-	Vector3 Position() const noexcept {
-		//自身のスケーリングと回転はワールド空間上での位置に影響しない
-		Vector3 ret = LocalPosition;
-		Transform* parent = m_parent;
-		while (parent) {
-			ret = parent->LocalPosition + (parent->LocalRotation * Vector3::Scale(parent->LocalScale, ret));
-			parent = parent->m_parent;
+export namespace Engine {
+	template<class GameObject>
+	class Transform_Impl : public Component_Impl<GameObject>, public Transform_NoObj {
+	public:
+		using Transform_NoObj::LocalPosition;
+		using Transform_NoObj::LocalRotation;
+		using Transform_NoObj::LocalScale;
+	private:
+		Transform_Impl<GameObject>* m_parent = nullptr;
+		Vector<Transform_Impl<GameObject>*> m_children;
+	public:
+		Transform_Impl() noexcept {}
+		Transform_Impl(GameObject* gObj) noexcept : Component_Impl<GameObject>(gObj), Transform_NoObj() {}
+		Transform_Impl(const Vector3& pos, const Quaternion& rot, const Vector3& scale) noexcept
+			: Component_Impl<GameObject>(), Transform_NoObj(pos, rot, scale) {}
+		virtual ~Transform_Impl() noexcept {}
+	public:
+		Transform_Impl<GameObject>* GetParent() const noexcept { return m_parent; }
+		void SetParent(Transform_Impl<GameObject>* parent) noexcept {
+			if (m_parent) m_parent->m_children.RemoveValue(this);
+			m_parent = parent;
+			if (m_parent) m_parent->m_children.Add(this);
 		}
-		return ret;
-		//return m_parent ? m_parent->World() * LocalPosition : LocalPosition;
-	}
-	/// <summary>
-	/// ワールド空間上での位置を設定する
-	/// </summary>
-	void Position(const Vector3& position) noexcept {
-		//親座標系での位置に変換して設定する
-		if (!m_parent) LocalPosition = position;
-		else LocalPosition = m_parent->WorldInverse() * position;
-	}
-	/// <summary>
-	/// ワールド空間上での姿勢を取得する。
-	/// </summary>
-	Quaternion Rotation() const noexcept {
-		//親のスケーリングや平行移動は姿勢に影響しない
-		return m_parent ? m_parent->Rotation() * LocalRotation : LocalRotation;
-	}
-	/// <summary>
-	/// ワールド空間上での回転を設定する
-	/// </summary>
-	void Rotation(const Quaternion& rotation) noexcept {
-		//親座標系での回転に変換して設定する
-		if (!m_parent) LocalRotation = rotation;
-		else LocalRotation = m_parent->Rotation().Inverse() * rotation;
-	}
-	/// <summary>
-	/// ワールド空間上でのスケール
-	/// </summary>
-	Vector3 Scale() const noexcept {
-		if (!m_parent) return LocalScale;
-		//列優先のワールド変換行列において各列を列ベクトルと見たとき、
-		//その長さはそれぞれX, Y, Z軸のスケール値である
-		Matrix world = World();
-		return Vector3(
-			Vector3(world[0], world[1], world[2]).Magnitude(),
-			Vector3(world[4], world[5], world[6]).Magnitude(),
-			Vector3(world[8], world[9], world[10]).Magnitude()
-		);
-	}
-	/// <summary>
-	/// ワールド空間上でのスケールを設定する
-	/// </summary>
-	void Scale(const Vector3& scale) noexcept {
-		//親座標系での回転に変換して設定する
-		if (!m_parent) LocalScale = scale;
-		else {
-			// mat * (このTransformのスケーリング行列) = (ワールド行列)
-			// |	m00	m01	m02	m03	||	Sx		0		0		0 |
-			//	|	m10	m11	m12	m13	||	0		Sy		0		0 |
-			// |	m20	m21	m22	m23	||	0		0		Sz		0 |
-			// |		0		0		0		1	||	0		0		0		1 |
-			// ワールド行列のスケールは
-			// Vector3(
-			//		(Vector3(m00, m10, m20) * Sx).Magnitude(),
-			//		(Vector3(m01, m11, m21) * Sy).Magnitude(),
-			//		(Vector3(m02, m12, m22) * Sz).Magnitude(),
-			//	);
-			// このとき、
-			// WorldSx
-			// == (Vector3(m00, m10, m20) * Sx).Magnitude()
-			// == Vector3(m00, m10, m20).Magnitude() * Sx
-			// であることを利用する
-			Matrix mat = m_parent->World() * LocalRotation.ToRotationMatrix();
-			float xMag = Vector3(mat[0], mat[1], mat[2]).Magnitude();
-			float yMag = Vector3(mat[4], mat[5], mat[6]).Magnitude();
-			float zMag = Vector3(mat[8], mat[9], mat[10]).Magnitude();
-			LocalScale.x = xMag != 0.f ? scale.x / xMag : LocalScale.x;
-			LocalScale.y = yMag != 0.f ? scale.y / yMag : LocalScale.y;
-			LocalScale.z = zMag != 0.f ? scale.z / zMag : LocalScale.z;
+		bool HasParent() const noexcept { return m_parent; }
+		const Vector<Transform_Impl<GameObject>*>& GetChildren() const noexcept { return m_children; }
+		Transform_Impl<GameObject>* GetRoot() const noexcept {
+			Transform_Impl<GameObject>* ret = const_cast<Transform_Impl<GameObject>*>(this);
+			while (ret->m_parent) ret = ret->m_parent;
+			return ret;
 		}
-	}
-public:
-	/// <summary>
-	/// このTransformのローカルZ軸がワールド空間上で向いている方向を取得する
-	/// </summary>
-	Vector3 Forward() const noexcept {
-		return Rotation() * Vector3::Forward();
-	}
-	/// <summary>
-	/// このTransformのローカルX軸がワールド空間上で向いている方向を取得する
-	/// </summary>
-	Vector3 Right() const noexcept {
-		return Rotation() * Vector3::Right();
-	}
-	/// <summary>
-	/// このTransformのローカルY軸がワールド空間上で向いている方向を取得する
-	/// </summary>
-	Vector3 Up() const noexcept {
-		return Rotation() * Vector3::Up();
-	}
-public:
-	/// <summary>
-	/// 親空間への変換行列を取得する。
-	/// 親がいない場合、ワールド座標系への変換行列と等しい
-	/// </summary>
-	Matrix Local() const noexcept {
-		Matrix rot = LocalRotation.ToRotationMatrix();
-		return Matrix{
-			LocalScale.x * rot[0], LocalScale.y * rot[4], LocalScale.z * rot[8], LocalPosition.x,
-			LocalScale.x * rot[1], LocalScale.y * rot[5], LocalScale.z * rot[9], LocalPosition.y,
-			LocalScale.x * rot[2], LocalScale.y * rot[6], LocalScale.z * rot[10], LocalPosition.z,
-			0, 0, 0, 1
-		};
-	}
-	/// <summary>
-	/// 親空間への変換を打ち消す変換行列を取得する。
-	/// 親空間の座標(このTransformも親空間に存在する)にかけることで、
-	/// このTransformの座標系に変換できる
-	/// </summary>
-	Matrix LocalInverse() const noexcept {
-		Matrix inv = LocalRotation.Inverse().ToRotationMatrix();
-		float sx = 1.f / LocalScale.x;
-		float sy = 1.f / LocalScale.y;
-		float sz = 1.f / LocalScale.z;
-		return Matrix{
-			sx * inv[0], sx * inv[4], sx * inv[8], -sx * (inv[0] * LocalPosition.x + inv[4] * LocalPosition.y + inv[8] * LocalPosition.z),
-			sy * inv[1], sy * inv[5], sy * inv[9], -sy * (inv[1] * LocalPosition.x + inv[5] * LocalPosition.y + inv[9] * LocalPosition.z),
-			sz * inv[2], sz * inv[6], sz * inv[10], -sz * (inv[2] * LocalPosition.x + inv[6] * LocalPosition.y + inv[10] * LocalPosition.z),
-			0, 0, 0, 1
-		};
-	}
-	/// <summary>
-	/// 指定したベクトル分だけ平行移動してから親空間への変換を行い、
-	/// さらに最初の平行移動の逆へ平行移動する操作を表す行列を取得する
-	/// </summary>
-	/// <param name="origin">親空間への変換を行うときの原点</param>
-	Matrix LocalOrigin(const Vector3& origin) const noexcept {
-		Matrix ret = Local();
-		ret[12] += -origin.x * (ret[0] - 1) - origin.y * ret[4] - origin.z * ret[8];
-		ret[13] += -origin.x * ret[1] - origin.y * (ret[5] - 1) - origin.z * ret[9];
-		ret[14] += -origin.x * ret[2] - origin.y * ret[6] - origin.z * (ret[10] - 1);
-		return ret;
-	}
-	/// <summary>
-	/// ワールド空間への変換行列を取得する
-	/// </summary>
-	Matrix World() const noexcept {
-		return m_parent ? m_parent->World() * Local() : Local();
-	}
-	/// <summary>
-	/// ワールド空間への変換を打ち消す変換行列を取得する。
-	/// ワールド空間の座標にかけることで、このTransformの座標系に変換できる。
-	/// このTransformとの位置関係を計算する場合、このTransformの親のWorldInverse()を使用して、
-	/// このTransformの親の座標系に変換する(このTransformの兄弟にする)必要がある
-	/// </summary>
-	Matrix WorldInverse() const noexcept {
-		return m_parent ? LocalInverse() * m_parent->WorldInverse() : LocalInverse();
-	}
-public:
-	/// <summary>
-	/// 親空間座標系の点をこのTransform空間座標系の点に変換する
-	/// </summary>
-	/// <param name="parentSpacePos">親空間座標系の点</param>
-	Vector3 ToLocalSpace(const Vector3& parentSpacePos) const noexcept {
-		return Vector3::Scale((LocalRotation.Inverse() * (parentSpacePos - LocalPosition)), LocalScale.Reciprocal());
-	}
-public:
-	Type GetType() const noexcept override { return Type::CreateType<Transform>(); }
-	String ToString() const noexcept override { return String(u"Transform Component"); }
-	uint32_t GetTypeID() const noexcept override { return System::GetID<Transform>(); }
-	Transform* Clone(GameObject* object) noexcept override {
-		Transform* ret = new Transform(object);
-		ret->LocalPosition = LocalPosition;
-		ret->LocalRotation = LocalRotation;
-		ret->LocalScale = LocalScale;
-		return ret;
-	}
-};
+	public:
+		/// <summary>
+		/// ワールド空間上での位置を取得する
+		/// </summary>
+		Vector3 Position() const noexcept {
+			//自身のスケーリングと回転はワールド空間上での位置に影響しない
+			Vector3 ret = LocalPosition;
+			Transform_Impl<GameObject>* parent = m_parent;
+			while (parent) {
+				ret = parent->LocalPosition + (parent->LocalRotation * Vector3::Scale(parent->LocalScale, ret));
+				parent = parent->m_parent;
+			}
+			return ret;
+		}
+		/// <summary>
+		/// ワールド空間上での位置を設定する
+		/// </summary>
+		void Position(const Vector3& position) noexcept {
+			//親座標系での位置に変換して設定する
+			if (!m_parent) LocalPosition = position;
+			else LocalPosition = m_parent->WorldInverse() * position;
+		}
+		/// <summary>
+		/// ワールド空間上での姿勢を取得する。
+		/// </summary>
+		Quaternion Rotation() const noexcept {
+			//親のスケーリングや平行移動は姿勢に影響しない
+			return m_parent ? m_parent->Rotation() * LocalRotation : LocalRotation;
+		}
+		/// <summary>
+		/// ワールド空間上での回転を設定する
+		/// </summary>
+		void Rotation(const Quaternion& rotation) noexcept {
+			//親座標系での回転に変換して設定する
+			if (!m_parent) LocalRotation = rotation;
+			else LocalRotation = m_parent->Rotation().Inverse() * rotation;
+		}
+		/// <summary>
+		/// ワールド空間上でのスケール
+		/// </summary>
+		Vector3 Scale() const noexcept {
+			if (!m_parent) return LocalScale;
+			//列優先のワールド変換行列において各列を列ベクトルと見たとき、
+			//その長さはそれぞれX, Y, Z軸のスケール値である
+			Matrix world = World();
+			return Vector3(
+				Vector3(world[0], world[1], world[2]).Magnitude(),
+				Vector3(world[4], world[5], world[6]).Magnitude(),
+				Vector3(world[8], world[9], world[10]).Magnitude()
+			);
+		}
+		/// <summary>
+		/// ワールド空間上でのスケールを設定する
+		/// </summary>
+		void Scale(const Vector3& scale) noexcept {
+			//親座標系での回転に変換して設定する
+			if (!m_parent) LocalScale = scale;
+			else {
+				// mat * (このTransformのスケーリング行列) = (ワールド行列)
+				// |	m00	m01	m02	m03	||	Sx		0		0		0 |
+				//	|	m10	m11	m12	m13	||	0		Sy		0		0 |
+				// |	m20	m21	m22	m23	||	0		0		Sz		0 |
+				// |		0		0		0		1	||	0		0		0		1 |
+				// ワールド行列のスケールは
+				// Vector3(
+				//		(Vector3(m00, m10, m20) * Sx).Magnitude(),
+				//		(Vector3(m01, m11, m21) * Sy).Magnitude(),
+				//		(Vector3(m02, m12, m22) * Sz).Magnitude(),
+				//	);
+				// このとき、
+				// WorldSx
+				// == (Vector3(m00, m10, m20) * Sx).Magnitude()
+				// == Vector3(m00, m10, m20).Magnitude() * Sx
+				// であることを利用する
+				Matrix mat = m_parent->World() * LocalRotation.ToRotationMatrix();
+				float xMag = Vector3(mat[0], mat[1], mat[2]).Magnitude();
+				float yMag = Vector3(mat[4], mat[5], mat[6]).Magnitude();
+				float zMag = Vector3(mat[8], mat[9], mat[10]).Magnitude();
+				LocalScale.x = xMag != 0.f ? scale.x / xMag : LocalScale.x;
+				LocalScale.y = yMag != 0.f ? scale.y / yMag : LocalScale.y;
+				LocalScale.z = zMag != 0.f ? scale.z / zMag : LocalScale.z;
+			}
+		}
+	public:
+		/// <summary>
+		/// このTransformのローカルZ軸がワールド空間上で向いている方向を取得する
+		/// </summary>
+		Vector3 Forward() const noexcept { return Rotation() * Vector3::Forward(); }
+		/// <summary>
+		/// このTransformのローカルX軸がワールド空間上で向いている方向を取得する
+		/// </summary>
+		Vector3 Right() const noexcept { return Rotation() * Vector3::Right(); }
+		/// <summary>
+		/// このTransformのローカルY軸がワールド空間上で向いている方向を取得する
+		/// </summary>
+		Vector3 Up() const noexcept { return Rotation() * Vector3::Up(); }
+	public:
+		/// <summary>
+		/// ワールド空間への変換行列を取得する
+		/// </summary>
+		Matrix World() const noexcept { return m_parent ? m_parent->World() * Local() : Local(); }
+		/// <summary>
+		/// ワールド空間への変換を打ち消す変換行列を取得する。
+		/// ワールド空間の座標にかけることで、このTransformの座標系に変換できる。
+		/// このTransformとの位置関係を計算する場合、このTransformの親のWorldInverse()を使用して、
+		/// このTransformの親の座標系に変換する(このTransformの兄弟にする)必要がある
+		/// </summary>
+		Matrix WorldInverse() const noexcept { return m_parent ? LocalInverse() * m_parent->WorldInverse() : LocalInverse(); }
+	public:/* Component override */
+		Type GetType() const noexcept override { return Type::CreateType<Transform_Impl<GameObject>>(); }
+		String ToString() const noexcept override {
+			return String::Joint(
+				u"Transform Component { LocalPosition = ",
+				LocalPosition.ToString(), u", LocalRotation = ",
+				LocalRotation.ToString(), u", LocalScale = ",
+				LocalScale.ToString(), u" }"
+			);
+		}
+		uint32_t GetTypeID() const noexcept override { return GetID<Transform_Impl<GameObject>>(); }
+		/// @brief 位置情報と親情報をコピーした新しいTransformを作成する。
+		/// @param object 作成されるTransformが参照するGameObject
+		/// @return newによって作成されたTransform
+		Transform_Impl<GameObject>* Clone(GameObject* object) noexcept override {
+			Transform_Impl<GameObject>* ret = new Transform_Impl<GameObject>(object);
+			ret->LocalPosition = LocalPosition;
+			ret->LocalRotation = LocalRotation;
+			ret->LocalScale = LocalScale;
+			ret->m_parent = m_parent;
+			return ret;
+		}
+	public:
+		/// @brief 異なるTransformの情報をコピーする。親Transformもコピーされるが、子Transformはコピーされない。
+		Transform_Impl& operator=(const Transform_Impl& rhs) noexcept {
+			if (this == &rhs) return *this;
+			Transform_NoObj::operator=(rhs);
+			m_parent = rhs.m_parent;
+			return *this;
+		}
+		Transform_Impl& operator=(Transform_Impl&& rhs) noexcept {
+			if (this == &rhs) return *this;
+			Transform_NoObj::operator=(System::move(rhs));
+			m_parent = rhs.m_parent;
+			rhs.m_parent = nullptr;
+			m_children = System::move(rhs.m_children);
+			return *this;
+		}
+	};
+}
 
 //export namespace Engine {
 //	class Transform : public Component {

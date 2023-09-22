@@ -31,10 +31,14 @@ namespace System::Application::Common3D {
 	}
 	bool Release3DManager() noexcept { return ReleaseManager(); }
 	RenderTarget CreateRenderTarget(const String& name, uint32_t width, uint32_t height, uint32_t bufferCount, uint32_t targetCount, const Drawing::Color& defaultColor) noexcept {
-		return RenderTarget(name, GetManager()->CreateRenderTarget(width, height, bufferCount, targetCount, defaultColor));
+		IRenderTarget* ret = GetManager()->CreateRenderTarget(width, height, bufferCount, targetCount, defaultColor);
+		ret->SetName(name);
+		return RenderTarget(name, ret);
 	}
 	RenderTarget CreateRenderTarget(const String& name, IWindow& window, uint32_t bufferCount, const Drawing::Color& defaultColor) noexcept {
-		return RenderTarget(name, GetManager()->CreateRenderTarget(window, bufferCount, defaultColor));
+		IRenderTarget* ret = GetManager()->CreateRenderTarget(window, bufferCount, defaultColor);
+		ret->SetName(name);
+		return RenderTarget(name, ret);
 	}
 	Renderer CreateRenderer(const String& name, const RendererDesc& desc) noexcept {
 		return Renderer(GetManager()->CreateRenderer(name, desc));

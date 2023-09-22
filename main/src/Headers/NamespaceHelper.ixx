@@ -4,6 +4,7 @@
 
 export namespace System {}
 export namespace System::Traits {}
+export namespace System::Traits::Concepts {}
 export namespace System::Boost {}
 export namespace System::Application {}
 export namespace System::Application::Windows {}
@@ -15,3 +16,11 @@ export namespace System::Application::Common3D {}
 export namespace WinAPI {}
 
 export namespace Engine {}
+export namespace Engine::Internal {}
+
+export namespace ResourcePaths {}
+export namespace ResourcePaths::Font {}
+export namespace ResourcePaths::Model {}
+export namespace ResourcePaths::Motion {}
+export namespace ResourcePaths::Audio {}
+export namespace ResourcePaths::Video {}

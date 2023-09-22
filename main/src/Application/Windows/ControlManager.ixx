@@ -158,7 +158,7 @@ export namespace System::Application::Windows {
 			return true;
 		}
 		int RunLoop() noexcept override {
-			if (!m_forms.Count()) return 1;
+			if (!m_forms.Count()) return 0;
 			MSG msg;
 			this->m_timer.Start();
 			do {
@@ -166,7 +166,10 @@ export namespace System::Application::Windows {
 					TranslateMessage(&msg);
 					DispatchMessage(&msg);
 				}
-				for (Forms::Control* x : m_closedForm) delete x;
+				if (m_closedForm.Count()) {
+					for (Forms::Control* x : m_closedForm) delete x;
+					m_closedForm.Clear();
+				}
 				UpdateWindows();
 				this->m_timer.Update();
 				nanoseconds deltaNs = nanoseconds(this->m_timer.DeltaTime<nanoseconds>());

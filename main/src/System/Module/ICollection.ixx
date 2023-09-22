@@ -15,7 +15,7 @@ export namespace System {
 		Function<void(Boost::push_type<T&>&)> m_internal_r;
 	public:
 		template<class F, class Fr>
-		no_mangling(F&& f, Fr&& fr) noexcept : m_internal(System::move(f)), m_internal_r(System::move(fr)) {}
+		no_mangling(F&& f, Fr&& fr) noexcept : m_internal(System::forward<F>(f)), m_internal_r(System::forward<Fr>(fr)) {}
 		no_mangling(const no_mangling& arg) noexcept : m_internal(arg.m_internal), m_internal_r(arg.m_internal_r) {}
 		no_mangling(no_mangling&& arg) noexcept : m_internal(System::move(arg.m_internal)), m_internal_r(System::move(arg.m_internal_r)) {}
 		~no_mangling() noexcept {}

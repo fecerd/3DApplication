@@ -21,7 +21,7 @@ export namespace System {
 		T m_value;
 	public:
 		constexpr Counter() noexcept : m_value() {}
-		constexpr Counter(const T& val) noexcept : m_value(val) {}
+		constexpr Counter(T const& val) noexcept : m_value(val) {}
 		constexpr Counter(T&& val) noexcept : m_value(System::move(val)) {}
 		constexpr Counter(const Counter<T, ThreadSafe>&) noexcept = default;
 		constexpr Counter(Counter<T, ThreadSafe>&&) noexcept = default;

@@ -1,9 +1,13 @@
-﻿export module CodePage;
+﻿module;
+#define DEFINE_CRTDBG_new
+#include "../../CRTDBG/crtdbg_wrapper.hpp"
+export module CodePage;
 import CSTDINT;
 import Traits;
 import VectorBase;
 export import CodePoint;
 import CP932;
+import SmartPtrs;
 using namespace System::Traits;
 
 export namespace System::Encoding {
@@ -141,11 +145,9 @@ export namespace System::Encoding {
 			return *this;
 		}
 	public:
-		static CodePage& CP932() noexcept {
-			//_CrtSetDbgFlag(0);
-			static CodePage* cp932 = new CodePage(Binary::CP932_bin, sizeof(Binary::CP932_bin));
-			//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-			return *cp932;
+		static UniquePtr<CodePage>& CP932() noexcept {
+			static UniquePtr<CodePage> ret { new CodePage(Binary::CP932_bin, sizeof(Binary::CP932_bin)) };
+			return ret;
 		}
 	};
 }
@@ -162,7 +164,7 @@ export namespace System::Encoding {
 			return src;
 		}
 		src.codePage = CodePageFlag::Unicode;
-		src.point = CodePage::CP932().SrcToDst(src.point);
+		src.point = CodePage::CP932()->SrcToDst(src.point);
 		src.count = 1;
 		return src;
 	}
@@ -175,7 +177,7 @@ export namespace System::Encoding {
 	CodePoint ToCP932(CodePoint src) noexcept {
 		if (src.codePage == CodePageFlag::Shift_JIS) return src;
 		src.codePage = CodePageFlag::Shift_JIS;
-		src.point = CodePage::CP932().DstToSrc(src.point);
+		src.point = CodePage::CP932()->DstToSrc(src.point);
 		src.count = src.point <= 0xffu ? 1 : 2;
 		return src;
 	}

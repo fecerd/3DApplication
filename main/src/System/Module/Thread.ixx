@@ -23,7 +23,7 @@ export namespace System {
 		template<class R, class ...Args>
 		Thread(const Function<R(Args...)>& func, Args&& ...args) noexcept : m_thread(func, static_cast<Args&&>(args)...) {}
 		template<class Functor, class ...Args>
-		Thread(Functor&& f, Args&& ...args) noexcept : m_thread(Function<Traits::function_t<Functor>>(System::move(f)), static_cast<Args&&>(args)...) {}
+		Thread(Functor&& f, Args&& ...args) noexcept : m_thread(Function<Traits::function_t<Functor>>(System::forward<Functor>(f)), static_cast<Args&&>(args)...) {}
 		Thread(const Thread&) noexcept = delete;
 		Thread(Thread&&) noexcept = default;
 		~Thread() noexcept = default;
@@ -51,13 +51,13 @@ export namespace System {
 	class LockGuard : public std::lock_guard<M> {
 	public:
 		using std::lock_guard<M>::lock_guard;
+		LockGuard(M& mtx) noexcept : std::lock_guard<M>(mtx) {}
 	public:
 		operator std::lock_guard<M>&() noexcept {
 			return static_cast<std::lock_guard<M>&>(*this);
 		}
 	};
-	template<class M>
-	LockGuard(M&)->LockGuard<M>;
+	template<class M> LockGuard(M&)->LockGuard<M>;
 
 	template<class M>
 	class UniqueLock : public std::unique_lock<M> {

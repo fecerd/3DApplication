@@ -15,9 +15,21 @@ export namespace System {
 	template<class T>
 	class Vector : public VectorBase<T>, public Object, public ICollection<T> {
 	public:
-		using VectorBase<T>::VectorBase;
+		Vector() noexcept {}
+		Vector(const VectorBase<T>& arg) noexcept : VectorBase<T>(arg) {}
 		Vector(VectorBase<T>&& arg) noexcept : VectorBase<T>(System::move(arg)) {}
 		virtual ~Vector() noexcept {}
+	public:
+		Vector& operator=(const VectorBase<T>& rhs) noexcept {
+			if (this == &rhs) return *this;
+			VectorBase<T>::operator=(rhs);
+			return *this;			
+		}
+		Vector& operator=(VectorBase<T>&& rhs) noexcept {
+			if (this == &rhs) return *this;
+			VectorBase<T>::operator=(System::move(rhs));
+			return *this;
+		}
 	public:/* Object override */
 		bool Equals(const Object& obj) const noexcept override { return obj.GetTypeID() == GetTypeID() ? *this == static_cast<const Vector<T>&>(obj) : false; }
 		Type GetType() const noexcept override { return Type::CreateType<Vector<T>>(); }

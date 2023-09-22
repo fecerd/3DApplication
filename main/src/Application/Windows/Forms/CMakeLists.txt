@@ -21,7 +21,6 @@ FAddObjectLibrary(Forms_2
 		Button.ixx
 		CheckBox.ixx
 		ComboBox.ixx
-		Control.cpp
 		Form.ixx
 		GroupBox.ixx
 		Label.ixx
@@ -41,10 +40,21 @@ FAddObjectLibrary(Forms_3
 		Forms_2
 )
 
+FAddObjectLibrary(Forms_4
+	SOURCES
+		Control.cpp
+	DEPENDS
+		Forms_3
+		Windows_3
+)
+
 FCombineObjectLibrary(Forms
 	PRIVATE
 		Forms_0
 		Forms_1
 		Forms_2
 		Forms_3
+		Forms_4
 )
+
+target_link_libraries(Forms PUBLIC Windows)

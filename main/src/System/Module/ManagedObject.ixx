@@ -1,16 +1,9 @@
 ﻿export module ManagedObject;
 import CSTDINT;
+import Traits;
 import Objects;
 import HashMap;
 import Thread;
-import <type_traits>;
-
-namespace System::Internal {
-	template<class T>
-	concept CHasManagedObjectDeleteType = requires {
-		typename T::managedObject_delete_type;
-	};
-}
 
 //IManagedBase
 export namespace System {
@@ -53,8 +46,8 @@ export namespace System {
 			--(*m_refCount);
 			if (!*m_refCount) {
 				delete m_refCount;
-				if constexpr (Internal::CHasManagedObjectDeleteType<T>) {
-					using delete_type = T::managedObject_delete_type;
+				if constexpr (Traits::Concepts::CHasVirtualDeleteType<T>) {
+					using delete_type = T::virtual_delete_type;
 					delete_type* tmp = m_ptr;
 					delete tmp;
 				} else {
@@ -171,8 +164,8 @@ export namespace System {
 				if (tmp) {
 					m_ptr = tmp->m_ptr;
 					m_refCount = tmp->m_refCount;
-					if constexpr (Internal::CHasManagedObjectDeleteType<T>) {
-						using delete_type = T::managedObject_delete_type;
+					if constexpr (Traits::Concepts::CHasVirtualDeleteType<T>) {
+						using delete_type = T::virtual_delete_type;
 						delete_type* tmp = ptr;
 						delete tmp;
 					} else {

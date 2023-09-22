@@ -1,5 +1,10 @@
-﻿module StringBlock;
-import Encoding;
+﻿#if defined(__GNUC__) && !defined(__clang__)
+module StringBlock;
+#else
+module StringBlock;
+#endif
+import CodePage;
+//import Encoding;
 using namespace System::Traits;
 
 //ToStringBlock IMPL

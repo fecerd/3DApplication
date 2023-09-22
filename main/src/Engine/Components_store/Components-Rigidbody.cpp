@@ -1,5 +1,11 @@
-﻿module Components:Rigidbody;
+﻿#if defined(__GNUC__) //&& !defined(__clang__)
+module Components;
 import :GameObject;
+#else
+module Components:Rigidbody;
+import Components;
+#endif
+import System;
 using namespace System;
 using namespace Engine;
 

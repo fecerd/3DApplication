@@ -56,7 +56,7 @@ export namespace System {
 		Key m_key;	//キー
 	public:
 		template<Traits::Concepts::CConstructibleTo<Key> K>
-		HashNodeBase(K&& key) noexcept : m_key(System::move(key)) {}
+		HashNodeBase(K&& key) noexcept : m_key(System::forward<K>(key)) {}
 	public:
 		/// <summary>
 		/// キーの参照を取得する
@@ -123,7 +123,7 @@ export namespace System {
 	public:
 		template<Traits::Concepts::CConstructibleTo<Key> K, Traits::Concepts::CConstructibleTo<Value> V>
 		HashNode(K&& key, V&& value) noexcept
-			: HashNodeBase<Key>(System::move(key)), m_value(System::move(value)) {}
+			: HashNodeBase<Key>(System::forward<K>(key)), m_value(System::forward<V>(value)) {}
 	public:
 		using HashNodeBase<Key>::GetKey;
 		/// <summary>
@@ -335,14 +335,14 @@ export namespace System {
 		/// <returns>追加に成功したとき、true。すでに存在するキーを指定した場合、false</returns>
 		template<Traits::Concepts::CConstructibleTo<Key> K, Traits::Concepts::CConstructibleTo<Args> ...A>
 		bool Insert(K&& key, A&& ...args) noexcept {
-			Key tmpkey { System::move(key) };
+			Key tmpkey { System::forward<K>(key) };
 			size_t index = GetCode(tmpkey);
 			if (index >= m_nodesSize) return false;	//普通はありえない
 			Vector<nodetype*>& nodes = m_nodes[index];
 			for (nodetype* node : nodes) {
 				if (node->GetKey() == tmpkey) return false;
 			}
-			nodes.Add(new HashNode<Key, Args...>(System::move(tmpkey), System::move(args)...));
+			nodes.Add(new HashNode<Key, Args...>(System::move(tmpkey), System::forward<A>(args)...));
 			HashNodeBase<Key>* tmp = nodes.Last();
 			HashNodeBase<Key>* last = m_first ? m_first->GetLast() : nullptr;
 			if (last) {
@@ -490,19 +490,20 @@ export namespace System {
 		}
 		IEnumerator<nodetype const> GetEnumerator(bool reverse = false) const noexcept override {
 			auto internal = [this](Boost::push_type<nodetype const&>& sink) {
-				nodetype* current = m_first;
-				while (current) {
-					nodetype const& ret = *current;
-					sink(ret);
-					current = static_cast<nodetype*>(current->GetNext());
+				for (nodetype const& node : *this) {
+					sink(node);
 				}
 			};
 			auto internal_r = [this](Boost::push_type<nodetype const&>& sink) {
-				HashNodeBase<Key>* current = m_first ? m_first->GetLast() : nullptr;
-				while (current) {
-					nodetype const& ret = *static_cast<nodetype*>(current);
+				auto ite = iteratortype(static_cast<nodetype*>(m_first ? m_first->GetLast() : nullptr));
+				auto beg = iteratortype(m_first);
+				for (; ite && ite != beg; --ite) {
+					nodetype const& ret = *ite;
 					sink(ret);
-					current = current->GetPrev();
+				}
+				if (beg) {
+					nodetype const& ret = *beg;
+					sink(ret);
 				}
 			};
 			return IEnumerator<nodetype const>(no_mangling<nodetype const>(internal, internal_r), reverse);

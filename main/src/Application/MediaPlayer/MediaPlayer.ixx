@@ -2,7 +2,7 @@
 import System;
 import Drawing;
 import IWindow;
-import IMediaPlayer;
+export import IMediaPlayer;
 using System::Drawing::Image;
 
 export namespace System::Application {
