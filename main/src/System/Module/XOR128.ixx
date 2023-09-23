@@ -20,5 +20,7 @@ export namespace System {
 			return (w = (w ^ (w >> 19)) ^ (t ^ (t >> 8)));
 		}
 		constexpr uint32_t Get(uint32_t range) noexcept { return Get() % range; }
+	public:
+		static XOR128 GetRNG() noexcept;
 	};
 }

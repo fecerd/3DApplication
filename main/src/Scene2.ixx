@@ -15,7 +15,7 @@ public:
 	Timer timer;
 	MediaPlayer m_player;
 	void Init() noexcept override {
-		m_player.Load(u"Waterfall", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Video::Test2), false);
+		m_player.Load(u"Waterfall", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Video::Waterfall), false);
 	}
 	void OnActivate() noexcept override {
 		timer.Start();

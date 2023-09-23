@@ -71,7 +71,8 @@ public:
 				++materialIndex;
 			}
 		}
-		m_player.Load(u"Test2", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Video::Test2));
+		m_player.Load(u"Test2", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Video::CountDown));
+		m_player.SetLoopMode(true);
 	}
 	void SceneActivate() noexcept override {
 		m_player.Play(u"Test2", MediaPlayerSourceType::Local);
@@ -170,7 +171,7 @@ public:
 				cameraManager->LookTarget = &container->GetTransform();
 			}
 			{
-				GameObject* gObj = new GameObject(u"Miku");
+				GameObject* gObj = new GameObject(u"Rin");
 				gObj->AddComponent<MeshFilter>().LoadModelForPMD(ResourcePaths::GetPathName(ResourcePaths::Model::Rin));
 				gObj->GetTransform().LocalRotation = Quaternion::Euler(0, 180, 0);
 				gObj->SetParent(container);
@@ -193,10 +194,34 @@ public:
 				gObj->AddScript<ModelScript>();
 				this->AddObject(gObj);
 			}
+			container = new GameObject(u"MikuContainer");
 			{
-				GameObject* gObj = new GameObject(u"Rin");
-				gObj->GetTransform().LocalPosition.x += 10;
+				container->AddComponent<Rigidbody>();
+				container->GetTransform().LocalPosition.x += 10;
+				this->AddObject(container);
+			}
+			{
+				GameObject* gObj = new GameObject(u"Miku");
 				gObj->AddComponent<MeshFilter>().LoadModelForPMD(ResourcePaths::GetPathName(ResourcePaths::Model::Miku));
+				gObj->GetTransform().LocalRotation = Quaternion::Euler(0, 180, 0);
+				gObj->SetParent(container);
+				Animator& mikuAnimator = gObj->AddComponent<Animator>();
+				mikuAnimator.SetUpdateCountPerFrame(1);
+				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\stop_to_walk.vmd)"), u"StopToWalk", false);
+				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\walking.vmd)"), u"Walking", true);
+				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\walk_to_stop.vmd)"), u"WalkToStop", false);
+				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\stop_to_dash.vmd)"), u"StopToDash", false);
+				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\dash.vmd)"), u"Dash", true);
+				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\dash_to_stop.vmd)"), u"DashToStop", false);
+				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\dash_to_walk.vmd)"), u"DashToWalk", false);
+				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\walk_to_dash.vmd)"), u"WalkToDash", false);
+				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\stopping.vmd)"), u"Stopping", true);
+//				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\walk_to_jump.vmd)"), u"WalkToJump", false);
+//				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\jumping.vmd)"), u"Jumping", false);
+//				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\jump_to_fall.vmd)"), u"JumpToFall", false);
+//				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\falling.vmd)"), u"Falling", false);
+//				mikuAnimator.SetMotionByBone(ResourcePaths::GetPathName(uR"(.\Motion\Moves\fall_to_walk.vmd)"), u"FallToWalk", false);
+				gObj->AddScript<CPUScript>();
 				this->AddObject(gObj);
 			}
 

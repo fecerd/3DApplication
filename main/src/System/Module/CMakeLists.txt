@@ -22,6 +22,7 @@ FAddObjectLibrary(Module_1
 FAddObjectLibrary(Module_2
 	SOURCES
 		Allocator.ixx
+		XOR128.cpp
 	DEPENDS
 		Module_1
 )

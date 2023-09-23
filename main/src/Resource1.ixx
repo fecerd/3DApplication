@@ -23,15 +23,18 @@ export namespace ResourcePaths::Motion {
 }
 
 export namespace ResourcePaths::Audio {
-	inline constexpr CString Field = uR"(.\Audio\MusMus-BGM-154.mp3)";
+//	inline constexpr CString Field = uR"(.\Audio\MusMus-BGM-154.mp3)";
 	inline constexpr CString Lesson = uR"(.\Audio\01 レッスン.mp3)";
 	inline constexpr CString Corrent1 = uR"(.\Audio\correct_answer1.mp3)";
 	inline constexpr CString Corrent2 = uR"(.\Audio\correct_answer2.mp3)";
 	inline constexpr CString Corrent3 = uR"(.\Audio\correct_answer3.mp3)";
+	inline constexpr CString BGM1 = u"./Audio/昼下がり気分.mp3";
+	inline constexpr CString Walking = u"./Audio/Se_Walking_School.mp3";
 }
 
 export namespace ResourcePaths::Video {
 	inline constexpr CString Waterfall = uR"(.\Video\waterfall.mp4)";
 	inline constexpr CString Test2 = uR"(.\Video\test2.mp4)";
 	inline constexpr CString Sea = uR"(.\Video\sea.mp4)";
+	inline constexpr CString CountDown = u"./Video/count_down.mp4";
 }

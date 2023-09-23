@@ -478,15 +478,7 @@ export namespace Engine {
 	protected:
 		bool GetBoneMatrix(const VectorBase<Bone>& modelBones, Matrix(&out)[Common3D::BoneMatrixCount]) noexcept;
 	public:
-		bool IsUpdateFrame() noexcept {
-			if (!m_currentState) return false;
-			--m_updateCount;
-			//m_updateCountが0になるまでなにもしない
-			if (m_updateCount) return false;
-			m_updateCount = m_updateCountPerFrame;
-			++m_currentFrameNo;
-			return true;
-		}
+		bool IsUpdateFrame() noexcept;
 		const String& GetCurrentStateName() const noexcept {
 			if (!m_currentState) return String::Empty();
 			else return m_currentState->GetName();

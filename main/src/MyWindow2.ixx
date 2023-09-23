@@ -90,7 +90,7 @@ public:
 	using Scene::Scene;
 	~MyScene1() noexcept = default;
 	void Init() noexcept override {
-		m_player.Load(u"Test2", Application::MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Video::Test2));
+		m_player.Load(u"Test2", Application::MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Video::CountDown));
 		texture = Common3D::GetResource(DefaultBlackTextureName);
 
 		Renderer videoRenderer = Common3D::GetRenderer(Common3D::DefaultVideoRendererName);

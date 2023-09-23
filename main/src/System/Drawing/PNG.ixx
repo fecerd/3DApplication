@@ -47,10 +47,24 @@ export namespace System::Drawing {
 				else return 4;
 			}
 		};
+		struct PLTE {
+			struct PaletteData {
+				uint8_t red;
+				uint8_t green;
+				uint8_t blue;
+			};
+		public:
+			PaletteData first;
+		public:
+			const PaletteData* GetPaletteArray() const noexcept {
+				return &first;
+			}
+		};
 		struct Chunk {
 		private:
 			static constexpr char8_t TYPE_IHDR[4] = { u8'I', u8'H', u8'D', u8'R' };
 			static constexpr char8_t TYPE_IDAT[4] = { u8'I', u8'D', u8'A', u8'T' };
+			static constexpr char8_t TYPE_PLTE[4] = { u8'P', u8'L', u8'T', u8'E' };
 			static constexpr char8_t TYPE_IEND[4] = { u8'I', u8'E', u8'N', u8'D' };
 		public:
 			uint32_t length = 0;
@@ -58,6 +72,7 @@ export namespace System::Drawing {
 			union {
 				uint8_t* data = nullptr;
 				IHDR* ihdr;
+				PLTE* plte;
 			};
 			uint32_t crc = 0;
 		public:
@@ -85,6 +100,7 @@ export namespace System::Drawing {
 		public:
 			bool IsIHDR() const noexcept { return Memory::Compare(type, TYPE_IHDR, sizeof(TYPE_IHDR)); }
 			bool IsIDAT() const noexcept { return Memory::Compare(type, TYPE_IDAT, sizeof(TYPE_IDAT)); }
+			bool IsPLTE() const noexcept { return Memory::Compare(type, TYPE_PLTE, sizeof(TYPE_PLTE)); }
 			bool IsIEnd() const noexcept { return Memory::Compare(type, TYPE_IEND, sizeof(TYPE_IEND)); }
 		};
 	private:
@@ -127,6 +143,16 @@ export namespace System::Drawing {
 	private:
 		IHDR* GetIHDR() const noexcept {
 			for (size_t i = 0, end = chunks.Count(); i < end; ++i) if (chunks[i]->IsIHDR()) return chunks[i]->ihdr;
+			return nullptr;
+		}
+		PLTE* GetPLTE(uint32_t& paletteCount) const noexcept {
+			paletteCount = 0;
+			for (size_t i = 0, end = chunks.Count(); i < end; ++i) {
+				if (chunks[i]->IsPLTE()) {
+					paletteCount = chunks[i]->length / 3;
+					return chunks[i]->plte;
+				}
+			}
 			return nullptr;
 		}
 		Vector<uint8_t> GetData() noexcept {
@@ -292,6 +318,78 @@ export namespace System::Drawing {
 		}
 	private:
 		template<uint8_t bitDepth>
+		inline static void DecodeIndexedColour(Image& image, Vector<uint8_t>& raw, const PLTE& plte, uint32_t paletteCount) noexcept {
+			const PLTE::PaletteData* palettes = plte.GetPaletteArray();
+			if (!palettes) return;
+			Pixel* pixels = image.Data();
+			if (!pixels) return;
+			const size_t width = image.Width();
+			const size_t height = image.Height();
+			size_t currentX = width;
+			size_t nextY = 0;
+			Pixel* lineFirst = nullptr;
+			const uint8_t* rawData = raw.Items();
+			const size_t rawDataCount = raw.Count();
+			for (size_t i = 0; i < rawDataCount; ++i) {
+				if (currentX == width) {
+					lineFirst = pixels + nextY * width;
+					currentX = 0;
+					++nextY;
+					if (nextY >= height) break;
+				}
+				else {
+					uint8_t data = rawData[i];
+					if constexpr (bitDepth == 1) {
+						for (int n = 8; n-- > 0;) {
+							uint8_t id = static_cast<uint8_t>((data >> n) & 0x01);
+							if (paletteCount > id) {
+								const PLTE::PaletteData& palette = palettes[id];
+								lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue);
+							}
+							++currentX;
+							if (currentX == width) break;
+						}
+					}
+					else if constexpr (bitDepth == 2) {
+						for (int n = 4; n-- > 0;) {
+							uint8_t id = static_cast<uint8_t>((data >> (n << 1)) & 0x03);
+							if (paletteCount > id) {
+								const PLTE::PaletteData& palette = palettes[id];
+								lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue);
+							}
+							++currentX;
+							if (currentX == width) break;
+						}
+					}
+					else if constexpr (bitDepth == 4) {
+						uint8_t ids[2] = {
+							static_cast<uint8_t>((data >> 4) & 0x0f),
+							static_cast<uint8_t>(data & 0x0f)
+						};
+						if (paletteCount > ids[0]) {
+							const PLTE::PaletteData& palette = palettes[ids[0]];
+							lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue);
+						}
+						++currentX;
+						if (currentX == width) continue;
+						if (paletteCount > ids[1]) {
+							const PLTE::PaletteData& palette = palettes[ids[1]];
+							lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue);
+						}
+						++currentX;
+					}
+					else if constexpr (bitDepth == 8) {
+						if (paletteCount > data) {
+							const PLTE::PaletteData& palette = palettes[data];
+							lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue);
+						}
+						++currentX;
+					}
+				}
+			}
+		}
+	private:
+		template<uint8_t bitDepth>
 		inline static void DecodeTrueColour(Image& image, Vector<uint8_t>& raw) noexcept {
 			uint8_t* rawData = raw.Items();
 			const size_t rawDataCount = raw.Count();
@@ -403,6 +501,27 @@ export namespace System::Drawing {
 			else if (ihdr->colourType == IHDR::ColourType::TrueColourWithAlpha) {
 				if (ihdr->bitDepth == 8) DecodeTrueColourWithAlpha<8>(ret, raw);
 				else if (ihdr->bitDepth == 16) DecodeTrueColourWithAlpha<16>(ret, raw);
+			}
+			else if (ihdr->colourType == IHDR::ColourType::IndexedColour) {
+				uint32_t paletteCount = 0;
+				PLTE* plte = GetPLTE(paletteCount);
+				if (!plte || !paletteCount) return ret;
+				switch (ihdr->bitDepth) {
+				case 1:
+					DecodeIndexedColour<1>(ret, raw, *plte, paletteCount);
+					break;
+				case 2:
+					DecodeIndexedColour<2>(ret, raw, *plte, paletteCount);
+					break;
+				case 4:
+					DecodeIndexedColour<4>(ret, raw, *plte, paletteCount);
+					break;
+				case 8:
+					DecodeIndexedColour<8>(ret, raw, *plte, paletteCount);
+					break;
+				default:
+					break;				
+				}
 			}
 			return ret;
 		}

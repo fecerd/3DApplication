@@ -624,6 +624,14 @@ namespace System::Application::Windows::DirectX {
 		static_cast<D3DResource&>(*m_dsvResources).SetCurrentIndex(current);
 		return true;
 	}
+	bool D3DSwapChain::EndCommand(bool sync) noexcept {
+		if (EndCommand_Internal(sync, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)) {
+			if (sync) return m_swapChain->Present(0, 0) == S_OK;
+			else return true;
+		}
+		else return false;
+	}
+
 
 	DirectXManager::DirectXManager() {
 		Helpers::EnableDebugLayer();

@@ -153,11 +153,23 @@ export namespace Engine {
 		void Awake() noexcept {
 			for (Script* s : m_scripts) if (s->EnableAwake) s->Awake();
 		}
+		void SceneBeginActivate() noexcept {
+			for (Script* s : m_scripts) if (s->EnableSceneBeginActivate) s->SceneBeginActivate();
+		}
 		void SceneActivate() noexcept {
 			for (Script* s : m_scripts) if (s->EnableSceneActivate) s->SceneActivate();
 		}
+		void SceneActivated() noexcept {
+			for (Script* s : m_scripts) if (s->EnableSceneActivated) s->SceneActivated();
+		}
+		void SceneBeginDeactivate() noexcept {
+			for (Script* s : m_scripts) if (s->EnableSceneBeginDeactivate) s->SceneBeginDeactivate();
+		}		
 		void SceneDeactivate() noexcept {
 			for (Script* s : m_scripts) if (s->EnableSceneDeactivate) s->SceneDeactivate();
+		}
+		void SceneDeactivated() noexcept {
+			for (Script* s : m_scripts) if (s->EnableSceneDeactivated) s->SceneDeactivated();
 		}
 		void Update() noexcept {
 			for (Script* s : m_scripts) if (s->EnableUpdate) s->Update();

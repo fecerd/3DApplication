@@ -43,6 +43,16 @@ uint32_t GetBezier(uint32_t x, const ControlPoint* controlPoint) noexcept {
 	);
 }
 
+bool Animator_NoObj::IsUpdateFrame() noexcept {
+	if (!m_currentState) return false;
+	--m_updateCount;
+	//m_updateCountが0になるまでなにもしない
+	if (m_updateCount) return false;
+	m_updateCount = m_updateCountPerFrame;
+	m_currentFrameNo += 2;
+	return true;
+}
+
 void Animator_NoObj::Update(const String& nextName, MeshFilter_NoObj& meshFilter) noexcept {
 	//状態遷移を確認
 	const String& currentName = m_currentState->GetName();

@@ -68,9 +68,14 @@ export namespace Engine {
 		SceneState GetState() const noexcept { return m_state; }
 	public:
 		void EndActivate() noexcept {
+			OnEndActivate();
 			if (m_state == SceneState::Activate) SetState(SceneState::Active);
+			for (auto* gObj : m_gameObjects) gObj->SceneActivated();
+			OnActivated();
 		}
 		void EndDeactivate() noexcept {
+			OnEndDeactivate();
+			for (auto* gObj : m_gameObjects) gObj->SceneDeactivated();
 			if (m_state == SceneState::Deactivate) SetState(SceneState::Removed);
 		}
 	public:
@@ -139,9 +144,22 @@ export namespace Engine {
 			for (auto* gObj : m_gameObjects) gObj->SceneDeactivate();
 			OnDeactivate();
 		}
+		void BeginActivate() noexcept {
+			for (auto* gObj : m_gameObjects) gObj->SceneBeginActivate();
+			OnBeginActivate();
+		}
+		void BeginDeactivate() noexcept {
+			for (auto* gObj : m_gameObjects) gObj->SceneBeginDeactivate();
+			OnBeginDeactivate();
+		}
 	public:
+		virtual void OnBeginActivate() noexcept {}
 		virtual void OnActivate() noexcept { EndActivate(); }
+		virtual void OnEndActivate() noexcept {}
+		virtual void OnActivated() noexcept {}
+		virtual void OnBeginDeactivate() noexcept {}
 		virtual void OnDeactivate() noexcept { EndDeactivate(); }
+		virtual void OnEndDeactivate() noexcept {}
 		virtual void OnFixedUpdate() noexcept {}
 		virtual void OnUpdate() noexcept {}
 		virtual void OnLastUpdate() noexcept {}

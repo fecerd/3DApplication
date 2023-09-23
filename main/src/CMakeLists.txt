@@ -60,6 +60,13 @@ FAddObjectLibrary(src_6
 		src_5
 )
 
+FAddObjectLibrary(src_test
+	SOURCES
+		SplashScreenScene.cpp
+	DEPENDS
+		src_6
+)
+
 ## src全体のターゲット
 ## 実行可能形式ターゲット'main'にsrc以下のライブラリをリンクするために、
 ## ターゲット'src'に対してPUBLICでリンクする。
@@ -72,6 +79,7 @@ FCombineObjectLibrary(src
 		src_4
 		src_5
 		src_6
+		src_test
 	PUBLIC_LINK
 		System
 		Test

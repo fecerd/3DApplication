@@ -65,7 +65,10 @@ export namespace Engine {
 						Scene* scene = *ite;
 						IncrementFrameCount(*scene);
 						AddElapsedTimeNs(*scene, deltaTime);
-						if (GetSceneState(*scene) == SceneState::Added) SetSceneState(*scene, SceneState::Activate);
+						if (GetSceneState(*scene) == SceneState::Added) {
+							SetSceneState(*scene, SceneState::Activate);
+							scene->BeginActivate();
+						}
 						if (GetSceneState(*scene) == SceneState::Activate) {
 							scene->Activate();
 							if (m_end.load(memory_order::acquire)) scene->EndActivate();
@@ -102,6 +105,7 @@ export namespace Engine {
 				case SceneState::Activate:
 				case SceneState::Active:
 					SetSceneState(*scene, SceneState::Deactivate);
+					scene->BeginDeactivate();
 					break;
 				default:
 					break;
@@ -164,6 +168,7 @@ export namespace Engine {
 			Scene* scene = *pScene;
 			if (GetSceneState(*scene) != SceneState::Active) return;
 			SetSceneState(*scene, SceneState::Deactivate);
+			scene->BeginDeactivate();
 		}
 		void UnloadScene(const String& name) noexcept {
 			Scene* scene = nullptr;

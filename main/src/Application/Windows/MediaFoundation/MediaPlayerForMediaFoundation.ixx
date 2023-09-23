@@ -243,21 +243,23 @@ namespace System::Application::Windows::Internal {
 	public:
 		bool Load(const String& filePath) noexcept {
 			MFStartup(MF_VERSION);
-			HRESULT hr = MediaFoundation::CreateMediaSource(filePath, source);
+			HRESULT hr = S_OK;
+			IMFPresentationDescriptor* sourcePD = nullptr;
+			do {
+				hr = MediaFoundation::CreateMediaSource(filePath, source);
+				if (hr < 0) break;
+				hr = source->CreatePresentationDescriptor(&sourcePD);
+				if (hr < 0) break;
+				hr = sourcePD->GetUINT64(MF_PD_DURATION, reinterpret_cast<UINT64*>(&duration));
+				if (hr < 0) break;
+			} while (false);
+			SafeRelease(sourcePD);
 			if (hr < 0) {
+				duration = 0;
 				SafeRelease(source);
 				MFShutdown();
-				return  hr >= 0;
 			}
-			IMFPresentationDescriptor* sourcePD = nullptr;
-			hr = source->CreatePresentationDescriptor(&sourcePD);
-			if (hr < 0) {
-				SafeRelease(hr, sourcePD, source);
-				MFShutdown();
-				return hr >= 0;
-			}
-			hr = sourcePD->GetUINT64(MF_PD_DURATION, reinterpret_cast<UINT64*>(&duration));
-			return SafeRelease(hr, sourcePD) >= 0;
+			return hr >= 0;
 		}
 		void Shutdown() noexcept {
 			if (source) {
@@ -302,11 +304,20 @@ export namespace System::Application::Windows {
 		HWND m_hVideoWindow = nullptr;
 		Atomic<MFPlayerState> m_state = MFPlayerState::Uninitialized;
 		bool m_loop = false;
+		uint32_t m_loopCount = 0;
 		MediaEventQueue m_mediaEventQueue;
 		Atomic<HANDLE> m_closeEvent = static_cast<HANDLE>(nullptr);
 		HashMap<String, MFMediaSource> m_sources;
 		String m_currentSourceName;
 		MediaPlayerSourceType m_currentSourceType = MediaPlayerSourceType::Local;
+	private:
+		inline static Mutex s_mtx;
+		inline static IMFSimpleAudioVolume* s_simpleAudioVolume = nullptr;
+		inline static int32_t s_volume = 100;
+		inline static bool s_muted = false;
+		IMFAudioStreamVolume* m_audioStreamVolume = nullptr;
+		int32_t m_volume = 100;
+		bool m_muted = false;
 	private:
 		static HashMap<String, MFMediaSource>& GlobalSources() noexcept {
 			static HashMap<String, MFMediaSource> ret;
@@ -333,7 +344,11 @@ export namespace System::Application::Windows {
 		}
 		~MFMediaPlayer() noexcept {
 			Stop();
-			SafeRelease(m_videoDisplayControl);
+			{
+				LockGuard lock{ s_mtx };
+				SafeRelease(s_simpleAudioVolume);
+			}
+			SafeRelease(m_videoDisplayControl, m_audioStreamVolume);
 			m_state.store(MFPlayerState::Closing, memory_order::release);
 			if (m_session) {
 				//待機イベントを作成
@@ -341,8 +356,14 @@ export namespace System::Application::Windows {
 				//MESessionClosedイベントを送る
 				if (m_session->Close() >= 0) {
 					//Invoke関数内から待機イベントが設定されるまで待つ
-					WaitForSingleObject(m_closeEvent.load(memory_order::acquire), INFINITE);
-					while (m_state.load(memory_order::acquire) != MFPlayerState::Closed);
+					DWORD result = WaitForSingleObject(m_closeEvent.load(memory_order::acquire), 3000);
+					if (result == WAIT_TIMEOUT) {
+						Application::Log(Exception(u"MediaFoundationがタイムアウトしました。").what());
+						m_state.store(MFPlayerState::Closed, memory_order::release);
+					}
+					else {
+						while (m_state.load(memory_order::acquire) != MFPlayerState::Closed);
+					}
 				}
 				//待機イベントを解放
 				CloseHandle(m_closeEvent.load(memory_order::acquire));
@@ -418,8 +439,30 @@ export namespace System::Application::Windows {
 			if (hr < 0) return hr;
 			//トポロジの状態がReadyになったとき、使用するVideoControlを取得しなおして再生を開始する
 			if (status == MF_TOPOSTATUS::MF_TOPOSTATUS_READY) {
-				SafeRelease(m_videoDisplayControl);
-				MFGetService(m_session, MR_VIDEO_RENDER_SERVICE, IID_PPV_ARGS(&m_videoDisplayControl));
+				SafeRelease(m_videoDisplayControl, m_audioStreamVolume);
+				HRESULT hr2 = MFGetService(m_session, MR_VIDEO_RENDER_SERVICE, IID_PPV_ARGS(&m_videoDisplayControl));
+				if (hr2 < 0) SafeRelease(m_videoDisplayControl);
+				hr2 = MFGetService(m_session, MR_STREAM_VOLUME_SERVICE, IID_PPV_ARGS(&m_audioStreamVolume));
+				if (hr2 < 0) SafeRelease(m_audioStreamVolume);
+				else {
+					UINT32 count = 0;
+					hr2 = m_audioStreamVolume->GetChannelCount(&count);
+					for (UINT32 i = 0; i < count; ++i) {
+						const float volume = m_muted ? 0.f : m_volume / 100.f;
+						hr2 = m_audioStreamVolume->SetChannelVolume(i, volume);
+					}
+				}
+				{
+					LockGuard lock{ s_mtx };
+					if (!s_simpleAudioVolume) {
+						hr2 = MFGetService(m_session, MR_POLICY_VOLUME_SERVICE, IID_PPV_ARGS(&s_simpleAudioVolume));
+						if (hr2 < 0) SafeRelease(s_simpleAudioVolume);
+					}
+					if (s_simpleAudioVolume) {
+						const float volume = s_muted ? 0.f : s_volume / 100.f;
+						hr2 = s_simpleAudioVolume->SetMasterVolume(volume);
+					}
+				}
 			}
 			return hr;
 		}
@@ -428,7 +471,10 @@ export namespace System::Application::Windows {
 		/// </summary>
 		/// <param name="mediaEvent">イベント情報</param>
 		HRESULT OnPresentationEnded(IMFMediaEvent* mediaEvent) noexcept {
-			if (m_loop) return StartPlayBack(MediaPlayerSeekPos::Begin, nanoseconds(0));
+			if (m_loop) {
+				Stop();	//ループする前に停止しないと6回目あたりでフリーズする。
+				return StartPlayBack(MediaPlayerSeekPos::Begin, nanoseconds(0));
+			}
 			m_state.store(MFPlayerState::Stopped, memory_order::release);
 			return S_OK;
 		}
@@ -631,9 +677,7 @@ export namespace System::Application::Windows {
 				SafeRelease(mediaEvent);
 			}
 		}
-		void SetLoopMode(bool loop) noexcept override {
-			m_loop = loop;
-		}
+		void SetLoopMode(bool loop) noexcept override { m_loop = loop; }
 		void SetWindow(IWindow* window) noexcept override {
 			HWND tmp = nullptr;
 			if (window) {
@@ -681,6 +725,183 @@ export namespace System::Application::Windows {
 			}
 			CoTaskMemFree(buffer);
 			return ret;
+		}
+	public:
+		/// @brief 絶対値で音量を設定する。
+		/// @param absoluteVolume 音量の絶対値。[0, 100]に丸められる。
+		/// @return 設定できなかったとき、false。
+		bool SetVolume(int32_t absoluteVolume) noexcept override {
+			absoluteVolume = Math::Clamp<int32_t>(absoluteVolume, 0, 100);
+			if (m_volume == absoluteVolume) return true;
+			if (!m_audioStreamVolume) return false;
+			UINT32 count = 0;
+			HRESULT hr = m_audioStreamVolume->GetChannelCount(&count);
+			if (hr < 0) return false;
+			for (UINT32 i = 0; i < count; ++i) {
+				const float volume = m_muted ? 0.f : absoluteVolume / 100.f;
+				hr = m_audioStreamVolume->SetChannelVolume(i, volume);
+				if (hr < 0) break;
+			}
+			if (hr >= 0) m_volume = absoluteVolume;
+			return true;
+		}
+		/// @brief 現在の音量からの相対値で音量を設定する。
+		/// @param relativeVolume 現在の音量からの相対値。
+		/// @details 設定後の音量の絶対値が[0, 100]を超えることはない。
+		/// @return 設定できなかったとき、false。
+		bool SetRelativeVolume(int32_t relativeVolume) noexcept override {
+			return SetVolume(m_volume + relativeVolume);
+		}
+		/// @brief 現在の音量を取得する。
+		/// @return [0, 100]の値を返す。失敗したとき、負の値を返す。
+		int32_t GetVolume() const noexcept override {
+			return m_volume;
+		}
+		/// @brief ミュート状態にする、もしくは解除する
+		/// @param mute trueのとき、ミュート状態にする。falseのとき、解除する。
+		/// @return 設定に成功した、もしくは既に指定した状態のとき、true。
+		bool SetMute(bool mute) noexcept override {
+			if (mute == m_muted) return true;
+			if (!m_audioStreamVolume) return false;
+			UINT32 count = 0;
+			HRESULT hr = m_audioStreamVolume->GetChannelCount(&count);
+			if (hr < 0) return false;
+			for (UINT32 i = 0; i < count; ++i) {
+				const float volume = mute ? 0.f : m_volume / 100.f;
+				hr = m_audioStreamVolume->SetChannelVolume(i, volume);
+				if (hr < 0) break;
+			}
+			if (hr >= 0) m_muted = mute;
+			return true;
+		}
+		/// @brief ミュート状態を切り替える
+		/// @return 成功したとき、true。
+		bool ToggleMute() noexcept override {
+			return SetMute(!m_muted);
+		}
+		/// @brief 現在、ミュート状態か調べる。
+		bool IsMuted() const noexcept override {
+			return m_muted;
+		}
+	public:
+		/// @brief 絶対値でマスター音量を設定する。
+		/// @param absoluteVolume 音量の絶対値。[0, 100]に丸められる。
+		/// @return 設定できなかったとき、false。
+		bool SetMasterVolume(int32_t absoluteVolume) noexcept override {
+			LockGuard lock{ s_mtx };
+			absoluteVolume = Math::Clamp<int32_t>(absoluteVolume, 0, 100);
+			if (s_volume == absoluteVolume) return true;
+			if (!s_simpleAudioVolume) return false;
+			HRESULT hr = s_simpleAudioVolume->SetMasterVolume(absoluteVolume / 100.f);
+			if (hr < 0) return false;
+			s_volume = absoluteVolume;
+			return true;
+		}
+		/// @brief 現在のマスター音量からの相対値でマスター音量を設定する。
+		/// @param relativeVolume 現在の音量からの相対値。
+		/// @details 設定後の音量の絶対値が[0, 100]を超えることはない。
+		/// @return 設定できなかったとき、false。
+		bool SetRelativeMasterVolume(int32_t relativeVolume) noexcept override {
+			LockGuard lock{ s_mtx };
+			int32_t absoluteVolume = Math::Clamp<int32_t>(s_volume + relativeVolume, 0, 100);
+			if (s_volume == absoluteVolume) return true;
+			if (!s_simpleAudioVolume) return false;
+			HRESULT hr = s_simpleAudioVolume->SetMasterVolume(absoluteVolume / 100.f);
+			if (hr < 0) return false;
+			s_volume = absoluteVolume;
+			return true;
+		}
+		/// @brief 現在のマスター音量を取得する。
+		/// @return [0, 100]の値を返す。失敗したとき、負の値を返す。
+		int32_t GetMasterVolume() const noexcept override {
+			int32_t ret = 0;
+			{
+				LockGuard lock{ s_mtx };
+				ret = s_volume;
+			}
+			return ret;
+		}
+		/// @brief マスター音量をミュート状態にする、もしくは解除する
+		/// @param mute trueのとき、ミュート状態にする。falseのとき、解除する。
+		/// @details この関数によってそれぞれのメディアプレイヤーのミュート状態が変わることはない。
+		/// @return 設定に成功した、もしくは既に指定した状態のとき、true。
+		bool SetMuteMaster(bool mute) noexcept override {
+			LockGuard lock{ s_mtx };
+			if (mute == s_muted) return true;
+			if (!s_simpleAudioVolume) return false;
+			const float volume = s_muted ? 0.f : s_volume / 100.f;
+			HRESULT hr = s_simpleAudioVolume->SetMasterVolume(volume);
+			if (hr < 0) return false;
+			m_muted = mute;
+			return true;
+		}
+		/// @brief マスター音量のミュート状態を切り替える
+		/// @return 成功したとき、true。
+		bool ToggleMuteMaster() noexcept override {
+			bool mute = false;
+			{
+				LockGuard lock{ s_mtx };
+				mute = s_muted;
+			}
+			return SetMuteMaster(!mute);
+		}
+		/// @brief 現在、マスター音量がミュート状態か調べる。
+		bool IsMutedMaster() const noexcept override {
+			LockGuard lock{ s_mtx };
+			return s_muted;
+		}
+	public:
+		/// @brief 再生位置を移動する。
+		/// @param nsOffset 現在の位置からのオフセット(ns)
+		/// @return 成功したとき、true。
+		bool SeekRelative(int64_t nsOffset) noexcept override {
+			MFPlayerState state = m_state.load(memory_order::acquire);
+			bool ret = Play(MediaPlayerSeekPos::Current, nsOffset);
+			if (!ret) return false;
+			if (state == MFPlayerState::Paused) return Pause();
+			else if (state == MFPlayerState::Stopped) return Stop();
+			else return ret;
+		}
+		/// @brief 再生速度を変更する。
+		/// @param speed 再生速度の倍率。1.0fが通常の速度。
+		/// @return 設定できなかったとき、false。
+		bool SetSpeed(float speed) noexcept override {
+			if (speed < 0.f) return false;
+			IMFGetService* service = nullptr;
+			IMFRateSupport* rateSupport = nullptr;
+			IMFRateControl* rateControl = nullptr;
+			HRESULT hr = S_OK;
+			do {
+				hr = m_session->QueryInterface(IID_PPV_ARGS(&service));
+				if (hr < 0) break;
+				hr = service->GetService(MF_RATE_CONTROL_SERVICE, IID_PPV_ARGS(&rateSupport));
+				if (hr < 0) break;
+				hr = rateSupport->IsRateSupported(FALSE, speed, nullptr);
+				if (hr < 0) break;
+				hr = service->GetService(MF_RATE_CONTROL_SERVICE, IID_PPV_ARGS(&rateControl));
+				if (hr < 0) break;
+				hr = rateControl->SetRate(FALSE, speed);
+			} while (false);
+			SafeRelease(rateControl, rateSupport, service);
+			return hr >= 0;
+		}
+		/// @brief 現在の再生速度を取得する。
+		/// @return 失敗したとき、負の値を返す。
+		float GetSpeed() const noexcept override {
+			float ret = 0.f;
+			IMFGetService* service = nullptr;
+			IMFRateControl* rateControl = nullptr;
+			HRESULT hr = S_OK;
+			do {
+				hr = m_session->QueryInterface(IID_PPV_ARGS(&service));
+				if (hr < 0) break;
+				hr = service->GetService(MF_RATE_CONTROL_SERVICE, IID_PPV_ARGS(&rateControl));
+				if (hr < 0) break;
+				hr = rateControl->GetRate(nullptr, &ret);
+			} while (false);
+			SafeRelease(rateControl, service);
+			if (hr < 0) return -1.f;
+			else return ret;
 		}
 	};
 }

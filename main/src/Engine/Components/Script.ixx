@@ -25,8 +25,12 @@ export namespace Engine {
 		virtual ~Script_Impl() noexcept {}
 	public:/* 各種関数の有効/無効を設定する変数 */
 		bool EnableAwake = false;
+		bool EnableSceneBeginActivate = false;
 		bool EnableSceneActivate = false;
+		bool EnableSceneActivated = false;
+		bool EnableSceneBeginDeactivate = false;
 		bool EnableSceneDeactivate = false;
+		bool EnableSceneDeactivated = false;
 		bool EnableUpdate = false;
 		bool EnableLastUpdate = false;
 		bool EnableFixedUpdate = false;
@@ -37,8 +41,12 @@ export namespace Engine {
 	public:/* 派生先でoverrideされるイベント関数 */
 		virtual void Init() noexcept {}
 		virtual void Awake() noexcept {}
+		virtual void SceneBeginActivate() noexcept {}
 		virtual void SceneActivate() noexcept {}
+		virtual void SceneActivated() noexcept {}
+		virtual void SceneBeginDeactivate() noexcept {}
 		virtual void SceneDeactivate() noexcept {}
+		virtual void SceneDeactivated() noexcept {}
 		virtual void Update() noexcept {}
 		virtual void LastUpdate() noexcept {}
 		virtual void FixedUpdate() noexcept {}

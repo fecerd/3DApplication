@@ -55,6 +55,12 @@ export namespace MF {
 	using MFTIME = ::MFTIME;
 	using IMFClock = ::IMFClock;
 	using IMFPresentationClock = ::IMFPresentationClock;
+	using IMFAudioStreamVolume = ::IMFAudioStreamVolume;
+	using IMFGetService = ::IMFGetService;
+	using IMFRateSupport = ::IMFRateSupport;
+	using IMFRateControl = ::IMFRateControl;
+	using IMFAudioStreamVolume = ::IMFAudioStreamVolume;
+	using IMFSimpleAudioVolume = ::IMFSimpleAudioVolume;
 
 	using QITAB = ::QITAB;
 	using LPCQITAB = ::LPCQITAB;
@@ -113,6 +119,7 @@ namespace MF {
 		inline constexpr ULONG MF_API_VERSION_Internal = MF_API_VERSION;
 		inline constexpr ULONG MF_VERSION_Internal = MF_VERSION;
 		inline constexpr DWORD INFINITE_Internal = INFINITE;
+		inline constexpr DWORD WAIT_TIMEOUT_Internal = WAIT_TIMEOUT;
 #undef S_OK
 #undef MF_E_INVALIDTYPE
 #undef E_FAIL
@@ -124,6 +131,7 @@ namespace MF {
 #undef MF_VERSION
 #undef INFINITE
 #undef E_NOTIMPL
+#undef WAIT_TIMEOUT
 	}
 }
 
@@ -139,11 +147,15 @@ export namespace MF {
 	inline constexpr ULONG MF_API_VERSION = Internal::MF_API_VERSION_Internal;
 	inline constexpr ULONG MF_VERSION = Internal::MF_VERSION_Internal;
 	inline constexpr DWORD INFINITE = Internal::INFINITE_Internal;
+	inline constexpr DWORD WAIT_TIMEOUT = Internal::WAIT_TIMEOUT_Internal;
 
 	inline const GUID MFMediaType_Audio = ::MFMediaType_Audio;
 	inline const GUID MFMediaType_Video = ::MFMediaType_Video;
 	inline const GUID MF_EVENT_TOPOLOGY_STATUS = ::MF_EVENT_TOPOLOGY_STATUS;
 	inline const GUID MR_VIDEO_RENDER_SERVICE = ::MR_VIDEO_RENDER_SERVICE;
+	inline const IID MR_POLICY_VOLUME_SERVICE = ::MR_POLICY_VOLUME_SERVICE;
+	inline const IID MR_STREAM_VOLUME_SERVICE = ::MR_STREAM_VOLUME_SERVICE;
+
 	inline const IID MF_TOPONODE_SOURCE = ::MF_TOPONODE_SOURCE;
 	inline const IID MF_TOPONODE_PRESENTATION_DESCRIPTOR = ::MF_TOPONODE_PRESENTATION_DESCRIPTOR;
 	inline const IID MF_TOPONODE_STREAM_DESCRIPTOR = ::MF_TOPONODE_STREAM_DESCRIPTOR;
@@ -151,6 +163,7 @@ export namespace MF {
 	inline const IID MF_TOPONODE_NOSHUTDOWN_ON_REMOVE = ::MF_TOPONODE_NOSHUTDOWN_ON_REMOVE;
 	inline const IID MF_PD_DURATION = ::MF_PD_DURATION;
 	inline const IID GUID_NULL = ::GUID_NULL;
+	inline const IID MF_RATE_CONTROL_SERVICE = ::MF_RATE_CONTROL_SERVICE;	
 }
 
 export namespace MF {
@@ -169,16 +182,21 @@ export namespace MF {
 		return ::QISearch(that, pqit, riid, ppv);
 	}
 
-	template <class T>
-	void SafeRelease(T*& object) noexcept {
+	template <class T, class ...Args>
+	void SafeRelease(T*& object, Args*& ...args) noexcept {
 		if (object) {
 			object->Release();
 			object = nullptr;
 		}
+		if constexpr (sizeof...(Args) != 0) SafeRelease(args...);
 	}
+
 	template<class T, class ...Args>
 	HRESULT SafeRelease(HRESULT hr, T*& object, Args*& ...args) noexcept {
-		SafeRelease(object);
+		if (object) {
+			object->Release();
+			object = nullptr;
+		}
 		if constexpr (sizeof...(Args) == 0) return hr;
 		else return SafeRelease(hr, args...);
 	}

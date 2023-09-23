@@ -807,13 +807,7 @@ export namespace System::Application::Windows::DirectX {
 			m_defaultColor[3] = color.Reserved / 255.f;
 		}
 	public:
-		bool EndCommand(bool sync) noexcept override {
-			if (EndCommand_Internal(sync, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)) {
-				if (sync) return m_swapChain->Present(1, 0) == S_OK;
-				else return true;
-			}
-			else return false;
-		}
+		bool EndCommand(bool sync) noexcept override;
 		bool ResizeBuffer(uint32_t, uint32_t) noexcept override;
 	};
 }

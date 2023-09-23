@@ -221,6 +221,7 @@ export class ModelScript : public Script {
 	Vector3 m_position = Vector3();
 	bool m_dash = false;
 	JumpState m_jump = JumpState::Walk;
+	MediaPlayer m_se;
 public:
 	using Script::Script;
 public:
@@ -228,6 +229,9 @@ public:
 	void Init() noexcept override {
 		this->EnableLastUpdate = true;
 		this->EnableUpdate = true;
+
+		m_se.Load(u"Walking", MediaPlayerSourceType::Global, ResourcePaths::GetPathName(ResourcePaths::Audio::Walking), true);
+		m_se.SetLoopMode(true);
 
 		Action dash(u"Dash", InputValueType::Button);
 		dash.AddBinding().With(ControllerButtons::KeyP);
@@ -261,31 +265,36 @@ public:
 		if (!gObj.HasComponent<Animator>()) return;
 		AnimationController& controller = gObj.GetComponent<Animator>().GetAnimationController();
 		controller.AddTransition(u"Empty", u"Stopping", [](GameObject&) { return true; });
-		controller.AddTransition(u"Stopping", u"StopToWalk", [this](GameObject&) { return m_walk && !m_dash; });
-		controller.AddTransition(u"Stopping", u"StopToDash", [this](GameObject&) { return m_walk && m_dash; });
-		controller.AddTransition(u"StopToWalk", u"Walking", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
-		controller.AddTransition(u"StopToDash", u"Dash", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
-		controller.AddTransition(u"Walking", u"WalkToDash", [this](GameObject&) { return m_walk && m_dash; });
-		controller.AddTransition(u"Walking", u"WalkToStop", [this](GameObject&) { return !m_walk; });
-		controller.AddTransition(u"WalkToDash", u"Dash", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
-		controller.AddTransition(u"WalkToStop", u"Stopping", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
-		controller.AddTransition(u"Dash", u"DashToStop", [this](GameObject&) { return !m_walk; });
-		controller.AddTransition(u"Dash", u"DashToWalk", [this](GameObject&) { return m_walk && !m_dash; });
-		controller.AddTransition(u"DashToStop", u"Stopping", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
-		controller.AddTransition(u"DashToWalk", u"Walking", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
-		controller.AddTransition(u"Walking", u"WalkToJump", [this](GameObject&) { return m_jump == JumpState::Jump || m_jump == JumpState::Jumping; });
-		controller.AddTransition(u"WalkToJump", u"Jumping", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
-		controller.AddTransition(u"Jumping", u"JumpToFall", [this](GameObject&) { return m_jump != JumpState::Jumping; });
-		controller.AddTransition(u"JumpToFall", u"Falling", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
-		controller.AddTransition(u"Falling", u"FallToWalk", [this](GameObject&) { return m_jump == JumpState::Walk; });
-		controller.AddTransition(u"FallToWalk", u"Walking", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+//		controller.AddTransition(u"Stopping", u"StopToWalk", [this](GameObject&) { return m_walk && !m_dash; });
+//		controller.AddTransition(u"Stopping", u"StopToDash", [this](GameObject&) { return m_walk && m_dash; });
+//		controller.AddTransition(u"StopToWalk", u"Walking", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+		controller.AddTransition(u"Stopping", u"Walking", [this](GameObject&) { return m_walk && !m_dash; });
+//		controller.AddTransition(u"StopToDash", u"Dash", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+		controller.AddTransition(u"Stopping", u"Dash", [this](GameObject&) { return m_walk && m_dash; });
+//		controller.AddTransition(u"Walking", u"WalkToDash", [this](GameObject&) { return m_walk && m_dash; });
+//		controller.AddTransition(u"Walking", u"WalkToStop", [this](GameObject&) { return !m_walk; });
+//		controller.AddTransition(u"WalkToDash", u"Dash", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+//		controller.AddTransition(u"WalkToStop", u"Stopping", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+		controller.AddTransition(u"Walking", u"Dash", [this](GameObject&) { return m_walk && m_dash; });
+		controller.AddTransition(u"Walking", u"Stopping", [this](GameObject&) { return !m_walk; });
+//		controller.AddTransition(u"Dash", u"DashToStop", [this](GameObject&) { return !m_walk; });
+//		controller.AddTransition(u"Dash", u"DashToWalk", [this](GameObject&) { return m_walk && !m_dash; });
+//		controller.AddTransition(u"DashToStop", u"Stopping", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+//		controller.AddTransition(u"DashToWalk", u"Walking", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+		controller.AddTransition(u"Dash", u"Stopping", [this](GameObject&) { return !m_walk; });
+		controller.AddTransition(u"Dash", u"Walking", [this](GameObject&) { return m_walk && !m_dash; });
+//		controller.AddTransition(u"Walking", u"WalkToJump", [this](GameObject&) { return m_jump == JumpState::Jump || m_jump == JumpState::Jumping; });
+//		controller.AddTransition(u"WalkToJump", u"Jumping", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+//		controller.AddTransition(u"Jumping", u"JumpToFall", [this](GameObject&) { return m_jump != JumpState::Jumping; });
+//		controller.AddTransition(u"JumpToFall", u"Falling", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+//		controller.AddTransition(u"Falling", u"FallToWalk", [this](GameObject&) { return m_jump == JumpState::Walk; });
+//		controller.AddTransition(u"FallToWalk", u"Walking", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+		controller.AddTransition(u"Walking", u"Jumping", [this](GameObject&) { return m_jump == JumpState::Jump || m_jump == JumpState::Jumping; });
+		controller.AddTransition(u"Jumping", u"Falling", [this](GameObject&) { return m_jump != JumpState::Jumping; });
+		controller.AddTransition(u"Falling", u"Walking", [this](GameObject&) { return m_jump == JumpState::Walk; });
 		controller.AddTransition(u"Stopping", u"Falling", [this](GameObject&) { return m_jump == JumpState::Endless; });
 		controller.AddTransition(u"Falling", u"Stopping", [this](GameObject&) { return m_jump == JumpState::Stopping; });
 
-
-		//controller.AddTransition(u"Empty", u"Walk", [&walk](GameObject&) { return walk; });
-		//controller.AddTransition(u"Walk", u"Dance", [&walk](GameObject&) { return !walk; });
-		//controller.AddTransition(u"Dance", u"Walk", [&walk](GameObject&) { return walk; });
 		m_position = gObj.GetTransform().Position();
 	}
 	GameObject* container = nullptr;
@@ -335,13 +344,17 @@ public:
 		}
 	}
 	void LastUpdate() noexcept override {
-		static int tmp = 0;
-		if (++tmp < 10) return;
-		else tmp = 0;
 		Vector3 currentPos = GetObject().GetTransform().Position();
-		if (m_position != currentPos) m_walk = true;
-		else m_walk = false;
-		m_position = currentPos;
+		if (m_position != currentPos) {
+			if (!m_walk) m_se.Play();
+			m_walk = true;
+			m_se.Update();
+		}
+		else {
+			if (m_walk) m_se.Pause();
+			m_walk = false;
+		}
+		m_position = currentPos;		
 	}
 };
 
@@ -353,18 +366,33 @@ public:
 	System::Application::MediaPlayer m_se;
 	InputActions ia;
 	void Init() noexcept override {
-		this->EnableSceneActivate = true;
+		this->EnableSceneBeginActivate = true;
 		this->EnableUpdate = true;
 		
-		m_player.Load(u"BGM", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Audio::Lesson), true);
+		m_player.Load(u"BGM", MediaPlayerSourceType::Global, ResourcePaths::GetPathName(ResourcePaths::Audio::BGM1), true);
 		m_player.SetLoopMode(true);
 
 		Action pause(u"Pause", InputValueType::Button);
 		pause.AddBinding().With(ControllerButtons::KeySpace);
 		pause.Started += [this](const ActionContext& context) {
-			if (!m_player.Pause()) m_player.Play(MediaPlayerSeekPos::End, seconds(-10));
+			if (!m_player.Pause()) m_player.Play(MediaPlayerSeekPos::Begin);
 		};
-		ia.RegisterAction(static_cast<Action&&>(pause));
+		ia.RegisterAction(System::move(pause));
+
+		Action mute(u"Mute", InputValueType::Button);
+		mute.AddBinding().With(ControllerButtons::KeyOEMMinus);
+		mute.Started += [this](const ActionContext& context) {
+			m_player.ToggleMute();
+		};
+		ia.RegisterAction(System::move(mute));
+
+		Action recreate(u"Recreate", InputValueType::Button);
+		recreate.AddBinding().With(ControllerButtons::Key0);
+		recreate.Started += [this](const ActionContext& context) {
+			m_player = Application::MediaPlayer();
+			m_player.Play(u"BGM", MediaPlayerSourceType::Global);
+		};
+		ia.RegisterAction(System::move(recreate));
 
 		m_se.Load(u"SE1", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Audio::Corrent1));
 		m_se.Load(u"SE2", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Audio::Corrent2));
@@ -389,9 +417,10 @@ public:
 				break;
 			}
 		};
-		ia.RegisterAction(static_cast<Action&&>(bell));
+		ia.RegisterAction(System::move(bell));
 	}
-	void SceneActivate() noexcept override {
+	
+	void SceneBeginActivate() noexcept override {
 		m_player.Play(MediaPlayerSeekPos::Begin);
 	}
 	void Update() noexcept override {
@@ -418,5 +447,60 @@ public:
 		if (tr->LocalScale.x - limit >= -0.05f) up = false;
 		else if (tr->LocalScale.x - base <= 0.05f) up = true;
 		tr->LocalScale.x = tr->LocalScale.x * (1 - 0.01f) + (up ? limit : base) * 0.01f;
+	}
+};
+
+export class CPUScript : public Script {
+	bool m_walk = false;
+	bool m_dash = false;
+public:
+	using Script::Script;
+public:
+	void Init() noexcept override {
+		this->EnableUpdate = true;
+
+		GameObject& gObj = GetObject();
+		if (!gObj.HasComponent<Animator>()) return;
+		AnimationController& controller = gObj.GetComponent<Animator>().GetAnimationController();
+		controller.AddTransition(u"Empty", u"Stopping", [](GameObject&) { return true; });
+		controller.AddTransition(u"Stopping", u"StopToWalk", [this](GameObject&) { return m_walk && !m_dash; });
+		controller.AddTransition(u"Stopping", u"StopToDash", [this](GameObject&) { return m_walk && m_dash; });
+		controller.AddTransition(u"StopToWalk", u"Walking", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+		controller.AddTransition(u"StopToDash", u"Dash", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+		controller.AddTransition(u"Walking", u"WalkToDash", [this](GameObject&) { return m_walk && m_dash; });
+		controller.AddTransition(u"Walking", u"WalkToStop", [this](GameObject&) { return !m_walk; });
+		controller.AddTransition(u"WalkToDash", u"Dash", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+		controller.AddTransition(u"WalkToStop", u"Stopping", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+		controller.AddTransition(u"Dash", u"DashToStop", [this](GameObject&) { return !m_walk; });
+		controller.AddTransition(u"Dash", u"DashToWalk", [this](GameObject&) { return m_walk && !m_dash; });
+		controller.AddTransition(u"DashToStop", u"Stopping", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+		controller.AddTransition(u"DashToWalk", u"Walking", [this](GameObject& gObj) { return gObj.GetComponent<Animator>().IsEnd(); });
+	}
+	Transform* m_transform = nullptr;
+	uint32_t m_counter = 180;
+	Vector3 m_velocity = Vector3::Zero();
+	float m_delta = 3;
+	float m_scale = 1;
+	XOR128 m_rng = XOR128::GetRNG();
+	void Update() noexcept override {
+		if (!m_transform) {
+			GameObject* container = this->GetObject().GetParent();
+			if (container) m_transform = &container->GetTransform();
+			if (!m_transform) return;
+		}
+		if (!--m_counter) {
+			float horizontal = (static_cast<int32_t>(m_rng.Get(255)) - 127) / 127.f;
+			float vertical = (static_cast<int32_t>(m_rng.Get(255)) - 127) / 127.f;
+			if (Math::Abs(horizontal) < 0.3f && Math::Abs(vertical) < 0.3f) {
+				m_walk = false;
+			} 
+			else m_walk = true;
+			m_velocity = (Vector3::Forward() * vertical + Vector3::Right() * horizontal).Normalized();
+			m_counter = 180;
+		}
+		if (!m_walk) return;
+		const float timestep = GetTimer().DeltaTime<milliseconds>() / 1000.f;
+		m_transform->Position(m_transform->Position() + (m_velocity * timestep * m_delta * m_scale));
+		m_transform->Rotation(Quaternion::LookRotation(m_velocity));
 	}
 };
