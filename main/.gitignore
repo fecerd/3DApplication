@@ -1,5 +1,5 @@
 ﻿
 /build/
 /.vs/
-/Resources/
+/Resources/*
 !/Resources/HLSL/
