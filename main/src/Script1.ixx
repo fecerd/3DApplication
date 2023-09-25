@@ -230,7 +230,7 @@ public:
 		this->EnableLastUpdate = true;
 		this->EnableUpdate = true;
 
-		m_se.Load(u"Walking", MediaPlayerSourceType::Global, ResourcePaths::GetPathName(ResourcePaths::Audio::Walking), true);
+		m_se.Load(u"Walking", MediaPlayerSourceType::Global, ResourcePaths::GetPathName(ResourcePaths::SE::Walking), true);
 		m_se.SetLoopMode(true);
 
 		Action dash(u"Dash", InputValueType::Button);
@@ -394,9 +394,9 @@ public:
 		};
 		ia.RegisterAction(System::move(recreate));
 
-		m_se.Load(u"SE1", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Audio::Corrent1));
-		m_se.Load(u"SE2", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Audio::Corrent2));
-		m_se.Load(u"SE3", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::Audio::Corrent3));
+		m_se.Load(u"SE1", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::SE::Correct1));
+		m_se.Load(u"SE2", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::SE::Correct2));
+		m_se.Load(u"SE3", MediaPlayerSourceType::Local, ResourcePaths::GetPathName(ResourcePaths::SE::Correct3));
 
 		Action bell(u"Bell", InputValueType::Button);
 		bell.AddBinding().With(ControllerButtons::Key1);

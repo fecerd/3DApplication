@@ -56,13 +56,14 @@ FAddObjectLibrary(src_5
 FAddObjectLibrary(src_6
 	SOURCES
 		main.cpp
+		SplashScreenScene.cpp
 	DEPENDS
 		src_5
 )
 
 FAddObjectLibrary(src_test
 	SOURCES
-		SplashScreenScene.cpp
+		Scene1.cpp
 	DEPENDS
 		src_6
 )

@@ -13,10 +13,18 @@ FAddObjectLibrary(MediaFoundation_1
 		MediaFoundation_0
 )
 
+FAddObjectLibrary(MediaFoundation_2
+	SOURCES
+		MediaPlayerForMediaFoundation.cpp
+	DEPENDS
+		MediaFoundation_1
+)
+
 FCombineObjectLibrary(MediaFoundation
 	PRIVATE
 		MediaFoundation_0
 		MediaFoundation_1
+		MediaFoundation_2
 	PUBLIC_LINK
 		Mfreadwrite
 		mfplat
@@ -24,5 +32,5 @@ FCombineObjectLibrary(MediaFoundation
 		mfuuid
 		#IUnknown実装用
 		Shlwapi
-		Strmiids		
+		Strmiids
 )

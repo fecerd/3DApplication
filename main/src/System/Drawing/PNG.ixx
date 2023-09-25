@@ -8,6 +8,25 @@ import Zlib;
 import Huffman;
 export import Image;
 
+/*
+	16bitのチャンネルはImageクラスに変換する際に、8bitにスケールダウンされる。
+	スケールダウンは下位バイトの切り捨て(8bit右シフト)で実装している。
+	なお、最も正確なスケーリング法は
+		MaxInSample = 2^(変換前bit数) - 1;
+		MaxOutSample = 2^(変換後bit数) - 1;
+		output = floor((input * MaxOutSample / MaxInSample) + 0.5);
+	による線形変換である。
+
+	スケールアップは左シフト&ビットのリピートで実装している。(ExtendBit()関数)
+		例: 0b101' (3bit) -> 0b101'101'10 (9bit)
+	なお、最も正確なスケーリング法は
+		MaxInSample = 2^(変換前bit数) - 1 = 変換前の範囲の最大値;
+		MaxOutSample = 2^(変換後bit数) - 1 = 変換後の範囲の最大値;
+		output = floor((input * MaxOutSample / MaxInSample) + 0.5);
+	による線形変換である。
+	この方法の場合、データの最大値が2の累乗-1でなくても機能する。
+*/
+
 export namespace System::Drawing {
 	class PNG : public Object {
 	private:
@@ -60,11 +79,37 @@ export namespace System::Drawing {
 				return &first;
 			}
 		};
+		struct tRNS {
+			struct TrueColourAlpha {
+				uint16_t red;
+				uint16_t green;
+				uint16_t blue;
+			};
+		public:
+			union {
+				uint8_t first;
+				uint16_t alpha;
+				TrueColourAlpha trueColourAlpha;
+			};
+		public:
+			const uint8_t* GetPaletteAlphaArray() const noexcept {
+				return &first;
+			}
+			uint16_t GetAlpha() const noexcept {
+				return Memory::ByteOrder(alpha);
+			}
+			void GetTrueColourAlpha(uint16_t& red, uint16_t& green, uint16_t& blue) const noexcept {
+				red = Memory::ByteOrder(trueColourAlpha.red);
+				green = Memory::ByteOrder(trueColourAlpha.green);
+				blue = Memory::ByteOrder(trueColourAlpha.blue);
+			}
+		};
 		struct Chunk {
 		private:
 			static constexpr char8_t TYPE_IHDR[4] = { u8'I', u8'H', u8'D', u8'R' };
 			static constexpr char8_t TYPE_IDAT[4] = { u8'I', u8'D', u8'A', u8'T' };
 			static constexpr char8_t TYPE_PLTE[4] = { u8'P', u8'L', u8'T', u8'E' };
+			static constexpr char8_t TYPE_tRNS[4] = { u8't', u8'R', u8'N', u8'S' };
 			static constexpr char8_t TYPE_IEND[4] = { u8'I', u8'E', u8'N', u8'D' };
 		public:
 			uint32_t length = 0;
@@ -73,6 +118,7 @@ export namespace System::Drawing {
 				uint8_t* data = nullptr;
 				IHDR* ihdr;
 				PLTE* plte;
+				tRNS* trns;
 			};
 			uint32_t crc = 0;
 		public:
@@ -101,6 +147,7 @@ export namespace System::Drawing {
 			bool IsIHDR() const noexcept { return Memory::Compare(type, TYPE_IHDR, sizeof(TYPE_IHDR)); }
 			bool IsIDAT() const noexcept { return Memory::Compare(type, TYPE_IDAT, sizeof(TYPE_IDAT)); }
 			bool IsPLTE() const noexcept { return Memory::Compare(type, TYPE_PLTE, sizeof(TYPE_PLTE)); }
+			bool IstRNS() const noexcept { return Memory::Compare(type, TYPE_tRNS, sizeof(TYPE_tRNS)); }
 			bool IsIEnd() const noexcept { return Memory::Compare(type, TYPE_IEND, sizeof(TYPE_IEND)); }
 		};
 	private:
@@ -151,6 +198,16 @@ export namespace System::Drawing {
 				if (chunks[i]->IsPLTE()) {
 					paletteCount = chunks[i]->length / 3;
 					return chunks[i]->plte;
+				}
+			}
+			return nullptr;
+		}
+		tRNS* GettRNS(uint32_t& length) const noexcept {
+			length = 0;
+			for (size_t i = 0, end = chunks.Count(); i < end; ++i) {
+				if (chunks[i]->IstRNS()) {
+					length = chunks[i]->length;
+					return chunks[i]->trns;
 				}
 			}
 			return nullptr;
@@ -221,61 +278,64 @@ export namespace System::Drawing {
 			}
 		}
 		template<bool RangeCheck = false>
-		inline static size_t Set1bitGrayByte(Pixel* begin, uint8_t byte, size_t max = 0) noexcept {
+		inline static size_t Set1bitGrayByte(Pixel* begin, uint8_t byte, uint8_t alphaValLt4bit, size_t max = 0) noexcept {
 			if constexpr (RangeCheck) if (!max) return 0;
 			uint8_t val = ExtendBit(byte >> 7, 1);
-			begin[0] = Pixel(val, val, val);
+			begin[0] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 1;
 			val = ExtendBit(byte >> 6, 1);
-			begin[1] = Pixel(val, val, val);
+			begin[1] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 2;
 			val = ExtendBit(byte >> 5, 1);
-			begin[2] = Pixel(val, val, val);
+			begin[2] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 3;
 			val = ExtendBit(byte >> 4, 1);
-			begin[3] = Pixel(val, val, val);
+			begin[3] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 4;
 			val = ExtendBit(byte >> 3, 1);
-			begin[4] = Pixel(val, val, val);
+			begin[4] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 5;
 			val = ExtendBit(byte >> 2, 1);
-			begin[5] = Pixel(val, val, val);
+			begin[5] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 6;
 			val = ExtendBit(byte >> 1, 1);
-			begin[6] = Pixel(val, val, val);
+			begin[6] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 7;
 			val = ExtendBit(byte, 1);
-			begin[7] = Pixel(val, val, val);
+			begin[7] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			return 8;
 		}
 		template<bool RangeCheck = false>
-		inline static size_t Set2bitGrayByte(Pixel* begin, uint8_t byte, size_t max = 0) noexcept {
+		inline static size_t Set2bitGrayByte(Pixel* begin, uint8_t byte, uint8_t alphaValLt4bit, size_t max = 0) noexcept {
 			if constexpr (RangeCheck) if (!max) return 0;
 			uint8_t val = ExtendBit(byte >> 6, 2);
-			begin[0] = Pixel(val, val, val);
+			begin[0] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 1;
 			val = ExtendBit(byte >> 4, 2);
-			begin[1] = Pixel(val, val, val);
+			begin[1] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 2;
 			val = ExtendBit(byte >> 2, 2);
-			begin[2] = Pixel(val, val, val);
+			begin[2] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 3;
 			val = ExtendBit(byte, 2);
-			begin[3] = Pixel(val, val, val);
+			begin[3] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			return 4;
 		}
 		template<bool RangeCheck = false>
-		inline static size_t Set4bitGrayByte(Pixel* begin, uint8_t byte, size_t max = 0) noexcept {
+		inline static size_t Set4bitGrayByte(Pixel* begin, uint8_t byte, uint8_t alphaValLt4bit, size_t max = 0) noexcept {
 			if constexpr (RangeCheck) if (!max) return 0;
 			uint8_t val = ExtendBit(byte >> 4, 4);
-			begin[0] = Pixel(val, val, val);
+			begin[0] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			if constexpr (RangeCheck) if (!--max) return 1;
 			val = ExtendBit(byte, 4);
-			begin[1] = Pixel(val, val, val);
+			begin[1] = Pixel(val, val, val, val == alphaValLt4bit ? 0 : 255);
 			return 2;
 		}
 		template<uint8_t bitDepth>
-		inline static void DecodeGrayScale(Image& image, Vector<uint8_t>& raw) noexcept {
+		inline static void DecodeGrayScale(Image& image, Vector<uint8_t>& raw, const tRNS* trns, uint32_t trnsLength) noexcept {
+			const bool alphaExists = trns && trnsLength;
+			const uint16_t alphaVal = alphaExists ? trns->GetAlpha() : 0;
+			const uint8_t alphaValLt4bit = static_cast<uint8_t>(alphaExists ? alphaVal : 0x0010);
 			uint8_t* rawData = raw.Items();
 			const size_t rawDataCount = raw.Count();
 			Pixel* pixels = image.Data();
@@ -285,40 +345,42 @@ export namespace System::Drawing {
 			size_t nextY = 0;
 			Pixel* lineFirst = nullptr;
 			for (size_t i = 0; i < rawDataCount; ++i) {
+				//各行1バイト目はフィルターに使用されているため飛ばす必要がある
 				if (currentX == width) {
 					lineFirst = pixels + nextY * width;
 					currentX = 0;
 					++nextY;
-					if (nextY >= height) break;
+					if (nextY > height) break;
 				}
 				else {
 					uint8_t tmp = rawData[i];
 					if constexpr (bitDepth == 1) {
-						if (currentX + 7 < width) currentX += Set1bitGrayByte(lineFirst + currentX, tmp);
-						else currentX += Set1bitGrayByte<true>(lineFirst + currentX, tmp, width - currentX);
+						if (currentX + 7 < width) currentX += Set1bitGrayByte(lineFirst + currentX, tmp, alphaValLt4bit);
+						else currentX += Set1bitGrayByte<true>(lineFirst + currentX, tmp, alphaValLt4bit, width - currentX);
 					}
 					else if constexpr (bitDepth == 2) {
-						if (currentX + 3 < width) currentX += Set2bitGrayByte(lineFirst + currentX, tmp);
-						else currentX += Set2bitGrayByte<true>(lineFirst + currentX, tmp, width - currentX);
+						if (currentX + 3 < width) currentX += Set2bitGrayByte(lineFirst + currentX, tmp, alphaValLt4bit);
+						else currentX += Set2bitGrayByte<true>(lineFirst + currentX, tmp, alphaValLt4bit, width - currentX);
 					}
 					else if constexpr (bitDepth == 4) {
-						if (currentX + 1 < width) currentX += Set4bitGrayByte(lineFirst + currentX, tmp);
-						else currentX += Set4bitGrayByte<true>(lineFirst + currentX, tmp, width - currentX);
+						if (currentX + 1 < width) currentX += Set4bitGrayByte(lineFirst + currentX, tmp, alphaValLt4bit);
+						else currentX += Set4bitGrayByte<true>(lineFirst + currentX, tmp, alphaValLt4bit, width - currentX);
 					}
 					else if constexpr (bitDepth == 8) {
-						lineFirst[currentX++] = Pixel(tmp, tmp, tmp);
+						lineFirst[currentX++] = Pixel(tmp, tmp, tmp, alphaExists && (tmp == alphaVal) ? 0 : 255);
 					}
 					else if constexpr (bitDepth == 16) {
 						uint8_t tmp2 = rawData[++i];
-						if (Math::Abs(tmp - tmp2) <= 128) lineFirst[currentX++] = Pixel(tmp, tmp, tmp);
-						else lineFirst[currentX++] = tmp > tmp2 ? Pixel(tmp - 1, tmp - 1, tmp - 1) : Pixel(tmp + 1, tmp + 1, tmp + 1);
+						uint16_t val16 = Memory::ByteOrder(static_cast<uint16_t>((tmp << 8) | tmp2));
+						lineFirst[currentX++] = Pixel(tmp, tmp, tmp, alphaExists && (val16 == alphaVal) ? 0 : 255);
 					}
 				}
 			}
 		}
 	private:
 		template<uint8_t bitDepth>
-		inline static void DecodeIndexedColour(Image& image, Vector<uint8_t>& raw, const PLTE& plte, uint32_t paletteCount) noexcept {
+		inline static void DecodeIndexedColour(Image& image, Vector<uint8_t>& raw, const PLTE& plte, uint32_t paletteCount, const tRNS* trns, uint32_t trnsLength) noexcept {
+			const uint8_t* trnsArray = trns && trnsLength ? trns->GetPaletteAlphaArray() : nullptr;
 			const PLTE::PaletteData* palettes = plte.GetPaletteArray();
 			if (!palettes) return;
 			Pixel* pixels = image.Data();
@@ -331,11 +393,14 @@ export namespace System::Drawing {
 			const uint8_t* rawData = raw.Items();
 			const size_t rawDataCount = raw.Count();
 			for (size_t i = 0; i < rawDataCount; ++i) {
+				//各行1バイト目はフィルターに使用されているため飛ばす必要がある
 				if (currentX == width) {
 					lineFirst = pixels + nextY * width;
 					currentX = 0;
 					++nextY;
-					if (nextY >= height) break;
+					if (nextY > height) {
+						break;
+					}
 				}
 				else {
 					uint8_t data = rawData[i];
@@ -344,7 +409,8 @@ export namespace System::Drawing {
 							uint8_t id = static_cast<uint8_t>((data >> n) & 0x01);
 							if (paletteCount > id) {
 								const PLTE::PaletteData& palette = palettes[id];
-								lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue);
+								uint8_t alpha = (trnsArray && trnsLength > id) ? trnsArray[id] : 255;
+								lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue, alpha);
 							}
 							++currentX;
 							if (currentX == width) break;
@@ -355,7 +421,8 @@ export namespace System::Drawing {
 							uint8_t id = static_cast<uint8_t>((data >> (n << 1)) & 0x03);
 							if (paletteCount > id) {
 								const PLTE::PaletteData& palette = palettes[id];
-								lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue);
+								uint8_t alpha = (trnsArray && trnsLength > id) ? trnsArray[id] : 255;
+								lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue, alpha);
 							}
 							++currentX;
 							if (currentX == width) break;
@@ -368,29 +435,38 @@ export namespace System::Drawing {
 						};
 						if (paletteCount > ids[0]) {
 							const PLTE::PaletteData& palette = palettes[ids[0]];
-							lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue);
+							uint8_t alpha = (trnsArray && trnsLength > ids[0]) ? trnsArray[ids[0]] : 255;
+							lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue, alpha);
 						}
 						++currentX;
 						if (currentX == width) continue;
 						if (paletteCount > ids[1]) {
 							const PLTE::PaletteData& palette = palettes[ids[1]];
-							lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue);
+							uint8_t alpha = (trnsArray && trnsLength > ids[1]) ? trnsArray[ids[1]] : 255;
+							lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue, alpha);
 						}
 						++currentX;
 					}
 					else if constexpr (bitDepth == 8) {
 						if (paletteCount > data) {
 							const PLTE::PaletteData& palette = palettes[data];
-							lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue);
+							uint8_t alpha = (trnsArray && trnsLength > data) ? trnsArray[data] : 255;
+							lineFirst[currentX] = Pixel(palette.red, palette.green, palette.blue, alpha);
 						}
 						++currentX;
 					}
 				}
+
 			}
 		}
 	private:
 		template<uint8_t bitDepth>
-		inline static void DecodeTrueColour(Image& image, Vector<uint8_t>& raw) noexcept {
+		inline static void DecodeTrueColour(Image& image, Vector<uint8_t>& raw, const tRNS* trns, uint32_t trnsLength) noexcept {
+			uint16_t aRed = 0;
+			uint16_t aGreen = 0;
+			uint16_t aBlue = 0;
+			const bool alphaExists = trns && trnsLength >= 6;
+			if (alphaExists) trns->GetTrueColourAlpha(aRed, aGreen, aBlue);
 			uint8_t* rawData = raw.Items();
 			const size_t rawDataCount = raw.Count();
 			Pixel* pixels = image.Data();
@@ -400,28 +476,31 @@ export namespace System::Drawing {
 			size_t nextY = 0;
 			Pixel* lineFirst = nullptr;
 			for (size_t i = 0; i < rawDataCount; ++i) {
+				//各行1バイト目はフィルターに使用されているため飛ばす必要がある
 				if (currentX == width) {
-					if (nextY >= height) break;
 					lineFirst = pixels + nextY * width;
 					currentX = 0;
 					++nextY;
+					if (nextY > height) break;
 				}
 				else {
 					if constexpr (bitDepth == 8) {
-						lineFirst[currentX++] = Pixel(rawData[i], rawData[i + 1], rawData[i + 2]);
-						i += 2;
+						uint8_t red = rawData[i];
+						uint8_t green = rawData[++i];
+						uint8_t blue = rawData[++i];
+						lineFirst[currentX++] = Pixel(red, green, blue, (alphaExists && red == aRed && green == aGreen && blue == aBlue) ? 0 : 255);
 					}
 					else if constexpr (bitDepth == 16) {
 						uint8_t r1 = rawData[i];
 						uint8_t r2 = rawData[++i];
-						if (Math::Abs(r1 - r2) > 128) r1 = r1 > r2 ? r1 - 1 : r1 + 1;
+						uint16_t red = Memory::ByteOrder(static_cast<uint16_t>((r1 << 8) | r2));
 						uint8_t g1 = rawData[++i];
 						uint8_t g2 = rawData[++i];
-						if (Math::Abs(g1 - g2) > 128) g1 = g1 > g2 ? g1 - 1 : g1 + 1;
+						uint16_t green = Memory::ByteOrder(static_cast<uint16_t>((g1 << 8) | g2));
 						uint8_t b1 = rawData[++i];
 						uint8_t b2 = rawData[++i];
-						if (Math::Abs(b1 - b2) > 128) b1 = b1 > b2 ? b1 - 1 : b1 + 1;
-						lineFirst[currentX++] = Pixel(r1, g1, b1);
+						uint16_t blue = Memory::ByteOrder(static_cast<uint16_t>((b1 << 8) | b2));
+						lineFirst[currentX++] = Pixel(r1, g1, b1, (alphaExists && red == aRed && green == aGreen && blue == aBlue) ? 0 : 255);
 					}
 				}
 			}
@@ -437,11 +516,12 @@ export namespace System::Drawing {
 			size_t nextY = 0;
 			Pixel* lineFirst = nullptr;
 			for (size_t i = 0; i < rawDataCount; ++i) {
+				//各行1バイト目はフィルターに使用されているため飛ばす必要がある
 				if (currentX == width) {
-					if (nextY >= height) break;
 					lineFirst = pixels + nextY * width;
 					currentX = 0;
 					++nextY;
+					if (nextY > height) break;
 				}
 				else {
 					if constexpr (bitDepth == 8) {
@@ -474,29 +554,33 @@ export namespace System::Drawing {
 			RemoveFilter(raw, ihdr->width, ihdr->bitDepth, ihdr->GetChannelCount());
 			Image ret(ihdr->width, ihdr->height);
 			if (ihdr->colourType == IHDR::ColourType::GrayScale) {
+				uint32_t trnsLength = 0;
+				tRNS* trns = GettRNS(trnsLength);
 				switch (ihdr->bitDepth) {
 				case 1:
-					DecodeGrayScale<1>(ret, raw);
+					DecodeGrayScale<1>(ret, raw, trns, trnsLength);
 					break;
 				case 2:
-					DecodeGrayScale<2>(ret, raw);
+					DecodeGrayScale<2>(ret, raw, trns, trnsLength);
 					break;
 				case 4:
-					DecodeGrayScale<4>(ret, raw);
+					DecodeGrayScale<4>(ret, raw, trns, trnsLength);
 					break;
 				case 8:
-					DecodeGrayScale<8>(ret, raw);
+					DecodeGrayScale<8>(ret, raw, trns, trnsLength);
 					break;
 				case 16:
-					DecodeGrayScale<16>(ret, raw);
+					DecodeGrayScale<16>(ret, raw, trns, trnsLength);
 					break;
 				default:
 					break;
 				}
 			}
 			else if (ihdr->colourType == IHDR::ColourType::TrueColour) {
-				if (ihdr->bitDepth == 8) DecodeTrueColour<8>(ret, raw);
-				else if (ihdr->bitDepth == 16) DecodeTrueColour<16>(ret, raw);
+				uint32_t trnsLength = 0;
+				tRNS* trns = GettRNS(trnsLength);
+				if (ihdr->bitDepth == 8) DecodeTrueColour<8>(ret, raw, trns, trnsLength);
+				else if (ihdr->bitDepth == 16) DecodeTrueColour<16>(ret, raw, trns, trnsLength);
 			}
 			else if (ihdr->colourType == IHDR::ColourType::TrueColourWithAlpha) {
 				if (ihdr->bitDepth == 8) DecodeTrueColourWithAlpha<8>(ret, raw);
@@ -506,28 +590,30 @@ export namespace System::Drawing {
 				uint32_t paletteCount = 0;
 				PLTE* plte = GetPLTE(paletteCount);
 				if (!plte || !paletteCount) return ret;
+				uint32_t trnsLength = 0;
+				tRNS* trns = GettRNS(trnsLength);
 				switch (ihdr->bitDepth) {
 				case 1:
-					DecodeIndexedColour<1>(ret, raw, *plte, paletteCount);
+					DecodeIndexedColour<1>(ret, raw, *plte, paletteCount, trns, trnsLength);
 					break;
 				case 2:
-					DecodeIndexedColour<2>(ret, raw, *plte, paletteCount);
+					DecodeIndexedColour<2>(ret, raw, *plte, paletteCount, trns, trnsLength);
 					break;
 				case 4:
-					DecodeIndexedColour<4>(ret, raw, *plte, paletteCount);
+					DecodeIndexedColour<4>(ret, raw, *plte, paletteCount, trns, trnsLength);
 					break;
 				case 8:
-					DecodeIndexedColour<8>(ret, raw, *plte, paletteCount);
+					DecodeIndexedColour<8>(ret, raw, *plte, paletteCount, trns, trnsLength);
 					break;
 				default:
-					break;				
+					break;
 				}
 			}
 			return ret;
 		}
 	public:
 		bool Equals(const Object& obj) const noexcept override { return GetTypeID() == obj.GetTypeID() ? *this == static_cast<const PNG&>(obj) : false; }
-		Type GetType() const noexcept override { return Type(u"System::Drawing::PNG"); }
+		Type GetType() const noexcept override { return Type::CreateType<PNG>(); }
 		String ToString() const noexcept override { return String(u"PNG Image"); }
 		uint32_t GetTypeID() const noexcept override { return GetID<PNG>(); }
 	};

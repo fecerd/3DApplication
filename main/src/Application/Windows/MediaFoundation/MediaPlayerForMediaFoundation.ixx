@@ -342,43 +342,7 @@ export namespace System::Application::Windows {
 			hr = m_session->BeginGetEvent(this, nullptr);
 			m_state.store(MFPlayerState::Ready, memory_order::release);
 		}
-		~MFMediaPlayer() noexcept {
-			Stop();
-			{
-				LockGuard lock{ s_mtx };
-				SafeRelease(s_simpleAudioVolume);
-			}
-			SafeRelease(m_videoDisplayControl, m_audioStreamVolume);
-			m_state.store(MFPlayerState::Closing, memory_order::release);
-			if (m_session) {
-				//待機イベントを作成
-				m_closeEvent.store(CreateEvent(nullptr, FALSE, FALSE, nullptr), memory_order::release);
-				//MESessionClosedイベントを送る
-				if (m_session->Close() >= 0) {
-					//Invoke関数内から待機イベントが設定されるまで待つ
-					DWORD result = WaitForSingleObject(m_closeEvent.load(memory_order::acquire), 3000);
-					if (result == WAIT_TIMEOUT) {
-						Application::Log(Exception(u"MediaFoundationがタイムアウトしました。").what());
-						m_state.store(MFPlayerState::Closed, memory_order::release);
-					}
-					else {
-						while (m_state.load(memory_order::acquire) != MFPlayerState::Closed);
-					}
-				}
-				//待機イベントを解放
-				CloseHandle(m_closeEvent.load(memory_order::acquire));
-				m_closeEvent.store(nullptr, memory_order::release);
-				//メディアセッションを終了
-				m_session->Shutdown();
-				SafeRelease(m_session);
-			}
-			m_currentSourceName = String();
-			m_currentSourceType = MediaPlayerSourceType::Local;
-			m_state.store(MFPlayerState::Uninitialized, memory_order::release);
-			//MediaFoundationの終了
-			MFShutdown();
-			CoUninitialize();
-		}
+		~MFMediaPlayer() noexcept;
 	private:/* IUnknown関連 */
 		HRESULT __stdcall QueryInterface(const IID& iid, void** object) override {
 			if (!object) return E_POINTER;

@@ -228,7 +228,8 @@ export namespace Engine {
 	public:
 		bool UpdateRenderer(uint32_t materialIndex, const Renderer& renderer) noexcept {
 			bool ret = MeshFilter_NoObj::UpdateRenderer(materialIndex, renderer);
-			if (ret) Component_Impl<GameObject>::GetObject().UpdateCommandList();
+//上手く動かないため、コメントアウト
+//			if (ret) Component_Impl<GameObject>::GetObject().UpdateCommandList();
 			return ret;
 		}
 	public:/* Component override */

@@ -181,6 +181,29 @@ export namespace System::Compression {
 			if (distance != 0 && count >= distance) ret.CopyRange(count - distance, Deflate::GetLength(value) + lengthEx);
 		}
 	private:
+		static void DecodeNoCompressionHuffman(BitStream& bits, Vector<uint8_t>& ret, bool& isFinalBlock) noexcept {
+			//ヘッダ3bit[0, 2]の残り5bit[3, 7]はパディングであるため読み飛ばす。
+			//bits.Get<uint8_t>(5, true, true)と同じ。
+			bits.MoveNextByte();
+			//次にデータ長LENとその補数NLENがそれぞれ2バイトのリトルエンディアンで存在する。
+			//LEN = ~NLENであるが、確かめる必要はない。
+			uint16_t len = bits.Get<uint16_t>(16, true, true);
+			uint16_t nlen = bits.Get<uint16_t>(16, true, true);
+			//!bits.EndOfStream()を確認してもよい。
+			for (uint16_t i = 0; i < len; ++i) {
+				uint8_t val = bits.Get<uint8_t>(8, true, true);
+				ret.Add(val);
+			}
+			//最終ブロックなら終了
+			if (isFinalBlock) return;
+			//次のブロックのヘッダ3bitを読み取り、再帰実行
+			isFinalBlock = bits.Get(true);
+			HuffmanType type = static_cast<HuffmanType>(bits.Get<uint8_t>(2, true, true));
+			if (type == HuffmanType::FixedHuffmanCode) DecodeFixedHuffman(bits, ret, isFinalBlock);
+			else if (type == HuffmanType::DynamicHuffmanCode) DecodeDynamicHuffman(bits, ret, isFinalBlock);
+			else if (type == HuffmanType::NoCompression) DecodeNoCompressionHuffman(bits, ret, isFinalBlock);
+			return;
+		}
 		static void DecodeFixedHuffman(BitStream& bits, Vector<uint8_t>& ret, bool& isFinalBlock) noexcept {
 			while (!bits.EndOfStream()) {
 				uint16_t code = bits.GetReverseBit<uint16_t>(7, true, true);
@@ -193,6 +216,7 @@ export namespace System::Compression {
 						HuffmanType type = static_cast<HuffmanType>(bits.Get<uint8_t>(2, true, true));
 						if (type == HuffmanType::FixedHuffmanCode) DecodeFixedHuffman(bits, ret, isFinalBlock);
 						else if (type == HuffmanType::DynamicHuffmanCode) DecodeDynamicHuffman(bits, ret, isFinalBlock);
+						else if (type == HuffmanType::NoCompression) DecodeNoCompressionHuffman(bits, ret, isFinalBlock);
 						return;
 					}
 					uint16_t value = 256 + code;
@@ -241,6 +265,7 @@ export namespace System::Compression {
 						HuffmanType type = static_cast<HuffmanType>(bits.Get<uint8_t>(2, true, true));
 						if (type == HuffmanType::FixedHuffmanCode) DecodeFixedHuffman(bits, ret, isFinalBlock);
 						else if (type == HuffmanType::DynamicHuffmanCode) DecodeDynamicHuffman(bits, ret, isFinalBlock);
+						else if (type == HuffmanType::NoCompression) DecodeNoCompressionHuffman(bits, ret, isFinalBlock);
 						return;
 					}
 				}
@@ -271,6 +296,7 @@ export namespace System::Compression {
 			HuffmanType type = static_cast<HuffmanType>(bits.Get<uint8_t>(2, true, true));
 			if (type == HuffmanType::FixedHuffmanCode) DecodeFixedHuffman(bits, ret, isFinalBlock);
 			else if (type == HuffmanType::DynamicHuffmanCode) DecodeDynamicHuffman(bits, ret, isFinalBlock);
+			else if (type == HuffmanType::NoCompression) DecodeNoCompressionHuffman(bits, ret, isFinalBlock);
 			return ret;
 		}
 	};

@@ -17,6 +17,106 @@ using namespace DX;
 #undef IID_PPV_ARGS
 #define IID_PPV_ARGS(ppType) DX::GetIID(ppType), DX::IID_PPV_ARGS_Helper(ppType)
 
+namespace System::Application::Windows::DirectX::Internal {
+	ID3D12RootSignature* CreateRootSignature(ID3D12Device& device) noexcept {
+	D3D12_DESCRIPTOR_RANGE ranges[6] = {};
+	//カメラ用
+	ranges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	ranges[0].NumDescriptors = 1;
+	ranges[0].BaseShaderRegister = 0;
+	ranges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//オブジェクト用
+	ranges[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	ranges[1].NumDescriptors = 1;
+	ranges[1].BaseShaderRegister = 1;
+	ranges[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//アニメーション用
+	ranges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	ranges[2].NumDescriptors = 1;
+	ranges[2].BaseShaderRegister = 2;
+	ranges[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//マテリアル用(CBV)
+	ranges[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	ranges[3].NumDescriptors = 1;
+	ranges[3].BaseShaderRegister = 3;
+	ranges[3].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//マテリアル用(SRV)
+	ranges[4].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	ranges[4].NumDescriptors = 4;
+	ranges[4].BaseShaderRegister = 0;
+	ranges[4].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//シーン用
+	ranges[5].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	ranges[5].NumDescriptors = 1;
+	ranges[5].BaseShaderRegister = 4;
+	ranges[5].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER params[ParamCount] = {};
+	//カメラ用
+	params[CameraParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_VERTEX;
+	params[CameraParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	params[CameraParamID].DescriptorTable.NumDescriptorRanges = 1;
+	params[CameraParamID].DescriptorTable.pDescriptorRanges = ranges;
+	//オブジェクト用
+	params[ObjectParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_VERTEX;
+	params[ObjectParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	params[ObjectParamID].DescriptorTable.NumDescriptorRanges = 1;
+	params[ObjectParamID].DescriptorTable.pDescriptorRanges = ranges + 1;
+	//アニメーション用
+	params[AnimationParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_VERTEX;
+	params[AnimationParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	params[AnimationParamID].DescriptorTable.NumDescriptorRanges = 1;
+	params[AnimationParamID].DescriptorTable.pDescriptorRanges = ranges + 2;
+	//マテリアル用
+	params[MaterialParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
+	params[MaterialParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	params[MaterialParamID].DescriptorTable.NumDescriptorRanges = 2;
+	params[MaterialParamID].DescriptorTable.pDescriptorRanges = ranges + 3;
+	//シーン用
+	params[SceneParamID].ShaderVisibility = D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
+	params[SceneParamID].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	params[SceneParamID].DescriptorTable.NumDescriptorRanges = 1;
+	params[SceneParamID].DescriptorTable.pDescriptorRanges = ranges + 5;
+
+	D3D12_STATIC_SAMPLER_DESC samplers[SamplerCount] = {};
+	//デフォルトサンプラ
+	samplers[DefaultSamplerID].AddressU = D3D12_TEXTURE_ADDRESS_MODE::D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplers[DefaultSamplerID].AddressV = D3D12_TEXTURE_ADDRESS_MODE::D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplers[DefaultSamplerID].AddressW = D3D12_TEXTURE_ADDRESS_MODE::D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplers[DefaultSamplerID].BorderColor = D3D12_STATIC_BORDER_COLOR::D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	samplers[DefaultSamplerID].Filter = D3D12_FILTER::D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	samplers[DefaultSamplerID].MaxLOD = D3D12_FLOAT32_MAX;
+	samplers[DefaultSamplerID].MinLOD = 0.f;
+	samplers[DefaultSamplerID].ShaderVisibility = D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
+	samplers[DefaultSamplerID].ComparisonFunc = D3D12_COMPARISON_FUNC::D3D12_COMPARISON_FUNC_NEVER;
+	samplers[DefaultSamplerID].ShaderRegister = 0;
+	//トゥーン用サンプラ
+	samplers[ToonSamplerID] = samplers[DefaultSamplerID];
+	samplers[ToonSamplerID].AddressU = D3D12_TEXTURE_ADDRESS_MODE::D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplers[ToonSamplerID].AddressV = D3D12_TEXTURE_ADDRESS_MODE::D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplers[ToonSamplerID].AddressW = D3D12_TEXTURE_ADDRESS_MODE::D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplers[ToonSamplerID].ShaderRegister = 1;
+
+	D3D12_ROOT_SIGNATURE_DESC desc{};
+	desc.Flags = D3D12_ROOT_SIGNATURE_FLAGS::D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	desc.pParameters = params;
+	desc.NumParameters = ParamCount;
+	desc.pStaticSamplers = samplers;
+	desc.NumStaticSamplers = SamplerCount;
+	ID3DBlob* rsBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+	ID3D12RootSignature* ret = nullptr;
+	if (D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION::D3D_ROOT_SIGNATURE_VERSION_1_0, &rsBlob, &errorBlob) == S_OK) {
+		if (device.CreateRootSignature(0, rsBlob->GetBufferPointer(), rsBlob->GetBufferSize(), IID_PPV_ARGS(&ret)) != S_OK) {
+			ret = nullptr;
+		}
+	}
+	if (errorBlob) errorBlob->Release();
+	if (rsBlob) rsBlob->Release();
+	return ret;
+}
+}
+
 //Impl
 namespace System::Application::Windows::DirectX {
 	bool D3DResource::UpdateResource(const float* data, size_t count) noexcept {
@@ -659,7 +759,16 @@ namespace System::Application::Windows::DirectX {
 		rendererDesc.ps.entry = Common3D::DefaultShaderEntry;
 		rendererDesc.ps.target = Common3D::DefaultPSTarget;
 		rendererDesc.culling = CullingMode::Back;
-		rendererDesc.rt.Add(RenderTargetDesc{});
+		rendererDesc.depthEnabled = true;
+		RenderTargetDesc rtDesc{};
+		rtDesc.blendEnabled = true;
+		rtDesc.dstFactor = BlendFactors::SrcAlphaInv;
+		rtDesc.srcFactor = BlendFactors::One;
+		rtDesc.colorOp = BlendOp::Add;
+		rtDesc.dstAlphaFactor = BlendFactors::SrcAlphaInv;
+		rtDesc.srcAlphaFactor = BlendFactors::One;
+		rtDesc.alphaOp = BlendOp::Add;
+		rendererDesc.rt.Add(rtDesc);
 		if (!CreateRenderer(Common3D::DefaultRendererName, rendererDesc)) {
 			throw LogicException(u"デフォルトのPipelineStateの作成に失敗しました。");
 		}
@@ -1306,7 +1415,8 @@ namespace System::Application::Windows::DirectX {
 			pipelineDesc.BlendState.RenderTarget[rtCount].RenderTargetWriteMask = 
 				D3D12_COLOR_WRITE_ENABLE::D3D12_COLOR_WRITE_ENABLE_RED
 				| D3D12_COLOR_WRITE_ENABLE::D3D12_COLOR_WRITE_ENABLE_GREEN
-				| D3D12_COLOR_WRITE_ENABLE::D3D12_COLOR_WRITE_ENABLE_BLUE;
+				| D3D12_COLOR_WRITE_ENABLE::D3D12_COLOR_WRITE_ENABLE_BLUE	//;
+				| D3D12_COLOR_WRITE_ENABLE::D3D12_COLOR_WRITE_ENABLE_ALPHA;
 			//フォーマットはR8G8B8A8で固定
 			pipelineDesc.RTVFormats[rtCount] = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 			++rtCount;
