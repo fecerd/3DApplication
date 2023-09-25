@@ -43,6 +43,6 @@ pacman -S ...で
 をインストールする。
 
 C:/source/VSCode/を作成して移動する。
-git clone git@github.com:fecerd/3DApplication.git
+git clone git@github.com:name/****.git
 でリポジトリをクローンする。
 
