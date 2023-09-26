@@ -3,6 +3,7 @@ export import <cstdint>;
 export import <initializer_list>;
 export import <compare>;
 import <limits>;
+import <iostream>;
 #if !defined(__GNUC__) || defined(__clang__)
 import <memory>;	//std::addressof
 #endif
@@ -63,6 +64,7 @@ export namespace System {
 	inline constexpr size_t SIZE_MAX = SIZEMAX;
 }
 
+//整数型の最大値・最小値(内部テンプレート)
 namespace System {
 	template<class T> struct MAX;
 	template<>
@@ -264,6 +266,70 @@ export namespace System {
 			integer = (data[0] << 8) | data[1];
 			fraction = (data[2] << 8) | data[3];
 			return *this;
+		}
+	};
+
+	class number_c {
+		union {
+			uint64_t m_u64;
+			int64_t m_s64;
+			double m_f64;
+		};
+		enum class number_type {
+			UINT64,
+			SINT64,
+			FLOAT64
+		} m_type;
+	public:
+		constexpr number_c() noexcept : m_u64(0), m_type(number_type::UINT64) {}
+		constexpr number_c(uint64_t v) : m_u64(v), m_type(number_type::UINT64) {}
+		constexpr number_c(uint32_t v) : number_c(static_cast<uint64_t>(v)) {}
+		constexpr number_c(uint16_t v) : number_c(static_cast<uint64_t>(v)) {}
+		constexpr number_c(uint8_t v) : number_c(static_cast<uint64_t>(v)) {}
+		constexpr number_c(int64_t v) : m_s64(v), m_type(number_type::SINT64) {}
+		constexpr number_c(int32_t v) : number_c(static_cast<int64_t>(v)) {}
+		constexpr number_c(int16_t v) : number_c(static_cast<int64_t>(v)) {}
+		constexpr number_c(int8_t v) : number_c(static_cast<int64_t>(v)) {}
+		constexpr number_c(double v) : m_f64(v), m_type(number_type::FLOAT64) {}
+		constexpr number_c(float v) : number_c(static_cast<double>(v)) {}
+		constexpr ~number_c() noexcept = default;
+	public:
+		constexpr bool IsUINT64() const noexcept { return m_type == number_type::UINT64; }
+		constexpr bool IsSINT64() const noexcept { return m_type == number_type::SINT64; }
+		constexpr bool IsFLOAT64() const noexcept { return m_type == number_type::FLOAT64; }
+		template<class T>
+		constexpr T GetValue() const noexcept {
+			if (IsUINT64()) return static_cast<T>(m_u64);
+			else if (IsSINT64()) return static_cast<T>(m_s64);
+			else return static_cast<T>(m_f64);
+		}
+	public:
+		constexpr number_c& operator=(uint64_t v) noexcept {
+			m_u64 = v;
+			m_type = number_type::UINT64;
+			return *this;
+		}
+		constexpr number_c& operator=(uint32_t v) noexcept { return operator=(static_cast<uint64_t>(v)); }
+		constexpr number_c& operator=(uint16_t v) noexcept { return operator=(static_cast<uint64_t>(v)); }
+		constexpr number_c& operator=(uint8_t v) noexcept { return operator=(static_cast<uint64_t>(v)); }
+		constexpr number_c& operator=(int64_t v) noexcept {
+			m_s64 = v;
+			m_type = number_type::SINT64;
+			return *this;
+		}
+		constexpr number_c& operator=(int32_t v) noexcept { return operator=(static_cast<int64_t>(v)); }
+		constexpr number_c& operator=(int16_t v) noexcept { return operator=(static_cast<int64_t>(v)); }
+		constexpr number_c& operator=(int8_t v) noexcept { return operator=(static_cast<int64_t>(v)); }
+		constexpr number_c& operator=(double v) noexcept {
+			m_f64 = v;
+			m_type = number_type::FLOAT64;
+			return *this;
+		}
+		constexpr number_c& operator=(float v) noexcept { return operator=(static_cast<float>(v)); }
+		friend std::ostream& operator<<(std::ostream& os, const number_c& v) noexcept {
+			if (v.IsUINT64()) return os << v.m_u64;
+			else if (v.IsSINT64()) return os << v.m_s64;
+			else return os << v.m_f64;
 		}
 	};
 }

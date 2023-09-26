@@ -40,6 +40,13 @@ FAddObjectLibrary(Font_4
 		Font_3
 )
 
+FAddObjectLibrary(Font_5
+	SOURCES
+		OpenType_Internal0.cpp		
+	DEPENDS
+		Font_4
+)
+
 FCombineObjectLibrary(Font
 	PRIVATE
 		Font_0
@@ -47,4 +54,5 @@ FCombineObjectLibrary(Font
 		Font_2
 		Font_3
 		Font_4
+		Font_5
 )

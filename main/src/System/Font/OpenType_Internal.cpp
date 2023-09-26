@@ -13,6 +13,60 @@ namespace System {
 		for (Type2CharstringParser* x : m_parsers.Values()) delete x;
 	}
 
+	bool CFF1::Load(IO::FileStream& file, uint32_t offset, const MAXP& maxp) {
+		if (!header.Load(file, offset)) return false;
+		if (!name.Load(file, 0, 0)) return false;
+		name.PrintNameIndex();
+		if (!topDict.Load(file, 0, 0)) return false;
+		topDict.PrintDICTIndex();
+		if (!string.Load(file, 0, 0)) return false;
+		string.PrintStringIndex();
+		DICTValue<uint8_t> charstringTypeValue = topDict.GetData(0).GetDICTValue<uint8_t>(DICTOperator::CharstringType);
+		uint8_t charstringType = charstringTypeValue.count ? charstringTypeValue.data[0] : 2;
+		if (!globalSubrsIndex.Load(file, 0, 0, charstringType)) return false;
+		//Encoding
+		DICTValue<uint32_t> value = topDict.GetData(0).GetDICTValue<uint32_t>(DICTOperator::Encoding);
+		if (value.data && !encoding.Load(file, offset, value.data[0])) return false;
+		//FDArray
+		value = topDict.GetData(0).GetDICTValue<uint32_t>(DICTOperator::FDArray);
+		if (value.data && !fdArray.Load(file, offset, value.data[0])) return false;
+		fdArray.PrintFDArrayIndex();
+		//PrivateDICT
+		value = topDict.GetData(0).GetDICTValue<uint32_t>(DICTOperator::Private);
+		if (value.data && value.count == 2) {
+			m_privateDictCount = 1;
+			privateDict = new PrivateDICT[m_privateDictCount];
+			if (!privateDict[0].Load(file, value.data[0], offset, value.data[1], charstringType)) return false;
+		}
+		else {
+			m_privateDictCount = fdArray.count;
+			privateDict = new PrivateDICT[m_privateDictCount];
+			for (uint16_t i = 0; i < m_privateDictCount; ++i) {
+				DICTValue<uint32_t> fdValue = fdArray.GetData(i).GetDICTValue<uint32_t>(DICTOperator::Private);
+				if (fdValue.data && fdValue.count == 2 && !privateDict[i].Load(file, fdValue.data[0], offset, fdValue.data[1], charstringType)) {
+					m_privateDictCount = i;
+					return false;
+				}
+			}
+		}
+		//Charstring
+		value = topDict.GetData(0).GetDICTValue<uint32_t>(DICTOperator::CharStrings);
+		if (value.data && !charString.Load(file, offset, value.data[0])) return false;
+		m_numGlyphs = charString.count ? charString.count : maxp.numGlyphs;
+		//Charset
+		if (m_numGlyphs) {
+			value = topDict.GetData(0).GetDICTValue<uint32_t>(DICTOperator::charset);
+			if (value.data && !charset.Load(file, offset, value.data[0], m_numGlyphs)) return false;
+		}
+		//FDSelect
+		if (m_numGlyphs) {
+			value = topDict.GetData(0).GetDICTValue<uint32_t>(DICTOperator::FDSelect);
+			if (value.data && !fdSelect.Load(file, offset, value.data[0], m_numGlyphs)) return false;
+		}
+		return static_cast<bool>(file);
+	}
+
+
 	Drawing::Image CFF1::GetGlyph_Internal(const Type2CharstringParser& parser, float scale, const Drawing::Pixel& contoursPixel) noexcept {
 		const VectorBase<BSpline*>& bsplines = parser.GetBSplines();
 		if (!bsplines.Count()) return Drawing::Image();
@@ -81,4 +135,3 @@ namespace System {
 		return image;
 	}
 }
-

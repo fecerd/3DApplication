@@ -2193,6 +2193,129 @@ export namespace System {
 			return 0xffffffffu;
 		}
 	private:
+#if defined(__GNUC__) && !defined(__clang__)
+		template<typename T>
+		void GetDICTKeyValueEnumerator_Internal(Boost::push_type<DICTKeyValue<T>&>& sink) const noexcept {
+			uint32_t s = 0;
+			for (uint32_t i = 0; i < size; ++i) {
+				if (data[i] >= 22) {
+					double tmp;
+					i = LoadNumber(tmp, data, i, size - 1) - 1;
+				}
+				else {
+					uint16_t tmpKey = 0;
+					if (data[i] != 12) tmpKey = data[i];
+					else tmpKey = static_cast<uint16_t>((data[i] << 8) | data[i + 1]);
+					DICTOperator currentKey = static_cast<DICTOperator>(tmpKey);
+					DICTKeyValue<T> ret;
+					ret.opr = currentKey;
+					switch (currentKey) {
+					//Valueが一つ
+					case DICTOperator::version:
+					case DICTOperator::Notice:
+					case DICTOperator::Fullname:
+					case DICTOperator::FamilyName:
+					case DICTOperator::Weight:
+					case DICTOperator::isFixedPitch:
+					case DICTOperator::ItalicAngle:
+					case DICTOperator::UnderlinePosition:
+					case DICTOperator::UnderlineThickness:
+					case DICTOperator::PaintType:
+					case DICTOperator::CharstringType:
+					case DICTOperator::UniqueID:
+					case DICTOperator::StrokeWidth:
+					case DICTOperator::charset:
+					case DICTOperator::Encoding:
+					case DICTOperator::CharStrings:
+					case DICTOperator::SyntheticBase:
+					case DICTOperator::PostScript:
+					case DICTOperator::BaseFontName:
+					case DICTOperator::BaseFontBlend:
+					case DICTOperator::CIDFontVersion:
+					case DICTOperator::CIDFontRevision:
+					case DICTOperator::CIDFontType:
+					case DICTOperator::CIDCount:
+					case DICTOperator::UIDBase:
+					case DICTOperator::FDArray:
+					case DICTOperator::FDSelect:
+					case DICTOperator::FontName:
+					case DICTOperator::BlueScale:
+					case DICTOperator::BlueShift:
+					case DICTOperator::BlueFuzz:
+					case DICTOperator::StdHW:
+					case DICTOperator::StdVW:
+					case DICTOperator::ForceBold:
+					case DICTOperator::LanguageGroup:
+					case DICTOperator::ExpansionFactor:
+					case DICTOperator::initialRandomSeed:
+					case DICTOperator::Subrs:
+					case DICTOperator::defaultWidthX:
+					case DICTOperator::nominalWidthX:
+					{
+						ret.count = 1;
+						ret.data = new T[1];
+						LoadNumber(ret.data[0], data, s, i);
+						break;
+					}
+					//Valueが2つ
+					case DICTOperator::Private:
+					{
+						ret.count = 2;
+						ret.data = new T[2];
+						uint32_t next = LoadNumber(ret.data[0], data, s, i);
+						LoadNumber(ret.data[1], data, next, i);
+						break;
+					}
+					//Valueが3つ
+					case DICTOperator::ROS:
+					{
+						ret.count = 3;
+						ret.data = new T[3];
+						uint32_t next = LoadNumber(ret.data[0], data, s, i);
+						next = LoadNumber(ret.data[1], data, next, i);
+						LoadNumber(ret.data[2], data, next, i);
+						break;
+					}
+					//Valueが配列
+					case DICTOperator::FontMatrix:
+					case DICTOperator::FontBBox:
+					case DICTOperator::XUID:
+					case DICTOperator::BlueValues:
+					case DICTOperator::OtherBlues:
+					case DICTOperator::FamilyBlues:
+					case DICTOperator::FamilyOtherBlues:
+					case DICTOperator::StemSnapH:
+					case DICTOperator::StemSnapV:
+					{
+						uint32_t ts = s;
+						while (ts < i) {
+							double tmp;
+							ts = LoadNumber(tmp, data, ts, i);
+							++ret.count;
+						}
+						ret.data = new T[ret.count];
+						uint32_t next = s;
+						for (uint32_t j = 0; j < ret.count; ++j) {
+							next = LoadNumber(ret.data[j], data, next, i);
+						}
+						break;
+					}
+					default:
+						return;
+					}
+					sink(ret);
+					if (data[i] == 12) ++i;
+					s = i + 1;
+				}
+			}
+		}
+		template<typename T>
+		IEnumerator<DICTKeyValue<T>> GetDICTKeyValueEnumerator() const noexcept {
+			return IEnumerator<DICTKeyValue<T>>(
+				[this](Boost::push_type<DICTKeyValue<T>&>& sink) { return GetDICTKeyValueEnumerator_Internal(sink); }
+			);
+		}
+#else
 		template<typename T>
 		IEnumerator<DICTKeyValue<T>> GetDICTKeyValueEnumerator() const noexcept {
 			uint32_t s = 0;
@@ -2209,7 +2332,7 @@ export namespace System {
 					DICTKeyValue<T> ret;
 					ret.opr = currentKey;
 					switch (currentKey) {
-						//Valueが一つ
+					//Valueが一つ
 					case DICTOperator::version:
 					case DICTOperator::Notice:
 					case DICTOperator::Fullname:
@@ -2307,129 +2430,18 @@ export namespace System {
 				}
 			}
 		}
+#endif
 	public:
 		template<typename T>
 		IEnumerable<DICTKeyValue<T>> GetDICTKeyValues() const noexcept {
-			return IEnumerable<DICTKeyValue<T>>(new IEnumerator<DICTKeyValue<T>>(GetDICTKeyValueEnumerator<T>(), nullptr));
+			return IEnumerable<DICTKeyValue<T>>(
+				[this](bool r) -> IEnumerator<DICTKeyValue<T>> {
+					return GetDICTKeyValueEnumerator<T>();
+				},
+				false
+			);
 		}
 	public:
-//#if defined(NO_VIRTUAL)
-		// template<typename T>
-		// DICTKeyValue<T> GetDICTKeyValue(uint32_t index) const noexcept {
-		// 	uint32_t s = 0;
-		// 	for (uint32_t i = 0; i < size; ++i) {
-		// 		if (data[i] >= 22) {
-		// 			double tmp;
-		// 			i = LoadNumber(tmp, data, i, size - 1) - 1;
-		// 		}
-		// 		else {
-		// 			uint16_t tmpKey = 0;
-		// 			if (data[i] != 12) tmpKey = data[i];
-		// 			else tmpKey = static_cast<uint16_t>((data[i] << 8) | data[i + 1]);
-		// 			DICTOperator currentKey = static_cast<DICTOperator>(tmpKey);
-		// 			DICTKeyValue<T> ret;
-		// 			ret.opr = currentKey;
-		// 			switch (currentKey) {
-		// 				//Valueが一つ
-		// 			case DICTOperator::version:
-		// 			case DICTOperator::Notice:
-		// 			case DICTOperator::Fullname:
-		// 			case DICTOperator::FamilyName:
-		// 			case DICTOperator::Weight:
-		// 			case DICTOperator::isFixedPitch:
-		// 			case DICTOperator::ItalicAngle:
-		// 			case DICTOperator::UnderlinePosition:
-		// 			case DICTOperator::UnderlineThickness:
-		// 			case DICTOperator::PaintType:
-		// 			case DICTOperator::CharstringType:
-		// 			case DICTOperator::UniqueID:
-		// 			case DICTOperator::StrokeWidth:
-		// 			case DICTOperator::charset:
-		// 			case DICTOperator::Encoding:
-		// 			case DICTOperator::CharStrings:
-		// 			case DICTOperator::SyntheticBase:
-		// 			case DICTOperator::PostScript:
-		// 			case DICTOperator::BaseFontName:
-		// 			case DICTOperator::BaseFontBlend:
-		// 			case DICTOperator::CIDFontVersion:
-		// 			case DICTOperator::CIDFontRevision:
-		// 			case DICTOperator::CIDFontType:
-		// 			case DICTOperator::CIDCount:
-		// 			case DICTOperator::UIDBase:
-		// 			case DICTOperator::FDArray:
-		// 			case DICTOperator::FDSelect:
-		// 			case DICTOperator::FontName:
-		// 			case DICTOperator::BlueScale:
-		// 			case DICTOperator::BlueShift:
-		// 			case DICTOperator::BlueFuzz:
-		// 			case DICTOperator::StdHW:
-		// 			case DICTOperator::StdVW:
-		// 			case DICTOperator::ForceBold:
-		// 			case DICTOperator::LanguageGroup:
-		// 			case DICTOperator::ExpansionFactor:
-		// 			case DICTOperator::initialRandomSeed:
-		// 			case DICTOperator::Subrs:
-		// 			case DICTOperator::defaultWidthX:
-		// 			case DICTOperator::nominalWidthX:
-		// 			{
-		// 				ret.count = 1;
-		// 				ret.data = new T[1];
-		// 				LoadNumber(ret.data[0], data, s, i);
-		// 				break;
-		// 			}
-		// 			//Valueが2つ
-		// 			case DICTOperator::Private:
-		// 			{
-		// 				ret.count = 2;
-		// 				ret.data = new T[2];
-		// 				uint32_t next = LoadNumber(ret.data[0], data, s, i);
-		// 				LoadNumber(ret.data[1], data, next, i);
-		// 				break;
-		// 			}
-		// 			//Valueが3つ
-		// 			case DICTOperator::ROS:
-		// 			{
-		// 				ret.count = 3;
-		// 				ret.data = new T[3];
-		// 				uint32_t next = LoadNumber(ret.data[0], data, s, i);
-		// 				next = LoadNumber(ret.data[1], data, next, i);
-		// 				LoadNumber(ret.data[2], data, next, i);
-		// 				break;
-		// 			}
-		// 			//Valueが配列
-		// 			case DICTOperator::FontMatrix:
-		// 			case DICTOperator::FontBBox:
-		// 			case DICTOperator::XUID:
-		// 			case DICTOperator::BlueValues:
-		// 			case DICTOperator::OtherBlues:
-		// 			case DICTOperator::FamilyBlues:
-		// 			case DICTOperator::FamilyOtherBlues:
-		// 			case DICTOperator::StemSnapH:
-		// 			case DICTOperator::StemSnapV:
-		// 			{
-		// 				uint32_t ts = s;
-		// 				while (ts < i) {
-		// 					double tmp;
-		// 					ts = LoadNumber(tmp, data, ts, i);
-		// 					++ret.count;
-		// 				}
-		// 				ret.data = new T[ret.count];
-		// 				uint32_t next = s;
-		// 				for (uint32_t j = 0; j < ret.count; ++j) {
-		// 					next = LoadNumber(ret.data[j], data, next, i);
-		// 				}
-		// 				break;
-		// 			}
-		// 			default:
-		// 				return DICTKeyValue<T>();
-		// 			}
-		// 			if (data[i] == 12) ++i;
-		// 			s = i + 1;
-		// 			if (index-- <= 0) return ret;
-		// 		}
-		// 	}
-		// }
-//#else
 		template<typename T>
 		DICTKeyValue<T> GetDICTKeyValue(uint32_t index) const noexcept {
 			for (DICTKeyValue<T>& x : GetDICTKeyValues<T>()) {
@@ -2438,7 +2450,6 @@ export namespace System {
 			}
 			return DICTKeyValue<T>();
 		}
-//#endif
 		/// <summary>
 		/// DICTデータから指定したDICTOperatorに対応する値を検索して取得する
 		/// </summary>
@@ -2648,6 +2659,14 @@ export namespace System {
 			else if (offSize == 4) return CFF1IndexData(&data[offset32[i] - 1], offset32[i + 1] - offset32[i]);
 			return CFF1IndexData(nullptr, 0);
 		}
+	public:
+		void PrintNameIndex() const noexcept;
+		void PrintDICTIndex() const noexcept;
+		void PrintStringIndex() const noexcept;
+		void PrintSubrIndex() const noexcept;
+		void PrintCharstringIndex() const noexcept;
+		void PrintLocalSubrIndex() const noexcept;
+		void PrintFDArrayIndex() const noexcept;
 	};
 
 	/// <summary>
@@ -2989,44 +3008,44 @@ export namespace System {
 	/// Type2 Charstringデータを解析しグリフデータを取得するクラス
 	/// </summary>
 	class Type2CharstringParser {
-		const uint8_t* data = nullptr;	//Type2Charstring形式のデータ
-		uint32_t size = 0;	//dataのバイト長
-		const CFF1SubrsIndex& local;	//LocalSubrsIndexへの参照
-		const CFF1SubrsIndex& global;	//GlobalSubrsIndexへの参照
+		const uint8_t* m_data = nullptr;	//Type2Charstring形式のデータ
+		uint32_t m_size = 0;	//dataのバイト長
+		const CFF1SubrsIndex& m_local;	//LocalSubrsIndexへの参照
+		const CFF1SubrsIndex& m_global;	//GlobalSubrsIndexへの参照
 	private:
-		int16_t args[48] = {};	//解析時に使用するスタック領域
-		uint8_t argCount = 0;	//現在の有効なargsの要素数
+		int16_t m_args[48] = {};	//解析時に使用するスタック領域
+		uint8_t m_argCount = 0;	//現在の有効なargsの要素数
 	private:
 		//normalWidthと実際のグリフ幅の差分値。
 		//PrivateDICTから取得できるDefaultWidthとhmtxテーブルのAdvanceWidthが等しい場合、
 		//解析前に0を設定する必要がある。
 		//設定されていない場合、Type2Charstringの最初の値をこの値として認識する
-		Traits::InitializedVariant<int16_t> widthDelta;
-		uint16_t normalWidth = 0;	//PrivateDICTから取得するNormalWidth(グリフの基準幅)
+		Traits::InitializedVariant<int16_t> m_widthDelta;
+		uint16_t m_normalWidth = 0;	//PrivateDICTから取得するNormalWidth(グリフの基準幅)
 	private:
-		int16_t* hStem = nullptr;	//水平ステムヒントの配列
-		uint8_t hStemCountX2 = 0;	//hStemの要素数
-		int16_t* vStem = nullptr;	//垂直ステムヒントの配列
-		uint8_t vStemCountX2 = 0;	//vStemの要素数
-		uint8_t currentHintMask[12] = {};	//解析中に使用する現在のヒントマスク
-		uint8_t currentCntrMask[12] = {};	//解析中に使用する現在のコントロールマスク
+		int16_t* m_hStem = nullptr;	//水平ステムヒントの配列
+		uint8_t m_hStemCountX2 = 0;	//hStemの要素数
+		int16_t* m_vStem = nullptr;	//垂直ステムヒントの配列
+		uint8_t m_vStemCountX2 = 0;	//vStemの要素数
+		uint8_t m_currentHintMask[12] = {};	//解析中に使用する現在のヒントマスク
+		uint8_t m_currentCntrMask[12] = {};	//解析中に使用する現在のコントロールマスク
 	private:
-		int16_t xMin = MAX_VALUE<int16_t>;	//解析したグリフの最小x座標
-		int16_t yMin = MAX_VALUE<int16_t>;	//解析したグリフの最小y座標
-		int16_t xMax = MIN_VALUE<int16_t>;	//解析したグリフの最大x座標
-		int16_t yMax = MIN_VALUE<int16_t>;	//解析したグリフの最大y座標
-		VectorBase<BSpline*> bsplines;	//解析したグリフの輪郭ごとのBスプライン曲線情報
-		VectorBase<ControlPoint> points;	//解析中に使用する現在の輪郭の制御点を保持する配列
+		int16_t m_xMin = MAX_VALUE<int16_t>;	//解析したグリフの最小x座標
+		int16_t m_yMin = MAX_VALUE<int16_t>;	//解析したグリフの最小y座標
+		int16_t m_xMax = MIN_VALUE<int16_t>;	//解析したグリフの最大x座標
+		int16_t m_yMax = MIN_VALUE<int16_t>;	//解析したグリフの最大y座標
+		VectorBase<BSpline*> m_bsplines;	//解析したグリフの輪郭ごとのBスプライン曲線情報
+		VectorBase<ControlPoint> m_points;	//解析中に使用する現在の輪郭の制御点を保持する配列
 	public:
 		Type2CharstringParser() noexcept = delete;
 		Type2CharstringParser(const uint8_t* data, uint32_t size, const CFF1SubrsIndex& local, const CFF1SubrsIndex& global) noexcept
-			: data(data), size(size), local(local), global(global) {}
+			: m_data(data), m_size(size), m_local(local), m_global(global) {}
 		~Type2CharstringParser() noexcept {
-			delete hStem;
-			hStem = nullptr;
-			delete vStem;
-			vStem = nullptr;
-			for (BSpline* x : bsplines) delete x;
+			delete m_hStem;
+			m_hStem = nullptr;
+			delete m_vStem;
+			m_vStem = nullptr;
+			for (BSpline* x : m_bsplines) delete x;
 		}
 	private:
 		//Charstring形式のバイナリデータdata[start]から数値を一つ読み取り、fixed32_c型引数numberに代入する
@@ -3063,151 +3082,141 @@ export namespace System {
 		}
 	private:
 		uint8_t GetMaskSize() const noexcept {
-			uint8_t stemCount = (hStemCountX2 / 2) + (vStemCountX2 / 2);
+			uint8_t stemCount = (m_hStemCountX2 / 2) + (m_vStemCountX2 / 2);
 			return stemCount % 8 == 0 ? stemCount / 8 : (stemCount / 8) + 1;
 		}
 		void SetHStem() noexcept {
-			hStemCountX2 = argCount;
-			argCount = 0;
-			delete hStem;
-			hStem = new int16_t[hStemCountX2];
-			for (uint8_t i = 0; i < hStemCountX2; ++i) hStem[i] = args[i];
+			m_hStemCountX2 = m_argCount;
+			m_argCount = 0;
+			delete m_hStem;
+			m_hStem = new int16_t[m_hStemCountX2];
+			for (uint8_t i = 0; i < m_hStemCountX2; ++i) m_hStem[i] = m_args[i];
 		}
 		void SetVStem() noexcept {
-			vStemCountX2 = argCount;
-			argCount = 0;
-			delete vStem;
-			vStem = new int16_t[vStemCountX2];
-			for (uint8_t i = 0; i < vStemCountX2; ++i) vStem[i] = args[i];
-		}
-		void SetHintMask(uint32_t& i) noexcept {
-			for (uint8_t j = 0, size = GetMaskSize(); j < size; ++j) {
-				currentHintMask[j] = data[++i];
-			}
-		}
-		void SetCntrMask(uint32_t& i) noexcept {
-			for (uint8_t j = 0, size = GetMaskSize(); j < size; ++j) {
-				currentCntrMask[j] = data[++i];
-			}
+			m_vStemCountX2 = m_argCount;
+			m_argCount = 0;
+			delete m_vStem;
+			m_vStem = new int16_t[m_vStemCountX2];
+			for (uint8_t i = 0; i < m_vStemCountX2; ++i) m_vStem[i] = m_args[i];
 		}
 	private:
 		void Close() noexcept {
-			size_t count = points.Count();
+			size_t count = m_points.Count();
 			if (count > 1) {
 				BSpline* tmp = new BSpline();
 				const uint32_t unit = 1500;
-				const ControlPoint* ps = points.Items();
+				const ControlPoint* ps = m_points.Items();
 				for (size_t i = 0; i < count; ++i) {
-					if (ps[i].x < xMin) xMin = ps[i].x;
-					if (ps[i].x > xMax) xMax = ps[i].x;
-					if (ps[i].y < yMin) yMin = ps[i].y;
-					if (ps[i].y > yMax) yMax = ps[i].y;
+					if (ps[i].x < m_xMin) m_xMin = ps[i].x;
+					if (ps[i].x > m_xMax) m_xMax = ps[i].x;
+					if (ps[i].y < m_yMin) m_yMin = ps[i].y;
+					if (ps[i].y > m_yMax) m_yMax = ps[i].y;
 				}
 				tmp->SetFunction(ps, count, 3, unit, true);
-				bsplines.Add(tmp);
+				m_bsplines.Add(tmp);
 			}
-			points.Clear();
-			points.Reserve(50);
+			m_points.Clear();
+			m_points.Reserve(50);
 		}
-		void ResetArgCount() noexcept { argCount = 0; }
+		void ResetArgCount() noexcept { m_argCount = 0; }
 		template<Type2Operator opr>
 		void Moveto() noexcept {
 			if constexpr (opr == Type2Operator::Rmoveto) {
-				if (argCount != 2) return ResetArgCount();
+				if (m_argCount != 2) return ResetArgCount();
 			}
 			else {
-				if (argCount != 1) return ResetArgCount();
+				if (m_argCount != 1) return ResetArgCount();
 			}
 			ControlPoint tmp{ true, 0, 0 };
-			if (points.Count() > 1) {
-				tmp = points.Last();
+			if (m_points.Count() > 1) {
+				tmp = m_points.Last();
 				Close();
 			}
 			else {
-				points.Clear();
+				m_points.Clear();
 			}
-			if constexpr (opr != Type2Operator::Vmoveto) tmp.x += args[0];
-			else tmp.y += args[0];
-			if constexpr (opr == Type2Operator::Rmoveto) tmp.y += args[1];
-			points.Add(tmp);
+			if constexpr (opr != Type2Operator::Vmoveto) tmp.x += m_args[0];
+			else tmp.y += m_args[0];
+			if constexpr (opr == Type2Operator::Rmoveto) tmp.y += m_args[1];
+			m_points.Add(tmp);
 			ResetArgCount();
 		}
 		template<Type2Operator opr>
 		void Lineto() noexcept {
 			if constexpr (opr == Type2Operator::Rlineto) {
-				if (argCount < 2 || argCount % 2) return ResetArgCount();
-				ControlPoint tmp = points.Last();
+				if (m_argCount < 2 || m_argCount % 2) return ResetArgCount();
+				ControlPoint tmp = m_points.Last();
 				tmp.OnCurve = true;
-				for (uint8_t i = 0; i < argCount; ++i) {
-					tmp.x += args[i];
-					tmp.y += args[++i];
-					points.Add(tmp);
+				for (uint8_t i = 0; i < m_argCount; ++i) {
+					tmp.x += m_args[i];
+					tmp.y += m_args[++i];
+					m_points.Add(tmp);
 				}
 			}
 			else {
-				if (!argCount) return ResetArgCount();
-				ControlPoint tmp = points.Last();
+				if (!m_argCount) return ResetArgCount();
+				ControlPoint tmp = m_points.Last();
 				tmp.OnCurve = true;
 				uint8_t i = 0;
 				do {
-					if constexpr (opr == Type2Operator::Hlineto) tmp.x += args[i];
-					else tmp.y += args[i];
-					points.Add(tmp);
-					if (++i >= argCount) break;
-					if constexpr (opr == Type2Operator::Hlineto) tmp.y += args[i];
-					else tmp.x += args[i];
-					points.Add(tmp);
-				} while (++i < argCount);
+					if constexpr (opr == Type2Operator::Hlineto) tmp.x += m_args[i];
+					else tmp.y += m_args[i];
+					m_points.Add(tmp);
+					if (++i >= m_argCount) break;
+					if constexpr (opr == Type2Operator::Hlineto) tmp.y += m_args[i];
+					else tmp.x += m_args[i];
+					m_points.Add(tmp);
+				} while (++i < m_argCount);
 			}
 			ResetArgCount();
 		}
 		template<bool HStart, bool HEnd>
 		void Curveto_Internal(ControlPoint& tmp, uint8_t& i) noexcept {
 			tmp.OnCurve = false;
-			if constexpr (HStart) tmp.x += args[i];
-			else tmp.y += args[i];
-			points.Add(tmp);
-			tmp.x += args[++i];
-			tmp.y += args[++i];
-			points.Add(tmp);
+			if constexpr (HStart) tmp.x += m_args[i];
+			else tmp.y += m_args[i];
+			m_points.Add(tmp);
+			tmp.x += m_args[++i];
+			tmp.y += m_args[++i];
+			m_points.Add(tmp);
 			tmp.OnCurve = true;
-			if constexpr (HEnd) tmp.x += args[++i];
-			else tmp.y += args[++i];
-			points.Add(tmp);
+			if constexpr (HEnd) tmp.x += m_args[++i];
+			else tmp.y += m_args[++i];
+			m_points.Add(tmp);
 		}
 		template<Type2Operator opr>
 		void Curveto() noexcept {
-			const uint8_t remainder = argCount % 4;
+			const uint8_t remainder = m_argCount % 4;
 			if constexpr (opr == Type2Operator::Rrcurveto) {
-				if (argCount < 6 || argCount % 6) return ResetArgCount();
-				ControlPoint tmp = points.Last();
-				for (uint8_t i = 0; i < argCount; ++i) {
+				if (m_argCount < 6 || m_argCount % 6) return ResetArgCount();
+				ControlPoint tmp = m_points.Last();
+				for (uint8_t i = 0; i < m_argCount; ++i) {
 					tmp.OnCurve = false;
-					tmp.x += args[i];
-					tmp.y += args[++i];
-					points.Add(tmp);
-					tmp.x += args[++i];
-					tmp.y += args[++i];
-					points.Add(tmp);
+					tmp.x += m_args[i];
+					tmp.y += m_args[++i];
+					m_points.Add(tmp);
+					tmp.x += m_args[++i];
+					tmp.y += m_args[++i];
+					m_points.Add(tmp);
 					tmp.OnCurve = true;
-					tmp.x += args[++i];
-					tmp.y += args[++i];
-					points.Add(tmp);
+					tmp.x += m_args[++i];
+					tmp.y += m_args[++i];
+					m_points.Add(tmp);
 				}
 			}
 			else {
-				if (argCount < 4 || remainder > 1) return ResetArgCount();
-				ControlPoint tmp = points.Last();
+				if (m_argCount < 4 || remainder > 1) return ResetArgCount();
+				ControlPoint tmp = m_points.Last();
 				constexpr bool HStart = opr == Type2Operator::Hhcurveto || opr == Type2Operator::Hvcurveto;
 				constexpr bool HEnd = opr == Type2Operator::Hhcurveto || opr == Type2Operator::Vhcurveto;
 				uint8_t i = 0;
-				uint8_t end = remainder ? argCount - 1 : argCount;
+				uint8_t end = remainder ? m_argCount - 1 : m_argCount;
 				if constexpr (HStart == HEnd) {
 					if (remainder) {
 						tmp.OnCurve = true;
-						if constexpr (HStart) tmp.y += args[i++];
-						else tmp.x += args[i++];
-						end = argCount;
+						if constexpr (HStart) tmp.y += m_args[i++];
+						else tmp.x += m_args[i++];
+						end = m_argCount;
 					}
 				}
 				for (; i < end; ++i) {
@@ -3219,9 +3228,9 @@ export namespace System {
 				}
 				if constexpr (HStart != HEnd) {
 					if (remainder) {
-						ControlPoint& last = points.Last();
-						if (static_cast<bool>(argCount % 8 == 5) == HStart) last.x += args[end];
-						else last.y += args[end];
+						ControlPoint& last = m_points.Last();
+						if (static_cast<bool>(m_argCount % 8 == 5) == HStart) last.x += m_args[end];
+						else last.y += m_args[end];
 					}
 				}
 			}
@@ -3230,27 +3239,27 @@ export namespace System {
 		template<Type2Operator opr>
 		void CurveAndLine() noexcept {
 			if constexpr (opr == Type2Operator::Rcurveline) {
-				if (argCount % 6 != 2) return ResetArgCount();
-				argCount -= 2;
-				const uint8_t index = argCount;
+				if (m_argCount % 6 != 2) return ResetArgCount();
+				m_argCount -= 2;
+				const uint8_t index = m_argCount;
 				Curveto<Type2Operator::Rrcurveto>();
-				argCount = 2;
-				args[0] = args[index];
-				args[1] = args[index + 1];
+				m_argCount = 2;
+				m_args[0] = m_args[index];
+				m_args[1] = m_args[index + 1];
 				Lineto<Type2Operator::Rlineto>();
 			}
 			else {
-				if (argCount < 6 || argCount % 2) return ResetArgCount();
-				argCount -= 6;
-				const uint8_t index = argCount;
+				if (m_argCount < 6 || m_argCount % 2) return ResetArgCount();
+				m_argCount -= 6;
+				const uint8_t index = m_argCount;
 				Lineto<Type2Operator::Rlineto>();
-				argCount = 6;
-				args[0] = args[index];
-				args[1] = args[index + 1];
-				args[2] = args[index + 2];
-				args[3] = args[index + 3];
-				args[4] = args[index + 4];
-				args[5] = args[index + 5];
+				m_argCount = 6;
+				m_args[0] = m_args[index];
+				m_args[1] = m_args[index + 1];
+				m_args[2] = m_args[index + 2];
+				m_args[3] = m_args[index + 3];
+				m_args[4] = m_args[index + 4];
+				m_args[5] = m_args[index + 5];
 				Curveto<Type2Operator::Rrcurveto>();
 			}
 			ResetArgCount();
@@ -3258,75 +3267,75 @@ export namespace System {
 		template<Type2Operator opr>
 		void Flex() noexcept {
 			if constexpr (opr == Type2Operator::Hflex) {
-				if (argCount != 7) return ResetArgCount();
-				args[12] = 50;
-				args[11] = 0;
-				args[10] = args[6];
-				args[9] = -args[2];
-				args[8] = args[5];
-				args[7] = 0;
-				args[6] = args[4];
-				args[5] = 0;
-				args[4] = args[3];
-				args[3] = args[2];
-				args[2] = args[1];
-				args[1] = 0;
-				argCount = 13;
+				if (m_argCount != 7) return ResetArgCount();
+				m_args[12] = 50;
+				m_args[11] = 0;
+				m_args[10] = m_args[6];
+				m_args[9] = -m_args[2];
+				m_args[8] = m_args[5];
+				m_args[7] = 0;
+				m_args[6] = m_args[4];
+				m_args[5] = 0;
+				m_args[4] = m_args[3];
+				m_args[3] = m_args[2];
+				m_args[2] = m_args[1];
+				m_args[1] = 0;
+				m_argCount = 13;
 				return Flex<Type2Operator::Flex>();
 			}
 			else if constexpr (opr == Type2Operator::Hflex1) {
-				if (argCount != 9) return ResetArgCount();
-				args[12] = 50;
-				args[11] = -(args[1] + args[3] + args[7]);
-				args[10] = args[8];
-				args[9] = -args[7];
-				args[8] = args[6];
-				args[7] = 0;
-				args[6] = args[5];
-				args[5] = 0;
-				argCount = 13;
+				if (m_argCount != 9) return ResetArgCount();
+				m_args[12] = 50;
+				m_args[11] = -(m_args[1] + m_args[3] + m_args[7]);
+				m_args[10] = m_args[8];
+				m_args[9] = -m_args[7];
+				m_args[8] = m_args[6];
+				m_args[7] = 0;
+				m_args[6] = m_args[5];
+				m_args[5] = 0;
+				m_argCount = 13;
 				return Flex<Type2Operator::Flex>();
 			}
 			else if constexpr (opr == Type2Operator::Flex1) {
-				if (argCount != 11) return ResetArgCount();
-				int16_t dx = args[0] + args[2] + args[4] + args[6] + args[8];
-				int16_t dy = args[1] + args[3] + args[5] + args[7] + args[9];
+				if (m_argCount != 11) return ResetArgCount();
+				int16_t dx = m_args[0] + m_args[2] + m_args[4] + m_args[6] + m_args[8];
+				int16_t dy = m_args[1] + m_args[3] + m_args[5] + m_args[7] + m_args[9];
 				if (dx < 0) dx *= -1;
 				if (dy < 0) dy *= -1;
-				args[12] = 50;
-				if (dx > dy) args[11] = 0;
+				m_args[12] = 50;
+				if (dx > dy) m_args[11] = 0;
 				else {
-					args[11] = args[10];
-					args[10] = 0;
+					m_args[11] = m_args[10];
+					m_args[10] = 0;
 				}
-				argCount = 13;
+				m_argCount = 13;
 				return Flex<Type2Operator::Flex>();
 			}
 			else {
-				if (argCount != 13) return ResetArgCount();
-				ControlPoint tmp = points.Last();
+				if (m_argCount != 13) return ResetArgCount();
+				ControlPoint tmp = m_points.Last();
 				tmp.OnCurve = false;
-				tmp.x += args[0];
-				tmp.y += args[1];
-				points.Add(tmp);
-				tmp.x += args[2];
-				tmp.y += args[3];
-				points.Add(tmp);
+				tmp.x += m_args[0];
+				tmp.y += m_args[1];
+				m_points.Add(tmp);
+				tmp.x += m_args[2];
+				tmp.y += m_args[3];
+				m_points.Add(tmp);
 				tmp.OnCurve = true;
-				tmp.x += args[4];
-				tmp.y += args[5];
-				points.Add(tmp);
+				tmp.x += m_args[4];
+				tmp.y += m_args[5];
+				m_points.Add(tmp);
 				tmp.OnCurve = false;
-				tmp.x += args[6];
-				tmp.y += args[7];
-				points.Add(tmp);
-				tmp.x += args[8];
-				tmp.y += args[9];
-				points.Add(tmp);
+				tmp.x += m_args[6];
+				tmp.y += m_args[7];
+				m_points.Add(tmp);
+				tmp.x += m_args[8];
+				tmp.y += m_args[9];
+				m_points.Add(tmp);
 				tmp.OnCurve = true;
-				tmp.x += args[10];
-				tmp.y += args[11];
-				points.Add(tmp);
+				tmp.x += m_args[10];
+				tmp.y += m_args[11];
+				m_points.Add(tmp);
 				ResetArgCount();
 			}
 		}
@@ -3355,87 +3364,28 @@ export namespace System {
 				return ResetArgCount();
 			}
 			case Type2Operator::Abs: {
-				if (argCount < 1) return ResetArgCount();
-				else if (args[argCount - 1] < 0) args[argCount - 1] *= -1;
+				if (m_argCount < 1) return ResetArgCount();
+				else if (m_args[m_argCount - 1] < 0) m_args[m_argCount - 1] *= -1;
 				return;
 			}
 			default: break;
 			}
 		}
 	public:
-		void SetNormalWidth(uint16_t width) noexcept { normalWidth = width; }
-		void SetWidthDelta(int16_t delta) noexcept { widthDelta = delta; }
+		void SetNormalWidth(uint16_t width) noexcept { m_normalWidth = width; }
+		void SetWidthDelta(int16_t delta) noexcept { m_widthDelta = delta; }
 	public:
 		uint32_t GetAdvanceWidth() const noexcept {
-			return static_cast<uint32_t>(normalWidth + (widthDelta ? *widthDelta : 0));
+			return static_cast<uint32_t>(m_normalWidth + (m_widthDelta ? *m_widthDelta : 0));
 		}
-		int16_t GetXMin() const noexcept { return xMin; }
-		int16_t GetYMin() const noexcept { return yMin; }
-		int16_t GetXMax() const noexcept { return xMax; }
-		int16_t GetYMax() const noexcept { return yMax; }
-		uint32_t GetGlyphWidth() const noexcept { return static_cast<uint32_t>(xMax - xMin); }
-		uint32_t GetGlyphHeight() const noexcept { return static_cast<uint32_t>(yMax - yMin); }
-		const VectorBase<BSpline*>& GetBSplines() const noexcept { return bsplines; }
+		int16_t GetXMin() const noexcept { return m_xMin; }
+		int16_t GetYMin() const noexcept { return m_yMin; }
+		int16_t GetXMax() const noexcept { return m_xMax; }
+		int16_t GetYMax() const noexcept { return m_yMax; }
+		uint32_t GetGlyphWidth() const noexcept { return static_cast<uint32_t>(m_xMax - m_xMin); }
+		uint32_t GetGlyphHeight() const noexcept { return static_cast<uint32_t>(m_yMax - m_yMin); }
+		const VectorBase<BSpline*>& GetBSplines() const noexcept { return m_bsplines; }
 	public:
-		void Parse() noexcept {
-			for (uint32_t i = 0; i < size; ++i) {
-				if (data[i] == 28 || data[i] >= 32) {
-					fixed32_c tmp;
-					i = GetType2Value(tmp, data, i, size - 1) - 1;
-					args[argCount++] = static_cast<int16_t>(tmp);
-				}
-				else {
-					Type2Operator opr;
-					if (data[i] != 12) opr = static_cast<Type2Operator>(data[i]);
-					else {
-						uint16_t lhs = static_cast<uint16_t>(data[i]) << 8;
-						i += 1;
-						uint16_t rhs = data[i];
-						opr = static_cast<Type2Operator>(lhs | rhs);
-					}
-					if (opr == Type2Operator::Callsubr || opr == Type2Operator::Callgsubr) {
-						int16_t subr = args[argCount - 1];
-						args[--argCount] = 0;
-						CFF1IndexData subrData = (opr == Type2Operator::Callsubr ? local : global).GetSubr(subr);
-						const uint8_t* currentData = data;
-						const uint32_t currentSize = size;
-						data = subrData.data;
-						size = subrData.size;
-						Parse();
-						data = currentData;
-						size = currentSize;
-					}
-					else {
-						if (!widthDelta && argCount) {
-							widthDelta = args[0];
-							for (uint8_t j = 1; j < argCount; ++j) args[j - 1] = args[j];
-							--argCount;
-						}
-						switch (opr) {
-						case Type2Operator::Hstem:
-						case Type2Operator::Hstemhm:
-							SetHStem();
-							break;
-						case Type2Operator::Vstem:
-						case Type2Operator::Vstemhm:
-							SetVStem();
-							break;
-						case Type2Operator::Hintmask:
-						case Type2Operator::Cntrmask:
-							if (argCount) {
-								if (!hStemCountX2) SetHStem();
-								else SetVStem();
-							}
-							if (opr == Type2Operator::Hintmask) SetHintMask(i);
-							else SetCntrMask(i);
-							break;
-						default:
-							CallPathOperator(opr);
-							break;
-						}
-					}
-				}
-			}
-		}
+		void Parse() noexcept;
 	};
 }

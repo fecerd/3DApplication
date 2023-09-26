@@ -655,6 +655,9 @@ export namespace System {
 			ret.value[len + rlen] = '\0';
 			return ret;
 		}
+		friend StringBlock<str_t> operator+(const str_t* lhs, const StringBlock<str_t>& rhs) noexcept {
+			return StringBlock<str_t>(lhs) + rhs;
+		}
 		StringBlock<str_t>& operator+=(const StringBlock<str_t>& rhs) noexcept { return *this = *this + rhs; }
 		bool operator==(const StringBlock<str_t>& rhs) const noexcept {
 			size_t len = Length(), rhsLen = rhs.Length();

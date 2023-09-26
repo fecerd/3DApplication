@@ -55,7 +55,7 @@ FAddObjectLibrary(src_5
 
 FAddObjectLibrary(src_6
 	SOURCES
-		main.cpp
+		Scene1.cpp
 		SplashScreenScene.cpp
 	DEPENDS
 		src_5
@@ -63,7 +63,7 @@ FAddObjectLibrary(src_6
 
 FAddObjectLibrary(src_test
 	SOURCES
-		Scene1.cpp
+		main_font.cpp
 	DEPENDS
 		src_6
 )
